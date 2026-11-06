@@ -21,6 +21,7 @@ endif()
 # Core static library
 add_library(vectordb_core
     src/distance.cpp
+    src/brute_force.cpp
 )
 
 target_include_directories(vectordb_core PUBLIC
@@ -33,6 +34,7 @@ enable_testing()
 add_executable(vectordb_tests
     tests/test_main.cpp
     tests/test_distance.cpp
+    tests/test_brute_force.cpp
 )
 
 target_link_libraries(vectordb_tests PRIVATE vectordb_core)
