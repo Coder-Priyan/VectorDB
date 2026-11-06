@@ -18,5 +18,24 @@ else()
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# Include directories
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+# Core static library
+add_library(vectordb_core
+    src/distance.cpp
+)
+
+target_include_directories(vectordb_core PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+# Test executable
+enable_testing()
+
+add_executable(vectordb_tests
+    tests/test_main.cpp
+    tests/test_distance.cpp
+)
+
+target_link_libraries(vectordb_tests PRIVATE vectordb_core)
+target_include_directories(vectordb_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+
+add_test(NAME vectordb_tests COMMAND vectordb_tests)
