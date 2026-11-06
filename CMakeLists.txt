@@ -22,11 +22,19 @@ endif()
 add_library(vectordb_core
     src/distance.cpp
     src/brute_force.cpp
+    src/dataset.cpp
 )
 
 target_include_directories(vectordb_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
+
+# Demo and benchmark executable
+add_executable(vectordb_demo
+    src/main.cpp
+)
+
+target_link_libraries(vectordb_demo PRIVATE vectordb_core)
 
 # Test executable
 enable_testing()
