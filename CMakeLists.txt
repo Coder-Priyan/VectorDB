@@ -11,6 +11,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Export compile commands for language servers and IDE tooling (clangd / c_cpp_properties)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Enable compiler warnings
 if(MSVC)
     add_compile_options(/W4)
