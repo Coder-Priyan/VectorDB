@@ -201,7 +201,8 @@ AskResult RagPipeline::ask(const std::string& question,
                            std::optional<std::size_t> ef,
                            const ChatOptions& chatOpt,
                            bool debug,
-                           const std::function<bool(const std::string&)>& onToken) {
+                           const std::function<bool(const std::string&)>& onToken,
+                           const std::function<void(const std::vector<RagSource>&)>& onSources) {
     if (question.empty() || question.size() > 2000) {
         throw std::invalid_argument("RagPipeline::ask: question must be between 1 and 2000 characters");
     }
@@ -217,6 +218,12 @@ AskResult RagPipeline::ask(const std::string& question,
         if (collection_->stats().count == 0) {
             auto tEnd = std::chrono::steady_clock::now();
             double totalMs = std::chrono::duration<double, std::milli>(tEnd - tTotalStart).count();
+            if (onSources) {
+                onSources({});
+            }
+            if (onToken) {
+                onToken("No documents have been ingested yet.");
+            }
             return AskResult{
                 "No documents have been ingested yet.",
                 {},
@@ -284,6 +291,10 @@ AskResult RagPipeline::ask(const std::string& question,
                       src.text + "\n";
 
         sources.push_back(std::move(src));
+    }
+
+    if (onSources) {
+        onSources(sources);
     }
 
     userPrompt += "\nQuestion: " + question;

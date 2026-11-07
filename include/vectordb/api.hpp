@@ -99,8 +99,13 @@ ApiResponse handleAsk(RagPipeline& rag, const std::string& body);
 ApiResponse handleResetDocs(RagPipeline& rag);
 
 // -----------------------------------------------------------------------------
-// PCA & Graph Handlers
+// SSE Streaming & PCA/Graph Handlers
 // -----------------------------------------------------------------------------
+
+/**
+ * @brief Formats a single Server-Sent Events (SSE) message block: "event: <event>\ndata: <data>\n\n".
+ */
+std::string formatSseEvent(const std::string& event, const std::string& data);
 
 ApiResponse handleGetPca(const Collection& collection, PcaCache& cache, std::optional<std::size_t> limit, bool isDocs);
 

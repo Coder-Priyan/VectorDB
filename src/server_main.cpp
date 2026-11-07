@@ -305,6 +305,154 @@ int main(int argc, char* argv[]) {
         sendResponse(res, handleAsk(ragPipeline, req.body));
     });
 
+    // Route: POST /api/ask/stream (SSE streaming)
+    svr.Post("/api/ask/stream", [&](const httplib::Request& req, httplib::Response& res) {
+        json reqJson = json::parse(req.body, nullptr, false);
+        if (reqJson.is_discarded() || !reqJson.is_object()) {
+            sendResponse(res, makeErrorResponse(400, "invalid_json", "Malformed JSON request body"));
+            return;
+        }
+
+        if (!reqJson.contains("question") || !reqJson["question"].is_string()) {
+            sendResponse(res, makeErrorResponse(400, "validation_error", "Missing or invalid 'question' string field"));
+            return;
+        }
+        std::string question = reqJson["question"].get<std::string>();
+        if (question.empty() || question.size() > 2000) {
+            sendResponse(res, makeErrorResponse(400, "validation_error", "Parameter 'question' must be between 1 and 2000 characters"));
+            return;
+        }
+
+        std::size_t k = 4;
+        if (reqJson.contains("k")) {
+            if (!reqJson["k"].is_number_integer() || reqJson["k"].get<long long>() < 1 || reqJson["k"].get<long long>() > 20) {
+                sendResponse(res, makeErrorResponse(400, "validation_error", "'k' must be between 1 and 20"));
+                return;
+            }
+            k = static_cast<std::size_t>(reqJson["k"].get<long long>());
+        }
+
+        Algorithm algo = Algorithm::Hnsw;
+        if (reqJson.contains("algorithm")) {
+            if (!reqJson["algorithm"].is_string()) {
+                sendResponse(res, makeErrorResponse(400, "validation_error", "'algorithm' must be a string"));
+                return;
+            }
+            try {
+                algo = stringToAlgorithm(reqJson["algorithm"].get<std::string>());
+            } catch (const std::invalid_argument& e) {
+                sendResponse(res, makeErrorResponse(400, "validation_error", e.what()));
+                return;
+            }
+        }
+
+        std::optional<std::size_t> efOpt = std::nullopt;
+        if (reqJson.contains("ef")) {
+            if (!reqJson["ef"].is_number_integer() || reqJson["ef"].get<long long>() <= 0) {
+                sendResponse(res, makeErrorResponse(400, "validation_error", "'ef' must be a positive integer"));
+                return;
+            }
+            efOpt = static_cast<std::size_t>(reqJson["ef"].get<long long>());
+        }
+
+        ChatOptions chatOpt;
+        if (reqJson.contains("model") && reqJson["model"].is_string()) {
+            chatOpt.model = reqJson["model"].get<std::string>();
+        }
+        if (reqJson.contains("temperature") && reqJson["temperature"].is_number()) {
+            chatOpt.temperature = reqJson["temperature"].get<double>();
+            if (chatOpt.temperature < 0.0) {
+                sendResponse(res, makeErrorResponse(400, "validation_error", "'temperature' must be non-negative"));
+                return;
+            }
+        }
+
+        bool debug = false;
+        if (reqJson.contains("debug") && reqJson["debug"].is_boolean()) {
+            debug = reqJson["debug"].get<bool>();
+        }
+
+        // Pre-stream reachability check if index is not empty
+        if (ragPipeline.collection().stats().count > 0) {
+            auto st = ragPipeline.ollama().status();
+            if (!st.reachable) {
+                sendResponse(res, makeErrorResponse(503, "ollama_unavailable", "Cannot connect to Ollama: " + st.error));
+                return;
+            }
+            if (!st.embedModelPresent || !st.chatModelPresent) {
+                sendResponse(res, makeErrorResponse(502, "ollama_error", "Required Ollama model not found: " + st.error));
+                return;
+            }
+        }
+
+        res.set_header("Cache-Control", "no-cache");
+        res.set_header("Connection", "keep-alive");
+
+        res.set_chunked_content_provider(
+            "text/event-stream; charset=utf-8",
+            [&ragPipeline, question, k, algo, efOpt, chatOpt, debug](size_t /*offset*/, httplib::DataSink& sink) -> bool {
+                bool sourcesSent = false;
+                try {
+                    auto onSources = [&](const std::vector<RagSource>& sources) {
+                        json sDoc;
+                        json sArr = json::array();
+                        for (const auto& s : sources) {
+                            json item;
+                            item["n"] = s.n;
+                            item["doc_id"] = s.docId;
+                            item["title"] = s.title;
+                            item["chunk_index"] = s.chunkIndex;
+                            item["text"] = s.text;
+                            item["distance"] = s.distance;
+                            item["similarity"] = s.similarity;
+                            sArr.push_back(std::move(item));
+                        }
+                        sDoc["sources"] = std::move(sArr);
+                        std::string sseData = formatSseEvent("sources", sDoc.dump());
+                        sink.write(sseData.data(), sseData.size());
+                        sourcesSent = true;
+                    };
+
+                    auto onToken = [&](const std::string& tokenPiece) -> bool {
+                        json tDoc;
+                        tDoc["token"] = tokenPiece;
+                        std::string sseData = formatSseEvent("token", tDoc.dump());
+                        return sink.write(sseData.data(), sseData.size());
+                    };
+
+                    AskResult askRes = ragPipeline.ask(question, k, algo, efOpt, chatOpt, debug, onToken, onSources);
+
+                    json dDoc;
+                    dDoc["answer"] = askRes.answer;
+                    dDoc["model"] = askRes.model;
+                    dDoc["timings"] = {
+                        {"embed_ms", askRes.timings.embedMs},
+                        {"search_ms", askRes.timings.searchMs},
+                        {"generate_ms", askRes.timings.generateMs},
+                        {"total_ms", askRes.timings.totalMs}
+                    };
+                    dDoc["prompt_chars"] = askRes.promptChars;
+                    if (debug) {
+                        dDoc["prompt"] = askRes.prompt;
+                    }
+                    std::string sseDone = formatSseEvent("done", dDoc.dump());
+                    sink.write(sseDone.data(), sseDone.size());
+                } catch (const std::exception& e) {
+                    if (sourcesSent) {
+                        json errDoc;
+                        errDoc["error"]["code"] = "streaming_error";
+                        errDoc["error"]["message"] = e.what();
+                        std::string sseErr = formatSseEvent("error", errDoc.dump());
+                        sink.write(sseErr.data(), sseErr.size());
+                    }
+                }
+
+                sink.done();
+                return false;
+            }
+        );
+    });
+
     // Route: POST /api/docs/reset
     svr.Post("/api/docs/reset", [&](const httplib::Request&, httplib::Response& res) {
         sendResponse(res, handleResetDocs(ragPipeline));

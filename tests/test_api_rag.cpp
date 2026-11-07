@@ -242,3 +242,80 @@ TEST(ApiRagTest, OldEndpointsStillWorkWhenOllamaIsDown) {
     auto sRes = handleSearch(collection, R"({"vector": [1.0, 2.0, 3.0, 4.0], "k": 1})");
     CHECK(sRes.status == 200);
 }
+
+TEST(ApiRagTest, FormatSseEvent) {
+    std::string sseToken = formatSseEvent("token", R"({"token":"hello"})");
+    CHECK(sseToken == "event: token\ndata: {\"token\":\"hello\"}\n\n");
+
+    std::string sseSources = formatSseEvent("sources", R"({"sources":[]})");
+    CHECK(sseSources == "event: sources\ndata: {\"sources\":[]}\n\n");
+
+    std::string sseDone = formatSseEvent("done", R"({"answer":"done"})");
+    CHECK(sseDone == "event: done\ndata: {\"answer\":\"done\"}\n\n");
+
+    std::string sseErr = formatSseEvent("error", R"({"error":{"code":"err"}})");
+    CHECK(sseErr == "event: error\ndata: {\"error\":{\"code\":\"err\"}}\n\n");
+}
+
+TEST(ApiRagTest, AskStreamEmptyIndexZeroLLMCalls) {
+    // Closed port to guarantee zero Ollama calls are made
+    OllamaConfig deadCfg;
+    deadCfg.baseUrl = "http://127.0.0.1:1";
+    OllamaClient deadClient(deadCfg);
+
+    RagConfig ragCfg;
+    ragCfg.dimension = 768;
+    RagPipeline pipeline(ragCfg, deadClient);
+
+    bool sourcesCalled = false;
+    std::string streamedToken;
+
+    auto onSources = [&](const std::vector<RagSource>& s) {
+        sourcesCalled = true;
+        CHECK(s.empty());
+    };
+
+    auto onToken = [&](const std::string& tok) -> bool {
+        streamedToken += tok;
+        return true;
+    };
+
+    AskResult res = pipeline.ask("Any question?", 4, Algorithm::Hnsw, std::nullopt, {}, false, onToken, onSources);
+    CHECK(sourcesCalled == true);
+    CHECK(streamedToken == "No documents have been ingested yet.");
+    CHECK(res.answer == "No documents have been ingested yet.");
+    CHECK(res.sources.empty());
+}
+
+TEST(ApiRagTest, AskStreamWithTokensAndEarlyAbort) {
+    FakeOllamaServer fake;
+
+    OllamaConfig liveCfg;
+    liveCfg.baseUrl = fake.baseUrl();
+    OllamaClient client(liveCfg);
+
+    RagConfig ragCfg;
+    ragCfg.dimension = 768;
+    RagPipeline pipeline(ragCfg, client);
+
+    pipeline.ingest("VectorDB Doc", "Vector databases index high dimensional vectors efficiently using HNSW.");
+
+    std::vector<RagSource> receivedSources;
+    std::vector<std::string> receivedTokens;
+
+    auto onSources = [&](const std::vector<RagSource>& s) {
+        receivedSources = s;
+    };
+
+    auto onToken = [&](const std::string& tok) -> bool {
+        receivedTokens.push_back(tok);
+        // Abort after 1st token
+        return false;
+    };
+
+    AskResult res = pipeline.ask("How does VectorDB index vectors?", 2, Algorithm::Hnsw, std::nullopt, {}, false, onToken, onSources);
+
+    CHECK(!receivedSources.empty());
+    CHECK(receivedSources[0].title == "VectorDB Doc");
+    CHECK(receivedTokens.size() == 1);
+}

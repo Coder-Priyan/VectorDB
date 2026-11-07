@@ -1044,8 +1044,12 @@ ApiResponse handleResetDocs(RagPipeline& rag) {
 }
 
 // -----------------------------------------------------------------------------
-// PCA & Graph Handlers
+// SSE Streaming & PCA/Graph Handlers
 // -----------------------------------------------------------------------------
+
+std::string formatSseEvent(const std::string& event, const std::string& data) {
+    return "event: " + event + "\ndata: " + data + "\n\n";
+}
 
 void ensurePcaFit(const Collection& collection, PcaCache& cache, std::size_t limit) {
     std::lock_guard<std::mutex> lock(cache.mutex);

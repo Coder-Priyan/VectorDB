@@ -140,7 +140,8 @@ public:
                   std::optional<std::size_t> ef = std::nullopt,
                   const ChatOptions& chatOpt = {},
                   bool debug = false,
-                  const std::function<bool(const std::string&)>& onToken = {});
+                  const std::function<bool(const std::string&)>& onToken = {},
+                  const std::function<void(const std::vector<RagSource>&)>& onSources = {});
 
     /**
      * @brief Run brute-force, KD-Tree, and HNSW benchmarks on real document embeddings.
