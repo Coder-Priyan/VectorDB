@@ -6,7 +6,7 @@ A high-performance, self-contained vector database and semantic search engine wr
 
 VectorDB is designed from the ground up for fast vector similarity search, approximate nearest neighbor indexing (KD-Tree, HNSW), offline Retrieval-Augmented Generation (RAG with local Ollama), and hybrid search (BM25 + Dense Vectors with Reciprocal Rank Fusion).
 
-### Current Features (Tasks 1–5)
+### Current Features (Tasks 1–6a)
 - **Core Types & Metrics**: `SearchResult`, `VectorId`, `Metric` enum (`Cosine`, `Euclidean`, `Manhattan`) with case-insensitive string parsing.
 - **Distance Module**: Raw-pointer float32 distance kernels (`cosineDistance`, `euclideanDistance`, `euclideanSquared`, `manhattanDistance`) with zero-norm safety and clamping.
 - **Abstract VectorIndex Interface**: Clean polymorphic base class allowing runtime switching between indexing algorithms.
@@ -26,12 +26,18 @@ VectorDB is designed from the ground up for fast vector similarity search, appro
     - **Algorithm 5 (K-NN-SEARCH)**: Multi-layer hierarchical routing with adjustable `efSearch`.
   - Configurable index parameters via `HnswParams` (`M`, `efConstruction`, `efSearch`, `seed`, `useHeuristic`).
   - Full observability and introspection APIs: `searchWithStats()`, `HnswSearchStats`, `HnswTraceStep`, `HnswGraphInfo`, `graphInfo()`, `neighborsOf()`, and `levelOf()`.
+- **Principal Component Analysis (`vectordb::fitPca`, `vectordb::projectPca`)**:
+  - Deterministic 2D dimensionality reduction using power iteration with Gram-Schmidt deflation.
+  - Matrix-free computation: evaluates $C v = \frac{1}{n-1} X_c^T (X_c v)$ in $O(n \cdot d)$ per iteration without forming the $d \times d$ covariance matrix.
+  - Consistent sign convention (coordinate of largest absolute magnitude is positive).
+  - Row-normalization support for Cosine metric.
+  - Robust handling of degenerate datasets ($n \le 1$, zero variance) returning canonical axes without NaNs.
 - **Collection Service Layer (`vectordb::Collection`)**:
   - Unified manager maintaining synchronized `BruteForceIndex`, `KdTreeIndex`, and `HnswIndex` instances.
   - Integrated payload store (`std::unordered_map<VectorId, std::string>`) for opaque metadata JSON.
-  - Original vector retrieval by `VectorId`.
-  - Monotonic auto-ID assignment or user-defined 64-bit integer IDs (validated up to $2^{53}-1$).
-  - Full input validation (dimension matching, NaN/infinity checks, $k \in [1, 1000]$).
+  - Monotonic collection version counter (`version()`) for cache invalidation.
+  - Bulk vector export (`exportVectors()`) with ascending ID ordering and 20,000 safety cap.
+  - Layer-by-layer HNSW graph adjacency export (`hnswLayerGraph()`) with deduplicated undirected edges.
   - Thread-safe public API protected by `std::mutex`.
   - Automatic `efSearch` temporary override and RAII restoration during query execution.
   - Multi-algorithm simultaneous query benchmarking with ground-truth recall and microsecond latency measurement.
@@ -52,12 +58,14 @@ VectorDB is designed from the ground up for fast vector similarity search, appro
   - Strict lock discipline: mutexes are never held while awaiting Ollama HTTP communication.
 - **REST API Server (`vectordb_server`)**:
   - Embedded HTTP server built with vendored `cpp-httplib` and `nlohmann/json`.
-  - 18 endpoints covering collection management, vector operations, HNSW topology inspection, document ingestion, semantic search, benchmarking, and RAG question answering.
-  - Server CLI flags: `--port`, `--host`, `--dim`, `--metric`, `--M`, `--efConstruction`, `--efSearch`, `--seed`, `--web-dir`, `--ollama-url`, `--embed-model`, `--chat-model`, `--rag-dim`, `--allow-remote-ollama`.
+  - 25 endpoints covering collection management, vector operations, HNSW topology inspection, document ingestion, semantic search, benchmarking, RAG question answering, PCA projections, and real-time SSE token streaming (`/api/ask/stream`).
+  - Security hardening:
+    - Host header DNS rebinding protection on loopback (HTTP 403 `forbidden_host`).
+    - Same-origin CORS by default with optional `--cors-origin <origin>`.
+  - Server CLI flags: `--port`, `--host`, `--dim`, `--metric`, `--M`, `--efConstruction`, `--efSearch`, `--seed`, `--web-dir`, `--ollama-url`, `--embed-model`, `--chat-model`, `--rag-dim`, `--allow-remote-ollama`, `--cors-origin`.
   - Static file hosting mounting `/web` at the root URL `/`.
-  - Global CORS headers (`Access-Control-Allow-Origin: *`) and OPTIONS preflight handling.
 - **Comprehensive Test Suite**:
-  - 82 registered unit & integration tests including mock in-process fake Ollama server, UTF-8 safety checks, all-or-nothing ingest verification, and an opt-in live test against local Ollama.
+  - 98 registered unit & integration tests including PCA mathematical correctness, mock in-process fake Ollama server, UTF-8 safety checks, all-or-nothing ingest verification, SSE streaming callbacks, and an opt-in live test against local Ollama.
 
 ---
 
@@ -175,11 +183,11 @@ See [docs/API.md](docs/API.md) for the complete HTTP API reference, request payl
 ## Running the Test Suite
 
 ```bash
-# Run the hermetic test suite (82 tests, zero cloud/network dependency)
+# Run the hermetic test suite (98 tests, zero cloud/network dependency)
 ./build/vectordb_tests
 
 # Run including the opt-in live test against local Ollama
 VECTORDB_LIVE_OLLAMA=1 ./build/vectordb_tests
 ```
 
-All 82 registered unit & integration tests pass with zero failures.
+All 98 registered unit & integration tests pass with zero failures.

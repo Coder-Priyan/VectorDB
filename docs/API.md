@@ -1,8 +1,11 @@
 # VectorDB REST API Reference
 
 The `vectordb_server` provides a clean HTTP JSON interface on top of the VectorDB C++17 engine.
-All requests and responses use `Content-Type: application/json; charset=utf-8`.
-CORS headers (`Access-Control-Allow-Origin: *`) are attached to all API endpoints, including `OPTIONS` preflight responses.
+All requests and responses use `Content-Type: application/json; charset=utf-8` (and `text/event-stream; charset=utf-8` for SSE streaming).
+
+### Security Architecture
+- **DNS Rebinding Protection**: When bound to loopback (`127.0.0.1`, `localhost`, `[::1]`), all incoming requests must carry a valid loopback `Host` header (`127.0.0.1:<port>`, `localhost:<port>`, `[::1]:<port>`, or port 80 equivalent). Requests with foreign or forged host headers are rejected with HTTP 403 `forbidden_host`.
+- **Same-Origin CORS by Default**: By default, no `Access-Control-Allow-Origin` headers are emitted, enforcing browser same-origin policy. Cross-origin sharing can be enabled explicitly by starting the server with `--cors-origin <origin>`.
 
 ---
 
@@ -489,6 +492,216 @@ curl.exe -s -X POST http://127.0.0.1:8080/api/docs/reset
 
 ---
 
+## PCA & 2D Projection Endpoints
+
+### 19. Get Core PCA 2D Projection
+`GET /api/pca?limit=5000`
+
+Fits a 2D Principal Component Analysis (via power iteration and deflation) over the core collection's stored vectors and returns 2D coordinates `(x, y)` for every point, cached by collection version.
+
+#### Parameters:
+- `limit` *(optional, default: 5000, max: 20000)*: Maximum number of vectors to project.
+
+```powershell
+curl.exe --max-time 5 -s "http://127.0.0.1:8080/api/pca?limit=5000"
+```
+
+#### Response (200 OK):
+```json
+{
+  "dim": 8,
+  "total_variance": 0.8421,
+  "explained_ratio": [0.3412, 0.2105],
+  "points": [
+    {
+      "id": 1,
+      "x": 0.452,
+      "y": -0.128,
+      "metadata": {"label": "sample"}
+    }
+  ]
+}
+```
+
+---
+
+### 20. Project Query Vector onto PCA Space
+`POST /api/pca/query`
+
+Projects an arbitrary query vector onto the cached 2D PCA subspace and executes top-$k$ nearest neighbor search, returning projected coordinates for both the query and its nearest neighbors.
+
+```powershell
+curl.exe --max-time 5 -s -X POST -H "Content-Type: application/json" -d '{
+  "vector": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8],
+  "k": 3,
+  "algorithm": "hnsw"
+}' http://127.0.0.1:8080/api/pca/query
+```
+
+#### Response (200 OK):
+```json
+{
+  "query_projected": {"x": 0.367, "y": -0.004},
+  "results": [
+    {
+      "id": 39,
+      "distance": 0.204,
+      "similarity": 0.796,
+      "x": 0.599,
+      "y": -0.338,
+      "metadata": {}
+    }
+  ]
+}
+```
+
+---
+
+### 21. Get HNSW Graph Topology
+`GET /api/hnsw/graph?layer=0&max_edges=20000`
+
+Inspects the structural topology of the HNSW multi-layer proximity graph on a specific layer, with nodes mapped to their cached 2D PCA positions and deduplicated undirected edges.
+
+#### Parameters:
+- `layer` *(optional, default: 0)*: Target layer index ($0 \le \text{layer} \le \text{maxLevel}$).
+- `max_edges` *(optional, default: 20000, max: 20000)*: Maximum edges to return.
+
+```powershell
+curl.exe --max-time 5 -s "http://127.0.0.1:8080/api/hnsw/graph?layer=0"
+```
+
+#### Response (200 OK):
+```json
+{
+  "layer": 0,
+  "nodes": [
+    {"id": 1, "x": -0.490, "y": 0.226}
+  ],
+  "edges": [
+    {"source": 1, "target": 2}
+  ]
+}
+```
+
+---
+
+### 22. Get RAG Document PCA 2D Projection
+`GET /api/docs/pca?limit=5000`
+
+Projects 768-dimensional document chunk embeddings onto 2D space. Points include `doc_id`, `chunk_index`, and `title`, while omitting the raw chunk text to preserve bandwidth.
+
+```powershell
+curl.exe --max-time 5 -s "http://127.0.0.1:8080/api/docs/pca?limit=5000"
+```
+
+#### Response (200 OK):
+```json
+{
+  "dim": 768,
+  "total_variance": 0.2762,
+  "explained_ratio": [0.3391, 0.2411],
+  "points": [
+    {
+      "id": 1,
+      "doc_id": 1,
+      "chunk_index": 0,
+      "title": "Introduction to Vector Databases",
+      "x": -0.195,
+      "y": 0.421
+    }
+  ]
+}
+```
+
+---
+
+### 23. Project RAG Document Query onto PCA Space
+`POST /api/docs/pca/query`
+
+Accepts a natural language query (embedded via `nomic-embed-text`) or a raw vector, projects it onto the 2D subspace, and returns top-$k$ retrieved chunks with 2D positions.
+
+```powershell
+curl.exe --max-time 30 -s -X POST -H "Content-Type: application/json" -d '{
+  "query": "What is vector search?",
+  "k": 3
+}' http://127.0.0.1:8080/api/docs/pca/query
+```
+
+#### Response (200 OK):
+```json
+{
+  "query_projected": {"x": -0.169, "y": 0.279},
+  "results": [
+    {
+      "doc_id": 1,
+      "chunk_index": 0,
+      "title": "Introduction to Vector Databases",
+      "text": "Vector databases represent...",
+      "distance": 0.226,
+      "similarity": 0.774,
+      "x": -0.195,
+      "y": 0.421
+    }
+  ]
+}
+```
+
+---
+
+### 24. Get RAG Document HNSW Graph Topology
+`GET /api/docs/hnsw/graph?layer=0&max_edges=20000`
+
+Returns the HNSW graph topology of the document chunk index, with each node enriched with `doc_id`, `chunk_index`, and `title`.
+
+```powershell
+curl.exe --max-time 5 -s "http://127.0.0.1:8080/api/docs/hnsw/graph?layer=0"
+```
+
+---
+
+## Server-Sent Events (SSE) Streaming Ask
+
+### 25. Real-Time Streaming RAG Answer
+`POST /api/ask/stream`
+
+Streams generation tokens incrementally over an HTTP chunked connection (`Content-Type: text/event-stream; charset=utf-8`) using standard Server-Sent Events format (`event: <type>\ndata: <json>\n\n`).
+
+#### Event Progression:
+1. `event: sources`: Emitted immediately after vector retrieval, before LLM generation begins.
+2. `event: token`: Emitted once per generated token piece.
+3. `event: done`: Emitted after stream concludes with complete answer, timings, and prompt length.
+4. `event: error`: Emitted if an error occurs mid-stream.
+
+#### Client Disconnect Handling:
+If the client disconnects mid-stream (`sink.write` returns `false`), the stream aborts immediately, canceling generation in Ollama.
+
+```powershell
+curl.exe --max-time 900 -N -s -X POST -H "Content-Type: application/json" -d '{
+  "question": "What is vector search?",
+  "k": 3
+}' http://127.0.0.1:8080/api/ask/stream
+```
+
+#### Sample Stream Output:
+```
+event: sources
+data: {"sources":[{"chunk_index":0,"distance":0.226,"doc_id":1,"n":1,"similarity":0.774,"text":"...","title":"Introduction to Vector Databases"}]}
+
+event: token
+data: {"token":"Vector"}
+
+event: token
+data: {"token":" search"}
+
+event: token
+data: {"token":" discovers"}
+
+event: done
+data: {"answer":"Vector search discovers vectors that minimize distance functions...","model":"llama3.2","prompt_chars":840,"timings":{"embed_ms":57.8,"generate_ms":14770.2,"search_ms":0.03,"total_ms":14828.2}}
+```
+
+---
+
 ## Standard Error Response Format
 
 Errors are returned with structured JSON payloads:
@@ -504,6 +717,7 @@ Errors are returned with structured JSON payloads:
 | HTTP Status | Code | Description |
 |---|---|---|
 | `400` | `invalid_json` / `validation_error` | Missing or malformed parameters |
+| `403` | `forbidden_host` | Host header not in loopback whitelist (DNS rebinding protection) |
 | `404` | `not_found` | Resource ID not found |
 | `413` | `payload_too_large` | Document exceeds maximum byte size (`maxDocBytes`) |
 | `502` | `ollama_error` | Ollama model returned an error (includes model pull hints) |
@@ -514,15 +728,13 @@ Errors are returned with structured JSON payloads:
 
 ## Known Limitations
 
-1. **Non-Streaming HTTP Answers**:
-   - While `OllamaClient` internally parses incremental NDJSON streams across network packets, the `/api/ask` HTTP endpoint aggregates the complete answer before responding. Server-Sent Events (SSE) streaming will be added in a future update.
-2. **In-Memory Only**:
+1. **In-Memory Only**:
    - Ingested documents, chunks, and index graphs reside strictly in RAM. Restarting `vectordb_server` clears all documents. Disk persistence (`save` / `load`) is scheduled for subsequent development.
-3. **No Document Deletion**:
+2. **No Document Deletion**:
    - The current pipeline supports `ingest`, `list`, `get`, and `reset`. Granular document deletion (`DELETE /api/docs/:id`) is not yet supported.
-4. **Single Mutex Synchronization**:
+3. **Single Mutex Synchronization**:
    - `Collection` uses a single `std::mutex` for thread synchronization. Mutexes are never held while communicating with Ollama, but concurrent in-memory vector mutations serialize behind this lock.
-5. **Plain-Text Only**:
+4. **Plain-Text Only**:
    - Documents must be UTF-8 plain text. Binary formats (PDF, DOCX) require external text extraction.
-6. **Slow CPU Generation**:
+5. **Slow CPU Generation**:
    - Running 3B parameter LLMs on CPU requires 10 to 30 seconds per query. Clients should configure generous timeouts (e.g. `--max-time 900`).
