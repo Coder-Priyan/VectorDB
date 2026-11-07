@@ -53,13 +53,13 @@ curl.exe -s http://127.0.0.1:8080/api/config
 {
   "dimension": 128,
   "metric": "cosine",
-  "leaf_size": 8,
+  "leafSize": 8,
   "hnsw": {
     "M": 16,
-    "ef_construction": 200,
-    "ef_search": 50,
+    "efConstruction": 200,
+    "efSearch": 50,
     "seed": 42,
-    "use_heuristic": true
+    "useHeuristic": true
   }
 }
 ```
@@ -228,11 +228,184 @@ curl.exe -s -X POST http://127.0.0.1:8080/api/benchmark -H "Content-Type: applic
 
 ---
 
-### 10. HNSW Graph Introspection Endpoints
+### 10. Get HNSW Graph Information
+`GET /api/hnsw/info`
 
-- `GET /api/hnsw/info`: Graph topology summary (entry point, max level, node counts per level).
-- `GET /api/hnsw/node/:id`: Layer assignment and neighbor adjacency list for a specific node.
-- `POST /api/hnsw/trace`: Step-by-step routing trace for a search query.
+Returns topological summary of the core HNSW index, including entry point node ID, max layer count, and total nodes registered at each level.
+
+```powershell
+curl.exe --max-time 5 -s http://127.0.0.1:8080/api/hnsw/info
+```
+
+#### Response (200 OK):
+```json
+{
+  "entry_point": 42,
+  "max_level": 3,
+  "level_counts": [1000, 120, 15, 2]
+}
+```
+
+---
+
+### 11. Get HNSW Node Details
+`GET /api/hnsw/node/:id`
+
+Inspects layer assignments and neighbor adjacency lists across all active layers for a specific node ID.
+
+```powershell
+curl.exe --max-time 5 -s http://127.0.0.1:8080/api/hnsw/node/42
+```
+
+#### Response (200 OK):
+```json
+{
+  "id": 42,
+  "level": 2,
+  "layers": [
+    {"layer": 0, "neighbors": [10, 15, 88]},
+    {"layer": 1, "neighbors": [15, 88]},
+    {"layer": 2, "neighbors": [88]}
+  ]
+}
+```
+
+---
+
+### 12. HNSW Search Trace
+`POST /api/hnsw/trace`
+
+Executes nearest-neighbor routing while capturing a step-by-step diagnostic trace across layers, recording every visited node, candidate distance, and layer transitions.
+
+#### Request Body:
+```json
+{
+  "vector": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8],
+  "ef": 16
+}
+```
+
+```powershell
+curl.exe --max-time 5 -s -X POST http://127.0.0.1:8080/api/hnsw/trace -H "Content-Type: application/json" -d "{\"vector\":[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8]}"
+```
+
+---
+
+### 13. Demo Random Vectors
+`POST /api/demo/random`
+
+Generates and inserts $N$ random uniform vectors into the collection for rapid testing and visual benchmarking.
+
+#### Request Body (optional parameters):
+```json
+{
+  "count": 50
+}
+```
+
+```powershell
+curl.exe --max-time 5 -s -X POST http://127.0.0.1:8080/api/demo/random -H "Content-Type: application/json" -d "{\"count\": 50}"
+```
+
+#### Response (200 OK):
+```json
+{
+  "status": "ok",
+  "inserted": 50,
+  "dimension": 128
+}
+```
+
+---
+
+### 14. Get Core PCA 2D Projection
+`GET /api/pca?limit=5000`
+
+Fits a 2D Principal Component Analysis (via power iteration and deflation) over the core collection's stored vectors and returns 2D coordinates `(x, y)` for every point, cached by collection version.
+
+#### Parameters:
+- `limit` *(optional, default: 5000, max: 20000)*: Maximum number of vectors to project.
+
+```powershell
+curl.exe --max-time 5 -s "http://127.0.0.1:8080/api/pca?limit=5000"
+```
+
+#### Response (200 OK):
+```json
+{
+  "dim": 8,
+  "total_variance": 0.8421,
+  "explained_ratio": [0.3412, 0.2105],
+  "points": [
+    {
+      "id": 1,
+      "x": 0.452,
+      "y": -0.128,
+      "metadata": {"label": "sample"}
+    }
+  ]
+}
+```
+
+---
+
+### 15. Project Query Vector onto PCA Space
+`POST /api/pca/query`
+
+Projects an arbitrary query vector onto the cached 2D PCA subspace and executes top-$k$ nearest neighbor search, returning projected coordinates for both the query and its nearest neighbors.
+
+```powershell
+curl.exe --max-time 5 -s -X POST -H "Content-Type: application/json" -d '{
+  "vector": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8],
+  "k": 3,
+  "algorithm": "hnsw"
+}' http://127.0.0.1:8080/api/pca/query
+```
+
+#### Response (200 OK):
+```json
+{
+  "query_projected": {"x": 0.367, "y": -0.004},
+  "results": [
+    {
+      "id": 39,
+      "distance": 0.204,
+      "similarity": 0.796,
+      "x": 0.599,
+      "y": -0.338,
+      "metadata": {}
+    }
+  ]
+}
+```
+
+---
+
+### 16. Get Core HNSW Graph Topology
+`GET /api/hnsw/graph?layer=0&max_edges=20000`
+
+Inspects the structural topology of the core HNSW multi-layer proximity graph on a specific layer, with nodes mapped to their cached 2D PCA positions and deduplicated undirected edges.
+
+#### Parameters:
+- `layer` *(optional, default: 0)*: Target layer index ($0 \le \text{layer} \le \text{maxLevel}$).
+- `max_edges` *(optional, default: 20000, max: 20000)*: Maximum edges to return.
+
+```powershell
+curl.exe --max-time 5 -s "http://127.0.0.1:8080/api/hnsw/graph?layer=0"
+```
+
+#### Response (200 OK):
+```json
+{
+  "layer": 0,
+  "nodes": [
+    {"id": 1, "x": -0.490, "y": 0.226}
+  ],
+  "edges": [
+    {"source": 1, "target": 2}
+  ]
+}
+```
 
 ---
 
@@ -242,7 +415,7 @@ The RAG pipeline provides fully offline document chunking, embedding, vector sea
 
 ---
 
-### 11. Ollama Reachability & Status
+### 17. Ollama Reachability & Status
 `GET /api/ollama/status`
 
 Inspects local Ollama instance connectivity, version, and installed model availability. Never throws.
@@ -265,7 +438,7 @@ curl.exe -s http://127.0.0.1:8080/api/ollama/status
 
 ---
 
-### 12. Ingest Document
+### 18. Ingest Document
 `POST /api/docs`
 
 Splits plain text into UTF-8 safe chunks, embeds all chunks using local Ollama (`nomic-embed-text`), and atomically inserts them into the document collection. Guarantees all-or-nothing semantics: if embedding fails or dimension mismatches, no document record is created and no vectors are indexed.
@@ -299,7 +472,7 @@ curl.exe -s -X POST http://127.0.0.1:8080/api/docs -H "Content-Type: application
 
 ---
 
-### 13. List Documents
+### 19. List Documents
 `GET /api/docs`
 
 Returns a list of all ingested documents without vector or text payloads.
@@ -326,7 +499,7 @@ curl.exe -s http://127.0.0.1:8080/api/docs
 
 ---
 
-### 14. Get Document Details & Chunks
+### 20. Get Document Details & Chunks
 `GET /api/docs/:id`
 
 Retrieves metadata and full chunk excerpts for a specific document.
@@ -357,7 +530,7 @@ curl.exe -s http://127.0.0.1:8080/api/docs/1
 
 ---
 
-### 15. Semantic Document Search
+### 21. Semantic Document Search
 `POST /api/docs/search`
 
 Embeds the textual query and retrieves the top-$k$ most relevant document chunks without calling the generative LLM.
@@ -398,7 +571,7 @@ curl.exe -s -X POST http://127.0.0.1:8080/api/docs/search -H "Content-Type: appl
 
 ---
 
-### 16. Document Collection Benchmark
+### 22. Document Collection Benchmark
 `POST /api/docs/benchmark`
 
 Embeds the query once and benchmarks Brute Force, KD-Tree, and HNSW on real 768-dimensional document embeddings.
@@ -424,7 +597,7 @@ curl.exe -s -X POST http://127.0.0.1:8080/api/docs/benchmark -H "Content-Type: a
 
 ---
 
-### 17. Ask Grounded Question (RAG)
+### 23. Ask Grounded Question (RAG)
 `POST /api/ask`
 
 Retrieves the top-$k$ relevant chunks, injects them into a strict grounding prompt, and queries the local LLM (`llama3.2`). Returns the generated answer along with numbered source citations (`[1]`, `[2]`). If the index is empty, immediately returns `"No documents have been ingested yet."` without invoking the LLM.
@@ -473,7 +646,48 @@ curl.exe --max-time 900 -s -X POST http://127.0.0.1:8080/api/ask -H "Content-Typ
 
 ---
 
-### 18. Reset Documents
+### 24. Real-Time Streaming RAG Answer (SSE)
+`POST /api/ask/stream`
+
+Streams generation tokens incrementally over an HTTP chunked connection (`Content-Type: text/event-stream; charset=utf-8`) using standard Server-Sent Events format (`event: <type>\ndata: <json>\n\n`).
+
+#### Event Progression:
+1. `event: sources`: Emitted immediately after vector retrieval, before LLM generation begins.
+2. `event: token`: Emitted once per generated token piece: `{"t": "Vector","token":"Vector"}`.
+3. `event: done`: Emitted after stream concludes with complete answer, timings, and prompt length.
+4. `event: error`: Emitted if an error occurs mid-stream.
+
+#### Client Disconnect Handling:
+If the client disconnects mid-stream (`sink.write` returns `false`), the stream aborts immediately, canceling generation in Ollama.
+
+```powershell
+curl.exe --max-time 900 -N -s -X POST -H "Content-Type: application/json" -d '{
+  "question": "What is vector search?",
+  "k": 3
+}' http://127.0.0.1:8080/api/ask/stream
+```
+
+#### Sample Stream Output:
+```
+event: sources
+data: {"sources":[{"chunk_index":0,"distance":0.226,"doc_id":1,"n":1,"similarity":0.774,"text":"...","title":"Introduction to Vector Databases"}]}
+
+event: token
+data: {"t":"Vector","token":"Vector"}
+
+event: token
+data: {"t":" search","token":" search"}
+
+event: token
+data: {"t":" discovers","token":" discovers"}
+
+event: done
+data: {"answer":"Vector search discovers vectors that minimize distance functions...","model":"llama3.2","prompt_chars":840,"timings":{"embed_ms":57.8,"generate_ms":14770.2,"search_ms":0.03,"total_ms":14828.2}}
+```
+
+---
+
+### 25. Reset Documents
 `POST /api/docs/reset`
 
 Clears all ingested documents and wipes the RAG vector collection.
@@ -492,100 +706,7 @@ curl.exe -s -X POST http://127.0.0.1:8080/api/docs/reset
 
 ---
 
-## PCA & 2D Projection Endpoints
-
-### 19. Get Core PCA 2D Projection
-`GET /api/pca?limit=5000`
-
-Fits a 2D Principal Component Analysis (via power iteration and deflation) over the core collection's stored vectors and returns 2D coordinates `(x, y)` for every point, cached by collection version.
-
-#### Parameters:
-- `limit` *(optional, default: 5000, max: 20000)*: Maximum number of vectors to project.
-
-```powershell
-curl.exe --max-time 5 -s "http://127.0.0.1:8080/api/pca?limit=5000"
-```
-
-#### Response (200 OK):
-```json
-{
-  "dim": 8,
-  "total_variance": 0.8421,
-  "explained_ratio": [0.3412, 0.2105],
-  "points": [
-    {
-      "id": 1,
-      "x": 0.452,
-      "y": -0.128,
-      "metadata": {"label": "sample"}
-    }
-  ]
-}
-```
-
----
-
-### 20. Project Query Vector onto PCA Space
-`POST /api/pca/query`
-
-Projects an arbitrary query vector onto the cached 2D PCA subspace and executes top-$k$ nearest neighbor search, returning projected coordinates for both the query and its nearest neighbors.
-
-```powershell
-curl.exe --max-time 5 -s -X POST -H "Content-Type: application/json" -d '{
-  "vector": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8],
-  "k": 3,
-  "algorithm": "hnsw"
-}' http://127.0.0.1:8080/api/pca/query
-```
-
-#### Response (200 OK):
-```json
-{
-  "query_projected": {"x": 0.367, "y": -0.004},
-  "results": [
-    {
-      "id": 39,
-      "distance": 0.204,
-      "similarity": 0.796,
-      "x": 0.599,
-      "y": -0.338,
-      "metadata": {}
-    }
-  ]
-}
-```
-
----
-
-### 21. Get HNSW Graph Topology
-`GET /api/hnsw/graph?layer=0&max_edges=20000`
-
-Inspects the structural topology of the HNSW multi-layer proximity graph on a specific layer, with nodes mapped to their cached 2D PCA positions and deduplicated undirected edges.
-
-#### Parameters:
-- `layer` *(optional, default: 0)*: Target layer index ($0 \le \text{layer} \le \text{maxLevel}$).
-- `max_edges` *(optional, default: 20000, max: 20000)*: Maximum edges to return.
-
-```powershell
-curl.exe --max-time 5 -s "http://127.0.0.1:8080/api/hnsw/graph?layer=0"
-```
-
-#### Response (200 OK):
-```json
-{
-  "layer": 0,
-  "nodes": [
-    {"id": 1, "x": -0.490, "y": 0.226}
-  ],
-  "edges": [
-    {"source": 1, "target": 2}
-  ]
-}
-```
-
----
-
-### 22. Get RAG Document PCA 2D Projection
+### 26. Get RAG Document PCA 2D Projection
 `GET /api/docs/pca?limit=5000`
 
 Projects 768-dimensional document chunk embeddings onto 2D space. Points include `doc_id`, `chunk_index`, and `title`, while omitting the raw chunk text to preserve bandwidth.
@@ -615,7 +736,7 @@ curl.exe --max-time 5 -s "http://127.0.0.1:8080/api/docs/pca?limit=5000"
 
 ---
 
-### 23. Project RAG Document Query onto PCA Space
+### 27. Project RAG Document Query onto PCA Space
 `POST /api/docs/pca/query`
 
 Accepts a natural language query (embedded via `nomic-embed-text`) or a raw vector, projects it onto the 2D subspace, and returns top-$k$ retrieved chunks with 2D positions.
@@ -648,56 +769,13 @@ curl.exe --max-time 30 -s -X POST -H "Content-Type: application/json" -d '{
 
 ---
 
-### 24. Get RAG Document HNSW Graph Topology
+### 28. Get RAG Document HNSW Graph Topology
 `GET /api/docs/hnsw/graph?layer=0&max_edges=20000`
 
 Returns the HNSW graph topology of the document chunk index, with each node enriched with `doc_id`, `chunk_index`, and `title`.
 
 ```powershell
 curl.exe --max-time 5 -s "http://127.0.0.1:8080/api/docs/hnsw/graph?layer=0"
-```
-
----
-
-## Server-Sent Events (SSE) Streaming Ask
-
-### 25. Real-Time Streaming RAG Answer
-`POST /api/ask/stream`
-
-Streams generation tokens incrementally over an HTTP chunked connection (`Content-Type: text/event-stream; charset=utf-8`) using standard Server-Sent Events format (`event: <type>\ndata: <json>\n\n`).
-
-#### Event Progression:
-1. `event: sources`: Emitted immediately after vector retrieval, before LLM generation begins.
-2. `event: token`: Emitted once per generated token piece.
-3. `event: done`: Emitted after stream concludes with complete answer, timings, and prompt length.
-4. `event: error`: Emitted if an error occurs mid-stream.
-
-#### Client Disconnect Handling:
-If the client disconnects mid-stream (`sink.write` returns `false`), the stream aborts immediately, canceling generation in Ollama.
-
-```powershell
-curl.exe --max-time 900 -N -s -X POST -H "Content-Type: application/json" -d '{
-  "question": "What is vector search?",
-  "k": 3
-}' http://127.0.0.1:8080/api/ask/stream
-```
-
-#### Sample Stream Output:
-```
-event: sources
-data: {"sources":[{"chunk_index":0,"distance":0.226,"doc_id":1,"n":1,"similarity":0.774,"text":"...","title":"Introduction to Vector Databases"}]}
-
-event: token
-data: {"token":"Vector"}
-
-event: token
-data: {"token":" search"}
-
-event: token
-data: {"token":" discovers"}
-
-event: done
-data: {"answer":"Vector search discovers vectors that minimize distance functions...","model":"llama3.2","prompt_chars":840,"timings":{"embed_ms":57.8,"generate_ms":14770.2,"search_ms":0.03,"total_ms":14828.2}}
 ```
 
 ---

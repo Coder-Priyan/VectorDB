@@ -983,6 +983,9 @@ ApiResponse handleAsk(RagPipeline& rag, const std::string& body) {
                 return makeErrorResponse(400, "validation_error", "'temperature' must be non-negative");
             }
         }
+        if (req.contains("seed") && req["seed"].is_number_integer()) {
+            chatOpt.seed = req["seed"].get<int>();
+        }
 
         bool debug = false;
         if (req.contains("debug") && req["debug"].is_boolean()) {

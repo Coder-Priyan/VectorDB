@@ -393,6 +393,9 @@ int main(int argc, char* argv[]) {
                 return;
             }
         }
+        if (reqJson.contains("seed") && reqJson["seed"].is_number_integer()) {
+            chatOpt.seed = reqJson["seed"].get<int>();
+        }
 
         bool debug = false;
         if (reqJson.contains("debug") && reqJson["debug"].is_boolean()) {
@@ -442,6 +445,7 @@ int main(int argc, char* argv[]) {
 
                     auto onToken = [&](const std::string& tokenPiece) -> bool {
                         json tDoc;
+                        tDoc["t"] = tokenPiece;
                         tDoc["token"] = tokenPiece;
                         std::string sseData = formatSseEvent("token", tDoc.dump());
                         return sink.write(sseData.data(), sseData.size());

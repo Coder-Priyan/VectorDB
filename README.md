@@ -58,14 +58,14 @@ VectorDB is designed from the ground up for fast vector similarity search, appro
   - Strict lock discipline: mutexes are never held while awaiting Ollama HTTP communication.
 - **REST API Server (`vectordb_server`)**:
   - Embedded HTTP server built with vendored `cpp-httplib` and `nlohmann/json`.
-  - 25 endpoints covering collection management, vector operations, HNSW topology inspection, document ingestion, semantic search, benchmarking, RAG question answering, PCA projections, and real-time SSE token streaming (`/api/ask/stream`).
+  - 28 endpoints covering collection management, vector operations, HNSW topology inspection, document ingestion, semantic search, benchmarking, RAG question answering, PCA projections, and real-time SSE token streaming (`/api/ask/stream`).
   - Security hardening:
     - Host header DNS rebinding protection on loopback (HTTP 403 `forbidden_host`).
     - Same-origin CORS by default with optional `--cors-origin <origin>`.
   - Server CLI flags: `--port`, `--host`, `--dim`, `--metric`, `--M`, `--efConstruction`, `--efSearch`, `--seed`, `--web-dir`, `--ollama-url`, `--embed-model`, `--chat-model`, `--rag-dim`, `--allow-remote-ollama`, `--cors-origin`.
   - Static file hosting mounting `/web` at the root URL `/`.
 - **Comprehensive Test Suite**:
-  - 98 registered unit & integration tests including PCA mathematical correctness, mock in-process fake Ollama server, UTF-8 safety checks, all-or-nothing ingest verification, SSE streaming callbacks, and an opt-in live test against local Ollama.
+  - 99 registered unit & integration tests including PCA mathematical correctness, mock in-process fake Ollama server, UTF-8 safety checks, all-or-nothing ingest verification, SSE streaming callbacks, and an opt-in live test against local Ollama.
 
 ---
 
