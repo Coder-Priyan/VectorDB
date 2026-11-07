@@ -457,17 +457,67 @@ void HnswIndex::insert(VectorId id, const std::vector<float>& vec) {
     }
 }
 
-// Temporary stubs for search (to be implemented in Commit 3)
+// Malkov & Yashunin (2018), Algorithm 5: K-NN-SEARCH(hnsw, q, K, ef)
 std::vector<SearchResult> HnswIndex::search(const std::vector<float>& query, std::size_t k) const {
     HnswSearchStats stats;
     return searchWithStats(query, k, stats, nullptr);
 }
 
-std::vector<SearchResult> HnswIndex::searchWithStats(const std::vector<float>& /*query*/,
-                                                     std::size_t /*k*/,
-                                                     HnswSearchStats& /*stats*/,
-                                                     std::vector<HnswTraceStep>* /*trace*/) const {
-    return {};
+std::vector<SearchResult> HnswIndex::searchWithStats(const std::vector<float>& query,
+                                                     std::size_t k,
+                                                     HnswSearchStats& stats,
+                                                     std::vector<HnswTraceStep>* trace) const {
+    if (query.size() != dim_) {
+        throw std::invalid_argument("Query vector dimension (" + std::to_string(query.size()) +
+                                    ") does not match index dimension (" + std::to_string(dim_) + ")");
+    }
+
+    if (k == 0 || ids_.empty() || entryPoint_ < 0) {
+        return {};
+    }
+
+    stats.distanceComputations = 0;
+    stats.nodesVisited = 0;
+    stats.visitedPerLayer.assign(maxLevel_ + 1, 0);
+
+    if (trace) {
+        trace->clear();
+    }
+
+    const float* qData = query.data();
+    std::uint32_t currObj = static_cast<std::uint32_t>(entryPoint_);
+
+    // Algorithm 5 Lines 3-6: Greedy routing on upper layers (from maxLevel down to 1)
+    // Runs SEARCH-LAYER with ef = 1 to rapidly zoom in on the entry point for layer 0
+    for (int lc = maxLevel_; lc >= 1; --lc) {
+        auto W = searchLayer(qData, {currObj}, 1, lc, &stats, trace);
+        if (!W.empty()) {
+            currObj = W[0].row;
+        }
+    }
+
+    // Algorithm 5 Line 7: Fine-grained search on layer 0 with ef = max(efSearch, k)
+    const std::size_t ef = std::max(params_.efSearch, k);
+    auto W = searchLayer(qData, {currObj}, ef, 0, &stats, trace);
+
+    // Extract best k candidates
+    const std::size_t returnCount = std::min(k, W.size());
+    std::vector<SearchResult> results;
+    results.reserve(returnCount);
+
+    for (std::size_t i = 0; i < returnCount; ++i) {
+        results.push_back({ids_[W[i].row], W[i].distance});
+    }
+
+    // Deterministic tie-breaking: sort ascending by distance, tie-break by smaller VectorId
+    std::sort(results.begin(), results.end(), [](const SearchResult& a, const SearchResult& b) {
+        if (a.distance != b.distance) {
+            return a.distance < b.distance;
+        }
+        return a.id < b.id;
+    });
+
+    return results;
 }
 
 } // namespace vectordb
