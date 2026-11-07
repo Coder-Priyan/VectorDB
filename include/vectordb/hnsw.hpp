@@ -112,6 +112,11 @@ public:
     /// Parallel vector of stored vector IDs.
     const std::vector<VectorId>& ids() const noexcept { return ids_; }
 
+    struct DistRowPair {
+        float distance = 0.0f;
+        std::uint32_t row = 0;
+    };
+
 private:
     struct Node {
         int level = 0;
@@ -121,12 +126,6 @@ private:
 
     /// Generate random level using paper formula: floor(-ln(unif(0, 1]) * mL)
     int generateRandomLevel();
-
-    // Internal helper for candidate pairs (distance, row_index)
-    struct DistRowPair {
-        float distance;
-        std::uint32_t row;
-    };
 
     // Internal helper search-layer (Paper Algorithm 2)
     std::vector<DistRowPair> searchLayer(const float* queryCoords,
