@@ -1071,6 +1071,36 @@ bool isAllowedLoopbackHost(const std::string& hostHeader, int port) {
     return false;
 }
 
+bool isAllowedOrigin(const std::string& origin, int port, const std::string& corsOrigin) {
+    if (origin.empty()) {
+        return false;
+    }
+    std::string oLower = origin;
+    for (char& c : oLower) {
+        c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+    }
+    if (!corsOrigin.empty()) {
+        std::string cLower = corsOrigin;
+        for (char& c : cLower) {
+            c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+        }
+        if (oLower == cLower) {
+            return true;
+        }
+    }
+    std::string pStr = std::to_string(port);
+    if (oLower == "http://127.0.0.1:" + pStr ||
+        oLower == "http://localhost:" + pStr ||
+        oLower == "http://[::1]:" + pStr ||
+        oLower == "http://::1:" + pStr) {
+        return true;
+    }
+    if (port == 80 && (oLower == "http://127.0.0.1" || oLower == "http://localhost" || oLower == "http://[::1]" || oLower == "http://::1")) {
+        return true;
+    }
+    return false;
+}
+
 std::string formatSseEvent(const std::string& event, const std::string& data) {
     return "event: " + event + "\ndata: " + data + "\n\n";
 }

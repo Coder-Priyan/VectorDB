@@ -146,10 +146,11 @@ int main(int argc, char* argv[]) {
         res.set_content(apiRes.body, apiRes.contentType);
     };
 
-    // Host header DNS rebinding check when bound to loopback
+    // Pre-routing security checks: Host header, Origin header, and Content-Type validation
     bool isLoopback = (host == "127.0.0.1" || host == "localhost" || host == "::1" || host == "[::1]");
-    if (isLoopback) {
-        svr.set_pre_routing_handler([port, sendResponse](const httplib::Request& req, httplib::Response& res) {
+    svr.set_pre_routing_handler([port, isLoopback, corsOrigin, sendResponse](const httplib::Request& req, httplib::Response& res) {
+        // 1. Host header DNS rebinding check on loopback
+        if (isLoopback) {
             if (!req.has_header("Host")) {
                 sendResponse(res, makeErrorResponse(403, "forbidden_host", "Missing Host header"));
                 return httplib::Server::HandlerResponse::Handled;
@@ -159,9 +160,38 @@ int main(int argc, char* argv[]) {
                 sendResponse(res, makeErrorResponse(403, "forbidden_host", "Forbidden Host header: " + hostVal));
                 return httplib::Server::HandlerResponse::Handled;
             }
-            return httplib::Server::HandlerResponse::Unhandled;
-        });
-    }
+        }
+
+        // 2. Origin header check: If Origin is present, it must equal a server origin or --cors-origin
+        if (req.has_header("Origin")) {
+            std::string originVal = req.get_header_value("Origin");
+            if (!isAllowedOrigin(originVal, port, corsOrigin)) {
+                sendResponse(res, makeErrorResponse(403, "forbidden_origin", "Forbidden Origin header: " + originVal));
+                return httplib::Server::HandlerResponse::Handled;
+            }
+        }
+
+        // 3. Content-Type check: Every POST, and any request with a body, must have application/json
+        bool isPost = (req.method == "POST");
+        bool hasBody = (!req.body.empty() || (req.has_header("Content-Length") && std::stoull(req.get_header_value("Content-Length")) > 0));
+        if ((isPost || hasBody) && req.method != "OPTIONS" && req.method != "GET" && req.method != "HEAD") {
+            if (!req.has_header("Content-Type")) {
+                sendResponse(res, makeErrorResponse(415, "unsupported_media_type", "Content-Type header must be application/json"));
+                return httplib::Server::HandlerResponse::Handled;
+            }
+            std::string ct = req.get_header_value("Content-Type");
+            std::string ctLower = ct;
+            for (char& c : ctLower) {
+                c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+            }
+            if (ctLower.find("application/json") != 0) {
+                sendResponse(res, makeErrorResponse(415, "unsupported_media_type", "Content-Type must be application/json, got " + ct));
+                return httplib::Server::HandlerResponse::Handled;
+            }
+        }
+
+        return httplib::Server::HandlerResponse::Unhandled;
+    });
 
     // CORS headers: same-origin by default; enabled only if --cors-origin is provided
     if (!corsOrigin.empty()) {

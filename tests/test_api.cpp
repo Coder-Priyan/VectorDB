@@ -401,3 +401,27 @@ TEST(ApiTest, HostHeaderSecurityCheck) {
     CHECK(isAllowedLoopbackHost("[::1]", 80) == true);
 }
 
+TEST(ApiTest, OriginHeaderSecurityCheck) {
+    // Valid loopback origins
+    CHECK(isAllowedOrigin("http://127.0.0.1:8080", 8080) == true);
+    CHECK(isAllowedOrigin("http://localhost:8080", 8080) == true);
+    CHECK(isAllowedOrigin("http://[::1]:8080", 8080) == true);
+    CHECK(isAllowedOrigin("HTTP://LOCALHOST:8080", 8080) == true); // Case-insensitive
+
+    // Malicious foreign origins rejected
+    CHECK(isAllowedOrigin("http://evil.example", 8080) == false);
+    CHECK(isAllowedOrigin("http://attacker.com:8080", 8080) == false);
+    CHECK(isAllowedOrigin("https://evil.example", 8080) == false);
+    CHECK(isAllowedOrigin("http://192.168.1.1:8080", 8080) == false);
+
+    // Wrong port rejected
+    CHECK(isAllowedOrigin("http://localhost:3000", 8080) == false);
+
+    // Empty origin rejected
+    CHECK(isAllowedOrigin("", 8080) == false);
+
+    // Configured --cors-origin allows matching external origin
+    CHECK(isAllowedOrigin("http://localhost:3000", 8080, "http://localhost:3000") == true);
+    CHECK(isAllowedOrigin("http://other.com", 8080, "http://localhost:3000") == false);
+}
+

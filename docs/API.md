@@ -5,6 +5,8 @@ All requests and responses use `Content-Type: application/json; charset=utf-8` (
 
 ### Security Architecture
 - **DNS Rebinding Protection**: When bound to loopback (`127.0.0.1`, `localhost`, `[::1]`), all incoming requests must carry a valid loopback `Host` header (`127.0.0.1:<port>`, `localhost:<port>`, `[::1]:<port>`, or port 80 equivalent). Requests with foreign or forged host headers are rejected with HTTP 403 `forbidden_host`.
+- **Origin Header Validation**: If an incoming request carries an `Origin` header (sent by browsers), it must match the server's loopback origin (`http://127.0.0.1:<port>`, `http://localhost:<port>`, `http://[::1]:<port>`) or the explicit origin configured via `--cors-origin`. Foreign origins are rejected with HTTP 403 `forbidden_origin`.
+- **Content-Type Enforcement**: All `POST` requests and any requests carrying a payload must specify `Content-Type: application/json`. Requests with missing or alternate media types are rejected with HTTP 415 `unsupported_media_type`.
 - **Same-Origin CORS by Default**: By default, no `Access-Control-Allow-Origin` headers are emitted, enforcing browser same-origin policy. Cross-origin sharing can be enabled explicitly by starting the server with `--cors-origin <origin>`.
 
 ---
@@ -796,8 +798,10 @@ Errors are returned with structured JSON payloads:
 |---|---|---|
 | `400` | `invalid_json` / `validation_error` | Missing or malformed parameters |
 | `403` | `forbidden_host` | Host header not in loopback whitelist (DNS rebinding protection) |
+| `403` | `forbidden_origin` | Origin header does not match loopback origins or `--cors-origin` |
 | `404` | `not_found` | Resource ID not found |
 | `413` | `payload_too_large` | Document exceeds maximum byte size (`maxDocBytes`) |
+| `415` | `unsupported_media_type` | Content-Type must be `application/json` for POST or requests with body |
 | `502` | `ollama_error` | Ollama model returned an error (includes model pull hints) |
 | `503` | `ollama_unavailable` | Cannot connect to Ollama or connection timed out |
 | `500` | `internal_error` | Unhandled server error |

@@ -61,6 +61,8 @@ VectorDB is designed from the ground up for fast vector similarity search, appro
   - 28 endpoints covering collection management, vector operations, HNSW topology inspection, document ingestion, semantic search, benchmarking, RAG question answering, PCA projections, and real-time SSE token streaming (`/api/ask/stream`).
   - Security hardening:
     - Host header DNS rebinding protection on loopback (HTTP 403 `forbidden_host`).
+    - Origin header validation against loopback origins and `--cors-origin` (HTTP 403 `forbidden_origin`).
+    - Content-Type enforcement (`application/json` required for POST and requests with body, HTTP 415 `unsupported_media_type`).
     - Same-origin CORS by default with optional `--cors-origin <origin>`.
   - Server CLI flags: `--port`, `--host`, `--dim`, `--metric`, `--M`, `--efConstruction`, `--efSearch`, `--seed`, `--web-dir`, `--ollama-url`, `--embed-model`, `--chat-model`, `--rag-dim`, `--allow-remote-ollama`, `--cors-origin`.
   - Static file hosting mounting `/web` at the root URL `/`.

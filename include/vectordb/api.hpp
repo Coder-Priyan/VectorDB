@@ -108,6 +108,11 @@ ApiResponse handleResetDocs(RagPipeline& rag);
 bool isAllowedLoopbackHost(const std::string& hostHeader, int port);
 
 /**
+ * @brief Validates HTTP Origin header against allowed loopback origins and configured CORS origin.
+ */
+bool isAllowedOrigin(const std::string& origin, int port, const std::string& corsOrigin = "");
+
+/**
  * @brief Formats a single Server-Sent Events (SSE) message block: "event: <event>\ndata: <data>\n\n".
  */
 std::string formatSseEvent(const std::string& event, const std::string& data);
