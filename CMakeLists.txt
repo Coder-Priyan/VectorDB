@@ -40,6 +40,7 @@ target_include_directories(vectordb_core PUBLIC
 # RAG static library (OllamaClient & RagPipeline)
 add_library(vectordb_rag
     src/ollama_client.cpp
+    src/rag.cpp
 )
 
 target_include_directories(vectordb_rag PUBLIC
@@ -91,6 +92,7 @@ add_executable(vectordb_tests
     tests/test_collection.cpp
     tests/test_chunker.cpp
     tests/test_ollama_client.cpp
+    tests/test_rag.cpp
     tests/test_api.cpp
     tests/test_server_http.cpp
 )

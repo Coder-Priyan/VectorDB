@@ -20,24 +20,24 @@ int main() {
     int failedTests = 0;
 
     for (const auto& t : testList) {
-        std::cout << "[RUN     ] " << t.suite << "." << t.name << "\n";
+        std::cout << "[RUN     ] " << t.suite << "." << t.name << std::endl;
         const int prevFailures = g_failedAssertions;
         try {
             t.func();
         } catch (const std::exception& ex) {
             ++g_failedAssertions;
             std::cerr << "  [EXCEPTION] Unhandled exception in " << t.suite << "." << t.name
-                      << ": " << ex.what() << "\n";
+                      << ": " << ex.what() << std::endl;
         } catch (...) {
             ++g_failedAssertions;
-            std::cerr << "  [EXCEPTION] Unknown non-std exception in " << t.suite << "." << t.name << "\n";
+            std::cerr << "  [EXCEPTION] Unknown non-std exception in " << t.suite << "." << t.name << std::endl;
         }
 
         if (g_failedAssertions == prevFailures) {
-            std::cout << "[      OK] " << t.suite << "." << t.name << "\n";
+            std::cout << "[      OK] " << t.suite << "." << t.name << std::endl;
             ++passedTests;
         } else {
-            std::cout << "[    FAIL] " << t.suite << "." << t.name << "\n";
+            std::cout << "[    FAIL] " << t.suite << "." << t.name << std::endl;
             ++failedTests;
         }
     }

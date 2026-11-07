@@ -32,6 +32,7 @@ public:
         worker_ = std::thread([this]() {
             server_.listen_after_bind();
         });
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 
     ~FakeOllamaServer() {
@@ -41,6 +42,12 @@ public:
     void stop() {
         if (!stopped_.exchange(true)) {
             server_.stop();
+            // On Windows, wake up the listening thread with a quick ping so select() returns
+            try {
+                httplib::Client dummy("127.0.0.1", port_);
+                dummy.set_connection_timeout(0, 100000); // 100ms
+                dummy.Get("/api/version");
+            } catch (...) {}
             if (worker_.joinable()) {
                 worker_.join();
             }
@@ -185,7 +192,12 @@ private:
                 try {
                     auto reqJson = json::parse(req.body);
                     if (reqJson.contains("messages") && reqJson["messages"].is_array() && !reqJson["messages"].empty()) {
-                        textToStream = reqJson["messages"].back()["content"].get<std::string>();
+                        std::string combined;
+                        for (const auto& m : reqJson["messages"]) {
+                            if (!combined.empty()) combined += "\n\n";
+                            combined += m["content"].get<std::string>();
+                        }
+                        textToStream = combined;
                     } else {
                         textToStream = "echo: empty prompt";
                     }
@@ -196,21 +208,33 @@ private:
                 textToStream = "According to document [1], vector databases enable high-speed similarity search.";
             }
 
+            // Properly JSON-escape textToStream
+            std::string escapedText;
+            {
+                json jStr = textToStream;
+                std::string rawDump = jStr.dump();
+                if (rawDump.size() >= 2) {
+                    escapedText = rawDump.substr(1, rawDump.size() - 2);
+                } else {
+                    escapedText = rawDump;
+                }
+            }
+
             // Stream response word by word, deliberately splitting lines across chunks to test line buffering
             auto step = std::make_shared<int>(0);
             res.set_chunked_content_provider("application/x-ndjson",
-                [textToStream, step](size_t /*offset*/, httplib::DataSink& sink) -> bool {
+                [escapedText, step](size_t /*offset*/, httplib::DataSink& sink) -> bool {
                     if (*step == 0) {
                         (*step)++;
                         // Part A: send partial JSON line
                         std::string partA = "{\"model\":\"llama3.2\",\"message\":{\"role\":\"assistant\",\"content\":\"";
-                        partA += textToStream.substr(0, std::min<size_t>(10, textToStream.size()));
+                        partA += escapedText.substr(0, std::min<size_t>(10, escapedText.size()));
                         sink.write(partA.data(), partA.size());
                         return true;
                     } else if (*step == 1) {
                         (*step)++;
                         // Part B: send remainder of first line + newline
-                        std::string partB = textToStream.size() > 10 ? textToStream.substr(10) : "";
+                        std::string partB = escapedText.size() > 10 ? escapedText.substr(10) : "";
                         partB += "\"},\"done\":false}\n";
                         sink.write(partB.data(), partB.size());
                         return true;
