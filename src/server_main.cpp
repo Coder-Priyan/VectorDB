@@ -54,6 +54,7 @@ int main(int argc, char* argv[]) {
     std::size_t ragDim = 768;
     bool allowRemoteOllama = false;
     std::string corsOrigin = "";
+    RagPromptVersion ragPromptVer = RagPromptVersion::V2;
 
     // Parse CLI arguments
     for (int i = 1; i < argc; ++i) {
@@ -84,6 +85,8 @@ int main(int argc, char* argv[]) {
             chatModel = argv[++i];
         } else if (arg == "--rag-dim" && i + 1 < argc) {
             ragDim = std::stoull(argv[++i]);
+        } else if (arg == "--rag-prompt" && i + 1 < argc) {
+            ragPromptVer = ragPromptVersionFromString(argv[++i]);
         } else if (arg == "--allow-remote-ollama") {
             allowRemoteOllama = true;
         } else if (arg == "--cors-origin" && i + 1 < argc) {
@@ -104,6 +107,7 @@ int main(int argc, char* argv[]) {
                       << "  --embed-model <NAME>        Ollama embedding model (default: nomic-embed-text)\n"
                       << "  --chat-model <NAME>         Ollama chat model (default: llama3.2)\n"
                       << "  --rag-dim <DIM>             Embedding dimension for RAG documents (default: 768)\n"
+                      << "  --rag-prompt <v1|v2|v3>     RAG prompt template version (default: v2)\n"
                       << "  --allow-remote-ollama       Allow connecting to non-loopback Ollama hosts (default: off)\n"
                       << "  --cors-origin <ORIGIN>      Allowed CORS origin header (default: disabled / same-origin only)\n"
                       << "  --help, -h                  Display this help message\n";
@@ -122,6 +126,7 @@ int main(int argc, char* argv[]) {
     RagConfig ragConfig;
     ragConfig.dimension = ragDim;
     ragConfig.metric = Metric::Cosine;
+    ragConfig.promptVersion = ragPromptVer;
 
     OllamaClient ollamaClient(ollamaConfig);
     RagPipeline ragPipeline(ragConfig, ollamaClient);
@@ -364,72 +369,10 @@ int main(int argc, char* argv[]) {
 
     // Route: POST /api/ask/stream (SSE streaming)
     svr.Post("/api/ask/stream", [&](const httplib::Request& req, httplib::Response& res) {
-        json reqJson = json::parse(req.body, nullptr, false);
-        if (reqJson.is_discarded() || !reqJson.is_object()) {
-            sendResponse(res, makeErrorResponse(400, "invalid_json", "Malformed JSON request body"));
+        AskRequest askReq;
+        if (auto err = parseAskRequest(req.body, askReq)) {
+            sendResponse(res, *err);
             return;
-        }
-
-        if (!reqJson.contains("question") || !reqJson["question"].is_string()) {
-            sendResponse(res, makeErrorResponse(400, "validation_error", "Missing or invalid 'question' string field"));
-            return;
-        }
-        std::string question = reqJson["question"].get<std::string>();
-        if (question.empty() || question.size() > 2000) {
-            sendResponse(res, makeErrorResponse(400, "validation_error", "Parameter 'question' must be between 1 and 2000 characters"));
-            return;
-        }
-
-        std::size_t k = 4;
-        if (reqJson.contains("k")) {
-            if (!reqJson["k"].is_number_integer() || reqJson["k"].get<long long>() < 1 || reqJson["k"].get<long long>() > 20) {
-                sendResponse(res, makeErrorResponse(400, "validation_error", "'k' must be between 1 and 20"));
-                return;
-            }
-            k = static_cast<std::size_t>(reqJson["k"].get<long long>());
-        }
-
-        Algorithm algo = Algorithm::Hnsw;
-        if (reqJson.contains("algorithm")) {
-            if (!reqJson["algorithm"].is_string()) {
-                sendResponse(res, makeErrorResponse(400, "validation_error", "'algorithm' must be a string"));
-                return;
-            }
-            try {
-                algo = stringToAlgorithm(reqJson["algorithm"].get<std::string>());
-            } catch (const std::invalid_argument& e) {
-                sendResponse(res, makeErrorResponse(400, "validation_error", e.what()));
-                return;
-            }
-        }
-
-        std::optional<std::size_t> efOpt = std::nullopt;
-        if (reqJson.contains("ef")) {
-            if (!reqJson["ef"].is_number_integer() || reqJson["ef"].get<long long>() <= 0) {
-                sendResponse(res, makeErrorResponse(400, "validation_error", "'ef' must be a positive integer"));
-                return;
-            }
-            efOpt = static_cast<std::size_t>(reqJson["ef"].get<long long>());
-        }
-
-        ChatOptions chatOpt;
-        if (reqJson.contains("model") && reqJson["model"].is_string()) {
-            chatOpt.model = reqJson["model"].get<std::string>();
-        }
-        if (reqJson.contains("temperature") && reqJson["temperature"].is_number()) {
-            chatOpt.temperature = reqJson["temperature"].get<double>();
-            if (chatOpt.temperature < 0.0) {
-                sendResponse(res, makeErrorResponse(400, "validation_error", "'temperature' must be non-negative"));
-                return;
-            }
-        }
-        if (reqJson.contains("seed") && reqJson["seed"].is_number_integer()) {
-            chatOpt.seed = reqJson["seed"].get<int>();
-        }
-
-        bool debug = false;
-        if (reqJson.contains("debug") && reqJson["debug"].is_boolean()) {
-            debug = reqJson["debug"].get<bool>();
         }
 
         // Pre-stream reachability check if index is not empty
@@ -450,7 +393,7 @@ int main(int argc, char* argv[]) {
 
         res.set_chunked_content_provider(
             "text/event-stream; charset=utf-8",
-            [&ragPipeline, question, k, algo, efOpt, chatOpt, debug](size_t /*offset*/, httplib::DataSink& sink) -> bool {
+            [&ragPipeline, askReq](size_t /*offset*/, httplib::DataSink& sink) -> bool {
                 bool sourcesSent = false;
                 try {
                     auto onSources = [&](const std::vector<RagSource>& sources) {
@@ -481,7 +424,7 @@ int main(int argc, char* argv[]) {
                         return sink.write(sseData.data(), sseData.size());
                     };
 
-                    AskResult askRes = ragPipeline.ask(question, k, algo, efOpt, chatOpt, debug, onToken, onSources);
+                    AskResult askRes = ragPipeline.ask(askReq.question, askReq.k, askReq.algorithm, askReq.ef, askReq.chatOpt, askReq.debug, onToken, onSources);
 
                     json dDoc;
                     dDoc["answer"] = askRes.answer;
@@ -490,10 +433,11 @@ int main(int argc, char* argv[]) {
                         {"embed_ms", askRes.timings.embedMs},
                         {"search_ms", askRes.timings.searchMs},
                         {"generate_ms", askRes.timings.generateMs},
+                        {"first_token_ms", askRes.timings.firstTokenMs},
                         {"total_ms", askRes.timings.totalMs}
                     };
                     dDoc["prompt_chars"] = askRes.promptChars;
-                    if (debug) {
+                    if (askReq.debug) {
                         dDoc["prompt"] = askRes.prompt;
                     }
                     std::string sseDone = formatSseEvent("done", dDoc.dump());
@@ -586,6 +530,7 @@ int main(int argc, char* argv[]) {
     std::cout << "  Ollama URL       : " << ollamaUrl << "\n";
     std::cout << "  Embed Model      : " << embedModel << " (RAG dim = " << ragDim << ")\n";
     std::cout << "  Chat Model       : " << chatModel << "\n";
+    std::cout << "  RAG Prompt Ver   : " << ragPromptVersionToString(ragConfig.promptVersion) << "\n";
     std::cout << "  Remote Ollama    : " << (allowRemoteOllama ? "Allowed" : "Off (loopback only)") << "\n";
     std::cout << "  Static Web Dir   : " << webDir << (std::filesystem::exists(webDir) ? " (Mounted)" : " (Not found)") << "\n";
     std::cout << "  Press Ctrl+C to shut down cleanly.\n";

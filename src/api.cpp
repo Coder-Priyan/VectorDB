@@ -930,69 +930,90 @@ ApiResponse handleBenchmarkDocs(RagPipeline& rag, const std::string& body) {
     }
 }
 
+std::optional<ApiResponse> parseAskRequest(const std::string& body, AskRequest& out) {
+    json req = json::parse(body, nullptr, false);
+    if (req.is_discarded() || !req.is_object()) {
+        return makeErrorResponse(400, "invalid_json", "Malformed JSON request body");
+    }
+
+    if (!req.contains("question") || !req["question"].is_string()) {
+        return makeErrorResponse(400, "validation_error", "Missing or invalid 'question' string field");
+    }
+    out.question = req["question"].get<std::string>();
+    if (out.question.empty() || out.question.size() > 2000) {
+        return makeErrorResponse(400, "validation_error", "'question' must be between 1 and 2000 characters");
+    }
+
+    out.k = 4;
+    if (req.contains("k")) {
+        if (!req["k"].is_number_integer() || req["k"].get<long long>() < 1 || req["k"].get<long long>() > 20) {
+            return makeErrorResponse(400, "validation_error", "'k' must be between 1 and 20");
+        }
+        out.k = static_cast<std::size_t>(req["k"].get<long long>());
+    }
+
+    out.algorithm = Algorithm::Hnsw;
+    if (req.contains("algorithm")) {
+        if (!req["algorithm"].is_string()) {
+            return makeErrorResponse(400, "validation_error", "'algorithm' must be a string");
+        }
+        try {
+            out.algorithm = stringToAlgorithm(req["algorithm"].get<std::string>());
+        } catch (const std::invalid_argument& e) {
+            return makeErrorResponse(400, "validation_error", e.what());
+        }
+    }
+
+    out.ef = std::nullopt;
+    if (req.contains("ef")) {
+        if (!req["ef"].is_number_integer() || req["ef"].get<long long>() <= 0) {
+            return makeErrorResponse(400, "validation_error", "'ef' must be a positive integer");
+        }
+        out.ef = static_cast<std::size_t>(req["ef"].get<long long>());
+    }
+
+    out.chatOpt = ChatOptions{};
+    if (req.contains("model") && req["model"].is_string()) {
+        out.chatOpt.model = req["model"].get<std::string>();
+    }
+    if (req.contains("temperature") && req["temperature"].is_number()) {
+        out.chatOpt.temperature = req["temperature"].get<double>();
+        if (out.chatOpt.temperature < 0.0) {
+            return makeErrorResponse(400, "validation_error", "'temperature' must be non-negative");
+        }
+    }
+    if (req.contains("seed") && req["seed"].is_number_integer()) {
+        out.chatOpt.seed = req["seed"].get<int>();
+    }
+    if (req.contains("num_ctx") && req["num_ctx"].is_number_integer()) {
+        out.chatOpt.numCtx = req["num_ctx"].get<int>();
+        if (out.chatOpt.numCtx <= 0) {
+            return makeErrorResponse(400, "validation_error", "'num_ctx' must be positive");
+        }
+    }
+    if (req.contains("num_predict") && req["num_predict"].is_number_integer()) {
+        out.chatOpt.numPredict = req["num_predict"].get<int>();
+        if (out.chatOpt.numPredict <= 0) {
+            return makeErrorResponse(400, "validation_error", "'num_predict' must be positive");
+        }
+    }
+
+    out.debug = false;
+    if (req.contains("debug") && req["debug"].is_boolean()) {
+        out.debug = req["debug"].get<bool>();
+    }
+
+    return std::nullopt;
+}
+
 ApiResponse handleAsk(RagPipeline& rag, const std::string& body) {
     try {
-        json req = json::parse(body, nullptr, false);
-        if (req.is_discarded() || !req.is_object()) {
-            return makeErrorResponse(400, "invalid_json", "Malformed JSON request body");
+        AskRequest req;
+        if (auto err = parseAskRequest(body, req)) {
+            return *err;
         }
 
-        if (!req.contains("question") || !req["question"].is_string()) {
-            return makeErrorResponse(400, "validation_error", "Missing or invalid 'question' string field");
-        }
-        std::string question = req["question"].get<std::string>();
-        if (question.empty() || question.size() > 2000) {
-            return makeErrorResponse(400, "validation_error", "'question' must be between 1 and 2000 characters");
-        }
-
-        std::size_t k = 4;
-        if (req.contains("k")) {
-            if (!req["k"].is_number_integer() || req["k"].get<long long>() < 1 || req["k"].get<long long>() > 20) {
-                return makeErrorResponse(400, "validation_error", "'k' must be between 1 and 20");
-            }
-            k = static_cast<std::size_t>(req["k"].get<long long>());
-        }
-
-        Algorithm algo = Algorithm::Hnsw;
-        if (req.contains("algorithm")) {
-            if (!req["algorithm"].is_string()) {
-                return makeErrorResponse(400, "validation_error", "'algorithm' must be a string");
-            }
-            try {
-                algo = stringToAlgorithm(req["algorithm"].get<std::string>());
-            } catch (const std::invalid_argument& e) {
-                return makeErrorResponse(400, "validation_error", e.what());
-            }
-        }
-
-        std::optional<std::size_t> efOpt = std::nullopt;
-        if (req.contains("ef")) {
-            if (!req["ef"].is_number_integer() || req["ef"].get<long long>() <= 0) {
-                return makeErrorResponse(400, "validation_error", "'ef' must be a positive integer");
-            }
-            efOpt = static_cast<std::size_t>(req["ef"].get<long long>());
-        }
-
-        ChatOptions chatOpt;
-        if (req.contains("model") && req["model"].is_string()) {
-            chatOpt.model = req["model"].get<std::string>();
-        }
-        if (req.contains("temperature") && req["temperature"].is_number()) {
-            chatOpt.temperature = req["temperature"].get<double>();
-            if (chatOpt.temperature < 0.0) {
-                return makeErrorResponse(400, "validation_error", "'temperature' must be non-negative");
-            }
-        }
-        if (req.contains("seed") && req["seed"].is_number_integer()) {
-            chatOpt.seed = req["seed"].get<int>();
-        }
-
-        bool debug = false;
-        if (req.contains("debug") && req["debug"].is_boolean()) {
-            debug = req["debug"].get<bool>();
-        }
-
-        auto res = rag.ask(question, k, algo, efOpt, chatOpt, debug);
+        auto res = rag.ask(req.question, req.k, req.algorithm, req.ef, req.chatOpt, req.debug);
 
         json sourcesArr = json::array();
         for (const auto& s : res.sources) {
@@ -1014,11 +1035,12 @@ ApiResponse handleAsk(RagPipeline& rag, const std::string& body) {
             {"embed_ms", res.timings.embedMs},
             {"search_ms", res.timings.searchMs},
             {"generate_ms", res.timings.generateMs},
+            {"first_token_ms", res.timings.firstTokenMs},
             {"total_ms", res.timings.totalMs}
         };
         resp["model"] = res.model;
         resp["prompt_chars"] = res.promptChars;
-        if (debug) {
+        if (req.debug) {
             resp["prompt"] = res.prompt;
         }
 

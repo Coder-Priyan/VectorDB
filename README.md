@@ -1,4 +1,4 @@
-# VectorDB - Semantic Search Engine
+﻿# VectorDB - Semantic Search Engine
 
 A high-performance, self-contained vector database and semantic search engine written in modern C++17.
 
@@ -6,7 +6,7 @@ A high-performance, self-contained vector database and semantic search engine wr
 
 VectorDB is designed from the ground up for fast vector similarity search, approximate nearest neighbor indexing (KD-Tree, HNSW), offline Retrieval-Augmented Generation (RAG with local Ollama), and hybrid search (BM25 + Dense Vectors with Reciprocal Rank Fusion).
 
-### Current Features (Tasks 1–6a)
+### Current Features (Tasks 1â€“6a)
 - **Core Types & Metrics**: `SearchResult`, `VectorId`, `Metric` enum (`Cosine`, `Euclidean`, `Manhattan`) with case-insensitive string parsing.
 - **Distance Module**: Raw-pointer float32 distance kernels (`cosineDistance`, `euclideanDistance`, `euclideanSquared`, `manhattanDistance`) with zero-norm safety and clamping.
 - **Abstract VectorIndex Interface**: Clean polymorphic base class allowing runtime switching between indexing algorithms.
@@ -75,72 +75,72 @@ VectorDB is designed from the ground up for fast vector similarity search, appro
 
 ```
 vectordb/
-├── CMakeLists.txt              # CMake build configuration (minimum 3.16)
-├── README.md                   # Project documentation and build instructions
-├── .gitignore                  # Git ignore rules for C++ and build artifacts
-├── docs/
-│   └── API.md                  # REST API reference and curl examples
-├── third_party/                # Vendored dependencies (header-only, MIT license)
-│   ├── httplib.h               # cpp-httplib v0.18.3
-│   └── nlohmann/
-│       └── json.hpp            # nlohmann/json v3.11.3
-├── web/
-│   └── index.html              # Web UI mounted at root URL /
-├── samples/
-│   └── vectordb_intro.txt      # Sample document on vector databases and RAG
-├── include/
-│   └── vectordb/
-│       ├── types.hpp           # VectorId, SearchResult, Metric enum & string helpers
-│       ├── distance.hpp        # Distance function declarations
-│       ├── index.hpp           # Abstract base class VectorIndex
-│       ├── brute_force.hpp     # BruteForceIndex declaration
-│       ├── kd_tree.hpp         # KdTreeIndex declaration & SearchStats
-│       ├── hnsw.hpp            # HnswIndex, HnswParams, HnswSearchStats & HnswGraphInfo
-│       ├── collection.hpp      # Collection service layer declaration
-│       ├── chunker.hpp         # Document chunker (Fixed & Sentence strategies)
-│       ├── ollama_client.hpp   # Local Ollama client (embed, chat, status)
-│       ├── rag.hpp             # RagPipeline declaration (ingest, retrieve, ask)
-│       ├── api.hpp             # HTTP REST API handler declarations
-│       ├── dataset.hpp         # Synthetic dataset generator declarations
-│       └── evaluation.hpp      # Recall@k and MeanRecall@k evaluation helpers
-├── src/
-│   ├── distance.cpp            # Distance kernels implementation
-│   ├── brute_force.cpp         # BruteForceIndex implementation
-│   ├── kd_tree.cpp             # KdTreeIndex implementation (flat array, median split)
-│   ├── hnsw.cpp                # HnswIndex implementation (Malkov & Yashunin 2018)
-│   ├── collection.cpp          # Collection service layer implementation
-│   ├── chunker.cpp             # UTF-8 boundary chunker implementation
-│   ├── ollama_client.cpp       # Ollama HTTP API client implementation
-│   ├── rag.cpp                 # RagPipeline implementation
-│   ├── api.cpp                 # API handlers implementation (JSON serialization)
-│   ├── server_main.cpp         # vectordb_server executable entry point
-│   ├── dataset.cpp             # Normal distribution vector generation
-│   ├── evaluation.cpp          # Evaluation module implementation
-│   └── main.cpp                # 2D demo, KD-Tree & HNSW benchmarks with CSV export
-├── tests/
-│   ├── test_harness.hpp        # Lightweight test framework (CHECK, CHECK_NEAR, etc.)
-│   ├── fake_ollama.hpp         # Mock in-process Ollama HTTP server for hermetic testing
-│   ├── test_main.cpp           # Test runner entry point
-│   ├── test_distance.cpp       # Unit tests for distance metrics
-│   ├── test_brute_force.cpp    # Unit & cross-check tests for BruteForceIndex
-│   ├── test_evaluation.cpp     # Unit tests for Recall@k metrics
-│   ├── test_kd_tree.cpp        # Tests verifying KD-Tree against Brute Force
-│   ├── test_hnsw.cpp           # Invariants, level distribution, and HNSW recall tests
-│   ├── test_collection.cpp     # Tests for Collection service layer
-│   ├── test_chunker.cpp        # UTF-8 safety, danda, paragraph, and overlap tests
-│   ├── test_ollama_client.cpp  # OllamaClient unit tests against mock server
-│   ├── test_rag.cpp            # RagPipeline integration tests against mock server
-│   ├── test_api_rag.cpp        # RAG REST API handler unit tests
-│   ├── test_live_ollama.cpp    # Opt-in live test against real local Ollama
-│   ├── test_api.cpp            # Pure JSON unit tests for API handlers
-│   └── test_server_http.cpp    # Live HTTP server integration test on ephemeral port
-└── results/                    # CSV exports from hardened benchmarks
-    ├── README.md               # Column schema documentation
-    ├── build.csv               # Graph layer node counts and average degree
-    ├── ef_sweep.csv            # efSearch vs Recall@10, latency, and QPS
-    ├── m_sweep.csv             # Connectivity M vs build time, recall, and memory
-    ├── dim_compare.csv         # 3-way dimension comparison (dim 8 to 128)
-    └── metrics.csv             # Cosine & Manhattan benchmarks
+â”œâ”€â”€ CMakeLists.txt              # CMake build configuration (minimum 3.16)
+â”œâ”€â”€ README.md                   # Project documentation and build instructions
+â”œâ”€â”€ .gitignore                  # Git ignore rules for C++ and build artifacts
+â”œâ”€â”€ docs/
+â”‚   â””â”€â”€ API.md                  # REST API reference and curl examples
+â”œâ”€â”€ third_party/                # Vendored dependencies (header-only, MIT license)
+â”‚   â”œâ”€â”€ httplib.h               # cpp-httplib v0.18.3
+â”‚   â””â”€â”€ nlohmann/
+â”‚       â””â”€â”€ json.hpp            # nlohmann/json v3.11.3
+â”œâ”€â”€ web/
+â”‚   â””â”€â”€ index.html              # Web UI mounted at root URL /
+â”œâ”€â”€ samples/
+â”‚   â””â”€â”€ vectordb_intro.txt      # Sample document on vector databases and RAG
+â”œâ”€â”€ include/
+â”‚   â””â”€â”€ vectordb/
+â”‚       â”œâ”€â”€ types.hpp           # VectorId, SearchResult, Metric enum & string helpers
+â”‚       â”œâ”€â”€ distance.hpp        # Distance function declarations
+â”‚       â”œâ”€â”€ index.hpp           # Abstract base class VectorIndex
+â”‚       â”œâ”€â”€ brute_force.hpp     # BruteForceIndex declaration
+â”‚       â”œâ”€â”€ kd_tree.hpp         # KdTreeIndex declaration & SearchStats
+â”‚       â”œâ”€â”€ hnsw.hpp            # HnswIndex, HnswParams, HnswSearchStats & HnswGraphInfo
+â”‚       â”œâ”€â”€ collection.hpp      # Collection service layer declaration
+â”‚       â”œâ”€â”€ chunker.hpp         # Document chunker (Fixed & Sentence strategies)
+â”‚       â”œâ”€â”€ ollama_client.hpp   # Local Ollama client (embed, chat, status)
+â”‚       â”œâ”€â”€ rag.hpp             # RagPipeline declaration (ingest, retrieve, ask)
+â”‚       â”œâ”€â”€ api.hpp             # HTTP REST API handler declarations
+â”‚       â”œâ”€â”€ dataset.hpp         # Synthetic dataset generator declarations
+â”‚       â””â”€â”€ evaluation.hpp      # Recall@k and MeanRecall@k evaluation helpers
+â”œâ”€â”€ src/
+â”‚   â”œâ”€â”€ distance.cpp            # Distance kernels implementation
+â”‚   â”œâ”€â”€ brute_force.cpp         # BruteForceIndex implementation
+â”‚   â”œâ”€â”€ kd_tree.cpp             # KdTreeIndex implementation (flat array, median split)
+â”‚   â”œâ”€â”€ hnsw.cpp                # HnswIndex implementation (Malkov & Yashunin 2018)
+â”‚   â”œâ”€â”€ collection.cpp          # Collection service layer implementation
+â”‚   â”œâ”€â”€ chunker.cpp             # UTF-8 boundary chunker implementation
+â”‚   â”œâ”€â”€ ollama_client.cpp       # Ollama HTTP API client implementation
+â”‚   â”œâ”€â”€ rag.cpp                 # RagPipeline implementation
+â”‚   â”œâ”€â”€ api.cpp                 # API handlers implementation (JSON serialization)
+â”‚   â”œâ”€â”€ server_main.cpp         # vectordb_server executable entry point
+â”‚   â”œâ”€â”€ dataset.cpp             # Normal distribution vector generation
+â”‚   â”œâ”€â”€ evaluation.cpp          # Evaluation module implementation
+â”‚   â””â”€â”€ main.cpp                # 2D demo, KD-Tree & HNSW benchmarks with CSV export
+â”œâ”€â”€ tests/
+â”‚   â”œâ”€â”€ test_harness.hpp        # Lightweight test framework (CHECK, CHECK_NEAR, etc.)
+â”‚   â”œâ”€â”€ fake_ollama.hpp         # Mock in-process Ollama HTTP server for hermetic testing
+â”‚   â”œâ”€â”€ test_main.cpp           # Test runner entry point
+â”‚   â”œâ”€â”€ test_distance.cpp       # Unit tests for distance metrics
+â”‚   â”œâ”€â”€ test_brute_force.cpp    # Unit & cross-check tests for BruteForceIndex
+â”‚   â”œâ”€â”€ test_evaluation.cpp     # Unit tests for Recall@k metrics
+â”‚   â”œâ”€â”€ test_kd_tree.cpp        # Tests verifying KD-Tree against Brute Force
+â”‚   â”œâ”€â”€ test_hnsw.cpp           # Invariants, level distribution, and HNSW recall tests
+â”‚   â”œâ”€â”€ test_collection.cpp     # Tests for Collection service layer
+â”‚   â”œâ”€â”€ test_chunker.cpp        # UTF-8 safety, danda, paragraph, and overlap tests
+â”‚   â”œâ”€â”€ test_ollama_client.cpp  # OllamaClient unit tests against mock server
+â”‚   â”œâ”€â”€ test_rag.cpp            # RagPipeline integration tests against mock server
+â”‚   â”œâ”€â”€ test_api_rag.cpp        # RAG REST API handler unit tests
+â”‚   â”œâ”€â”€ test_live_ollama.cpp    # Opt-in live test against real local Ollama
+â”‚   â”œâ”€â”€ test_api.cpp            # Pure JSON unit tests for API handlers
+â”‚   â””â”€â”€ test_server_http.cpp    # Live HTTP server integration test on ephemeral port
+â””â”€â”€ results/                    # CSV exports from hardened benchmarks
+    â”œâ”€â”€ README.md               # Column schema documentation
+    â”œâ”€â”€ build.csv               # Graph layer node counts and average degree
+    â”œâ”€â”€ ef_sweep.csv            # efSearch vs Recall@10, latency, and QPS
+    â”œâ”€â”€ m_sweep.csv             # Connectivity M vs build time, recall, and memory
+    â”œâ”€â”€ dim_compare.csv         # 3-way dimension comparison (dim 8 to 128)
+    â””â”€â”€ metrics.csv             # Cosine & Manhattan benchmarks
 ```
 
 ---
@@ -175,7 +175,7 @@ This compiles three executables:
 ./build/vectordb_server
 
 # Custom RAG configuration
-./build/vectordb_server --port 8080 --ollama-url http://127.0.0.1:11434 --embed-model nomic-embed-text --chat-model llama3.2 --rag-dim 768
+./build/vectordb_server --port 8080 --ollama-url http://127.0.0.1:11434 --embed-model nomic-embed-text --chat-model llama3.2 --rag-dim 768 --rag-prompt v2
 ```
 
 See [docs/API.md](docs/API.md) for the complete HTTP API reference, request payloads, and PowerShell / Bash curl examples.
@@ -185,11 +185,11 @@ See [docs/API.md](docs/API.md) for the complete HTTP API reference, request payl
 ## Running the Test Suite
 
 ```bash
-# Run the hermetic test suite (98 tests, zero cloud/network dependency)
+# Run the hermetic test suite (107 tests, zero cloud/network dependency)
 ./build/vectordb_tests
 
 # Run including the opt-in live test against local Ollama
 VECTORDB_LIVE_OLLAMA=1 ./build/vectordb_tests
 ```
 
-All 98 registered unit & integration tests pass with zero failures.
+All 107 registered unit & integration tests pass with zero failures.

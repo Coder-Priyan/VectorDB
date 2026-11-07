@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "vectordb/collection.hpp"
 #include "vectordb/rag.hpp"
@@ -93,6 +93,21 @@ ApiResponse handleGetDoc(const RagPipeline& rag, uint64_t id);
 ApiResponse handleSearchDocs(RagPipeline& rag, const std::string& body);
 
 ApiResponse handleBenchmarkDocs(RagPipeline& rag, const std::string& body);
+
+struct AskRequest {
+    std::string question;
+    std::size_t k = 4;
+    Algorithm algorithm = Algorithm::Hnsw;
+    std::optional<std::size_t> ef = std::nullopt;
+    ChatOptions chatOpt;
+    bool debug = false;
+};
+
+/**
+ * @brief Parses and validates an /api/ask or /api/ask/stream request body.
+ * Returns std::nullopt on success, or an error ApiResponse on failure.
+ */
+std::optional<ApiResponse> parseAskRequest(const std::string& body, AskRequest& out);
 
 ApiResponse handleAsk(RagPipeline& rag, const std::string& body);
 

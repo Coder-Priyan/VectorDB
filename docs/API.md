@@ -1,4 +1,4 @@
-# VectorDB REST API Reference
+﻿# VectorDB REST API Reference
 
 The `vectordb_server` provides a clean HTTP JSON interface on top of the VectorDB C++17 engine.
 All requests and responses use `Content-Type: application/json; charset=utf-8` (and `text/event-stream; charset=utf-8` for SSE streaming).
@@ -636,6 +636,7 @@ curl.exe --max-time 900 -s -X POST http://127.0.0.1:8080/api/ask -H "Content-Typ
   ],
   "timings": {
     "embed_ms": 142.2,
+    "first_token_ms": 243.1,
     "search_ms": 0.07,
     "generate_ms": 15671.8,
     "total_ms": 15814.1
@@ -684,7 +685,7 @@ event: token
 data: {"t":" discovers","token":" discovers"}
 
 event: done
-data: {"answer":"Vector search discovers vectors that minimize distance functions...","model":"llama3.2","prompt_chars":840,"timings":{"embed_ms":57.8,"generate_ms":14770.2,"search_ms":0.03,"total_ms":14828.2}}
+data: {"answer":"Vector search discovers vectors that minimize distance functions...","model":"llama3.2","prompt_chars":840,"timings":{"embed_ms":57.8,"first_token_ms":243.1,"generate_ms":14770.2,"search_ms":0.03,"total_ms":14828.2}}
 ```
 
 ---
