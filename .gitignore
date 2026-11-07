@@ -25,6 +25,7 @@ compile_commands.json
 # IDE / Editor folders
 .vscode/
 .idea/
+.cache/
 *.swp
 *~
 .DS_Store
