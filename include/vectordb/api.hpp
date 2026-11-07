@@ -2,11 +2,33 @@
 
 #include "vectordb/collection.hpp"
 #include "vectordb/rag.hpp"
+#include "vectordb/pca.hpp"
 
 #include <string>
 #include <optional>
+#include <limits>
+#include <utility>
+#include <mutex>
+#include <unordered_map>
 
 namespace vectordb {
+
+/**
+ * @brief Thread-safe cache holding fitted PCA models and preprojected 2D coordinates.
+ */
+struct PcaCache {
+    mutable std::mutex mutex;
+    std::uint64_t cachedVersion = std::numeric_limits<std::uint64_t>::max();
+    std::size_t cachedLimit = 0;
+    PcaResult result;
+    std::unordered_map<VectorId, std::pair<float, float>> nodeCoords;
+    std::vector<StoredVector> cachedVectors;
+};
+
+/**
+ * @brief Fits or updates the PCA cache if the underlying Collection version changed.
+ */
+void ensurePcaFit(const Collection& collection, PcaCache& cache, std::size_t limit = 5000);
 
 /**
  * @brief Generic HTTP response container returned by API handler functions.
@@ -75,5 +97,17 @@ ApiResponse handleBenchmarkDocs(RagPipeline& rag, const std::string& body);
 ApiResponse handleAsk(RagPipeline& rag, const std::string& body);
 
 ApiResponse handleResetDocs(RagPipeline& rag);
+
+// -----------------------------------------------------------------------------
+// PCA & Graph Handlers
+// -----------------------------------------------------------------------------
+
+ApiResponse handleGetPca(const Collection& collection, PcaCache& cache, std::optional<std::size_t> limit, bool isDocs);
+
+ApiResponse handlePcaQuery(Collection& collection, PcaCache& cache, const std::string& body);
+
+ApiResponse handleDocsPcaQuery(RagPipeline& rag, PcaCache& cache, const std::string& body);
+
+ApiResponse handleHnswGraph(const Collection& collection, PcaCache& cache, std::optional<int> layer, std::optional<std::size_t> maxEdges, bool isDocs);
 
 } // namespace vectordb

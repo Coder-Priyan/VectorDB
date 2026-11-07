@@ -296,3 +296,81 @@ TEST(ApiTest, DemoRandomEndpoint) {
     CHECK(zeroErr.status == 400);
 }
 
+TEST(ApiTest, PcaAndPcaQueryEndpoints) {
+    CollectionConfig cfg;
+    cfg.dimension = 4;
+    cfg.metric = Metric::Cosine;
+    Collection col(cfg);
+
+    for (std::size_t i = 1; i <= 15; ++i) {
+        col.insert(i, {static_cast<float>(i), 1.0f, 2.0f, 3.0f}, "{\"label\":\"item_" + std::to_string(i) + "\"}");
+    }
+
+    PcaCache cache;
+    ApiResponse pcaRes = handleGetPca(col, cache, std::nullopt, false);
+    CHECK(pcaRes.status == 200);
+    json pj = json::parse(pcaRes.body);
+    CHECK(pj["dim"] == 4);
+    CHECK(pj["points"].size() == 15);
+    CHECK(pj["explained_ratio"].size() == 2);
+    CHECK(pj["total_variance"].get<double>() > 0.0);
+    CHECK(pj["points"][0].contains("x"));
+    CHECK(pj["points"][0].contains("y"));
+    CHECK(pj["points"][0].contains("metadata"));
+
+    // Cache verification: version matches, cache remains populated
+    CHECK(cache.cachedVersion == col.version());
+    CHECK(cache.nodeCoords.size() == 15);
+
+    // POST /api/pca/query
+    std::string queryBody = R"({
+        "vector": [5.0, 1.0, 2.0, 3.0],
+        "k": 3,
+        "algorithm": "hnsw"
+    })";
+    ApiResponse qRes = handlePcaQuery(col, cache, queryBody);
+    CHECK(qRes.status == 200);
+    json qj = json::parse(qRes.body);
+    CHECK(qj.contains("query_projected"));
+    CHECK(qj["query_projected"].contains("x"));
+    CHECK(qj["query_projected"].contains("y"));
+    CHECK(qj["results"].size() == 3);
+    CHECK(qj["results"][0].contains("id"));
+    CHECK(qj["results"][0].contains("x"));
+    CHECK(qj["results"][0].contains("y"));
+    CHECK(qj["results"][0].contains("distance"));
+
+    // Validation errors
+    ApiResponse dimErr = handlePcaQuery(col, cache, R"({"vector": [1.0, 2.0]})");
+    CHECK(dimErr.status == 400);
+
+    ApiResponse kErr = handlePcaQuery(col, cache, R"({"vector": [1.0, 2.0, 3.0, 4.0], "k": -1})");
+    CHECK(kErr.status == 400);
+}
+
+TEST(ApiTest, HnswGraphEndpoint) {
+    CollectionConfig cfg;
+    cfg.dimension = 4;
+    Collection col(cfg);
+
+    for (std::size_t i = 1; i <= 25; ++i) {
+        col.insert(i, {static_cast<float>(i), 2.0f, 3.0f, 4.0f});
+    }
+
+    PcaCache cache;
+    ApiResponse gRes = handleHnswGraph(col, cache, 0, 50, false);
+    CHECK(gRes.status == 200);
+    json gj = json::parse(gRes.body);
+    CHECK(gj["layer"] == 0);
+    CHECK(gj["nodes"].size() == 25);
+    CHECK(!gj["edges"].empty());
+    CHECK(gj["nodes"][0].contains("x"));
+    CHECK(gj["nodes"][0].contains("y"));
+    CHECK(gj["edges"][0].contains("source"));
+    CHECK(gj["edges"][0].contains("target"));
+
+    // Negative layer returns 400
+    ApiResponse negErr = handleHnswGraph(col, cache, -1, 50, false);
+    CHECK(negErr.status == 400);
+}
+

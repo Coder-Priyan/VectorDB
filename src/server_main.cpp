@@ -120,6 +120,9 @@ int main(int argc, char* argv[]) {
     OllamaClient ollamaClient(ollamaConfig);
     RagPipeline ragPipeline(ragConfig, ollamaClient);
 
+    PcaCache mainPcaCache;
+    PcaCache docsPcaCache;
+
     httplib::Server svr;
     g_serverPtr = &svr;
     std::signal(SIGINT, signalHandler);
@@ -220,6 +223,48 @@ int main(int argc, char* argv[]) {
         sendResponse(res, handleDemoRandom(collection, req.body));
     });
 
+    // Route: GET /api/pca
+    svr.Get("/api/pca", [&](const httplib::Request& req, httplib::Response& res) {
+        std::optional<std::size_t> limit;
+        if (req.has_param("limit")) {
+            try {
+                limit = std::stoull(req.get_param_value("limit"));
+            } catch (...) {
+                sendResponse(res, makeErrorResponse(400, "validation_error", "Parameter 'limit' must be an integer"));
+                return;
+            }
+        }
+        sendResponse(res, handleGetPca(collection, mainPcaCache, limit, false));
+    });
+
+    // Route: POST /api/pca/query
+    svr.Post("/api/pca/query", [&](const httplib::Request& req, httplib::Response& res) {
+        sendResponse(res, handlePcaQuery(collection, mainPcaCache, req.body));
+    });
+
+    // Route: GET /api/hnsw/graph
+    svr.Get("/api/hnsw/graph", [&](const httplib::Request& req, httplib::Response& res) {
+        std::optional<int> layer;
+        if (req.has_param("layer")) {
+            try {
+                layer = std::stoi(req.get_param_value("layer"));
+            } catch (...) {
+                sendResponse(res, makeErrorResponse(400, "validation_error", "Parameter 'layer' must be an integer"));
+                return;
+            }
+        }
+        std::optional<std::size_t> maxEdges;
+        if (req.has_param("max_edges")) {
+            try {
+                maxEdges = std::stoull(req.get_param_value("max_edges"));
+            } catch (...) {
+                sendResponse(res, makeErrorResponse(400, "validation_error", "Parameter 'max_edges' must be an integer"));
+                return;
+            }
+        }
+        sendResponse(res, handleHnswGraph(collection, mainPcaCache, layer, maxEdges, false));
+    });
+
     // -------------------------------------------------------------------------
     // RAG Pipeline Endpoints
     // -------------------------------------------------------------------------
@@ -263,6 +308,48 @@ int main(int argc, char* argv[]) {
     // Route: POST /api/docs/reset
     svr.Post("/api/docs/reset", [&](const httplib::Request&, httplib::Response& res) {
         sendResponse(res, handleResetDocs(ragPipeline));
+    });
+
+    // Route: GET /api/docs/pca
+    svr.Get("/api/docs/pca", [&](const httplib::Request& req, httplib::Response& res) {
+        std::optional<std::size_t> limit;
+        if (req.has_param("limit")) {
+            try {
+                limit = std::stoull(req.get_param_value("limit"));
+            } catch (...) {
+                sendResponse(res, makeErrorResponse(400, "validation_error", "Parameter 'limit' must be an integer"));
+                return;
+            }
+        }
+        sendResponse(res, handleGetPca(ragPipeline.collection(), docsPcaCache, limit, true));
+    });
+
+    // Route: POST /api/docs/pca/query
+    svr.Post("/api/docs/pca/query", [&](const httplib::Request& req, httplib::Response& res) {
+        sendResponse(res, handleDocsPcaQuery(ragPipeline, docsPcaCache, req.body));
+    });
+
+    // Route: GET /api/docs/hnsw/graph
+    svr.Get("/api/docs/hnsw/graph", [&](const httplib::Request& req, httplib::Response& res) {
+        std::optional<int> layer;
+        if (req.has_param("layer")) {
+            try {
+                layer = std::stoi(req.get_param_value("layer"));
+            } catch (...) {
+                sendResponse(res, makeErrorResponse(400, "validation_error", "Parameter 'layer' must be an integer"));
+                return;
+            }
+        }
+        std::optional<std::size_t> maxEdges;
+        if (req.has_param("max_edges")) {
+            try {
+                maxEdges = std::stoull(req.get_param_value("max_edges"));
+            } catch (...) {
+                sendResponse(res, makeErrorResponse(400, "validation_error", "Parameter 'max_edges' must be an integer"));
+                return;
+            }
+        }
+        sendResponse(res, handleHnswGraph(ragPipeline.collection(), docsPcaCache, layer, maxEdges, true));
     });
 
     // Serve static files from webDir

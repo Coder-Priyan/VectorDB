@@ -1043,4 +1043,412 @@ ApiResponse handleResetDocs(RagPipeline& rag) {
     }
 }
 
+// -----------------------------------------------------------------------------
+// PCA & Graph Handlers
+// -----------------------------------------------------------------------------
+
+void ensurePcaFit(const Collection& collection, PcaCache& cache, std::size_t limit) {
+    std::lock_guard<std::mutex> lock(cache.mutex);
+    std::size_t effLimit = (limit == 0 || limit > 20000) ? 5000 : limit;
+    std::uint64_t curVer = collection.version();
+
+    if (cache.cachedVersion == curVer &&
+        cache.cachedVersion != std::numeric_limits<std::uint64_t>::max() &&
+        cache.cachedLimit >= effLimit) {
+        return;
+    }
+
+    auto stored = collection.exportVectors(effLimit);
+    CollectionConfig cfg = collection.getConfig();
+    std::size_t dim = cfg.dimension;
+
+    if (stored.empty() || dim < 2) {
+        cache.result = fitPca(nullptr, 0, dim, 2, cfg.metric == Metric::Cosine);
+        cache.nodeCoords.clear();
+        cache.cachedVectors = stored;
+        cache.cachedVersion = curVer;
+        cache.cachedLimit = effLimit;
+        return;
+    }
+
+    std::vector<float> data(stored.size() * dim);
+    for (std::size_t i = 0; i < stored.size(); ++i) {
+        std::copy(stored[i].vector.begin(), stored[i].vector.end(), data.data() + i * dim);
+    }
+
+    cache.result = fitPca(data.data(), stored.size(), dim, 2, cfg.metric == Metric::Cosine);
+    cache.nodeCoords.clear();
+    cache.cachedVectors = stored;
+    cache.cachedVersion = curVer;
+    cache.cachedLimit = effLimit;
+
+    for (const auto& sv : stored) {
+        auto coords = projectPca(cache.result, sv.vector.data());
+        cache.nodeCoords[sv.id] = {coords[0], coords[1]};
+    }
+}
+
+ApiResponse handleGetPca(const Collection& collection, PcaCache& cache, std::optional<std::size_t> limitOpt, bool isDocs) {
+    try {
+        if (limitOpt.has_value() && (*limitOpt == 0 || *limitOpt > 20000)) {
+            return makeErrorResponse(400, "validation_error", "Parameter 'limit' must be between 1 and 20000");
+        }
+        std::size_t limit = limitOpt.value_or(5000);
+
+        ensurePcaFit(collection, cache, limit);
+
+        std::lock_guard<std::mutex> lock(cache.mutex);
+        json doc;
+        doc["dim"] = cache.result.dim;
+        doc["total_variance"] = cache.result.totalVariance;
+        doc["explained_ratio"] = cache.result.explainedRatio;
+
+        json pts = json::array();
+        for (const auto& sv : cache.cachedVectors) {
+            json pt;
+            pt["id"] = sv.id;
+            auto it = cache.nodeCoords.find(sv.id);
+            if (it != cache.nodeCoords.end()) {
+                pt["x"] = it->second.first;
+                pt["y"] = it->second.second;
+            } else {
+                pt["x"] = 0.0f;
+                pt["y"] = 0.0f;
+            }
+
+            if (isDocs) {
+                json meta = json::parse(sv.metadata, nullptr, false);
+                if (meta.is_object()) {
+                    if (meta.contains("doc_id")) pt["doc_id"] = meta["doc_id"];
+                    if (meta.contains("chunk_index")) pt["chunk_index"] = meta["chunk_index"];
+                    if (meta.contains("title")) pt["title"] = meta["title"];
+                }
+            } else {
+                if (!sv.metadata.empty()) {
+                    pt["metadata"] = parseMetadata(sv.metadata);
+                }
+            }
+            pts.push_back(std::move(pt));
+        }
+        doc["points"] = std::move(pts);
+        return {200, doc.dump()};
+    } catch (const std::exception& e) {
+        return makeErrorResponse(500, "internal_error", e.what());
+    }
+}
+
+ApiResponse handlePcaQuery(Collection& collection, PcaCache& cache, const std::string& body) {
+    try {
+        json req = json::parse(body, nullptr, false);
+        if (req.is_discarded() || !req.is_object()) {
+            return makeErrorResponse(400, "invalid_json", "Malformed JSON request body");
+        }
+
+        if (!req.contains("vector") || !req["vector"].is_array()) {
+            return makeErrorResponse(400, "validation_error", "Missing or invalid 'vector' array field");
+        }
+
+        std::size_t dim = collection.getConfig().dimension;
+        if (req["vector"].size() != dim) {
+            return makeErrorResponse(
+                400, "validation_error",
+                "Vector dimension mismatch: expected " + std::to_string(dim) + ", got " + std::to_string(req["vector"].size())
+            );
+        }
+
+        std::vector<float> queryVec;
+        queryVec.reserve(dim);
+        for (const auto& item : req["vector"]) {
+            if (!item.is_number()) {
+                return makeErrorResponse(400, "validation_error", "Vector components must be numeric");
+            }
+            float f = item.get<float>();
+            if (std::isnan(f) || std::isinf(f)) {
+                return makeErrorResponse(400, "validation_error", "Vector contains NaN or infinite values");
+            }
+            queryVec.push_back(f);
+        }
+
+        std::size_t k = 5;
+        if (req.contains("k")) {
+            if (!req["k"].is_number_integer() || req["k"].get<long long>() <= 0 || req["k"].get<long long>() > 1000) {
+                return makeErrorResponse(400, "validation_error", "'k' must be between 1 and 1000");
+            }
+            k = static_cast<std::size_t>(req["k"].get<long long>());
+        }
+
+        Algorithm algo = Algorithm::Hnsw;
+        if (req.contains("algorithm")) {
+            if (!req["algorithm"].is_string()) {
+                return makeErrorResponse(400, "validation_error", "'algorithm' must be a string");
+            }
+            try {
+                algo = stringToAlgorithm(req["algorithm"].get<std::string>());
+            } catch (const std::invalid_argument& e) {
+                return makeErrorResponse(400, "validation_error", e.what());
+            }
+        }
+
+        std::optional<std::size_t> efOpt = std::nullopt;
+        if (req.contains("ef")) {
+            if (!req["ef"].is_number_integer() || req["ef"].get<long long>() <= 0) {
+                return makeErrorResponse(400, "validation_error", "'ef' must be a positive integer");
+            }
+            efOpt = static_cast<std::size_t>(req["ef"].get<long long>());
+        }
+
+        ensurePcaFit(collection, cache, 5000);
+
+        auto results = collection.search(algo, queryVec, k, efOpt);
+
+        std::lock_guard<std::mutex> lock(cache.mutex);
+        auto qProj = projectPca(cache.result, queryVec.data());
+
+        json doc;
+        doc["query_projected"]["x"] = qProj[0];
+        doc["query_projected"]["y"] = qProj[1];
+
+        json resArr = json::array();
+        for (const auto& r : results) {
+            json item;
+            item["id"] = r.id;
+            item["distance"] = r.distance;
+            item["similarity"] = 1.0f - r.distance;
+
+            auto itCoord = cache.nodeCoords.find(r.id);
+            if (itCoord != cache.nodeCoords.end()) {
+                item["x"] = itCoord->second.first;
+                item["y"] = itCoord->second.second;
+            } else {
+                auto v = collection.getVector(r.id);
+                auto pr = projectPca(cache.result, v.data());
+                item["x"] = pr[0];
+                item["y"] = pr[1];
+            }
+
+            std::string metaStr = collection.getMetadata(r.id);
+            if (!metaStr.empty()) {
+                item["metadata"] = parseMetadata(metaStr);
+            }
+            resArr.push_back(std::move(item));
+        }
+
+        doc["results"] = std::move(resArr);
+        return {200, doc.dump()};
+    } catch (const std::invalid_argument& e) {
+        return makeErrorResponse(400, "validation_error", e.what());
+    } catch (const std::exception& e) {
+        return makeErrorResponse(500, "internal_error", e.what());
+    }
+}
+
+ApiResponse handleDocsPcaQuery(RagPipeline& rag, PcaCache& cache, const std::string& body) {
+    try {
+        json req = json::parse(body, nullptr, false);
+        if (req.is_discarded() || !req.is_object()) {
+            return makeErrorResponse(400, "invalid_json", "Malformed JSON request body");
+        }
+
+        std::size_t k = 5;
+        if (req.contains("k")) {
+            if (!req["k"].is_number_integer() || req["k"].get<long long>() <= 0 || req["k"].get<long long>() > 1000) {
+                return makeErrorResponse(400, "validation_error", "'k' must be between 1 and 1000");
+            }
+            k = static_cast<std::size_t>(req["k"].get<long long>());
+        }
+
+        Algorithm algo = Algorithm::Hnsw;
+        if (req.contains("algorithm")) {
+            if (!req["algorithm"].is_string()) {
+                return makeErrorResponse(400, "validation_error", "'algorithm' must be a string");
+            }
+            try {
+                algo = stringToAlgorithm(req["algorithm"].get<std::string>());
+            } catch (const std::invalid_argument& e) {
+                return makeErrorResponse(400, "validation_error", e.what());
+            }
+        }
+
+        std::optional<std::size_t> efOpt = std::nullopt;
+        if (req.contains("ef")) {
+            if (!req["ef"].is_number_integer() || req["ef"].get<long long>() <= 0) {
+                return makeErrorResponse(400, "validation_error", "'ef' must be a positive integer");
+            }
+            efOpt = static_cast<std::size_t>(req["ef"].get<long long>());
+        }
+
+        std::vector<float> queryVec;
+        std::vector<RetrievedChunk> chunks;
+
+        if (req.contains("query")) {
+            if (!req["query"].is_string()) {
+                return makeErrorResponse(400, "validation_error", "'query' must be a string");
+            }
+            std::string qText = req["query"].get<std::string>();
+            if (qText.empty()) {
+                return makeErrorResponse(400, "validation_error", "'query' must not be empty");
+            }
+
+            auto embedRes = rag.ollama().embed({qText}, EmbedKind::Query);
+            if (embedRes.empty() || embedRes[0].size() != rag.config().dimension) {
+                return makeErrorResponse(502, "ollama_error", "Failed to get query embedding from Ollama");
+            }
+            queryVec = std::move(embedRes[0]);
+            chunks = rag.retrieve(qText, k, algo, efOpt);
+        } else if (req.contains("vector")) {
+            if (!req["vector"].is_array() || req["vector"].size() != rag.config().dimension) {
+                return makeErrorResponse(400, "validation_error", "Missing or invalid 'vector' array");
+            }
+            queryVec.reserve(rag.config().dimension);
+            for (const auto& item : req["vector"]) {
+                if (!item.is_number()) {
+                    return makeErrorResponse(400, "validation_error", "Vector components must be numeric");
+                }
+                float f = item.get<float>();
+                if (std::isnan(f) || std::isinf(f)) {
+                    return makeErrorResponse(400, "validation_error", "Vector contains NaN or infinite values");
+                }
+                queryVec.push_back(f);
+            }
+            auto rawResults = rag.collection().search(algo, queryVec, k, efOpt);
+            for (const auto& r : rawResults) {
+                RetrievedChunk rc;
+                rc.distance = r.distance;
+                rc.similarity = 1.0f - r.distance;
+                std::string metaStr = rag.collection().getMetadata(r.id);
+                json meta = json::parse(metaStr, nullptr, false);
+                if (meta.is_object()) {
+                    rc.docId = meta.value("doc_id", 0ULL);
+                    rc.chunkIndex = meta.value("chunk_index", 0ULL);
+                    rc.title = meta.value("title", "");
+                    rc.startByte = meta.value("start", 0ULL);
+                    rc.endByte = meta.value("end", 0ULL);
+                    rc.text = meta.value("text", "");
+                }
+                chunks.push_back(std::move(rc));
+            }
+        } else {
+            return makeErrorResponse(400, "validation_error", "Request must contain either 'query' or 'vector'");
+        }
+
+        ensurePcaFit(rag.collection(), cache, 5000);
+
+        std::lock_guard<std::mutex> lock(cache.mutex);
+        auto qProj = projectPca(cache.result, queryVec.data());
+
+        json doc;
+        doc["query_projected"]["x"] = qProj[0];
+        doc["query_projected"]["y"] = qProj[1];
+
+        json resArr = json::array();
+        for (const auto& ch : chunks) {
+            json item;
+            item["doc_id"] = ch.docId;
+            item["chunk_index"] = ch.chunkIndex;
+            item["title"] = ch.title;
+            item["start"] = ch.startByte;
+            item["end"] = ch.endByte;
+            item["text"] = ch.text;
+            item["distance"] = ch.distance;
+            item["similarity"] = ch.similarity;
+
+            // Project chunk text embedding if available or project from collection
+            // To get accurate coordinates, we project the chunk text
+            auto chEmb = rag.ollama().embed({ch.text}, EmbedKind::Document);
+            if (!chEmb.empty() && chEmb[0].size() == rag.config().dimension) {
+                auto chProj = projectPca(cache.result, chEmb[0].data());
+                item["x"] = chProj[0];
+                item["y"] = chProj[1];
+            } else {
+                item["x"] = 0.0f;
+                item["y"] = 0.0f;
+            }
+
+            resArr.push_back(std::move(item));
+        }
+
+        doc["results"] = std::move(resArr);
+        return {200, doc.dump()};
+    } catch (const OllamaUnavailable& e) {
+        return makeErrorResponse(503, "ollama_unavailable", e.what());
+    } catch (const OllamaError& e) {
+        return makeErrorResponse(502, "ollama_error", e.what());
+    } catch (const std::invalid_argument& e) {
+        return makeErrorResponse(400, "validation_error", e.what());
+    } catch (const std::exception& e) {
+        return makeErrorResponse(500, "internal_error", e.what());
+    }
+}
+
+ApiResponse handleHnswGraph(const Collection& collection, PcaCache& cache, std::optional<int> layerOpt, std::optional<std::size_t> maxEdgesOpt, bool isDocs) {
+    try {
+        int layer = layerOpt.value_or(0);
+        if (layer < 0) {
+            return makeErrorResponse(400, "validation_error", "Parameter 'layer' must be non-negative");
+        }
+
+        std::size_t maxEdges = maxEdgesOpt.value_or(20000);
+        if (maxEdges > 20000) {
+            maxEdges = 20000;
+        }
+
+        ensurePcaFit(collection, cache, 5000);
+
+        auto graph = collection.hnswLayerGraph(layer, maxEdges);
+
+        std::lock_guard<std::mutex> lock(cache.mutex);
+        json doc;
+        doc["layer"] = graph.layer;
+
+        json nodeArr = json::array();
+        for (VectorId vid : graph.nodes) {
+            json n;
+            n["id"] = vid;
+            auto it = cache.nodeCoords.find(vid);
+            if (it != cache.nodeCoords.end()) {
+                n["x"] = it->second.first;
+                n["y"] = it->second.second;
+            } else {
+                try {
+                    auto vec = collection.getVector(vid);
+                    auto pr = projectPca(cache.result, vec.data());
+                    n["x"] = pr[0];
+                    n["y"] = pr[1];
+                } catch (...) {
+                    n["x"] = 0.0f;
+                    n["y"] = 0.0f;
+                }
+            }
+
+            if (isDocs) {
+                try {
+                    std::string metaStr = collection.getMetadata(vid);
+                    json meta = json::parse(metaStr, nullptr, false);
+                    if (meta.is_object()) {
+                        if (meta.contains("doc_id")) n["doc_id"] = meta["doc_id"];
+                        if (meta.contains("chunk_index")) n["chunk_index"] = meta["chunk_index"];
+                        if (meta.contains("title")) n["title"] = meta["title"];
+                    }
+                } catch (...) {}
+            }
+
+            nodeArr.push_back(std::move(n));
+        }
+        doc["nodes"] = std::move(nodeArr);
+
+        json edgeArr = json::array();
+        for (const auto& e : graph.edges) {
+            json edge;
+            edge["source"] = e.source;
+            edge["target"] = e.target;
+            edgeArr.push_back(std::move(edge));
+        }
+        doc["edges"] = std::move(edgeArr);
+
+        return {200, doc.dump()};
+    } catch (const std::exception& e) {
+        return makeErrorResponse(500, "internal_error", e.what());
+    }
+}
+
 } // namespace vectordb
