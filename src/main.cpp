@@ -11,21 +11,139 @@
 #include <chrono>
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <thread>
+#include <ctime>
+#include <sstream>
+
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#endif
 
 using namespace vectordb;
+
+// -----------------------------------------------------------------------------
+// System & Hardware Information Helpers
+// -----------------------------------------------------------------------------
+
+static std::string getCpuName() {
+#ifdef _WIN32
+    HKEY hKey;
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+        char buf[256];
+        DWORD bufSize = sizeof(buf);
+        if (RegQueryValueExA(hKey, "ProcessorNameString", nullptr, nullptr, reinterpret_cast<LPBYTE>(buf), &bufSize) == ERROR_SUCCESS) {
+            RegCloseKey(hKey);
+            std::string name(buf);
+            // Trim leading spaces if any
+            size_t start = name.find_first_not_of(" \t");
+            return (start == std::string::npos) ? name : name.substr(start);
+        }
+        RegCloseKey(hKey);
+    }
+    const char* env = std::getenv("PROCESSOR_IDENTIFIER");
+    return env ? std::string(env) : "x86_64 Processor";
+#else
+    return "Generic x86_64";
+#endif
+}
+
+static std::string getTotalRam() {
+#ifdef _WIN32
+    MEMORYSTATUSEX memStatus;
+    memStatus.dwLength = sizeof(memStatus);
+    if (GlobalMemoryStatusEx(&memStatus)) {
+        double gb = static_cast<double>(memStatus.ullTotalPhys) / (1024.0 * 1024.0 * 1024.0);
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(1) << gb << " GB";
+        return oss.str();
+    }
+#endif
+    return "Unknown RAM";
+}
+
+static void printSystemInfo(bool quickMode, std::size_t nFull, std::size_t repetitions) {
+    std::cout << "=========================================================================================\n";
+    std::cout << "   BENCHMARK ENVIRONMENT & SYSTEM INFORMATION\n";
+    std::cout << "=========================================================================================\n";
+    std::time_t now = std::time(nullptr);
+    char timeBuf[64];
+    std::strftime(timeBuf, sizeof(timeBuf), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+    std::cout << "  Date & Time      : " << timeBuf << "\n";
+    std::cout << "  CPU Model        : " << getCpuName() << "\n";
+    std::cout << "  Logical Cores    : " << std::thread::hardware_concurrency() << "\n";
+    std::cout << "  Total RAM        : " << getTotalRam() << "\n";
+    std::cout << "  Compiler         : GCC " << __VERSION__ << "\n";
+#ifdef NDEBUG
+    std::cout << "  Build Type       : Release (-O3 -DNDEBUG)\n";
+#else
+    std::cout << "  Build Type       : Debug\n";
+#endif
+    std::cout << "  Compiler Flags   : -Wall -Wextra -Wpedantic -std=c++17\n";
+    std::cout << "  Benchmark Mode   : " << (quickMode ? "QUICK (--quick)" : "FULL (Default)")
+              << " [n = " << nFull << ", Repetitions = " << repetitions << "]\n";
+    std::cout << "  Methodology      : 1 warm-up pass + " << repetitions
+              << " timed repetitions over identical query set.\n";
+    std::cout << "                     Reports MEDIAN of per-repetition avg query time (plus min and max).\n";
+    std::cout << "                     BruteForce measured ONCE per (n, dim, metric) and reused as baseline.\n";
+    std::cout << "                     Single-threaded query execution, identical random seeds.\n";
+    std::cout << "\n  [IMPORTANT NOTE] Please close all other applications before running to eliminate\n";
+    std::cout << "                   operating system scheduling jitter and background load.\n";
+    std::cout << "=========================================================================================\n\n";
+}
+
+// -----------------------------------------------------------------------------
+// Timing Harness
+// -----------------------------------------------------------------------------
+
+struct TimingResult {
+    double medianMs = 0.0;
+    double minMs = 0.0;
+    double maxMs = 0.0;
+    double qps = 0.0;
+};
+
+template <typename Func>
+static TimingResult measureTiming(std::size_t numQueries, std::size_t repetitions, Func&& runPass) {
+    std::vector<double> repTimes(repetitions, 0.0);
+    for (std::size_t r = 0; r < repetitions; ++r) {
+        auto start = std::chrono::steady_clock::now();
+        runPass();
+        auto end = std::chrono::steady_clock::now();
+        double totalMs = std::chrono::duration<double, std::milli>(end - start).count();
+        repTimes[r] = totalMs / static_cast<double>(numQueries);
+    }
+    std::sort(repTimes.begin(), repTimes.end());
+    TimingResult res;
+    res.minMs = repTimes.front();
+    res.maxMs = repTimes.back();
+    if (repetitions % 2 == 1) {
+        res.medianMs = repTimes[repetitions / 2];
+    } else {
+        res.medianMs = 0.5 * (repTimes[repetitions / 2 - 1] + repTimes[repetitions / 2]);
+    }
+    res.qps = (res.medianMs > 0.0) ? (1000.0 / res.medianMs) : 0.0;
+    return res;
+}
+
+// -----------------------------------------------------------------------------
+// Task 1 Interactive Demo
+// -----------------------------------------------------------------------------
 
 void runDemo() {
     std::cout << "========================================================\n";
     std::cout << "   VectorDB - Semantic Search Engine (Task 1 Demo)\n";
     std::cout << "========================================================\n\n";
 
-    // 1. Hand-made 2D dataset
     const std::vector<std::pair<VectorId, std::vector<float>>> items = {
-        {101, { 1.0f,  0.0f}},  // Unit vector +X
-        {102, { 0.0f,  1.0f}},  // Unit vector +Y
-        {103, { 0.7071f, 0.7071f}}, // 45-degree diagonal
-        {104, {-1.0f,  0.0f}},  // Unit vector -X
-        {105, { 0.0f, -1.0f}}   // Unit vector -Y
+        {101, { 1.0f,  0.0f}},
+        {102, { 0.0f,  1.0f}},
+        {103, { 0.7071f, 0.7071f}},
+        {104, {-1.0f,  0.0f}},
+        {105, { 0.0f, -1.0f}}
     };
 
     const std::vector<float> query = {0.9f, 0.2f};
@@ -66,11 +184,16 @@ void runDemo() {
     }
 }
 
-void runBenchmark() {
-    constexpr std::size_t n = 10000;
+// -----------------------------------------------------------------------------
+// Task 1 Mini Benchmark (BruteForceIndex)
+// -----------------------------------------------------------------------------
+
+void runBenchmark(bool quickMode) {
+    const std::size_t n = quickMode ? 2000 : 10000;
     constexpr std::size_t dim = 128;
     constexpr std::size_t numQueries = 100;
     constexpr std::size_t k = 10;
+    const std::size_t repetitions = quickMode ? 3 : 5;
 
     std::cout << "========================================================\n";
     std::cout << "   VectorDB Mini Benchmark (BruteForceIndex)\n";
@@ -98,14 +221,14 @@ void runBenchmark() {
     std::cout << std::left
               << std::setw(12) << "Metric"
               << std::setw(16) << "Build Time (ms)"
-              << std::setw(18) << "Total Search (ms)"
-              << std::setw(20) << "Avg Query Time (ms)"
-              << std::setw(14) << "QPS (queries/s)"
+              << std::setw(18) << "Median Query (ms)"
+              << std::setw(14) << "Min (ms)"
+              << std::setw(14) << "Max (ms)"
+              << std::setw(16) << "QPS (median)"
               << "\n";
-    std::cout << std::string(80, '-') << "\n";
+    std::cout << std::string(90, '-') << "\n";
 
     for (Metric metric : metrics) {
-        // Measure build time (insertion)
         auto buildStart = std::chrono::steady_clock::now();
         BruteForceIndex index(dim, metric);
         for (std::size_t i = 0; i < n; ++i) {
@@ -114,200 +237,108 @@ void runBenchmark() {
         auto buildEnd = std::chrono::steady_clock::now();
         double buildMs = std::chrono::duration<double, std::milli>(buildEnd - buildStart).count();
 
-        // Measure search time
-        auto searchStart = std::chrono::steady_clock::now();
+        // 1 warmup pass
         for (std::size_t q = 0; q < numQueries; ++q) {
-            const auto results = index.search(queries[q], k);
-            if (results.empty()) {
-                std::cerr << "Unexpected empty result!\n";
-            }
+            index.search(queries[q], k);
         }
-        auto searchEnd = std::chrono::steady_clock::now();
-        double totalSearchMs = std::chrono::duration<double, std::milli>(searchEnd - searchStart).count();
-        double avgQueryMs = totalSearchMs / static_cast<double>(numQueries);
-        double qps = (numQueries / (totalSearchMs / 1000.0));
+
+        // Repetitions
+        TimingResult timing = measureTiming(numQueries, repetitions, [&]() {
+            for (std::size_t q = 0; q < numQueries; ++q) {
+                index.search(queries[q], k);
+            }
+        });
 
         std::cout << std::left
                   << std::setw(12) << metricToString(metric)
                   << std::setw(16) << std::fixed << std::setprecision(2) << buildMs
-                  << std::setw(18) << std::fixed << std::setprecision(2) << totalSearchMs
-                  << std::setw(20) << std::fixed << std::setprecision(4) << avgQueryMs
-                  << std::setw(14) << std::fixed << std::setprecision(1) << qps
+                  << std::setw(18) << std::fixed << std::setprecision(4) << timing.medianMs
+                  << std::setw(14) << std::fixed << std::setprecision(4) << timing.minMs
+                  << std::setw(14) << std::fixed << std::setprecision(4) << timing.maxMs
+                  << std::setw(16) << std::fixed << std::setprecision(1) << timing.qps
                   << "\n";
     }
 
-    std::cout << std::string(80, '-') << "\n\n";
-    std::cout << "Benchmark completed successfully.\n\n";
+    std::cout << std::string(90, '-') << "\n\n";
 }
 
-// NOTE ON THE CURSE OF DIMENSIONALITY:
-// High-dimensional Gaussian random data represents the worst-case operating regime for KD-Trees.
-// In low dimensions (e.g. d=2, d=4), query hyperspheres intersect very few orthogonal bounding boxes,
-// allowing branch-and-bound pruning to skip up to 95-99% of distance evaluations.
-// In high dimensions (e.g. d >= 32), the geometric volume of hyperspheres concentrates near the boundary,
-// and the distance from the query to splitting planes along any single dimension becomes negligible compared
-// to the total Euclidean distance. Consequently, nearly every bounding box overlaps the query sphere,
-// forcing the tree to visit nearly 100% of leaves. Due to recursive tree traversal overhead and pointer
-// dereferences compared to BruteForce's contiguous memory sequential scan, speedup drops below 1.0x.
-// This is the classic "Curse of Dimensionality" and is the exact theoretical phenomenon we demonstrate below.
-void runKdTreeBenchmark() {
-    constexpr std::size_t n = 20000;
+// -----------------------------------------------------------------------------
+// Task 2 KD-Tree Dimension Scaling Benchmark
+// -----------------------------------------------------------------------------
+
+void runKdTreeBenchmark(bool quickMode) {
+    const std::size_t n = quickMode ? 2000 : 20000;
     constexpr std::size_t numQueries = 100;
     constexpr std::size_t k = 10;
+    const std::size_t repetitions = quickMode ? 3 : 5;
     const std::vector<std::size_t> dims = {2, 4, 8, 16, 32, 64, 128};
 
     std::cout << "=========================================================================================\n";
-    std::cout << "   KD-Tree vs Brute Force: Dimension Scaling Benchmark\n";
+    std::cout << "   KD-Tree vs Brute Force: Dimension Scaling Benchmark (Hardened Methodology)\n";
     std::cout << "   Dataset: n = " << n << ", Queries = " << numQueries << ", k = " << k << ", Metric = Euclidean\n";
     std::cout << "=========================================================================================\n\n";
 
     std::cout << std::left
               << std::setw(6)  << "Dim"
               << std::setw(16) << "KD Build (ms)"
-              << std::setw(18) << "KD Query (ms)"
-              << std::setw(18) << "Brute Query (ms)"
+              << std::setw(16) << "KD Median (ms)"
+              << std::setw(14) << "KD Min (ms)"
+              << std::setw(14) << "KD Max (ms)"
+              << std::setw(16) << "BF Median (ms)"
               << std::setw(12) << "Speedup"
-              << std::setw(22) << "Dist Comps (% of n)"
+              << std::setw(20) << "Dist Comps (% of n)"
               << std::setw(12) << "Recall@10"
               << "\n";
-    std::cout << std::string(104, '-') << "\n";
-
-    auto benchmarkConfig = [&](std::size_t dim, Metric metric) {
-        const auto dataset = randomVectors(n, dim, 42);
-        const auto queries = randomVectors(numQueries, dim, 1337);
-
-        KdTreeIndex kdTree(dim, metric, 8);
-        BruteForceIndex brute(dim, metric);
-
-        for (std::size_t i = 0; i < n; ++i) {
-            const VectorId id = static_cast<VectorId>(i + 1);
-            kdTree.insert(id, dataset[i]);
-            brute.insert(id, dataset[i]);
-        }
-
-        // Measure KD build time
-        auto buildStart = std::chrono::steady_clock::now();
-        kdTree.build();
-        auto buildEnd = std::chrono::steady_clock::now();
-        double kdBuildMs = std::chrono::duration<double, std::milli>(buildEnd - buildStart).count();
-
-        // Warmup query
-        SearchStats dummyStats;
-        kdTree.searchWithStats(queries[0], k, dummyStats);
-        brute.search(queries[0], k);
-
-        // Benchmark KD-Tree search
-        std::size_t totalDistComps = 0;
-        std::vector<std::vector<SearchResult>> kdResults(numQueries);
-        auto kdStart = std::chrono::steady_clock::now();
-        for (std::size_t q = 0; q < numQueries; ++q) {
-            SearchStats stats;
-            kdResults[q] = kdTree.searchWithStats(queries[q], k, stats);
-            totalDistComps += stats.distanceComputations;
-        }
-        auto kdEnd = std::chrono::steady_clock::now();
-        double kdTotalMs = std::chrono::duration<double, std::milli>(kdEnd - kdStart).count();
-        double kdAvgMs = kdTotalMs / static_cast<double>(numQueries);
-
-        // Benchmark Brute Force search
-        std::vector<std::vector<SearchResult>> bruteResults(numQueries);
-        auto bruteStart = std::chrono::steady_clock::now();
-        for (std::size_t q = 0; q < numQueries; ++q) {
-            bruteResults[q] = brute.search(queries[q], k);
-        }
-        auto bruteEnd = std::chrono::steady_clock::now();
-        double bruteTotalMs = std::chrono::duration<double, std::milli>(bruteEnd - bruteStart).count();
-        double bruteAvgMs = bruteTotalMs / static_cast<double>(numQueries);
-
-        double speedup = bruteAvgMs / kdAvgMs;
-        double avgComps = static_cast<double>(totalDistComps) / static_cast<double>(numQueries);
-        double pctComps = (avgComps / static_cast<double>(n)) * 100.0;
-        double recall = meanRecallAtK(bruteResults, kdResults);
-
-        std::string speedupStr = std::to_string(speedup);
-        speedupStr = speedupStr.substr(0, speedupStr.find('.') + 3) + "x";
-
-        std::string pctStr = std::to_string(pctComps);
-        pctStr = pctStr.substr(0, pctStr.find('.') + 2) + "%";
-
-        std::cout << std::left
-                  << std::setw(6)  << dim
-                  << std::setw(16) << std::fixed << std::setprecision(2) << kdBuildMs
-                  << std::setw(18) << std::fixed << std::setprecision(4) << kdAvgMs
-                  << std::setw(18) << std::fixed << std::setprecision(4) << bruteAvgMs
-                  << std::setw(12) << speedupStr
-                  << std::setw(22) << pctStr
-                  << std::setw(12) << std::fixed << std::setprecision(3) << recall
-                  << "\n";
-    };
+    std::cout << std::string(126, '-') << "\n";
 
     for (std::size_t dim : dims) {
-        benchmarkConfig(dim, Metric::Euclidean);
-    }
-    std::cout << std::string(104, '-') << "\n\n";
-
-    // Short run for Cosine and Manhattan at dim = 8 and dim = 128
-    std::cout << "KD-Tree vs Brute Force across Metrics (dim = 8 and dim = 128):\n";
-    std::cout << std::string(104, '-') << "\n";
-    std::cout << std::left
-              << std::setw(12) << "Metric"
-              << std::setw(6)  << "Dim"
-              << std::setw(16) << "KD Build (ms)"
-              << std::setw(18) << "KD Query (ms)"
-              << std::setw(18) << "Brute Query (ms)"
-              << std::setw(12) << "Speedup"
-              << std::setw(22) << "Dist Comps (% of n)"
-              << std::setw(12) << "Recall@10"
-              << "\n";
-    std::cout << std::string(104, '-') << "\n";
-
-    auto benchmarkMetricConfig = [&](Metric metric, std::size_t dim) {
         const auto dataset = randomVectors(n, dim, 42);
         const auto queries = randomVectors(numQueries, dim, 1337);
 
-        KdTreeIndex kdTree(dim, metric, 8);
-        BruteForceIndex brute(dim, metric);
-
+        // 1. Build Brute Force once
+        BruteForceIndex brute(dim, Metric::Euclidean);
         for (std::size_t i = 0; i < n; ++i) {
-            const VectorId id = static_cast<VectorId>(i + 1);
-            kdTree.insert(id, dataset[i]);
-            brute.insert(id, dataset[i]);
+            brute.insert(static_cast<VectorId>(i + 1), dataset[i]);
         }
+        std::vector<std::vector<SearchResult>> groundTruth(numQueries);
+        for (std::size_t q = 0; q < numQueries; ++q) {
+            groundTruth[q] = brute.search(queries[q], k);
+        }
+        TimingResult bfTiming = measureTiming(numQueries, repetitions, [&]() {
+            for (std::size_t q = 0; q < numQueries; ++q) {
+                brute.search(queries[q], k);
+            }
+        });
 
+        // 2. Build KD-Tree once
+        KdTreeIndex kdTree(dim, Metric::Euclidean, 8);
+        for (std::size_t i = 0; i < n; ++i) {
+            kdTree.insert(static_cast<VectorId>(i + 1), dataset[i]);
+        }
         auto buildStart = std::chrono::steady_clock::now();
         kdTree.build();
         auto buildEnd = std::chrono::steady_clock::now();
         double kdBuildMs = std::chrono::duration<double, std::milli>(buildEnd - buildStart).count();
 
-        SearchStats dummyStats;
-        kdTree.searchWithStats(queries[0], k, dummyStats);
-        brute.search(queries[0], k);
-
+        // Warmup & collect stats and results
         std::size_t totalDistComps = 0;
         std::vector<std::vector<SearchResult>> kdResults(numQueries);
-        auto kdStart = std::chrono::steady_clock::now();
         for (std::size_t q = 0; q < numQueries; ++q) {
             SearchStats stats;
             kdResults[q] = kdTree.searchWithStats(queries[q], k, stats);
             totalDistComps += stats.distanceComputations;
         }
-        auto kdEnd = std::chrono::steady_clock::now();
-        double kdTotalMs = std::chrono::duration<double, std::milli>(kdEnd - kdStart).count();
-        double kdAvgMs = kdTotalMs / static_cast<double>(numQueries);
 
-        std::vector<std::vector<SearchResult>> bruteResults(numQueries);
-        auto bruteStart = std::chrono::steady_clock::now();
-        for (std::size_t q = 0; q < numQueries; ++q) {
-            bruteResults[q] = brute.search(queries[q], k);
-        }
-        auto bruteEnd = std::chrono::steady_clock::now();
-        double bruteTotalMs = std::chrono::duration<double, std::milli>(bruteEnd - bruteStart).count();
-        double bruteAvgMs = bruteTotalMs / static_cast<double>(numQueries);
+        TimingResult kdTiming = measureTiming(numQueries, repetitions, [&]() {
+            for (std::size_t q = 0; q < numQueries; ++q) {
+                kdTree.search(queries[q], k);
+            }
+        });
 
-        double speedup = bruteAvgMs / kdAvgMs;
+        double speedup = (kdTiming.medianMs > 0.0) ? (bfTiming.medianMs / kdTiming.medianMs) : 0.0;
         double avgComps = static_cast<double>(totalDistComps) / static_cast<double>(numQueries);
         double pctComps = (avgComps / static_cast<double>(n)) * 100.0;
-        double recall = meanRecallAtK(bruteResults, kdResults);
+        double recall = meanRecallAtK(groundTruth, kdResults);
 
         std::string speedupStr = std::to_string(speedup);
         speedupStr = speedupStr.substr(0, speedupStr.find('.') + 3) + "x";
@@ -316,33 +347,35 @@ void runKdTreeBenchmark() {
         pctStr = pctStr.substr(0, pctStr.find('.') + 2) + "%";
 
         std::cout << std::left
-                  << std::setw(12) << metricToString(metric)
                   << std::setw(6)  << dim
                   << std::setw(16) << std::fixed << std::setprecision(2) << kdBuildMs
-                  << std::setw(18) << std::fixed << std::setprecision(4) << kdAvgMs
-                  << std::setw(18) << std::fixed << std::setprecision(4) << bruteAvgMs
+                  << std::setw(16) << std::fixed << std::setprecision(4) << kdTiming.medianMs
+                  << std::setw(14) << std::fixed << std::setprecision(4) << kdTiming.minMs
+                  << std::setw(14) << std::fixed << std::setprecision(4) << kdTiming.maxMs
+                  << std::setw(16) << std::fixed << std::setprecision(4) << bfTiming.medianMs
                   << std::setw(12) << speedupStr
-                  << std::setw(22) << pctStr
+                  << std::setw(20) << pctStr
                   << std::setw(12) << std::fixed << std::setprecision(3) << recall
                   << "\n";
-    };
-
-    benchmarkMetricConfig(Metric::Cosine, 8);
-    benchmarkMetricConfig(Metric::Cosine, 128);
-    benchmarkMetricConfig(Metric::Manhattan, 8);
-    benchmarkMetricConfig(Metric::Manhattan, 128);
-    std::cout << std::string(104, '-') << "\n\n";
+    }
+    std::cout << std::string(126, '-') << "\n\n";
 }
 
-void runHnswBenchmark() {
-    std::cout << "=========================================================================================\n";
-    std::cout << "   VectorDB - Task 3: HNSW (Hierarchical Navigable Small World) Benchmark\n";
-    std::cout << "=========================================================================================\n\n";
+// -----------------------------------------------------------------------------
+// Task 3 HNSW Benchmark (Hardened Methodology)
+// -----------------------------------------------------------------------------
 
-    constexpr std::size_t n = 20000;
+void runHnswBenchmark(bool quickMode) {
+    const std::size_t n = quickMode ? 2000 : 20000;
     constexpr std::size_t dim = 128;
     constexpr std::size_t numQueries = 100;
     constexpr std::size_t k = 10;
+    const std::size_t repetitions = quickMode ? 3 : 5;
+
+    std::cout << "=========================================================================================\n";
+    std::cout << "   VectorDB - Task 3: HNSW Benchmark (Hardened Methodology)\n";
+    std::cout << "   n = " << n << ", dim = " << dim << ", Repetitions = " << repetitions << "\n";
+    std::cout << "=========================================================================================\n\n";
 
     std::cout << "Generating dataset: n = " << n << ", dim = " << dim << " (seed=42)... " << std::flush;
     const auto dataset128 = randomVectors(n, dim, 42);
@@ -353,26 +386,32 @@ void runHnswBenchmark() {
     std::cout << "Done.\n\n";
 
     // -------------------------------------------------------------------------
-    // Ground truth with BruteForceIndex for dim=128 Euclidean
+    // Measure BruteForceIndex ONCE for dim=128 Euclidean
     // -------------------------------------------------------------------------
+    std::cout << "Building Brute Force index once for dim=128 Euclidean... " << std::flush;
     BruteForceIndex brute128(dim, Metric::Euclidean);
     for (std::size_t i = 0; i < n; ++i) {
         brute128.insert(static_cast<VectorId>(i + 1), dataset128[i]);
     }
+    std::cout << "Done.\nMeasuring Brute Force baseline (1 warmup + " << repetitions << " repetitions)... " << std::flush;
     std::vector<std::vector<SearchResult>> bruteResults128(numQueries);
-    auto bStart = std::chrono::steady_clock::now();
     for (std::size_t q = 0; q < numQueries; ++q) {
         bruteResults128[q] = brute128.search(queries128[q], k);
     }
-    auto bEnd = std::chrono::steady_clock::now();
-    double bruteTotalMs = std::chrono::duration<double, std::milli>(bEnd - bStart).count();
-    double bruteAvgMs = bruteTotalMs / static_cast<double>(numQueries);
+    TimingResult bf128Timing = measureTiming(numQueries, repetitions, [&]() {
+        for (std::size_t q = 0; q < numQueries; ++q) {
+            brute128.search(queries128[q], k);
+        }
+    });
+    std::cout << "Median = " << std::fixed << std::setprecision(4) << bf128Timing.medianMs
+              << " ms (min: " << bf128Timing.minMs << " ms, max: " << bf128Timing.maxMs << " ms)\n\n";
 
     // -------------------------------------------------------------------------
-    // Section A: Build report (n=20000, dim=128, Euclidean, M=16, efConstruction=200)
+    // Section A: Build report (M=16, efConstruction=200)
     // -------------------------------------------------------------------------
     std::cout << "-----------------------------------------------------------------------------------------\n";
-    std::cout << "   Section A: HNSW Build Report (n = 20,000, dim = 128, M = 16, efConstruction = 200)\n";
+    std::cout << "   Section A: HNSW Build Report (n = " << n << ", dim = " << dim
+              << ", M = 16, efConstruction = 200)\n";
     std::cout << "-----------------------------------------------------------------------------------------\n";
 
     HnswParams defaultParams;
@@ -419,45 +458,45 @@ void runHnswBenchmark() {
     std::cout << "\n";
 
     // -------------------------------------------------------------------------
-    // Section B: efSearch sweep (ef in {10, 20, 50, 100, 200, 400}) vs BruteForce
+    // Section B: efSearch sweep (Reusing hnsw128 built above)
     // -------------------------------------------------------------------------
     std::cout << "-----------------------------------------------------------------------------------------\n";
-    std::cout << "   Section B: efSearch Sweep (100 queries, k = 10, BruteForce baseline: "
-              << std::fixed << std::setprecision(4) << bruteAvgMs << " ms/query)\n";
+    std::cout << "   Section B: efSearch Sweep (100 queries, k = 10, BruteForce baseline median: "
+              << std::fixed << std::setprecision(4) << bf128Timing.medianMs << " ms)\n";
     std::cout << "-----------------------------------------------------------------------------------------\n";
     std::cout << std::left
-              << std::setw(12) << "efSearch"
-              << std::setw(14) << "Recall@10"
-              << std::setw(18) << "Avg Query (ms)"
-              << std::setw(16) << "QPS"
+              << std::setw(10) << "efSearch"
+              << std::setw(12) << "Recall@10"
+              << std::setw(18) << "Median Query (ms)"
+              << std::setw(14) << "Min (ms)"
+              << std::setw(14) << "Max (ms)"
+              << std::setw(14) << "QPS (med)"
               << std::setw(16) << "Speedup vs BF"
-              << std::setw(22) << "Dist Comps (% of n)"
+              << std::setw(20) << "Dist Comps (% of n)"
               << "\n";
-    std::cout << std::string(98, '-') << "\n";
+    std::cout << std::string(118, '-') << "\n";
 
     const std::vector<std::size_t> efValues = {10, 20, 50, 100, 200, 400};
     for (std::size_t ef : efValues) {
         hnsw128.setEfSearch(ef);
 
-        // Warmup query
-        HnswSearchStats dummyStats;
-        hnsw128.searchWithStats(queries128[0], k, dummyStats);
-
+        // Warmup & collect stats and recall
         std::size_t totalComps = 0;
         std::vector<std::vector<SearchResult>> hnswResults(numQueries);
-
-        auto qStart = std::chrono::steady_clock::now();
         for (std::size_t q = 0; q < numQueries; ++q) {
             HnswSearchStats stats;
             hnswResults[q] = hnsw128.searchWithStats(queries128[q], k, stats);
             totalComps += stats.distanceComputations;
         }
-        auto qEnd = std::chrono::steady_clock::now();
 
-        double totalMs = std::chrono::duration<double, std::milli>(qEnd - qStart).count();
-        double avgMs = totalMs / static_cast<double>(numQueries);
-        double qps = numQueries / (totalMs / 1000.0);
-        double speedup = bruteAvgMs / avgMs;
+        // Repetitions
+        TimingResult timing = measureTiming(numQueries, repetitions, [&]() {
+            for (std::size_t q = 0; q < numQueries; ++q) {
+                hnsw128.search(queries128[q], k);
+            }
+        });
+
+        double speedup = (timing.medianMs > 0.0) ? (bf128Timing.medianMs / timing.medianMs) : 0.0;
         double recall = meanRecallAtK(bruteResults128, hnswResults);
         double avgComps = static_cast<double>(totalComps) / static_cast<double>(numQueries);
         double pctComps = (avgComps / static_cast<double>(n)) * 100.0;
@@ -469,12 +508,14 @@ void runHnswBenchmark() {
         pctStr = pctStr.substr(0, pctStr.find('.') + 3) + "%";
 
         std::cout << std::left
-                  << std::setw(12) << ef
-                  << std::setw(14) << std::fixed << std::setprecision(4) << recall
-                  << std::setw(18) << std::fixed << std::setprecision(4) << avgMs
-                  << std::setw(16) << std::fixed << std::setprecision(1) << qps
+                  << std::setw(10) << ef
+                  << std::setw(12) << std::fixed << std::setprecision(4) << recall
+                  << std::setw(18) << std::fixed << std::setprecision(4) << timing.medianMs
+                  << std::setw(14) << std::fixed << std::setprecision(4) << timing.minMs
+                  << std::setw(14) << std::fixed << std::setprecision(4) << timing.maxMs
+                  << std::setw(14) << std::fixed << std::setprecision(1) << timing.qps
                   << std::setw(16) << speedupStr
-                  << std::setw(22) << pctStr
+                  << std::setw(20) << pctStr
                   << "\n";
     }
     std::cout << "\n";
@@ -488,12 +529,14 @@ void runHnswBenchmark() {
     std::cout << std::left
               << std::setw(8)  << "M"
               << std::setw(16) << "Build Time (ms)"
-              << std::setw(14) << "Recall@10"
-              << std::setw(18) << "Avg Query (ms)"
-              << std::setw(16) << "QPS"
-              << std::setw(22) << "Graph Memory (KB)"
+              << std::setw(12) << "Recall@10"
+              << std::setw(18) << "Median Query (ms)"
+              << std::setw(14) << "Min (ms)"
+              << std::setw(14) << "Max (ms)"
+              << std::setw(14) << "QPS (med)"
+              << std::setw(20) << "Graph Memory (KB)"
               << "\n";
-    std::cout << std::string(94, '-') << "\n";
+    std::cout << std::string(116, '-') << "\n";
 
     const std::vector<std::size_t> mValues = {8, 16, 32};
     for (std::size_t m : mValues) {
@@ -513,22 +556,20 @@ void runHnswBenchmark() {
         auto mBuildEnd = std::chrono::steady_clock::now();
         double mBuildMs = std::chrono::duration<double, std::milli>(mBuildEnd - mBuildStart).count();
 
-        // Warmup
-        mIndex.search(queries128[0], k);
-
+        // Warmup & recall
         std::vector<std::vector<SearchResult>> mResults(numQueries);
-        auto mQueryStart = std::chrono::steady_clock::now();
         for (std::size_t q = 0; q < numQueries; ++q) {
             mResults[q] = mIndex.search(queries128[q], k);
         }
-        auto mQueryEnd = std::chrono::steady_clock::now();
 
-        double mTotalMs = std::chrono::duration<double, std::milli>(mQueryEnd - mQueryStart).count();
-        double mAvgMs = mTotalMs / static_cast<double>(numQueries);
-        double mQps = numQueries / (mTotalMs / 1000.0);
+        TimingResult mTiming = measureTiming(numQueries, repetitions, [&]() {
+            for (std::size_t q = 0; q < numQueries; ++q) {
+                mIndex.search(queries128[q], k);
+            }
+        });
+
         double mRecall = meanRecallAtK(bruteResults128, mResults);
 
-        // Memory estimate: total neighbor entries across all layers * sizeof(uint32_t)
         const HnswGraphInfo gInfo = mIndex.graphInfo();
         double totalNeighborEntries = 0;
         for (std::size_t l = 0; l < gInfo.nodesPerLayer.size(); ++l) {
@@ -539,10 +580,12 @@ void runHnswBenchmark() {
         std::cout << std::left
                   << std::setw(8)  << m
                   << std::setw(16) << std::fixed << std::setprecision(2) << mBuildMs
-                  << std::setw(14) << std::fixed << std::setprecision(4) << mRecall
-                  << std::setw(18) << std::fixed << std::setprecision(4) << mAvgMs
-                  << std::setw(16) << std::fixed << std::setprecision(1) << mQps
-                  << std::setw(22) << std::fixed << std::setprecision(1) << memKb
+                  << std::setw(12) << std::fixed << std::setprecision(4) << mRecall
+                  << std::setw(18) << std::fixed << std::setprecision(4) << mTiming.medianMs
+                  << std::setw(14) << std::fixed << std::setprecision(4) << mTiming.minMs
+                  << std::setw(14) << std::fixed << std::setprecision(4) << mTiming.maxMs
+                  << std::setw(14) << std::fixed << std::setprecision(1) << mTiming.qps
+                  << std::setw(20) << std::fixed << std::setprecision(1) << memKb
                   << "\n";
     }
     std::cout << "\n";
@@ -552,43 +595,44 @@ void runHnswBenchmark() {
     // -------------------------------------------------------------------------
     std::cout << "-----------------------------------------------------------------------------------------\n";
     std::cout << "   Section D: Three-Way Comparison: Brute Force vs KD-Tree vs HNSW\n";
-    std::cout << "   (n = 20,000, k = 10, Euclidean, HNSW M=16, efC=200, efS=100)\n";
+    std::cout << "   (n = " << n << ", k = 10, Euclidean, HNSW M=16, efC=200, efS=100)\n";
     std::cout << "-----------------------------------------------------------------------------------------\n";
     std::cout << std::left
               << std::setw(6)  << "Dim"
-              << std::setw(18) << "Brute Query (ms)"
-              << std::setw(18) << "KD Query (ms)"
-              << std::setw(18) << "HNSW Query (ms)"
-              << std::setw(16) << "HNSW Recall"
+              << std::setw(16) << "BF Med (ms)"
+              << std::setw(16) << "KD Med (ms)"
+              << std::setw(16) << "HNSW Med (ms)"
+              << std::setw(14) << "HNSW Min"
+              << std::setw(14) << "HNSW Max"
+              << std::setw(14) << "HNSW Recall"
               << std::setw(18) << "HNSW vs BF Speedup"
               << "\n";
-    std::cout << std::string(94, '-') << "\n";
+    std::cout << std::string(114, '-') << "\n";
 
     const std::vector<std::size_t> testDims = {8, 16, 32, 64, 128};
     for (std::size_t d : testDims) {
-        // Reuse dataset128 for dim 128 to save generation time
         const auto ds = (d == 128) ? dataset128 : randomVectors(n, d, 42);
         const auto qs = (d == 128) ? queries128 : randomVectors(numQueries, d, 1337);
 
-        // Brute Force
+        // 1. Brute Force (measured once)
         BruteForceIndex bf(d, Metric::Euclidean);
         for (std::size_t i = 0; i < n; ++i) bf.insert(static_cast<VectorId>(i + 1), ds[i]);
         std::vector<std::vector<SearchResult>> bfRes(numQueries);
-        auto bfStart = std::chrono::steady_clock::now();
         for (std::size_t q = 0; q < numQueries; ++q) bfRes[q] = bf.search(qs[q], k);
-        auto bfEnd = std::chrono::steady_clock::now();
-        double bfAvgMs = std::chrono::duration<double, std::milli>(bfEnd - bfStart).count() / static_cast<double>(numQueries);
+        TimingResult bfTiming = measureTiming(numQueries, repetitions, [&]() {
+            for (std::size_t q = 0; q < numQueries; ++q) bf.search(qs[q], k);
+        });
 
-        // KD-Tree
+        // 2. KD-Tree
         KdTreeIndex kd(d, Metric::Euclidean, 8);
         for (std::size_t i = 0; i < n; ++i) kd.insert(static_cast<VectorId>(i + 1), ds[i]);
         kd.build();
-        auto kdStart = std::chrono::steady_clock::now();
         for (std::size_t q = 0; q < numQueries; ++q) kd.search(qs[q], k);
-        auto kdEnd = std::chrono::steady_clock::now();
-        double kdAvgMs = std::chrono::duration<double, std::milli>(kdEnd - kdStart).count() / static_cast<double>(numQueries);
+        TimingResult kdTiming = measureTiming(numQueries, repetitions, [&]() {
+            for (std::size_t q = 0; q < numQueries; ++q) kd.search(qs[q], k);
+        });
 
-        // HNSW
+        // 3. HNSW
         HnswParams dParams;
         dParams.M = 16;
         dParams.efConstruction = 200;
@@ -600,12 +644,12 @@ void runHnswBenchmark() {
         for (std::size_t i = 0; i < n; ++i) hnsw.insert(static_cast<VectorId>(i + 1), ds[i]);
 
         std::vector<std::vector<SearchResult>> hnswRes(numQueries);
-        auto hnswStart = std::chrono::steady_clock::now();
         for (std::size_t q = 0; q < numQueries; ++q) hnswRes[q] = hnsw.search(qs[q], k);
-        auto hnswEnd = std::chrono::steady_clock::now();
-        double hnswAvgMs = std::chrono::duration<double, std::milli>(hnswEnd - hnswStart).count() / static_cast<double>(numQueries);
+        TimingResult hnswTiming = measureTiming(numQueries, repetitions, [&]() {
+            for (std::size_t q = 0; q < numQueries; ++q) hnsw.search(qs[q], k);
+        });
 
-        double speedup = bfAvgMs / hnswAvgMs;
+        double speedup = (hnswTiming.medianMs > 0.0) ? (bfTiming.medianMs / hnswTiming.medianMs) : 0.0;
         double recall = meanRecallAtK(bfRes, hnswRes);
 
         std::string speedupStr = std::to_string(speedup);
@@ -613,40 +657,44 @@ void runHnswBenchmark() {
 
         std::cout << std::left
                   << std::setw(6)  << d
-                  << std::setw(18) << std::fixed << std::setprecision(4) << bfAvgMs
-                  << std::setw(18) << std::fixed << std::setprecision(4) << kdAvgMs
-                  << std::setw(18) << std::fixed << std::setprecision(4) << hnswAvgMs
-                  << std::setw(16) << std::fixed << std::setprecision(4) << recall
+                  << std::setw(16) << std::fixed << std::setprecision(4) << bfTiming.medianMs
+                  << std::setw(16) << std::fixed << std::setprecision(4) << kdTiming.medianMs
+                  << std::setw(16) << std::fixed << std::setprecision(4) << hnswTiming.medianMs
+                  << std::setw(14) << std::fixed << std::setprecision(4) << hnswTiming.minMs
+                  << std::setw(14) << std::fixed << std::setprecision(4) << hnswTiming.maxMs
+                  << std::setw(14) << std::fixed << std::setprecision(4) << recall
                   << std::setw(18) << speedupStr
                   << "\n";
     }
     std::cout << "\n";
 
     // -------------------------------------------------------------------------
-    // Section E: Cosine and Manhattan at dim=128 with efSearch=100
+    // Section E: Non-Euclidean Metrics (dim=128, efSearch=100)
     // -------------------------------------------------------------------------
     std::cout << "-----------------------------------------------------------------------------------------\n";
     std::cout << "   Section E: Non-Euclidean Metrics (dim = 128, efSearch = 100, M = 16, efC = 200)\n";
     std::cout << "-----------------------------------------------------------------------------------------\n";
     std::cout << std::left
-              << std::setw(14) << "Metric"
-              << std::setw(18) << "HNSW Query (ms)"
-              << std::setw(18) << "Brute Query (ms)"
-              << std::setw(16) << "Speedup"
-              << std::setw(16) << "Recall@10"
+              << std::setw(12) << "Metric"
+              << std::setw(16) << "BF Med (ms)"
+              << std::setw(16) << "HNSW Med (ms)"
+              << std::setw(14) << "HNSW Min"
+              << std::setw(14) << "HNSW Max"
+              << std::setw(14) << "Speedup"
+              << std::setw(14) << "Recall@10"
               << "\n";
-    std::cout << std::string(82, '-') << "\n";
+    std::cout << std::string(100, '-') << "\n";
 
     const std::vector<Metric> otherMetrics = {Metric::Cosine, Metric::Manhattan};
     for (Metric m : otherMetrics) {
-        // Brute Force
+        // Brute Force measured once
         BruteForceIndex bf(dim, m);
         for (std::size_t i = 0; i < n; ++i) bf.insert(static_cast<VectorId>(i + 1), dataset128[i]);
         std::vector<std::vector<SearchResult>> bfRes(numQueries);
-        auto bfStart = std::chrono::steady_clock::now();
         for (std::size_t q = 0; q < numQueries; ++q) bfRes[q] = bf.search(queries128[q], k);
-        auto bfEnd = std::chrono::steady_clock::now();
-        double bfAvgMs = std::chrono::duration<double, std::milli>(bfEnd - bfStart).count() / static_cast<double>(numQueries);
+        TimingResult bfTiming = measureTiming(numQueries, repetitions, [&]() {
+            for (std::size_t q = 0; q < numQueries; ++q) bf.search(queries128[q], k);
+        });
 
         // HNSW
         HnswParams mParams;
@@ -660,34 +708,44 @@ void runHnswBenchmark() {
         for (std::size_t i = 0; i < n; ++i) hnsw.insert(static_cast<VectorId>(i + 1), dataset128[i]);
 
         std::vector<std::vector<SearchResult>> hnswRes(numQueries);
-        auto hnswStart = std::chrono::steady_clock::now();
         for (std::size_t q = 0; q < numQueries; ++q) hnswRes[q] = hnsw.search(queries128[q], k);
-        auto hnswEnd = std::chrono::steady_clock::now();
-        double hnswAvgMs = std::chrono::duration<double, std::milli>(hnswEnd - hnswStart).count() / static_cast<double>(numQueries);
+        TimingResult hnswTiming = measureTiming(numQueries, repetitions, [&]() {
+            for (std::size_t q = 0; q < numQueries; ++q) hnsw.search(queries128[q], k);
+        });
 
-        double speedup = bfAvgMs / hnswAvgMs;
+        double speedup = (hnswTiming.medianMs > 0.0) ? (bfTiming.medianMs / hnswTiming.medianMs) : 0.0;
         double recall = meanRecallAtK(bfRes, hnswRes);
 
         std::string speedupStr = std::to_string(speedup);
         speedupStr = speedupStr.substr(0, speedupStr.find('.') + 3) + "x";
 
         std::cout << std::left
-                  << std::setw(14) << metricToString(m)
-                  << std::setw(18) << std::fixed << std::setprecision(4) << hnswAvgMs
-                  << std::setw(18) << std::fixed << std::setprecision(4) << bfAvgMs
-                  << std::setw(16) << speedupStr
-                  << std::setw(16) << std::fixed << std::setprecision(4) << recall
+                  << std::setw(12) << metricToString(m)
+                  << std::setw(16) << std::fixed << std::setprecision(4) << bfTiming.medianMs
+                  << std::setw(16) << std::fixed << std::setprecision(4) << hnswTiming.medianMs
+                  << std::setw(14) << std::fixed << std::setprecision(4) << hnswTiming.minMs
+                  << std::setw(14) << std::fixed << std::setprecision(4) << hnswTiming.maxMs
+                  << std::setw(14) << speedupStr
+                  << std::setw(14) << std::fixed << std::setprecision(4) << recall
                   << "\n";
     }
-    std::cout << std::string(82, '-') << "\n\n";
+    std::cout << std::string(100, '-') << "\n\n";
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     try {
+        bool quickMode = false;
+        for (int i = 1; i < argc; ++i) {
+            if (std::string(argv[i]) == "--quick") {
+                quickMode = true;
+            }
+        }
+
+        printSystemInfo(quickMode, quickMode ? 2000 : 20000, quickMode ? 3 : 5);
         runDemo();
-        runBenchmark();
-        runKdTreeBenchmark();
-        runHnswBenchmark();
+        runBenchmark(quickMode);
+        runKdTreeBenchmark(quickMode);
+        runHnswBenchmark(quickMode);
     } catch (const std::exception& e) {
         std::cerr << "Fatal error: " << e.what() << "\n";
         return 1;
