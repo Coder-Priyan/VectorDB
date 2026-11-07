@@ -1,0 +1,16 @@
+﻿id,answerable,correct,top_similarity,generate_ms,answer_length,answer
+q01,true,PASS,0.6940,13570.7,53,"Jon Louis Bentley introduced the KD-Tree in 1975. [1]"
+q02,true,PASS,0.7563,13278.8,143,"The computational complexity of an exact exhaustive scan is O(N * d), where N is the total number of vectors and d is the vector dimension [1]."
+q03,true,PASS,0.7518,10705.9,183,"A KD-Tree degrades to exhaustive linear scan when the vector dimension d exceeds approximately 20 [2]. The exact recall is guaranteed at the cost of O(N * d) computational complexity."
+q04,true,PASS,0.7814,16196.1,97,"Yury Malkov and Dmitry Yashunin introduced Hierarchical Navigable Small World graphs in 2018 [1]."
+q05,true,PASS,0.6860,15764.9,135,"The geometric decay parameter mL in HNSW is given by the formula mL = 1 / ln(M), where M is the number of nodes in the graph hierarchy."
+q06,true,PASS,0.7275,15256.0,116,"Retrieval-Augmented Generation (RAG) was formalized by Patrick Lewis and colleagues in their 2020 NeurIPS paper [4]."
+q07,true,PASS,0.6956,11961.7,158,"The offline architecture uses the local nomic-embed-text model developed by Nomic AI, which transforms each chunk into a 768-dimensional embedding vector. [1]"
+q08,false,PASS,0.5056,12331.0,48,"I could not find this in the provided documents."
+q09,false,PASS,0.5382,10208.1,48,"I could not find this in the provided documents."
+q10,false,PASS,0.5509,10026.3,48,"I could not find this in the provided documents."
+q11,false,FAIL,0.6673,13316.9,125,"The parameter M in the HNSW geometric decay formula mL = 1 / ln(M) stands for the number of nodes in the graph hierarchy. [1]"
+q12,false,PASS,0.6915,1956.5,48,"I could not find this in the provided documents."
+q13,true,PASS,0.7289,11136.4,133,"The local Llama 3.2 model has 3.21 billion parameters [1]. There is no mention of the GPU it was trained on in the provided excerpts."
+q14,true,PASS,0.6753,10177.3,133,"The context window of nomic-embed-text is 8192 tokens. 
+I could not find information on who invented Python in the provided excerpts."

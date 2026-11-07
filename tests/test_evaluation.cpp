@@ -1,5 +1,6 @@
 #include "test_harness.hpp"
 #include "vectordb/evaluation.hpp"
+#include "vectordb/rag_eval.hpp"
 #include <vector>
 
 using namespace vectordb;
@@ -76,4 +77,77 @@ TEST(EvaluationTest, MeanRecallAtK) {
     const std::vector<std::vector<SearchResult>> emptyList;
     CHECK_NEAR(meanRecallAtK(emptyList, emptyList), 1.0, 1e-6);
 }
+
+TEST(RagEvalTest, ScoreAnswerableCorrect) {
+    EvalQuestion q;
+    q.id = "q1";
+    q.question = "Who introduced KD-Tree?";
+    q.answerable = true;
+    q.expectAny = {"Bentley", "1975"};
+    q.forbidAny = {"refusal", "Malkov"};
+
+    // Contains Bentley (case-insensitive) -> pass
+    CHECK(scoreRagAnswer(q, "Jon Bentley introduced the KD-tree in 1975 [1]."));
+    // Contains lowercase bentley -> pass
+    CHECK(scoreRagAnswer(q, "It was introduced by bentley."));
+}
+
+TEST(RagEvalTest, ScoreAnswerableFailRefusal) {
+    EvalQuestion q;
+    q.id = "q1";
+    q.question = "Who introduced KD-Tree?";
+    q.answerable = true;
+    q.expectAny = {"Bentley"};
+
+    // Fallback refusal on answerable question -> fail
+    CHECK(!scoreRagAnswer(q, "I could not find this in the provided documents."));
+    CHECK(!scoreRagAnswer(q, "  \"I could not find this in the provided documents.\" \n"));
+}
+
+TEST(RagEvalTest, ScoreAnswerableFailMissingExpect) {
+    EvalQuestion q;
+    q.id = "q1";
+    q.question = "Who introduced KD-Tree?";
+    q.answerable = true;
+    q.expectAny = {"Bentley", "1975"};
+
+    // Neither Bentley nor 1975 present
+    CHECK(!scoreRagAnswer(q, "KD-Trees partition multidimensional vector space [1]."));
+}
+
+TEST(RagEvalTest, ScoreAnswerableFailForbiddenWord) {
+    EvalQuestion q;
+    q.id = "q1";
+    q.question = "Who introduced KD-Tree?";
+    q.answerable = true;
+    q.expectAny = {"Bentley"};
+    q.forbidAny = {"hallucination", "untrusted"};
+
+    CHECK(!scoreRagAnswer(q, "Bentley created it, but this is a hallucination."));
+}
+
+TEST(RagEvalTest, ScoreUnanswerableExactRefusal) {
+    EvalQuestion q;
+    q.id = "q2";
+    q.question = "What is the capital of Australia?";
+    q.answerable = false;
+    q.forbidAny = {"Canberra", "Sydney"};
+
+    CHECK(scoreRagAnswer(q, "I could not find this in the provided documents."));
+    CHECK(scoreRagAnswer(q, " \"I could not find this in the provided documents.\""));
+    CHECK(scoreRagAnswer(q, "I could not find this in the provided documents\n"));
+}
+
+TEST(RagEvalTest, ScoreUnanswerableFailHallucination) {
+    EvalQuestion q;
+    q.id = "q2";
+    q.question = "What is the capital of Australia?";
+    q.answerable = false;
+    q.forbidAny = {"Canberra"};
+
+    // Model attempts to answer instead of refusing
+    CHECK(!scoreRagAnswer(q, "The capital of Australia is Canberra."));
+    CHECK(!scoreRagAnswer(q, "Australia is a country."));
+}
+
 

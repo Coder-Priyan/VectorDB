@@ -42,6 +42,7 @@ target_include_directories(vectordb_core PUBLIC
 add_library(vectordb_rag
     src/ollama_client.cpp
     src/rag.cpp
+    src/rag_eval.cpp
 )
 
 target_include_directories(vectordb_rag PUBLIC
@@ -77,6 +78,22 @@ target_link_libraries(vectordb_server PRIVATE vectordb_core vectordb_rag)
 
 if(WIN32)
     target_link_libraries(vectordb_server PRIVATE ws2_32 wsock32)
+endif()
+
+# RAG Evaluation executable
+add_executable(vectordb_rag_eval
+    src/rag_eval_main.cpp
+)
+
+target_include_directories(vectordb_rag_eval PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party
+)
+
+target_link_libraries(vectordb_rag_eval PRIVATE vectordb_core vectordb_rag)
+
+if(WIN32)
+    target_link_libraries(vectordb_rag_eval PRIVATE ws2_32 wsock32)
 endif()
 
 # Test executable

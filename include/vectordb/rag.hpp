@@ -15,6 +15,29 @@
 
 namespace vectordb {
 
+/// RAG prompt template versions
+enum class RagPromptVersion {
+    V1,
+    V2,
+    V3
+};
+
+inline std::string ragPromptVersionToString(RagPromptVersion v) {
+    switch (v) {
+        case RagPromptVersion::V1: return "v1";
+        case RagPromptVersion::V2: return "v2";
+        case RagPromptVersion::V3: return "v3";
+    }
+    return "v2";
+}
+
+inline RagPromptVersion ragPromptVersionFromString(const std::string& str) {
+    if (str == "v1" || str == "V1") return RagPromptVersion::V1;
+    if (str == "v2" || str == "V2") return RagPromptVersion::V2;
+    if (str == "v3" || str == "V3") return RagPromptVersion::V3;
+    throw std::invalid_argument("Unknown rag prompt version: '" + str + "' (expected 'v1', 'v2', or 'v3')");
+}
+
 /// Configuration for the RAG pipeline
 struct RagConfig {
     std::size_t dimension = 768;
@@ -22,6 +45,7 @@ struct RagConfig {
     HnswParams hnsw;
     std::size_t maxDocBytes = 2 * 1024 * 1024;    ///< 2 MB per document
     std::size_t maxChunksPerDoc = 5000;
+    RagPromptVersion promptVersion = RagPromptVersion::V2;
 };
 
 /// Result of document ingestion
@@ -60,6 +84,7 @@ struct RagTimings {
     double embedMs = 0.0;
     double searchMs = 0.0;
     double generateMs = 0.0;
+    double firstTokenMs = 0.0;
     double totalMs = 0.0;
 };
 

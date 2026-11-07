@@ -1,0 +1,101 @@
+[
+  {
+    "id": "q01",
+    "question": "Who introduced the KD-Tree and in what year?",
+    "answerable": true,
+    "expect_any": ["Bentley", "1975"],
+    "forbid_any": ["I could not find this in the provided documents"]
+  },
+  {
+    "id": "q02",
+    "question": "What is the computational complexity of an exact exhaustive scan?",
+    "answerable": true,
+    "expect_any": ["O(N * d)", "O(N*d)", "N * d"],
+    "forbid_any": ["I could not find this in the provided documents"]
+  },
+  {
+    "id": "q03",
+    "question": "At approximately what vector dimension does a KD-Tree degrade to exhaustive linear scan?",
+    "answerable": true,
+    "expect_any": ["20", "exceeds approximately 20"],
+    "forbid_any": ["I could not find this in the provided documents"]
+  },
+  {
+    "id": "q04",
+    "question": "Who introduced Hierarchical Navigable Small World graphs and in what year?",
+    "answerable": true,
+    "expect_any": ["Malkov", "Yashunin", "2018"],
+    "forbid_any": ["I could not find this in the provided documents"]
+  },
+  {
+    "id": "q05",
+    "question": "What is the formula for the geometric decay parameter mL in HNSW?",
+    "answerable": true,
+    "expect_any": ["1 / ln(M)", "1/ln(M)"],
+    "forbid_any": ["I could not find this in the provided documents"]
+  },
+  {
+    "id": "q06",
+    "question": "Who formalized Retrieval-Augmented Generation (RAG) and in what year?",
+    "answerable": true,
+    "expect_any": ["Patrick Lewis", "Lewis", "2020"],
+    "forbid_any": ["I could not find this in the provided documents"]
+  },
+  {
+    "id": "q07",
+    "question": "What embedding model is used in the offline architecture and what is its vector dimension?",
+    "answerable": true,
+    "expect_any": ["nomic-embed-text", "768"],
+    "forbid_any": ["I could not find this in the provided documents"]
+  },
+  {
+    "id": "q08",
+    "question": "What is the capital city of Australia?",
+    "answerable": false,
+    "expect_any": [],
+    "forbid_any": ["Canberra", "Sydney", "Melbourne"]
+  },
+  {
+    "id": "q09",
+    "question": "How much did Google pay to acquire DeepMind in 2014?",
+    "answerable": false,
+    "expect_any": [],
+    "forbid_any": ["dollar", "million", "billion"]
+  },
+  {
+    "id": "q10",
+    "question": "What is the chemical equation for photosynthesis in plants?",
+    "answerable": false,
+    "expect_any": [],
+    "forbid_any": ["glucose", "chlorophyll", "CO2", "H2O"]
+  },
+  {
+    "id": "q11",
+    "question": "What does the parameter M stand for in the HNSW geometric decay formula mL = 1 / ln(M)?",
+    "answerable": false,
+    "expect_any": [],
+    "forbid_any": ["number of nodes", "maximum nodes"]
+  },
+  {
+    "id": "q12",
+    "question": "What optimizer and learning rate were used to train Llama 3.2?",
+    "answerable": false,
+    "expect_any": [],
+    "forbid_any": ["Adam", "AdamW", "SGD", "learning rate"]
+  },
+  {
+    "id": "q13",
+    "question": "How many parameters does the local Llama 3.2 model have, and what GPU was it trained on?",
+    "answerable": true,
+    "expect_any": ["3.21", "3.21-billion", "3.21 billion", "3.2"],
+    "forbid_any": ["A100", "H100", "V100", "RTX"]
+  },
+  {
+    "id": "q14",
+    "question": "What is the context window of nomic-embed-text, and who invented Python?",
+    "answerable": true,
+    "expect_any": ["8192", "8192-token"],
+    "forbid_any": ["Guido", "Rossum"]
+  }
+]
+
