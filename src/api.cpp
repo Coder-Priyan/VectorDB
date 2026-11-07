@@ -1047,6 +1047,27 @@ ApiResponse handleResetDocs(RagPipeline& rag) {
 // SSE Streaming & PCA/Graph Handlers
 // -----------------------------------------------------------------------------
 
+bool isAllowedLoopbackHost(const std::string& hostHeader, int port) {
+    if (hostHeader.empty()) {
+        return false;
+    }
+    std::string h = hostHeader;
+    for (char& c : h) {
+        c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+    }
+    std::string pStr = std::to_string(port);
+    if (h == "127.0.0.1:" + pStr ||
+        h == "localhost:" + pStr ||
+        h == "[::1]:" + pStr ||
+        h == "::1:" + pStr) {
+        return true;
+    }
+    if (port == 80 && (h == "127.0.0.1" || h == "localhost" || h == "[::1]" || h == "::1")) {
+        return true;
+    }
+    return false;
+}
+
 std::string formatSseEvent(const std::string& event, const std::string& data) {
     return "event: " + event + "\ndata: " + data + "\n\n";
 }

@@ -103,6 +103,11 @@ ApiResponse handleResetDocs(RagPipeline& rag);
 // -----------------------------------------------------------------------------
 
 /**
+ * @brief Validates HTTP Host header against allowed loopback hosts for DNS rebinding protection.
+ */
+bool isAllowedLoopbackHost(const std::string& hostHeader, int port);
+
+/**
  * @brief Formats a single Server-Sent Events (SSE) message block: "event: <event>\ndata: <data>\n\n".
  */
 std::string formatSseEvent(const std::string& event, const std::string& data);

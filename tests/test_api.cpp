@@ -374,3 +374,30 @@ TEST(ApiTest, HnswGraphEndpoint) {
     CHECK(negErr.status == 400);
 }
 
+TEST(ApiTest, HostHeaderSecurityCheck) {
+    // Valid loopback hosts on port 8080
+    CHECK(isAllowedLoopbackHost("127.0.0.1:8080", 8080) == true);
+    CHECK(isAllowedLoopbackHost("localhost:8080", 8080) == true);
+    CHECK(isAllowedLoopbackHost("[::1]:8080", 8080) == true);
+    CHECK(isAllowedLoopbackHost("LOCALHOST:8080", 8080) == true); // Case-insensitive
+    CHECK(isAllowedLoopbackHost("LocalHost:8080", 8080) == true);
+
+    // DNS rebinding attack vectors rejected
+    CHECK(isAllowedLoopbackHost("attacker.com:8080", 8080) == false);
+    CHECK(isAllowedLoopbackHost("evil.com", 8080) == false);
+    CHECK(isAllowedLoopbackHost("192.168.1.100:8080", 8080) == false);
+    CHECK(isAllowedLoopbackHost("example.com", 8080) == false);
+
+    // Wrong port rejected
+    CHECK(isAllowedLoopbackHost("127.0.0.1:9090", 8080) == false);
+    CHECK(isAllowedLoopbackHost("localhost:3000", 8080) == false);
+
+    // Empty rejected
+    CHECK(isAllowedLoopbackHost("", 8080) == false);
+
+    // Port 80 allows bare hostnames
+    CHECK(isAllowedLoopbackHost("127.0.0.1", 80) == true);
+    CHECK(isAllowedLoopbackHost("localhost", 80) == true);
+    CHECK(isAllowedLoopbackHost("[::1]", 80) == true);
+}
+

@@ -9,6 +9,7 @@
 #endif
 
 #include "httplib.h"
+#include "nlohmann/json.hpp"
 
 #include <iostream>
 #include <string>
@@ -17,6 +18,7 @@
 #include <atomic>
 
 using namespace vectordb;
+using json = nlohmann::json;
 
 namespace {
 std::atomic<bool> g_running{true};
@@ -51,6 +53,7 @@ int main(int argc, char* argv[]) {
     std::string chatModel = "llama3.2";
     std::size_t ragDim = 768;
     bool allowRemoteOllama = false;
+    std::string corsOrigin = "";
 
     // Parse CLI arguments
     for (int i = 1; i < argc; ++i) {
@@ -83,6 +86,8 @@ int main(int argc, char* argv[]) {
             ragDim = std::stoull(argv[++i]);
         } else if (arg == "--allow-remote-ollama") {
             allowRemoteOllama = true;
+        } else if (arg == "--cors-origin" && i + 1 < argc) {
+            corsOrigin = argv[++i];
         } else if (arg == "--help" || arg == "-h") {
             std::cout << "Usage: vectordb_server [OPTIONS]\n"
                       << "Options:\n"
@@ -100,6 +105,7 @@ int main(int argc, char* argv[]) {
                       << "  --chat-model <NAME>         Ollama chat model (default: llama3.2)\n"
                       << "  --rag-dim <DIM>             Embedding dimension for RAG documents (default: 768)\n"
                       << "  --allow-remote-ollama       Allow connecting to non-loopback Ollama hosts (default: off)\n"
+                      << "  --cors-origin <ORIGIN>      Allowed CORS origin header (default: disabled / same-origin only)\n"
                       << "  --help, -h                  Display this help message\n";
             return 0;
         }
@@ -134,23 +140,44 @@ int main(int argc, char* argv[]) {
     // Request body limit 20 MB
     svr.set_payload_max_length(20 * 1024 * 1024);
 
-    // Global CORS headers
-    svr.set_post_routing_handler([](const httplib::Request&, httplib::Response& res) {
-        res.set_header("Access-Control-Allow-Origin", "*");
-        res.set_header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-        res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    });
-
-    // OPTIONS preflight handler
-    svr.Options(R"(/api/.*)", [](const httplib::Request&, httplib::Response& res) {
-        res.status = 204;
-    });
-
     // Helper to send ApiResponse
     auto sendResponse = [](httplib::Response& res, const ApiResponse& apiRes) {
         res.status = apiRes.status;
         res.set_content(apiRes.body, apiRes.contentType);
     };
+
+    // Host header DNS rebinding check when bound to loopback
+    bool isLoopback = (host == "127.0.0.1" || host == "localhost" || host == "::1" || host == "[::1]");
+    if (isLoopback) {
+        svr.set_pre_routing_handler([port, sendResponse](const httplib::Request& req, httplib::Response& res) {
+            if (!req.has_header("Host")) {
+                sendResponse(res, makeErrorResponse(403, "forbidden_host", "Missing Host header"));
+                return httplib::Server::HandlerResponse::Handled;
+            }
+            std::string hostVal = req.get_header_value("Host");
+            if (!isAllowedLoopbackHost(hostVal, port)) {
+                sendResponse(res, makeErrorResponse(403, "forbidden_host", "Forbidden Host header: " + hostVal));
+                return httplib::Server::HandlerResponse::Handled;
+            }
+            return httplib::Server::HandlerResponse::Unhandled;
+        });
+    }
+
+    // CORS headers: same-origin by default; enabled only if --cors-origin is provided
+    if (!corsOrigin.empty()) {
+        svr.set_post_routing_handler([corsOrigin](const httplib::Request&, httplib::Response& res) {
+            res.set_header("Access-Control-Allow-Origin", corsOrigin);
+            res.set_header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+            res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        });
+
+        svr.Options(R"(/api/.*)", [corsOrigin](const httplib::Request&, httplib::Response& res) {
+            res.set_header("Access-Control-Allow-Origin", corsOrigin);
+            res.set_header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+            res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            res.status = 204;
+        });
+    }
 
     // -------------------------------------------------------------------------
     // Core Collection Endpoints
