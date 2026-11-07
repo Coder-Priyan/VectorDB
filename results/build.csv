@@ -1,0 +1,5 @@
+n,dim,metric,M,efConstruction,seed,build_time_ms,max_level,entry_point_id,layer,nodes,pct_of_total,avg_degree
+2000,128,euclidean,16,200,42,655.98,3,1050,3,1,0.0500,0.00
+2000,128,euclidean,16,200,42,655.98,3,1050,2,14,0.7000,13.00
+2000,128,euclidean,16,200,42,655.98,3,1050,1,122,6.1000,16.00
+2000,128,euclidean,16,200,42,655.98,3,1050,0,2000,100.0000,24.76

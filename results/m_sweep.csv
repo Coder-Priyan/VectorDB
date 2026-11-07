@@ -1,0 +1,4 @@
+n,dim,metric,M,efConstruction,efSearch,seed,build_time_ms,recall_at_10,median_query_ms,min_query_ms,max_query_ms,qps_median,graph_memory_kb,bf_median_query_ms
+2000,128,euclidean,8,200,50,42,294.83,0.8000,0.0449,0.0414,0.0475,22289.6,103.2,0.1069
+2000,128,euclidean,16,200,50,42,583.38,0.9260,0.0683,0.0613,0.0697,14632.7,201.8,0.1069
+2000,128,euclidean,32,200,50,42,5250.31,0.9930,0.6466,0.4689,0.6512,1546.5,389.0,0.1069

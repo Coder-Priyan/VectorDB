@@ -15,6 +15,8 @@
 #include <thread>
 #include <ctime>
 #include <sstream>
+#include <fstream>
+#include <filesystem>
 
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -409,6 +411,8 @@ void runHnswBenchmark(bool quickMode) {
     // -------------------------------------------------------------------------
     // Section A: Build report (M=16, efConstruction=200)
     // -------------------------------------------------------------------------
+    std::filesystem::create_directories("results");
+
     std::cout << "-----------------------------------------------------------------------------------------\n";
     std::cout << "   Section A: HNSW Build Report (n = " << n << ", dim = " << dim
               << ", M = 16, efConstruction = 200)\n";
@@ -444,6 +448,12 @@ void runHnswBenchmark(bool quickMode) {
               << std::setw(16) << "Avg Degree"
               << "\n";
     std::cout << "  " << std::string(56, '-') << "\n";
+
+    std::ofstream buildCsv("results/build.csv");
+    if (buildCsv.is_open()) {
+        buildCsv << "n,dim,metric,M,efConstruction,seed,build_time_ms,max_level,entry_point_id,layer,nodes,pct_of_total,avg_degree\n";
+    }
+
     for (int l = infoA.maxLevel; l >= 0; --l) {
         std::size_t nodes = (l < static_cast<int>(infoA.nodesPerLayer.size())) ? infoA.nodesPerLayer[l] : 0;
         double pct = (static_cast<double>(nodes) / static_cast<double>(n)) * 100.0;
@@ -454,6 +464,18 @@ void runHnswBenchmark(bool quickMode) {
                   << std::setw(16) << (std::to_string(pct).substr(0, 5) + "%")
                   << std::setw(16) << std::fixed << std::setprecision(2) << deg
                   << "\n";
+
+        if (buildCsv.is_open()) {
+            buildCsv << n << "," << dim << "," << metricToString(Metric::Euclidean) << ","
+                     << defaultParams.M << "," << defaultParams.efConstruction << "," << defaultParams.seed << ","
+                     << std::fixed << std::setprecision(2) << hBuildMs << ","
+                     << infoA.maxLevel << "," << infoA.entryPointId << ","
+                     << l << "," << nodes << "," << std::setprecision(4) << pct << ","
+                     << std::setprecision(2) << deg << "\n";
+        }
+    }
+    if (buildCsv.is_open()) {
+        buildCsv.close();
     }
     std::cout << "\n";
 
@@ -475,6 +497,11 @@ void runHnswBenchmark(bool quickMode) {
               << std::setw(20) << "Dist Comps (% of n)"
               << "\n";
     std::cout << std::string(118, '-') << "\n";
+
+    std::ofstream efCsv("results/ef_sweep.csv");
+    if (efCsv.is_open()) {
+        efCsv << "n,dim,metric,M,efConstruction,efSearch,seed,recall_at_10,median_query_ms,min_query_ms,max_query_ms,qps_median,speedup_vs_bf,dist_comps_pct,avg_dist_comps,bf_median_query_ms\n";
+    }
 
     const std::vector<std::size_t> efValues = {10, 20, 50, 100, 200, 400};
     for (std::size_t ef : efValues) {
@@ -517,6 +544,21 @@ void runHnswBenchmark(bool quickMode) {
                   << std::setw(16) << speedupStr
                   << std::setw(20) << pctStr
                   << "\n";
+
+        if (efCsv.is_open()) {
+            efCsv << n << "," << dim << "," << metricToString(Metric::Euclidean) << ","
+                  << defaultParams.M << "," << defaultParams.efConstruction << "," << ef << "," << defaultParams.seed << ","
+                  << std::fixed << std::setprecision(4) << recall << ","
+                  << timing.medianMs << "," << timing.minMs << "," << timing.maxMs << ","
+                  << std::setprecision(1) << timing.qps << ","
+                  << std::setprecision(2) << speedup << ","
+                  << std::setprecision(2) << pctComps << ","
+                  << std::setprecision(1) << avgComps << ","
+                  << std::setprecision(4) << bf128Timing.medianMs << "\n";
+        }
+    }
+    if (efCsv.is_open()) {
+        efCsv.close();
     }
     std::cout << "\n";
 
@@ -537,6 +579,11 @@ void runHnswBenchmark(bool quickMode) {
               << std::setw(20) << "Graph Memory (KB)"
               << "\n";
     std::cout << std::string(116, '-') << "\n";
+
+    std::ofstream mCsv("results/m_sweep.csv");
+    if (mCsv.is_open()) {
+        mCsv << "n,dim,metric,M,efConstruction,efSearch,seed,build_time_ms,recall_at_10,median_query_ms,min_query_ms,max_query_ms,qps_median,graph_memory_kb,bf_median_query_ms\n";
+    }
 
     const std::vector<std::size_t> mValues = {8, 16, 32};
     for (std::size_t m : mValues) {
@@ -587,6 +634,20 @@ void runHnswBenchmark(bool quickMode) {
                   << std::setw(14) << std::fixed << std::setprecision(1) << mTiming.qps
                   << std::setw(20) << std::fixed << std::setprecision(1) << memKb
                   << "\n";
+
+        if (mCsv.is_open()) {
+            mCsv << n << "," << dim << "," << metricToString(Metric::Euclidean) << ","
+                 << m << "," << mParams.efConstruction << "," << mParams.efSearch << "," << mParams.seed << ","
+                 << std::fixed << std::setprecision(2) << mBuildMs << ","
+                 << std::setprecision(4) << mRecall << ","
+                 << mTiming.medianMs << "," << mTiming.minMs << "," << mTiming.maxMs << ","
+                 << std::setprecision(1) << mTiming.qps << ","
+                 << std::setprecision(1) << memKb << ","
+                 << std::setprecision(4) << bf128Timing.medianMs << "\n";
+        }
+    }
+    if (mCsv.is_open()) {
+        mCsv.close();
     }
     std::cout << "\n";
 
@@ -609,6 +670,11 @@ void runHnswBenchmark(bool quickMode) {
               << "\n";
     std::cout << std::string(114, '-') << "\n";
 
+    std::ofstream dimCsv("results/dim_compare.csv");
+    if (dimCsv.is_open()) {
+        dimCsv << "n,dim,metric,k,seed,bf_median_ms,bf_min_ms,bf_max_ms,kd_median_ms,kd_min_ms,kd_max_ms,kd_speedup,kd_recall,hnsw_median_ms,hnsw_min_ms,hnsw_max_ms,hnsw_speedup,hnsw_recall\n";
+    }
+
     const std::vector<std::size_t> testDims = {8, 16, 32, 64, 128};
     for (std::size_t d : testDims) {
         const auto ds = (d == 128) ? dataset128 : randomVectors(n, d, 42);
@@ -627,7 +693,8 @@ void runHnswBenchmark(bool quickMode) {
         KdTreeIndex kd(d, Metric::Euclidean, 8);
         for (std::size_t i = 0; i < n; ++i) kd.insert(static_cast<VectorId>(i + 1), ds[i]);
         kd.build();
-        for (std::size_t q = 0; q < numQueries; ++q) kd.search(qs[q], k);
+        std::vector<std::vector<SearchResult>> kdRes(numQueries);
+        for (std::size_t q = 0; q < numQueries; ++q) kdRes[q] = kd.search(qs[q], k);
         TimingResult kdTiming = measureTiming(numQueries, repetitions, [&]() {
             for (std::size_t q = 0; q < numQueries; ++q) kd.search(qs[q], k);
         });
@@ -651,6 +718,8 @@ void runHnswBenchmark(bool quickMode) {
 
         double speedup = (hnswTiming.medianMs > 0.0) ? (bfTiming.medianMs / hnswTiming.medianMs) : 0.0;
         double recall = meanRecallAtK(bfRes, hnswRes);
+        double kdSpeedup = (kdTiming.medianMs > 0.0) ? (bfTiming.medianMs / kdTiming.medianMs) : 0.0;
+        double kdRecall = meanRecallAtK(bfRes, kdRes);
 
         std::string speedupStr = std::to_string(speedup);
         speedupStr = speedupStr.substr(0, speedupStr.find('.') + 3) + "x";
@@ -665,6 +734,18 @@ void runHnswBenchmark(bool quickMode) {
                   << std::setw(14) << std::fixed << std::setprecision(4) << recall
                   << std::setw(18) << speedupStr
                   << "\n";
+
+        if (dimCsv.is_open()) {
+            dimCsv << n << "," << d << "," << metricToString(Metric::Euclidean) << "," << k << "," << 42 << ","
+                   << std::fixed << std::setprecision(4) << bfTiming.medianMs << "," << bfTiming.minMs << "," << bfTiming.maxMs << ","
+                   << kdTiming.medianMs << "," << kdTiming.minMs << "," << kdTiming.maxMs << ","
+                   << std::setprecision(2) << kdSpeedup << "," << std::setprecision(4) << kdRecall << ","
+                   << hnswTiming.medianMs << "," << hnswTiming.minMs << "," << hnswTiming.maxMs << ","
+                   << std::setprecision(2) << speedup << "," << std::setprecision(4) << recall << "\n";
+        }
+    }
+    if (dimCsv.is_open()) {
+        dimCsv.close();
     }
     std::cout << "\n";
 
@@ -684,6 +765,11 @@ void runHnswBenchmark(bool quickMode) {
               << std::setw(14) << "Recall@10"
               << "\n";
     std::cout << std::string(100, '-') << "\n";
+
+    std::ofstream metricCsv("results/metrics.csv");
+    if (metricCsv.is_open()) {
+        metricCsv << "n,dim,metric,M,efConstruction,efSearch,seed,bf_median_ms,hnsw_median_ms,hnsw_min_ms,hnsw_max_ms,speedup_vs_bf,recall_at_10\n";
+    }
 
     const std::vector<Metric> otherMetrics = {Metric::Cosine, Metric::Manhattan};
     for (Metric m : otherMetrics) {
@@ -728,6 +814,18 @@ void runHnswBenchmark(bool quickMode) {
                   << std::setw(14) << speedupStr
                   << std::setw(14) << std::fixed << std::setprecision(4) << recall
                   << "\n";
+
+        if (metricCsv.is_open()) {
+            metricCsv << n << "," << dim << "," << metricToString(m) << ","
+                      << mParams.M << "," << mParams.efConstruction << "," << mParams.efSearch << "," << mParams.seed << ","
+                      << std::fixed << std::setprecision(4) << bfTiming.medianMs << ","
+                      << hnswTiming.medianMs << "," << hnswTiming.minMs << "," << hnswTiming.maxMs << ","
+                      << std::setprecision(2) << speedup << ","
+                      << std::setprecision(4) << recall << "\n";
+        }
+    }
+    if (metricCsv.is_open()) {
+        metricCsv.close();
     }
     std::cout << std::string(100, '-') << "\n\n";
 }
