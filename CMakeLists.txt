@@ -37,6 +37,22 @@ target_include_directories(vectordb_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+# RAG static library (OllamaClient & RagPipeline)
+add_library(vectordb_rag
+    src/ollama_client.cpp
+)
+
+target_include_directories(vectordb_rag PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party
+)
+
+target_link_libraries(vectordb_rag PUBLIC vectordb_core)
+
+if(WIN32)
+    target_link_libraries(vectordb_rag PUBLIC ws2_32 wsock32)
+endif()
+
 # Demo and benchmark executable
 add_executable(vectordb_demo
     src/main.cpp
@@ -55,7 +71,7 @@ target_include_directories(vectordb_server PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party
 )
 
-target_link_libraries(vectordb_server PRIVATE vectordb_core)
+target_link_libraries(vectordb_server PRIVATE vectordb_core vectordb_rag)
 
 if(WIN32)
     target_link_libraries(vectordb_server PRIVATE ws2_32 wsock32)
@@ -74,11 +90,12 @@ add_executable(vectordb_tests
     tests/test_hnsw.cpp
     tests/test_collection.cpp
     tests/test_chunker.cpp
+    tests/test_ollama_client.cpp
     tests/test_api.cpp
     tests/test_server_http.cpp
 )
 
-target_link_libraries(vectordb_tests PRIVATE vectordb_core)
+target_link_libraries(vectordb_tests PRIVATE vectordb_core vectordb_rag)
 target_include_directories(vectordb_tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/tests
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party
