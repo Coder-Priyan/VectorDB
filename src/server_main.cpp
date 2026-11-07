@@ -1,5 +1,6 @@
 #include "vectordb/collection.hpp"
 #include "vectordb/api.hpp"
+#include "vectordb/rag.hpp"
 
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -34,6 +35,7 @@ int main(int argc, char* argv[]) {
     std::string host = "127.0.0.1";
     std::string webDir = "web";
 
+    // Demo collection config
     CollectionConfig config;
     config.dimension = 128;
     config.metric = Metric::Cosine;
@@ -42,6 +44,13 @@ int main(int argc, char* argv[]) {
     config.hnswParams.efSearch = 50;
     config.hnswParams.seed = 42;
     config.leafSize = 8;
+
+    // RAG & Ollama config
+    std::string ollamaUrl = "http://127.0.0.1:11434";
+    std::string embedModel = "nomic-embed-text";
+    std::string chatModel = "llama3.2";
+    std::size_t ragDim = 768;
+    bool allowRemoteOllama = false;
 
     // Parse CLI arguments
     for (int i = 1; i < argc; ++i) {
@@ -64,6 +73,16 @@ int main(int argc, char* argv[]) {
             config.hnswParams.seed = static_cast<unsigned>(std::stoul(argv[++i]));
         } else if (arg == "--web-dir" && i + 1 < argc) {
             webDir = argv[++i];
+        } else if (arg == "--ollama-url" && i + 1 < argc) {
+            ollamaUrl = argv[++i];
+        } else if (arg == "--embed-model" && i + 1 < argc) {
+            embedModel = argv[++i];
+        } else if (arg == "--chat-model" && i + 1 < argc) {
+            chatModel = argv[++i];
+        } else if (arg == "--rag-dim" && i + 1 < argc) {
+            ragDim = std::stoull(argv[++i]);
+        } else if (arg == "--allow-remote-ollama") {
+            allowRemoteOllama = true;
         } else if (arg == "--help" || arg == "-h") {
             std::cout << "Usage: vectordb_server [OPTIONS]\n"
                       << "Options:\n"
@@ -76,12 +95,30 @@ int main(int argc, char* argv[]) {
                       << "  --efSearch <EFS>            HNSW search beam size (default: 50)\n"
                       << "  --seed <SEED>               PRNG seed for HNSW levels (default: 42)\n"
                       << "  --web-dir <DIR>             Static web directory to mount at '/' (default: web)\n"
+                      << "  --ollama-url <URL>          Ollama base URL (default: http://127.0.0.1:11434)\n"
+                      << "  --embed-model <NAME>        Ollama embedding model (default: nomic-embed-text)\n"
+                      << "  --chat-model <NAME>         Ollama chat model (default: llama3.2)\n"
+                      << "  --rag-dim <DIM>             Embedding dimension for RAG documents (default: 768)\n"
+                      << "  --allow-remote-ollama       Allow connecting to non-loopback Ollama hosts (default: off)\n"
                       << "  --help, -h                  Display this help message\n";
             return 0;
         }
     }
 
     Collection collection(config);
+
+    OllamaConfig ollamaConfig;
+    ollamaConfig.baseUrl = ollamaUrl;
+    ollamaConfig.embedModel = embedModel;
+    ollamaConfig.chatModel = chatModel;
+    ollamaConfig.allowRemote = allowRemoteOllama;
+
+    RagConfig ragConfig;
+    ragConfig.dimension = ragDim;
+    ragConfig.metric = Metric::Cosine;
+
+    OllamaClient ollamaClient(ollamaConfig);
+    RagPipeline ragPipeline(ragConfig, ollamaClient);
 
     httplib::Server svr;
     g_serverPtr = &svr;
@@ -111,6 +148,10 @@ int main(int argc, char* argv[]) {
         res.status = apiRes.status;
         res.set_content(apiRes.body, apiRes.contentType);
     };
+
+    // -------------------------------------------------------------------------
+    // Core Collection Endpoints
+    // -------------------------------------------------------------------------
 
     // Route: GET /api/health
     svr.Get("/api/health", [&](const httplib::Request&, httplib::Response& res) {
@@ -179,28 +220,95 @@ int main(int argc, char* argv[]) {
         sendResponse(res, handleDemoRandom(collection, req.body));
     });
 
+    // -------------------------------------------------------------------------
+    // RAG Pipeline Endpoints
+    // -------------------------------------------------------------------------
+
+    // Route: GET /api/ollama/status
+    svr.Get("/api/ollama/status", [&](const httplib::Request&, httplib::Response& res) {
+        sendResponse(res, handleOllamaStatus(ragPipeline));
+    });
+
+    // Route: POST /api/docs
+    svr.Post("/api/docs", [&](const httplib::Request& req, httplib::Response& res) {
+        sendResponse(res, handleIngestDoc(ragPipeline, req.body));
+    });
+
+    // Route: GET /api/docs
+    svr.Get("/api/docs", [&](const httplib::Request&, httplib::Response& res) {
+        sendResponse(res, handleListDocs(ragPipeline));
+    });
+
+    // Route: GET /api/docs/:id
+    svr.Get(R"(/api/docs/(\d+))", [&](const httplib::Request& req, httplib::Response& res) {
+        uint64_t id = std::stoull(req.matches[1]);
+        sendResponse(res, handleGetDoc(ragPipeline, id));
+    });
+
+    // Route: POST /api/docs/search
+    svr.Post("/api/docs/search", [&](const httplib::Request& req, httplib::Response& res) {
+        sendResponse(res, handleSearchDocs(ragPipeline, req.body));
+    });
+
+    // Route: POST /api/docs/benchmark
+    svr.Post("/api/docs/benchmark", [&](const httplib::Request& req, httplib::Response& res) {
+        sendResponse(res, handleBenchmarkDocs(ragPipeline, req.body));
+    });
+
+    // Route: POST /api/ask
+    svr.Post("/api/ask", [&](const httplib::Request& req, httplib::Response& res) {
+        sendResponse(res, handleAsk(ragPipeline, req.body));
+    });
+
+    // Route: POST /api/docs/reset
+    svr.Post("/api/docs/reset", [&](const httplib::Request&, httplib::Response& res) {
+        sendResponse(res, handleResetDocs(ragPipeline));
+    });
+
     // Serve static files from webDir
     if (std::filesystem::exists(webDir)) {
         svr.set_mount_point("/", webDir);
     }
 
+    // Check Ollama status at startup
+    auto ollamaStatus = ragPipeline.ollama().status();
+
     // Startup banner
     std::cout << "=========================================================================================\n";
-    std::cout << "   VectorDB REST API Server (v0.4.0)\n";
+    std::cout << "   VectorDB REST API Server (v0.4.0 with Offline RAG)\n";
     std::cout << "=========================================================================================\n";
     std::cout << "  Status           : Listening\n";
     std::cout << "  Host             : " << host << "\n";
     std::cout << "  Port             : " << port << "\n";
     std::cout << "  URL              : http://" << host << ":" << port << "/\n";
-    std::cout << "  Dimension        : " << config.dimension << "\n";
-    std::cout << "  Metric           : " << metricToString(config.metric) << "\n";
+    std::cout << "  Demo Dim         : " << config.dimension << "\n";
+    std::cout << "  Demo Metric      : " << metricToString(config.metric) << "\n";
     std::cout << "  HNSW Parameters  : M = " << config.hnswParams.M
               << ", efConstruction = " << config.hnswParams.efConstruction
               << ", efSearch = " << config.hnswParams.efSearch
               << ", seed = " << config.hnswParams.seed << "\n";
+    std::cout << "  Ollama URL       : " << ollamaUrl << "\n";
+    std::cout << "  Embed Model      : " << embedModel << " (RAG dim = " << ragDim << ")\n";
+    std::cout << "  Chat Model       : " << chatModel << "\n";
+    std::cout << "  Remote Ollama    : " << (allowRemoteOllama ? "Allowed" : "Off (loopback only)") << "\n";
     std::cout << "  Static Web Dir   : " << webDir << (std::filesystem::exists(webDir) ? " (Mounted)" : " (Not found)") << "\n";
     std::cout << "  Press Ctrl+C to shut down cleanly.\n";
-    std::cout << "=========================================================================================\n\n";
+    std::cout << "=========================================================================================\n";
+
+    if (!ollamaStatus.reachable) {
+        std::cout << "  [WARNING] Ollama is not reachable at " << ollamaUrl
+                  << ". RAG endpoints will return 503 until Ollama is started.\n";
+    } else {
+        if (!ollamaStatus.embedModelPresent) {
+            std::cout << "  [WARNING] Embedding model '" << embedModel
+                      << "' is not installed in Ollama. (hint: run: ollama pull " << embedModel << ")\n";
+        }
+        if (!ollamaStatus.chatModelPresent) {
+            std::cout << "  [WARNING] Chat model '" << chatModel
+                      << "' is not installed in Ollama. (hint: run: ollama pull " << chatModel << ")\n";
+        }
+    }
+    std::cout << "\n";
 
     if (!svr.listen(host, port)) {
         std::cerr << "Failed to bind and listen on " << host << ":" << port << "\n";

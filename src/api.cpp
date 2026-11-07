@@ -639,4 +639,408 @@ ApiResponse handleDemoRandom(Collection& collection, const std::string& body) {
     }
 }
 
+// -----------------------------------------------------------------------------
+// RAG Pipeline Handlers
+// -----------------------------------------------------------------------------
+
+ApiResponse handleOllamaStatus(const RagPipeline& rag) {
+    auto st = rag.ollama().status();
+    json doc;
+    doc["reachable"] = st.reachable;
+    doc["version"] = st.version;
+    doc["models"] = st.models;
+    doc["embed_model_present"] = st.embedModelPresent;
+    doc["chat_model_present"] = st.chatModelPresent;
+    doc["error"] = st.error;
+    return {200, doc.dump()};
+}
+
+ApiResponse handleIngestDoc(RagPipeline& rag, const std::string& body) {
+    try {
+        json req = json::parse(body, nullptr, false);
+        if (req.is_discarded() || !req.is_object()) {
+            return makeErrorResponse(400, "invalid_json", "Malformed JSON request body");
+        }
+
+        if (!req.contains("title") || !req["title"].is_string()) {
+            return makeErrorResponse(400, "validation_error", "Missing or invalid 'title' string field");
+        }
+        std::string title = req["title"].get<std::string>();
+
+        if (!req.contains("text") || !req["text"].is_string()) {
+            return makeErrorResponse(400, "validation_error", "Missing or invalid 'text' string field");
+        }
+        std::string text = req["text"].get<std::string>();
+
+        if (text.size() > rag.config().maxDocBytes) {
+            return makeErrorResponse(413, "payload_too_large",
+                                     "Document exceeds maximum allowed size (" +
+                                     std::to_string(rag.config().maxDocBytes) + " bytes)");
+        }
+
+        ChunkOptions opt;
+        if (req.contains("chunking") && req["chunking"].is_object()) {
+            const auto& chObj = req["chunking"];
+            if (chObj.contains("strategy") && chObj["strategy"].is_string()) {
+                std::string sStr = chObj["strategy"].get<std::string>();
+                try {
+                    opt.strategy = chunkStrategyFromString(sStr);
+                } catch (const std::invalid_argument& e) {
+                    return makeErrorResponse(400, "validation_error", e.what());
+                }
+            }
+            if (chObj.contains("max_chars")) {
+                if (!chObj["max_chars"].is_number_unsigned()) {
+                    return makeErrorResponse(400, "validation_error", "'max_chars' must be a positive integer");
+                }
+                opt.maxChars = chObj["max_chars"].get<std::size_t>();
+            }
+            if (chObj.contains("overlap_chars")) {
+                if (!chObj["overlap_chars"].is_number_unsigned()) {
+                    return makeErrorResponse(400, "validation_error", "'overlap_chars' must be a non-negative integer");
+                }
+                opt.overlapChars = chObj["overlap_chars"].get<std::size_t>();
+            }
+        }
+
+        auto res = rag.ingest(title, text, opt);
+
+        json doc;
+        doc["doc_id"] = res.docId;
+        doc["chunks"] = res.chunkCount;
+        doc["dimension"] = res.dimension;
+        doc["embed_ms"] = res.embedMs;
+
+        return {201, doc.dump()};
+    } catch (const OllamaUnavailable& e) {
+        return makeErrorResponse(503, "ollama_unavailable", e.what());
+    } catch (const OllamaError& e) {
+        return makeErrorResponse(502, "ollama_error", e.what());
+    } catch (const std::length_error& e) {
+        return makeErrorResponse(413, "payload_too_large", e.what());
+    } catch (const std::invalid_argument& e) {
+        return makeErrorResponse(400, "validation_error", e.what());
+    } catch (const std::exception& e) {
+        std::string msg = e.what();
+        if (msg.find("embedding_dimension_mismatch") != std::string::npos) {
+            return makeErrorResponse(400, "validation_error", msg);
+        }
+        return makeErrorResponse(500, "internal_error", msg);
+    }
+}
+
+ApiResponse handleListDocs(const RagPipeline& rag) {
+    try {
+        auto docs = rag.listDocuments();
+        json docArr = json::array();
+        for (const auto& d : docs) {
+            json item;
+            item["id"] = d.id;
+            item["title"] = d.title;
+            item["bytes"] = d.byteLength;
+            item["chunks"] = d.chunkCount;
+            item["strategy"] = chunkStrategyToString(d.strategy);
+            item["created_at"] = d.createdAt;
+            docArr.push_back(std::move(item));
+        }
+
+        json resp;
+        resp["documents"] = std::move(docArr);
+        return {200, resp.dump()};
+    } catch (const std::exception& e) {
+        return makeErrorResponse(500, "internal_error", e.what());
+    }
+}
+
+ApiResponse handleGetDoc(const RagPipeline& rag, uint64_t id) {
+    try {
+        auto docOpt = rag.getDocument(id);
+        if (!docOpt.has_value()) {
+            return makeErrorResponse(404, "not_found", "Document with ID " + std::to_string(id) + " not found");
+        }
+
+        const auto& d = *docOpt;
+        json resp;
+        resp["id"] = d.id;
+        resp["title"] = d.title;
+        resp["bytes"] = d.byteLength;
+        resp["chunks_count"] = d.chunkCount;
+        resp["strategy"] = chunkStrategyToString(d.strategy);
+        resp["created_at"] = d.createdAt;
+
+        json chunksArr = json::array();
+        for (const auto& ch : d.chunks) {
+            json cItem;
+            cItem["index"] = ch.index;
+            cItem["start"] = ch.startByte;
+            cItem["end"] = ch.endByte;
+            cItem["text"] = ch.text;
+            chunksArr.push_back(std::move(cItem));
+        }
+        resp["chunks"] = std::move(chunksArr);
+
+        return {200, resp.dump()};
+    } catch (const std::exception& e) {
+        return makeErrorResponse(500, "internal_error", e.what());
+    }
+}
+
+ApiResponse handleSearchDocs(RagPipeline& rag, const std::string& body) {
+    try {
+        json req = json::parse(body, nullptr, false);
+        if (req.is_discarded() || !req.is_object()) {
+            return makeErrorResponse(400, "invalid_json", "Malformed JSON request body");
+        }
+
+        if (!req.contains("query") || !req["query"].is_string()) {
+            return makeErrorResponse(400, "validation_error", "Missing or invalid 'query' string field");
+        }
+        std::string query = req["query"].get<std::string>();
+        if (query.empty()) {
+            return makeErrorResponse(400, "validation_error", "Query must not be empty");
+        }
+
+        std::size_t k = 5;
+        if (req.contains("k")) {
+            if (!req["k"].is_number_integer() || req["k"].get<long long>() <= 0) {
+                return makeErrorResponse(400, "validation_error", "'k' must be a positive integer");
+            }
+            k = static_cast<std::size_t>(req["k"].get<long long>());
+        }
+
+        Algorithm algo = Algorithm::Hnsw;
+        if (req.contains("algorithm")) {
+            if (!req["algorithm"].is_string()) {
+                return makeErrorResponse(400, "validation_error", "'algorithm' must be a string");
+            }
+            try {
+                algo = stringToAlgorithm(req["algorithm"].get<std::string>());
+            } catch (const std::invalid_argument& e) {
+                return makeErrorResponse(400, "validation_error", e.what());
+            }
+        }
+
+        std::optional<std::size_t> efOpt = std::nullopt;
+        if (req.contains("ef")) {
+            if (!req["ef"].is_number_integer() || req["ef"].get<long long>() <= 0) {
+                return makeErrorResponse(400, "validation_error", "'ef' must be a positive integer");
+            }
+            efOpt = static_cast<std::size_t>(req["ef"].get<long long>());
+        }
+
+        auto results = rag.retrieve(query, k, algo, efOpt);
+
+        json resArr = json::array();
+        for (const auto& r : results) {
+            json item;
+            item["doc_id"] = r.docId;
+            item["title"] = r.title;
+            item["chunk_index"] = r.chunkIndex;
+            item["start"] = r.startByte;
+            item["end"] = r.endByte;
+            item["text"] = r.text;
+            item["distance"] = r.distance;
+            item["similarity"] = r.similarity;
+            resArr.push_back(std::move(item));
+        }
+
+        json resp;
+        resp["query"] = query;
+        resp["count"] = resArr.size();
+        resp["results"] = std::move(resArr);
+
+        return {200, resp.dump()};
+    } catch (const OllamaUnavailable& e) {
+        return makeErrorResponse(503, "ollama_unavailable", e.what());
+    } catch (const OllamaError& e) {
+        return makeErrorResponse(502, "ollama_error", e.what());
+    } catch (const std::invalid_argument& e) {
+        return makeErrorResponse(400, "validation_error", e.what());
+    } catch (const std::exception& e) {
+        return makeErrorResponse(500, "internal_error", e.what());
+    }
+}
+
+ApiResponse handleBenchmarkDocs(RagPipeline& rag, const std::string& body) {
+    try {
+        json req = json::parse(body, nullptr, false);
+        if (req.is_discarded() || !req.is_object()) {
+            return makeErrorResponse(400, "invalid_json", "Malformed JSON request body");
+        }
+
+        if (!req.contains("query") || !req["query"].is_string()) {
+            return makeErrorResponse(400, "validation_error", "Missing or invalid 'query' string field");
+        }
+        std::string query = req["query"].get<std::string>();
+        if (query.empty()) {
+            return makeErrorResponse(400, "validation_error", "Query must not be empty");
+        }
+
+        std::size_t k = 5;
+        if (req.contains("k")) {
+            if (!req["k"].is_number_integer() || req["k"].get<long long>() <= 0) {
+                return makeErrorResponse(400, "validation_error", "'k' must be a positive integer");
+            }
+            k = static_cast<std::size_t>(req["k"].get<long long>());
+        }
+
+        std::optional<std::size_t> efOpt = std::nullopt;
+        if (req.contains("ef")) {
+            if (!req["ef"].is_number_integer() || req["ef"].get<long long>() <= 0) {
+                return makeErrorResponse(400, "validation_error", "'ef' must be a positive integer");
+            }
+            efOpt = static_cast<std::size_t>(req["ef"].get<long long>());
+        }
+
+        auto rep = rag.benchmarkQuery(query, k, efOpt);
+
+        auto formatAlg = [&](const AlgorithmBenchmarkResult& r) {
+            json a;
+            a["latency_us"] = r.latencyUs;
+            a["distance_computations"] = r.distanceComputations;
+            a["recall_at_k"] = r.recallAtK;
+            json resArr = json::array();
+            for (const auto& sr : r.results) {
+                json item;
+                item["id"] = sr.id;
+                item["distance"] = sr.distance;
+                resArr.push_back(std::move(item));
+            }
+            a["results"] = std::move(resArr);
+            return a;
+        };
+
+        json doc;
+        doc["k"] = rep.k;
+        doc["count"] = rep.count;
+        doc["ground_truth"] = rep.groundTruth;
+        doc["algorithms"]["brute"] = formatAlg(rep.brute);
+        doc["algorithms"]["kdtree"] = formatAlg(rep.kdtree);
+        doc["algorithms"]["hnsw"] = formatAlg(rep.hnsw);
+
+        return {200, doc.dump()};
+    } catch (const OllamaUnavailable& e) {
+        return makeErrorResponse(503, "ollama_unavailable", e.what());
+    } catch (const OllamaError& e) {
+        return makeErrorResponse(502, "ollama_error", e.what());
+    } catch (const std::invalid_argument& e) {
+        return makeErrorResponse(400, "validation_error", e.what());
+    } catch (const std::exception& e) {
+        return makeErrorResponse(500, "internal_error", e.what());
+    }
+}
+
+ApiResponse handleAsk(RagPipeline& rag, const std::string& body) {
+    try {
+        json req = json::parse(body, nullptr, false);
+        if (req.is_discarded() || !req.is_object()) {
+            return makeErrorResponse(400, "invalid_json", "Malformed JSON request body");
+        }
+
+        if (!req.contains("question") || !req["question"].is_string()) {
+            return makeErrorResponse(400, "validation_error", "Missing or invalid 'question' string field");
+        }
+        std::string question = req["question"].get<std::string>();
+        if (question.empty() || question.size() > 2000) {
+            return makeErrorResponse(400, "validation_error", "'question' must be between 1 and 2000 characters");
+        }
+
+        std::size_t k = 4;
+        if (req.contains("k")) {
+            if (!req["k"].is_number_integer() || req["k"].get<long long>() < 1 || req["k"].get<long long>() > 20) {
+                return makeErrorResponse(400, "validation_error", "'k' must be between 1 and 20");
+            }
+            k = static_cast<std::size_t>(req["k"].get<long long>());
+        }
+
+        Algorithm algo = Algorithm::Hnsw;
+        if (req.contains("algorithm")) {
+            if (!req["algorithm"].is_string()) {
+                return makeErrorResponse(400, "validation_error", "'algorithm' must be a string");
+            }
+            try {
+                algo = stringToAlgorithm(req["algorithm"].get<std::string>());
+            } catch (const std::invalid_argument& e) {
+                return makeErrorResponse(400, "validation_error", e.what());
+            }
+        }
+
+        std::optional<std::size_t> efOpt = std::nullopt;
+        if (req.contains("ef")) {
+            if (!req["ef"].is_number_integer() || req["ef"].get<long long>() <= 0) {
+                return makeErrorResponse(400, "validation_error", "'ef' must be a positive integer");
+            }
+            efOpt = static_cast<std::size_t>(req["ef"].get<long long>());
+        }
+
+        ChatOptions chatOpt;
+        if (req.contains("model") && req["model"].is_string()) {
+            chatOpt.model = req["model"].get<std::string>();
+        }
+        if (req.contains("temperature") && req["temperature"].is_number()) {
+            chatOpt.temperature = req["temperature"].get<double>();
+            if (chatOpt.temperature < 0.0) {
+                return makeErrorResponse(400, "validation_error", "'temperature' must be non-negative");
+            }
+        }
+
+        bool debug = false;
+        if (req.contains("debug") && req["debug"].is_boolean()) {
+            debug = req["debug"].get<bool>();
+        }
+
+        auto res = rag.ask(question, k, algo, efOpt, chatOpt, debug);
+
+        json sourcesArr = json::array();
+        for (const auto& s : res.sources) {
+            json item;
+            item["n"] = s.n;
+            item["doc_id"] = s.docId;
+            item["title"] = s.title;
+            item["chunk_index"] = s.chunkIndex;
+            item["text"] = s.text;
+            item["distance"] = s.distance;
+            item["similarity"] = s.similarity;
+            sourcesArr.push_back(std::move(item));
+        }
+
+        json resp;
+        resp["answer"] = res.answer;
+        resp["sources"] = std::move(sourcesArr);
+        resp["timings"] = {
+            {"embed_ms", res.timings.embedMs},
+            {"search_ms", res.timings.searchMs},
+            {"generate_ms", res.timings.generateMs},
+            {"total_ms", res.timings.totalMs}
+        };
+        resp["model"] = res.model;
+        resp["prompt_chars"] = res.promptChars;
+        if (debug) {
+            resp["prompt"] = res.prompt;
+        }
+
+        return {200, resp.dump()};
+    } catch (const OllamaUnavailable& e) {
+        return makeErrorResponse(503, "ollama_unavailable", e.what());
+    } catch (const OllamaError& e) {
+        return makeErrorResponse(502, "ollama_error", e.what());
+    } catch (const std::invalid_argument& e) {
+        return makeErrorResponse(400, "validation_error", e.what());
+    } catch (const std::exception& e) {
+        return makeErrorResponse(500, "internal_error", e.what());
+    }
+}
+
+ApiResponse handleResetDocs(RagPipeline& rag) {
+    try {
+        rag.reset();
+        json doc;
+        doc["status"] = "ok";
+        doc["message"] = "All documents cleared and collection reset";
+        return {200, doc.dump()};
+    } catch (const std::exception& e) {
+        return makeErrorResponse(500, "internal_error", e.what());
+    }
+}
+
 } // namespace vectordb

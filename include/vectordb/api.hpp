@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vectordb/collection.hpp"
+#include "vectordb/rag.hpp"
 
 #include <string>
 #include <optional>
@@ -54,5 +55,25 @@ ApiResponse handleHnswNode(const Collection& collection, VectorId id);
 ApiResponse handleHnswTrace(Collection& collection, const std::string& body);
 
 ApiResponse handleDemoRandom(Collection& collection, const std::string& body);
+
+// -----------------------------------------------------------------------------
+// RAG Pipeline Handlers
+// -----------------------------------------------------------------------------
+
+ApiResponse handleOllamaStatus(const RagPipeline& rag);
+
+ApiResponse handleIngestDoc(RagPipeline& rag, const std::string& body);
+
+ApiResponse handleListDocs(const RagPipeline& rag);
+
+ApiResponse handleGetDoc(const RagPipeline& rag, uint64_t id);
+
+ApiResponse handleSearchDocs(RagPipeline& rag, const std::string& body);
+
+ApiResponse handleBenchmarkDocs(RagPipeline& rag, const std::string& body);
+
+ApiResponse handleAsk(RagPipeline& rag, const std::string& body);
+
+ApiResponse handleResetDocs(RagPipeline& rag);
 
 } // namespace vectordb
