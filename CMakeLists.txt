@@ -93,6 +93,8 @@ add_executable(vectordb_tests
     tests/test_chunker.cpp
     tests/test_ollama_client.cpp
     tests/test_rag.cpp
+    tests/test_api_rag.cpp
+    tests/test_live_ollama.cpp
     tests/test_api.cpp
     tests/test_server_http.cpp
 )
