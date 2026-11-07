@@ -29,6 +29,7 @@ add_library(vectordb_core
     src/evaluation.cpp
     src/kd_tree.cpp
     src/hnsw.cpp
+    src/collection.cpp
 )
 
 target_include_directories(vectordb_core PUBLIC
