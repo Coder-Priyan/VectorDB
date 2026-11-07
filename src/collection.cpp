@@ -297,7 +297,7 @@ HnswTraceResult Collection::hnswTrace(
 
     EfSearchGuard guard(*hnsw_, ef);
     HnswTraceResult res;
-    res.results = hnsw_->searchWithStats(query, k, res.stats);
+    res.results = hnsw_->searchWithStats(query, k, res.stats, &res.trace);
     return res;
 }
 

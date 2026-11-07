@@ -93,6 +93,7 @@ struct HnswNodeInfo {
 struct HnswTraceResult {
     std::vector<SearchResult> results;
     HnswSearchStats stats;
+    std::vector<HnswTraceStep> trace;
 };
 
 /**

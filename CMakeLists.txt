@@ -53,6 +53,7 @@ add_executable(vectordb_tests
     tests/test_evaluation.cpp
     tests/test_kd_tree.cpp
     tests/test_hnsw.cpp
+    tests/test_collection.cpp
 )
 
 target_link_libraries(vectordb_tests PRIVATE vectordb_core)
