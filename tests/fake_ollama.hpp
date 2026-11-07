@@ -74,6 +74,7 @@ public:
 
     mutable std::mutex dataMutex;
     std::vector<std::string> receivedEmbedInputs;
+    std::vector<json> receivedChatRequests;
 
     void reset() {
         std::lock_guard<std::mutex> lock(dataMutex);
@@ -82,6 +83,7 @@ public:
         embedDimension = 768;
         chatMode = "normal";
         receivedEmbedInputs.clear();
+        receivedChatRequests.clear();
     }
 
 private:
@@ -181,6 +183,13 @@ private:
 
         // POST /api/chat
         server_.Post("/api/chat", [this](const httplib::Request& req, httplib::Response& res) {
+            {
+                std::lock_guard<std::mutex> lock(dataMutex);
+                try {
+                    receivedChatRequests.push_back(json::parse(req.body));
+                } catch (...) {}
+            }
+
             if (chatMode == "model_not_found") {
                 res.status = 404;
                 res.set_content(R"({"error":"model \"fake-model\" not found, try pulling it first"})", "application/json");
