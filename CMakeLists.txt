@@ -28,6 +28,7 @@ add_library(vectordb_core
     src/dataset.cpp
     src/evaluation.cpp
     src/kd_tree.cpp
+    src/hnsw.cpp
 )
 
 target_include_directories(vectordb_core PUBLIC
