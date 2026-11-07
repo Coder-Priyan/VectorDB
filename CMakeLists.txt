@@ -27,6 +27,7 @@ add_library(vectordb_core
     src/brute_force.cpp
     src/dataset.cpp
     src/evaluation.cpp
+    src/kd_tree.cpp
 )
 
 target_include_directories(vectordb_core PUBLIC
