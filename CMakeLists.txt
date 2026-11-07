@@ -64,6 +64,7 @@ endif()
 enable_testing()
 
 add_executable(vectordb_tests
+    src/api.cpp
     tests/test_main.cpp
     tests/test_distance.cpp
     tests/test_brute_force.cpp
@@ -71,9 +72,18 @@ add_executable(vectordb_tests
     tests/test_kd_tree.cpp
     tests/test_hnsw.cpp
     tests/test_collection.cpp
+    tests/test_api.cpp
+    tests/test_server_http.cpp
 )
 
 target_link_libraries(vectordb_tests PRIVATE vectordb_core)
-target_include_directories(vectordb_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+target_include_directories(vectordb_tests PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party
+)
+
+if(WIN32)
+    target_link_libraries(vectordb_tests PRIVATE ws2_32 wsock32)
+endif()
 
 add_test(NAME vectordb_tests COMMAND vectordb_tests)
