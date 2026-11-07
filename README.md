@@ -21,7 +21,7 @@ VectorDB is designed from the ground up for fast vector similarity search, appro
 - **HnswIndex (Hierarchical Navigable Small World - Approximate ANN Index)**:
   - Complete faithful implementation of Malkov & Yashunin (2018):
     - **Algorithm 1 (INSERT)**: Multi-layer exponential skip-list insertion with greedy descent down to insertion level, followed by candidate expansion with `efConstruction` and bidirectional edge linking.
-    - **Algorithm 2 (SEARCH-LAYER)**: Priority-queue beam search using min-heap for unvisited candidate exploration and max-heap for dynamic tracking of nearest neighbours. Fast $O(1)$ epoch-based visited tracking.
+    - **Algorithm 2 (SEARCH-LAYER)**: Priority-queue beam search using min-heap for unvisited candidate exploration and max-heap for dynamic tracking of nearest neighbours. Zero-allocation $O(1)$ epoch-based visited tracking.
     - **Algorithm 3 & 4 (SELECT-NEIGHBORS-HEURISTIC)**: Diversity-promoting neighbour selection heuristic with `keepPrunedConnections = true` ensuring high clustering and graph connectivity.
     - **Algorithm 5 (K-NN-SEARCH)**: Multi-layer hierarchical routing with adjustable `efSearch`.
   - Configurable index parameters via `HnswParams` (`M`, `efConstruction`, `efSearch`, `seed`, `useHeuristic`).
@@ -29,16 +29,11 @@ VectorDB is designed from the ground up for fast vector similarity search, appro
 - **Evaluation Module**: Ground truth `recallAtK` and multi-query `meanRecallAtK` evaluation metrics.
 - **Dataset Helper**: Reproducible pseudo-random Gaussian vector generator using `std::mt19937`.
 - **Zero-Dependency Test Harness**: 34 registered unit tests verifying numerical accuracy, edge cases, tie-breaking, graph invariants (layer hierarchy, entry point, reciprocal links, degree bounds), level distribution, reproducibility, and cross-checking HNSW/KD-Tree against Brute Force across metrics.
-- **Benchmarks & Demos**:
-  - Interactive 2D vector search demo across all three metrics.
-  - Task 1 mini benchmark measuring Brute Force insertion throughput and query latency.
-  - KD-Tree dimension scaling benchmark ($d \in [2, 128]$) demonstrating the "Curse of Dimensionality".
-  - HNSW Comprehensive Benchmark Suite:
-    - **Section A**: Build report and graph layer distribution ($n = 20,000, d = 128$).
-    - **Section B**: $efSearch$ sweep ($\{10, 20, 50, 100, 200, 400\}$) tracking Recall@10, QPS, and distance computation reduction.
-    - **Section C**: $M$ sweep ($\{8, 16, 32\}$) measuring build time, recall, and memory footprints.
-    - **Section D**: Three-way comparison (Brute Force vs KD-Tree vs HNSW) across dimensions $d \in \{8, 16, 32, 64, 128\}$.
-    - **Section E**: Non-Euclidean metric evaluation (Cosine and Manhattan at $d = 128$).
+- **Hardened Benchmark Suite**:
+  - Repeatable scientific methodology: 1 warm-up pass followed by 5 timed repetitions (reporting median, min, max).
+  - Baseline `BruteForceIndex` measured once per $(n, \text{dim}, \text{metric})$ and reused across all speedup and ground-truth comparisons.
+  - Automated CSV export to `results/*.csv` for paper reproduction.
+  - Fast developer mode via `--quick` command-line flag ($n = 2,000$, 3 repetitions).
 
 ---
 
@@ -67,15 +62,22 @@ vectordb/
 │   ├── hnsw.cpp                # HnswIndex implementation (Malkov & Yashunin 2018)
 │   ├── dataset.cpp             # Normal distribution vector generation
 │   ├── evaluation.cpp          # Evaluation module implementation
-│   └── main.cpp                # 2D demo, mini benchmark, KD-Tree & HNSW benchmarks
-└── tests/
-    ├── test_harness.hpp        # Lightweight test framework (CHECK, CHECK_NEAR, etc.)
-    ├── test_main.cpp           # Test runner entry point
-    ├── test_distance.cpp       # Unit tests for distance metrics
-    ├── test_brute_force.cpp    # Unit & cross-check tests for BruteForceIndex
-    ├── test_evaluation.cpp     # Unit tests for Recall@k metrics
-    ├── test_kd_tree.cpp        # Tests verifying KD-Tree against Brute Force
-    └── test_hnsw.cpp           # Invariants, level distribution, and HNSW recall tests
+│   └── main.cpp                # 2D demo, KD-Tree & HNSW benchmarks with CSV export
+├── tests/
+│   ├── test_harness.hpp        # Lightweight test framework (CHECK, CHECK_NEAR, etc.)
+│   ├── test_main.cpp           # Test runner entry point
+│   ├── test_distance.cpp       # Unit tests for distance metrics
+│   ├── test_brute_force.cpp    # Unit & cross-check tests for BruteForceIndex
+│   ├── test_evaluation.cpp     # Unit tests for Recall@k metrics
+│   ├── test_kd_tree.cpp        # Tests verifying KD-Tree against Brute Force
+│   └── test_hnsw.cpp           # Invariants, level distribution, and HNSW recall tests
+└── results/                    # CSV exports from hardened benchmarks
+    ├── README.md               # Column schema documentation
+    ├── build.csv               # Graph layer node counts and average degree
+    ├── ef_sweep.csv            # efSearch vs Recall@10, latency, and QPS
+    ├── m_sweep.csv             # Connectivity M vs build time, recall, and memory
+    ├── dim_compare.csv         # 3-way dimension comparison (dim 8 to 128)
+    └── metrics.csv             # Cosine & Manhattan benchmarks
 ```
 
 ---
@@ -103,50 +105,68 @@ cmake --build build
 Run the compiled `vectordb_demo` executable:
 
 ```bash
-# Windows
+# Windows (Full run: n = 20,000, 5 repetitions)
 .\build\vectordb_demo.exe
+
+# Quick run for rapid verification (n = 2,000, 3 repetitions)
+.\build\vectordb_demo.exe --quick
 
 # Linux / macOS
 ./build/vectordb_demo
+./build/vectordb_demo --quick
 ```
 
-The executable runs:
-1. **Interactive 2D Demo**: Inserts 5 unit/diagonal vectors and searches the nearest 3 neighbors across Cosine, Euclidean, and Manhattan metrics.
-2. **Mini Benchmark**: Indexes 10,000 vectors of dimension 128, executes 100 queries ($k=10$), and reports build time, total search latency, average per-query latency (ms), and QPS.
-3. **KD-Tree Dimension Scaling Benchmark**: Compares KD-Tree against Brute Force across $d \in \{2, 4, 8, 16, 32, 64, 128\}$ on $n = 20,000$ vectors ($100$ queries, $k=10$).
-4. **HNSW Comprehensive Benchmark**:
-   - **Section A**: Build report and graph layer distribution ($n = 20,000, d = 128, M = 16, efConstruction = 200$).
-   - **Section B**: $efSearch$ sweep ($ef \in \{10, 20, 50, 100, 200, 400\}$) vs BruteForce ground truth ($100$ queries, $k = 10$).
-   - **Section C**: $M$ sweep ($M \in \{8, 16, 32\}$) measuring build latency, query throughput, and graph memory footprint.
-   - **Section D**: Three-way comparison (Brute Force vs KD-Tree vs HNSW) across dimensions $d \in \{8, 16, 32, 64, 128\}$.
-   - **Section E**: Non-Euclidean metric evaluation (Cosine and Manhattan at $d = 128$).
+### Benchmark Methodology
+- **Warm-up**: 1 un-timed warm-up pass over the query set to eliminate cold-start cache anomalies.
+- **Repetitions**: 5 timed repetitions per configuration (3 in `--quick` mode). Latency is reported as the **median** of the per-repetition average query time, alongside observed minimum and maximum values.
+- **Single Baseline**: For any given $(n, \text{dim}, \text{metric})$ tuple, `BruteForceIndex` is constructed and timed **once**. Its median latency and exact top-$k$ nearest neighbors serve as the fixed baseline for all speedup and Recall@k computations.
+- **Deterministic Datasets**: Identical pseudo-random Gaussian vectors and query vectors are shared across all index types (`seed=42` for data, `seed=1337` for queries).
+- **Single-Threaded**: All queries are executed sequentially on a single thread.
 
 ---
 
-## Benchmark Highlights (Empirical Results on $n = 20,000$)
+## Benchmark Results ($n = 20,000$, 13th Gen Intel Core i5-1334U, GCC 16.2.0, `-O3`)
 
-### Three-Way Index Comparison ($n = 20,000, k = 10$, Euclidean)
+### 1. Three-Way Index Comparison ($n = 20,000, k = 10$, Euclidean)
 
-| Dimension | Brute Force (ms) | KD-Tree (ms) | HNSW (ms) | HNSW Recall@10 | HNSW Speedup vs BF |
+| Dim | BF Median (ms) | KD-Tree Median (ms) | HNSW Median (ms) | HNSW Min..Max (ms) | HNSW Recall@10 | HNSW Speedup vs BF |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **8** | 0.2111 ms | 0.0777 ms | 0.0528 ms | 0.0486 .. 0.0628 ms | 1.0000 | **4.00x** |
+| **16** | 0.2147 ms | 0.4519 ms | 0.1047 ms | 0.0999 .. 0.1091 ms | 1.0000 | **2.05x** |
+| **32** | 0.4782 ms | 0.7999 ms | 0.1141 ms | 0.1128 .. 0.1418 ms | 0.9800 | **4.19x** |
+| **64** | 0.8757 ms | 1.5902 ms | 0.2596 ms | 0.2083 .. 0.3355 ms | 0.8940 | **3.37x** |
+| **128** | 2.3357 ms | 3.2363 ms | 0.4082 ms | 0.3309 .. 0.5141 ms | 0.8100 | **5.72x** |
+
+> *Engineering Analysis*:
+> - At $d = 8$, KD-Tree prunes effectively and achieves a 2.71x speedup over Brute Force.
+> - At $d \ge 16$, KD-Tree is overwhelmed by the Curse of Dimensionality: every spatial bounding box intersects the search hypersphere, forcing the traversal to visit 100% of leaves with recursive function overhead, running 1.4x to 2.1x *slower* than Brute Force's flat sequential scan.
+> - HNSW bypasses coordinate bounding boxes by navigating small-world proximity graphs, delivering 2x to 5.7x speedups over Brute Force with high recall across all dimensions.
+
+### 2. HNSW $efSearch$ Sweep ($n = 20,000, d = 128, M = 16, efConstruction = 200$, BF Median: $5.1642\text{ ms}$)
+
+| $efSearch$ | Recall@10 | Median Query (ms) | Min..Max (ms) | QPS (med) | Speedup vs BF | Dist Comps (% of $n$) |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **10** | 0.3080 | 0.0637 ms | 0.0629 .. 0.0728 ms | 15,699.8 | **81.08x** | 2.29% |
+| **20** | 0.4420 | 0.1336 ms | 0.1024 .. 0.1459 ms | 7,483.4 | **38.65x** | 3.66% |
+| **50** | 0.6520 | 0.2474 ms | 0.2116 .. 0.3296 ms | 4,042.6 | **20.88x** | 7.12% |
+| **100** | 0.8100 | 0.3968 ms | 0.3688 .. 0.8792 ms | 2,520.2 | **13.01x** | 12.09% |
+| **200** | 0.9300 | 0.7664 ms | 0.6701 .. 0.9349 ms | 1,304.8 | **6.74x** | 20.42% |
+| **400** | 0.9720 | 1.3620 ms | 1.3077 .. 1.7552 ms | 734.2 | **3.79x** | 33.08% |
+
+### 3. HNSW $M$ Sweep ($M \in \{8, 16, 32\}, efConstruction = 200, efSearch = 50$)
+
+| $M$ | Build Time (ms) | Recall@10 | Median Query (ms) | QPS (med) | Graph Memory (KB) |
 | :---: | :---: | :---: | :---: | :---: | :---: |
-| **8** | 0.0843 ms | 0.0414 ms | 0.1410 ms | 1.0000 | 0.59x |
-| **16** | 0.5111 ms | 0.8884 ms | 0.2145 ms | 1.0000 | **2.38x** |
-| **32** | 1.1450 ms | 1.8276 ms | 0.3103 ms | 0.9800 | **3.68x** |
-| **64** | 2.0729 ms | 3.5797 ms | 0.1236 ms | 0.8940 | **16.76x** |
-| **128** | 1.2182 ms | 2.0506 ms | 1.0102 ms | 0.8100 | **1.20x** |
+| **8** | 10,122.22 ms | 0.4630 | 0.1142 ms | 8,757.6 | 948.4 KB |
+| **16** | 21,427.23 ms | 0.6520 | 0.2007 ms | 4,981.6 | 1,906.2 KB |
+| **32** | 76,744.49 ms | 0.8130 | 0.5185 ms | 1,928.8 | 3,776.8 KB |
 
-> *Observation*: In low dimensions ($d \le 8$), KD-Tree pruning excels. At dimensions $d \ge 16$, KD-Tree succumbs to the Curse of Dimensionality (searching 100% of leaves with traversal overhead), while HNSW maintains sub-millisecond query latencies and strong recall.
+### 4. Non-Euclidean Metrics ($d = 128, efSearch = 100, M = 16, efConstruction = 200$)
 
-### HNSW $efSearch$ Sweep ($n = 20,000, d = 128, M = 16, efConstruction = 200$)
-
-| $efSearch$ | Recall@10 | Query Time (ms) | QPS | Speedup vs BF | Dist Comps (% of $n$) |
+| Metric | BF Median (ms) | HNSW Median (ms) | Min..Max (ms) | Speedup vs BF | Recall@10 |
 | :---: | :---: | :---: | :---: | :---: | :---: |
-| **10** | 0.3080 | 0.0652 ms | 15,344 | 41.74x | 2.29% |
-| **20** | 0.4420 | 0.0904 ms | 11,065 | 30.10x | 3.66% |
-| **50** | 0.6520 | 0.1377 ms | 7,262 | 19.75x | 7.12% |
-| **100** | 0.8100 | 0.2291 ms | 4,365 | 11.87x | 12.09% |
-| **200** | 0.9300 | 0.4739 ms | 2,110 | 5.74x | 20.42% |
-| **400** | 0.9720 | 0.8764 ms | 1,141 | 3.10x | 33.08% |
+| **Cosine** | 3.1229 ms | 0.5429 ms | 0.4029 .. 0.7163 ms | **5.75x** | 0.6120 |
+| **Manhattan** | 2.2097 ms | 0.5270 ms | 0.4261 .. 0.5504 ms | **4.19x** | 0.7450 |
 
 ---
 

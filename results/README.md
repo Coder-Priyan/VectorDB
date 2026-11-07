@@ -71,3 +71,4 @@ Non-Euclidean metric comparison for Cosine and Manhattan similarity at $d = 128$
 - `hnsw_median_ms`, `hnsw_min_ms`, `hnsw_max_ms`: HNSW query latency statistics (ms).
 - `speedup_vs_bf`: HNSW speedup factor relative to Brute Force.
 - `recall_at_10`: HNSW Mean Recall@10.
+
