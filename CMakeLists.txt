@@ -43,6 +43,23 @@ add_executable(vectordb_demo
 
 target_link_libraries(vectordb_demo PRIVATE vectordb_core)
 
+# REST API Server target
+add_executable(vectordb_server
+    src/server_main.cpp
+    src/api.cpp
+)
+
+target_include_directories(vectordb_server PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party
+)
+
+target_link_libraries(vectordb_server PRIVATE vectordb_core)
+
+if(WIN32)
+    target_link_libraries(vectordb_server PRIVATE ws2_32 wsock32)
+endif()
+
 # Test executable
 enable_testing()
 
