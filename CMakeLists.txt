@@ -31,6 +31,7 @@ add_library(vectordb_core
     src/hnsw.cpp
     src/collection.cpp
     src/chunker.cpp
+    src/pca.cpp
 )
 
 target_include_directories(vectordb_core PUBLIC
@@ -90,6 +91,7 @@ add_executable(vectordb_tests
     tests/test_kd_tree.cpp
     tests/test_hnsw.cpp
     tests/test_collection.cpp
+    tests/test_pca.cpp
     tests/test_chunker.cpp
     tests/test_ollama_client.cpp
     tests/test_rag.cpp
