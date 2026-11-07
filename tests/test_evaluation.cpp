@@ -76,3 +76,4 @@ TEST(EvaluationTest, MeanRecallAtK) {
     const std::vector<std::vector<SearchResult>> emptyList;
     CHECK_NEAR(meanRecallAtK(emptyList, emptyList), 1.0, 1e-6);
 }
+

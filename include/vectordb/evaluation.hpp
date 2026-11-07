@@ -33,3 +33,4 @@ double meanRecallAtK(const std::vector<std::vector<SearchResult>>& groundTruths,
                      const std::vector<std::vector<SearchResult>>& approxes);
 
 } // namespace vectordb
+

@@ -342,3 +342,4 @@ TEST(KdTreeTest, SearchStatsAndPruningProof) {
     CHECK(stats.distanceComputations < n);
     CHECK(stats.distanceComputations > 0);
 }
+
