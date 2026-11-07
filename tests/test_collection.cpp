@@ -327,3 +327,70 @@ TEST(CollectionTest, HnswInfoAndNodeIntrospection) {
     CHECK(traceRes.stats.distanceComputations > 0);
     CHECK(!traceRes.trace.empty());
 }
+
+TEST(CollectionTest, VersionCounter) {
+    CollectionConfig config;
+    config.dimension = 2;
+    Collection col(config);
+
+    CHECK(col.version() == 0);
+
+    col.insert(1, {1.0f, 2.0f});
+    CHECK(col.version() == 1);
+
+    col.insert(2, {3.0f, 4.0f});
+    CHECK(col.version() == 2);
+
+    col.reset(config);
+    CHECK(col.version() == 3);
+}
+
+TEST(CollectionTest, ExportVectorsAscendingAndLimit) {
+    CollectionConfig config;
+    config.dimension = 2;
+    Collection col(config);
+
+    col.insert(50, {5.0f, 5.0f}, "{\"label\":\"fifty\"}");
+    col.insert(10, {1.0f, 1.0f}, "{\"label\":\"ten\"}");
+    col.insert(30, {3.0f, 3.0f}, "{\"label\":\"thirty\"}");
+
+    auto exported2 = col.exportVectors(2);
+    CHECK(exported2.size() == 2);
+    CHECK(exported2[0].id == 10);
+    CHECK(exported2[0].vector[0] == 1.0f);
+    CHECK(exported2[0].metadata == "{\"label\":\"ten\"}");
+    CHECK(exported2[1].id == 30);
+
+    auto exportedAll = col.exportVectors(100);
+    CHECK(exportedAll.size() == 3);
+    CHECK(exportedAll[0].id == 10);
+    CHECK(exportedAll[1].id == 30);
+    CHECK(exportedAll[2].id == 50);
+}
+
+TEST(CollectionTest, HnswLayerGraph) {
+    CollectionConfig config;
+    config.dimension = 4;
+    config.hnswParams.M = 8;
+    Collection col(config);
+
+    for (std::size_t i = 1; i <= 40; ++i) {
+        col.insert(i, {static_cast<float>(i), 2.0f, 3.0f, 4.0f});
+    }
+
+    auto g0 = col.hnswLayerGraph(0, 10);
+    CHECK(g0.layer == 0);
+    CHECK(g0.nodes.size() == 40);
+    CHECK(g0.edges.size() <= 10);
+    for (const auto& e : g0.edges) {
+        CHECK(e.source < e.target);
+    }
+
+    auto g0All = col.hnswLayerGraph(0, 20000);
+    CHECK(!g0All.edges.empty());
+
+    // Negative layer
+    auto gNeg = col.hnswLayerGraph(-1);
+    CHECK(gNeg.nodes.empty());
+    CHECK(gNeg.edges.empty());
+}

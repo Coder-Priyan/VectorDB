@@ -4,6 +4,8 @@
 #include <chrono>
 #include <algorithm>
 #include <stdexcept>
+#include <set>
+#include <utility>
 
 namespace vectordb {
 
@@ -143,6 +145,7 @@ VectorId Collection::insert(std::optional<VectorId> id, const std::vector<float>
 
     vectors_.emplace(assignedId, v);
     metadataJson_.emplace(assignedId, std::move(metadata));
+    ++version_;
 
     return assignedId;
 }
@@ -315,6 +318,7 @@ void Collection::reset(const CollectionConfig& newConfig) {
     nextAutoId_ = 1;
     vectors_.clear();
     metadataJson_.clear();
+    ++version_;
 
     brute_ = std::make_unique<BruteForceIndex>(config_.dimension, config_.metric);
     kd_ = std::make_unique<KdTreeIndex>(config_.dimension, config_.metric, config_.leafSize);
@@ -324,6 +328,80 @@ void Collection::reset(const CollectionConfig& newConfig) {
 CollectionConfig Collection::getConfig() const {
     std::lock_guard<std::mutex> lock(mutex_);
     return config_;
+}
+
+std::uint64_t Collection::version() const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return version_;
+}
+
+std::vector<StoredVector> Collection::exportVectors(std::size_t limit) const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    const std::size_t effectiveLimit = std::min<std::size_t>(limit == 0 ? 20000 : limit, 20000);
+
+    std::vector<VectorId> ids;
+    ids.reserve(vectors_.size());
+    for (const auto& kv : vectors_) {
+        ids.push_back(kv.first);
+    }
+    std::sort(ids.begin(), ids.end());
+
+    std::size_t count = std::min(effectiveLimit, ids.size());
+    std::vector<StoredVector> result;
+    result.reserve(count);
+
+    for (std::size_t i = 0; i < count; ++i) {
+        VectorId id = ids[i];
+        StoredVector sv;
+        sv.id = id;
+        sv.vector = vectors_.at(id);
+        auto itMeta = metadataJson_.find(id);
+        if (itMeta != metadataJson_.end()) {
+            sv.metadata = itMeta->second;
+        }
+        result.push_back(std::move(sv));
+    }
+    return result;
+}
+
+HnswLayerGraph Collection::hnswLayerGraph(int layer, std::size_t maxEdges) const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    HnswLayerGraph graph;
+    graph.layer = layer;
+    if (layer < 0) {
+        return graph;
+    }
+
+    for (const auto& kv : vectors_) {
+        VectorId id = kv.first;
+        int nodeLevel = hnsw_->levelOf(id);
+        if (nodeLevel >= layer) {
+            graph.nodes.push_back(id);
+        }
+    }
+    std::sort(graph.nodes.begin(), graph.nodes.end());
+
+    std::set<std::pair<VectorId, VectorId>> edgeSet;
+    for (VectorId u : graph.nodes) {
+        std::vector<VectorId> nbrs = hnsw_->neighborsOf(u, layer);
+        for (VectorId v : nbrs) {
+            if (u != v) {
+                VectorId src = std::min(u, v);
+                VectorId dst = std::max(u, v);
+                edgeSet.emplace(src, dst);
+            }
+        }
+    }
+
+    graph.edges.reserve(std::min(edgeSet.size(), maxEdges));
+    for (const auto& edge : edgeSet) {
+        if (graph.edges.size() >= maxEdges) {
+            break;
+        }
+        graph.edges.push_back({edge.first, edge.second});
+    }
+
+    return graph;
 }
 
 } // namespace vectordb

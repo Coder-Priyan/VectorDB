@@ -107,6 +107,9 @@ public:
     const OllamaClient& ollama() const noexcept { return ollama_; }
     OllamaClient& ollama() noexcept { return ollama_; }
 
+    const Collection& collection() const noexcept { return *collection_; }
+    Collection& collection() noexcept { return *collection_; }
+
     /**
      * @brief Ingest a plain-text document (chunk -> embed -> atomic insert).
      *

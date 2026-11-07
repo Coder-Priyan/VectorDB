@@ -97,6 +97,32 @@ struct HnswTraceResult {
 };
 
 /**
+ * @brief Representation of an indexed vector with its payload metadata.
+ */
+struct StoredVector {
+    VectorId id = 0;
+    std::vector<float> vector;
+    std::string metadata;
+};
+
+/**
+ * @brief Undirected edge in the HNSW layer graph.
+ */
+struct HnswEdge {
+    VectorId source = 0;
+    VectorId target = 0;
+};
+
+/**
+ * @brief Nodes and edges residing on a specific HNSW graph layer.
+ */
+struct HnswLayerGraph {
+    int layer = 0;
+    std::vector<VectorId> nodes;
+    std::vector<HnswEdge> edges;
+};
+
+/**
  * @brief High-level service layer managing a unified vector database collection.
  *
  * Owns three synchronized indexes (BruteForceIndex, KdTreeIndex, HnswIndex),
@@ -205,6 +231,24 @@ public:
     );
 
     /**
+     * @brief Returns the layer graph (nodes and undirected edges) for the specified HNSW layer.
+     * @param layer The layer index (0 <= layer <= maxLevel).
+     * @param maxEdges Maximum number of edges to return (default: 20000).
+     */
+    HnswLayerGraph hnswLayerGraph(int layer, std::size_t maxEdges = 20000) const;
+
+    /**
+     * @brief Monotonically increasing version counter, incremented on insert and reset.
+     */
+    std::uint64_t version() const;
+
+    /**
+     * @brief Exports stored vectors up to limit, sorted in ascending VectorId order.
+     * @param limit Maximum number of vectors to return (hard cap: 20000).
+     */
+    std::vector<StoredVector> exportVectors(std::size_t limit = 20000) const;
+
+    /**
      * @brief Resets the collection, clearing all vectors and applying the new configuration.
      * @throws std::invalid_argument if newConfig has invalid parameters.
      */
@@ -222,6 +266,7 @@ private:
     mutable std::mutex mutex_;
     CollectionConfig config_;
     VectorId nextAutoId_ = 1;
+    std::uint64_t version_ = 0;
 
     std::unique_ptr<BruteForceIndex> brute_;
     std::unique_ptr<KdTreeIndex> kd_;
