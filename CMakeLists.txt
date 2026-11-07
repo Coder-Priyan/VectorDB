@@ -26,6 +26,7 @@ add_library(vectordb_core
     src/distance.cpp
     src/brute_force.cpp
     src/dataset.cpp
+    src/evaluation.cpp
 )
 
 target_include_directories(vectordb_core PUBLIC
@@ -46,6 +47,7 @@ add_executable(vectordb_tests
     tests/test_main.cpp
     tests/test_distance.cpp
     tests/test_brute_force.cpp
+    tests/test_evaluation.cpp
 )
 
 target_link_libraries(vectordb_tests PRIVATE vectordb_core)
