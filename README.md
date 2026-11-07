@@ -6,7 +6,7 @@ A high-performance, self-contained vector database and semantic search engine wr
 
 VectorDB is designed from the ground up for fast vector similarity search, approximate nearest neighbor indexing (KD-Tree, HNSW), offline Retrieval-Augmented Generation (RAG with Ollama), and hybrid search (BM25 + Dense Vectors with Reciprocal Rank Fusion).
 
-### Current Features (Task 1, Task 2 & Task 3)
+### Current Features (Task 1, Task 2, Task 3 & Task 4)
 - **Core Types & Metrics**: `SearchResult`, `VectorId`, `Metric` enum (`Cosine`, `Euclidean`, `Manhattan`) with case-insensitive string parsing.
 - **Distance Module**: Raw-pointer float32 distance kernels (`cosineDistance`, `euclideanDistance`, `euclideanSquared`, `manhattanDistance`) with zero-norm safety and clamping.
 - **Abstract VectorIndex Interface**: Clean polymorphic base class allowing runtime switching between indexing algorithms.
@@ -26,13 +26,27 @@ VectorDB is designed from the ground up for fast vector similarity search, appro
     - **Algorithm 5 (K-NN-SEARCH)**: Multi-layer hierarchical routing with adjustable `efSearch`.
   - Configurable index parameters via `HnswParams` (`M`, `efConstruction`, `efSearch`, `seed`, `useHeuristic`).
   - Full observability and introspection APIs: `searchWithStats()`, `HnswSearchStats`, `HnswTraceStep`, `HnswGraphInfo`, `graphInfo()`, `neighborsOf()`, and `levelOf()`.
-- **Evaluation Module**: Ground truth `recallAtK` and multi-query `meanRecallAtK` evaluation metrics.
-- **Dataset Helper**: Reproducible pseudo-random Gaussian vector generator using `std::mt19937`.
-- **Zero-Dependency Test Harness**: 34 registered unit tests verifying numerical accuracy, edge cases, tie-breaking, graph invariants (layer hierarchy, entry point, reciprocal links, degree bounds), level distribution, reproducibility, and cross-checking HNSW/KD-Tree against Brute Force across metrics.
+- **Collection Service Layer (`vectordb::Collection`)**:
+  - Unified manager maintaining synchronized `BruteForceIndex`, `KdTreeIndex`, and `HnswIndex` instances.
+  - Integrated payload store (`std::unordered_map<VectorId, std::string>`) for opaque metadata JSON.
+  - Original vector retrieval by `VectorId`.
+  - Monotonic auto-ID assignment or user-defined 64-bit integer IDs (validated up to $2^{53}-1$).
+  - Full input validation (dimension matching, NaN/infinity checks, $k \in [1, 1000]$).
+  - Thread-safe public API protected by `std::mutex`.
+  - Automatic `efSearch` temporary override and RAII restoration during query execution.
+  - Multi-algorithm simultaneous query benchmarking with ground-truth recall and microsecond latency measurement.
+- **REST API Server (`vectordb_server`)**:
+  - Embedded HTTP server built with vendored `cpp-httplib` and `nlohmann/json`.
+  - Endpoints for health, config, dynamic reset, stats, vector insertion, all-or-nothing batch insertion, retrieval, single/multi-algorithm search, and HNSW graph topology/trace inspection.
+  - Static file hosting mounting `/web` at the root URL `/`.
+  - Global CORS headers (`Access-Control-Allow-Origin: *`) and OPTIONS preflight handling.
+  - Safe local binding (`127.0.0.1`) by default, 20 MB request body limit, 4-worker thread pool.
+- **Comprehensive Test Suite**:
+  - 51 registered unit & integration tests covering distance kernels, exact indexes, HNSW graph invariants, collection service logic, REST API handlers, and a live ephemeral-port HTTP server integration test.
 - **Hardened Benchmark Suite**:
   - Repeatable scientific methodology: 1 warm-up pass followed by 5 timed repetitions (reporting median, min, max).
   - Baseline `BruteForceIndex` measured once per $(n, \text{dim}, \text{metric})$ and reused across all speedup and ground-truth comparisons.
-  - Automated CSV export to `results/*.csv` for paper reproduction.
+  - Automated CSV export to `results/*.csv` for research reproducibility.
   - Fast developer mode via `--quick` command-line flag ($n = 2,000$, 3 repetitions).
 
 ---
@@ -45,6 +59,15 @@ vectordb/
 ├── README.md                   # Project documentation and build instructions
 ├── .gitignore                  # Git ignore rules for C++ and build artifacts
 ├── .gitattributes              # LF line-ending normalization
+├── docs/
+│   └── API.md                  # Comprehensive REST API reference with curl examples
+├── third_party/                # Vendored single-header third-party dependencies
+│   ├── README.md               # Version, URL, and license documentation
+│   ├── httplib.h               # cpp-httplib v0.18.3 (MIT)
+│   └── nlohmann/
+│       └── json.hpp            # nlohmann/json v3.11.3 (MIT)
+├── web/
+│   └── index.html              # Placeholder web UI mounted at root URL /
 ├── include/
 │   └── vectordb/
 │       ├── types.hpp           # VectorId, SearchResult, Metric enum & string helpers
@@ -53,6 +76,8 @@ vectordb/
 │       ├── brute_force.hpp     # BruteForceIndex declaration
 │       ├── kd_tree.hpp         # KdTreeIndex declaration & SearchStats
 │       ├── hnsw.hpp            # HnswIndex, HnswParams, HnswSearchStats & HnswGraphInfo
+│       ├── collection.hpp      # Collection service layer declaration
+│       ├── api.hpp             # HTTP REST API handler declarations
 │       ├── dataset.hpp         # Synthetic dataset generator declarations
 │       └── evaluation.hpp      # Recall@k and MeanRecall@k evaluation helpers
 ├── src/
@@ -60,6 +85,9 @@ vectordb/
 │   ├── brute_force.cpp         # BruteForceIndex implementation
 │   ├── kd_tree.cpp             # KdTreeIndex implementation (flat array, median split)
 │   ├── hnsw.cpp                # HnswIndex implementation (Malkov & Yashunin 2018)
+│   ├── collection.cpp          # Collection service layer implementation
+│   ├── api.cpp                 # API handlers implementation (JSON serialization)
+│   ├── server_main.cpp         # vectordb_server executable entry point
 │   ├── dataset.cpp             # Normal distribution vector generation
 │   ├── evaluation.cpp          # Evaluation module implementation
 │   └── main.cpp                # 2D demo, KD-Tree & HNSW benchmarks with CSV export
@@ -70,7 +98,10 @@ vectordb/
 │   ├── test_brute_force.cpp    # Unit & cross-check tests for BruteForceIndex
 │   ├── test_evaluation.cpp     # Unit tests for Recall@k metrics
 │   ├── test_kd_tree.cpp        # Tests verifying KD-Tree against Brute Force
-│   └── test_hnsw.cpp           # Invariants, level distribution, and HNSW recall tests
+│   ├── test_hnsw.cpp           # Invariants, level distribution, and HNSW recall tests
+│   ├── test_collection.cpp     # Tests for Collection service layer
+│   ├── test_api.cpp            # Pure JSON unit tests for API handlers
+│   └── test_server_http.cpp    # Live HTTP server integration test on ephemeral port
 └── results/                    # CSV exports from hardened benchmarks
     ├── README.md               # Column schema documentation
     ├── build.csv               # Graph layer node counts and average degree
@@ -94,9 +125,41 @@ vectordb/
 # 1. Create build configuration (Release mode default)
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 
-# 2. Compile all targets (library, demo, and test suite)
+# 2. Compile all targets (library, demo, server, and test suite)
 cmake --build build
 ```
+
+This compiles three executables:
+1. `vectordb_demo`: Interactive 2D demo and hardened multi-algorithm benchmarks with CSV export.
+2. `vectordb_server`: Multi-threaded HTTP REST API server.
+3. `vectordb_tests`: Automated unit and integration test runner.
+
+---
+
+## Running the REST API Server
+
+```bash
+# Start server with default parameters (port 8080, host 127.0.0.1, dim 128, cosine)
+.\build\vectordb_server.exe
+
+# Start server with custom configuration
+.\build\vectordb_server.exe --port 8080 --host 127.0.0.1 --dim 8 --metric cosine --M 16 --efConstruction 200 --efSearch 50
+```
+
+### Server Command-Line Options
+| Flag | Description | Default |
+| :--- | :--- | :--- |
+| `--port <PORT>` | TCP port to listen on | `8080` |
+| `--host <HOST>` | Network interface to bind to | `127.0.0.1` |
+| `--dim <DIM>` | Default vector dimension | `128` |
+| `--metric <METRIC>` | Distance metric (`cosine`, `euclidean`, `manhattan`) | `cosine` |
+| `--M <M>` | HNSW max outgoing neighbours per node | `16` |
+| `--efConstruction <EFC>` | HNSW construction beam search width | `200` |
+| `--efSearch <EFS>` | HNSW default query beam search width | `50` |
+| `--seed <SEED>` | PRNG seed for HNSW level generation | `42` |
+| `--web-dir <DIR>` | Directory containing static web assets | `web` |
+
+Refer to [docs/API.md](docs/API.md) for complete endpoint documentation and curl examples.
 
 ---
 
@@ -188,12 +251,15 @@ Or execute the test binary directly for detailed test-by-test output:
 ./build/vectordb_tests
 ```
 
-All 34 registered unit tests pass with zero failures:
+All 51 registered unit & integration tests pass with zero failures:
 - Metric kernels & mathematical correctness
 - Exact Brute Force top-$k$ and deterministic tie-breaking
 - KD-Tree spatial median splits, pruning stats, and zero-vector handling
 - HNSW graph construction invariants, layer hierarchy, degree caps, and seed reproducibility
 - Ground truth Recall@k and MeanRecall@k evaluation across metrics
+- Collection service layer multi-index synchronization, validation, and auto-ID handling
+- REST API handler request/response documents and error handling
+- Live HTTP server integration on an ephemeral port
 
 ---
 
@@ -209,7 +275,13 @@ g++ -std=c++17 -O3 -Wall -Wextra -Wpedantic -Iinclude src/distance.cpp src/brute
 
 ### Compile & Run Tests:
 ```bash
-g++ -std=c++17 -O3 -Wall -Wextra -Wpedantic -Iinclude -Itests src/distance.cpp src/brute_force.cpp src/kd_tree.cpp src/hnsw.cpp src/dataset.cpp src/evaluation.cpp tests/test_main.cpp tests/test_distance.cpp tests/test_brute_force.cpp tests/test_evaluation.cpp tests/test_kd_tree.cpp tests/test_hnsw.cpp -o vectordb_tests.exe
+g++ -std=c++17 -O3 -Wall -Wextra -Wpedantic -Iinclude -Itests -Ithird_party src/distance.cpp src/brute_force.cpp src/kd_tree.cpp src/hnsw.cpp src/collection.cpp src/api.cpp src/dataset.cpp src/evaluation.cpp tests/test_main.cpp tests/test_distance.cpp tests/test_brute_force.cpp tests/test_evaluation.cpp tests/test_kd_tree.cpp tests/test_hnsw.cpp tests/test_collection.cpp tests/test_api.cpp tests/test_server_http.cpp -lws2_32 -lwsock32 -o vectordb_tests.exe
 ./vectordb_tests.exe
 ```
-*(On Linux or macOS, omit `.exe` from the output filename).*
+
+### Compile & Run Server:
+```bash
+g++ -std=c++17 -O3 -Wall -Wextra -Wpedantic -Iinclude -Ithird_party src/distance.cpp src/brute_force.cpp src/kd_tree.cpp src/hnsw.cpp src/collection.cpp src/api.cpp src/dataset.cpp src/evaluation.cpp src/server_main.cpp -lws2_32 -lwsock32 -o vectordb_server.exe
+./vectordb_server.exe
+```
+*(On Linux or macOS, omit `-lws2_32 -lwsock32` and `.exe` from the output filename).*
