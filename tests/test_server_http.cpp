@@ -378,4 +378,86 @@ TEST(ServerHttpTest, SseRealIntegrationEventOrderAndTimings) {
     }
 }
 
+TEST(ServerHttpTest, StaticFileServingAndPathTraversalSafety) {
+    httplib::Server svr;
+
+    // Mount web directory as in server_main.cpp
+    std::string webDir = "web";
+    CHECK(std::filesystem::exists(webDir));
+    CHECK(svr.set_mount_point("/", webDir));
+
+    int port = svr.bind_to_any_port("127.0.0.1");
+    CHECK(port > 0);
+
+    std::thread serverThread([&svr]() {
+        svr.listen_after_bind();
+    });
+
+    httplib::Client cli("127.0.0.1", port);
+    cli.set_connection_timeout(5);
+    cli.set_read_timeout(5);
+
+    // 1. Root GET / serves index.html with text/html
+    auto resRoot = cli.Get("/");
+    CHECK(resRoot != nullptr);
+    CHECK(resRoot->status == 200);
+    CHECK(resRoot->get_header_value("Content-Type").find("text/html") != std::string::npos);
+    CHECK(resRoot->body.find("VectorDB") != std::string::npos);
+    CHECK(resRoot->body.find("Content-Security-Policy") != std::string::npos);
+
+    // 2. Direct GET /index.html
+    auto resIndex = cli.Get("/index.html");
+    CHECK(resIndex != nullptr);
+    CHECK(resIndex->status == 200);
+    CHECK(resIndex->get_header_value("Content-Type").find("text/html") != std::string::npos);
+
+    // 3. CSS file: text/css
+    auto resCss = cli.Get("/css/app.css");
+    CHECK(resCss != nullptr);
+    CHECK(resCss->status == 200);
+    CHECK(resCss->get_header_value("Content-Type").find("text/css") != std::string::npos);
+
+    // 4. JS file: text/javascript
+    auto resJs = cli.Get("/js/main.js");
+    CHECK(resJs != nullptr);
+    CHECK(resJs->status == 200);
+    CHECK(resJs->get_header_value("Content-Type").find("text/javascript") != std::string::npos);
+
+    // 5. Test suite HTML: /tests.html
+    auto resTests = cli.Get("/tests.html");
+    CHECK(resTests != nullptr);
+    CHECK(resTests->status == 200);
+    CHECK(resTests->get_header_value("Content-Type").find("text/html") != std::string::npos);
+
+    // 6. Path Traversal Safety: GET /../README.md
+    auto resTrav1 = cli.Get("/../README.md");
+    CHECK(resTrav1 != nullptr);
+    CHECK(resTrav1->status == 404 || resTrav1->status == 403);
+    CHECK(resTrav1->body.find("# VectorDB") == std::string::npos);
+
+    // 7. Path Traversal Safety: encoded /%2e%2e%2fREADME.md
+    auto resTrav2 = cli.Get("/%2e%2e%2fREADME.md");
+    CHECK(resTrav2 != nullptr);
+    CHECK(resTrav2->status == 404 || resTrav2->status == 403);
+    CHECK(resTrav2->body.find("# VectorDB") == std::string::npos);
+
+    // 8. Path Traversal Safety: mixed /%2e%2e/README.md
+    auto resTrav3 = cli.Get("/%2e%2e/README.md");
+    CHECK(resTrav3 != nullptr);
+    CHECK(resTrav3->status == 404 || resTrav3->status == 403);
+    CHECK(resTrav3->body.find("# VectorDB") == std::string::npos);
+
+    // 9. Path Traversal Safety: mixed /..%2fREADME.md
+    auto resTrav4 = cli.Get("/..%2fREADME.md");
+    CHECK(resTrav4 != nullptr);
+    CHECK(resTrav4->status == 404 || resTrav4->status == 403);
+    CHECK(resTrav4->body.find("# VectorDB") == std::string::npos);
+
+    svr.stop();
+    if (serverThread.joinable()) {
+        serverThread.join();
+    }
+}
+
+
 
