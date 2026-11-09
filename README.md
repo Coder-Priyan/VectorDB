@@ -174,22 +174,22 @@ This compiles three executables:
 # Default options (Port 8080, dim=128, Ollama=http://127.0.0.1:11434, rag-dim=768)
 ./build/vectordb_server
 
-# Custom RAG configuration
-./build/vectordb_server --port 8080 --ollama-url http://127.0.0.1:11434 --embed-model nomic-embed-text --chat-model llama3.2 --rag-dim 768 --rag-prompt v2
+# Custom RAG configuration and Web UI
+./build/vectordb_server --port 8080 --web-dir web --ollama-url http://127.0.0.1:11434 --embed-model nomic-embed-text --chat-model llama3.2 --rag-dim 768 --rag-prompt v2
 ```
 
-See [docs/API.md](docs/API.md) for the complete HTTP API reference, request payloads, and PowerShell / Bash curl examples.
+Navigate to `http://127.0.0.1:8080/` to access the offline browser UI. See [web/README.md](web/README.md) for UI documentation and [docs/API.md](docs/API.md) for the complete HTTP API reference.
 
 ---
 
 ## Running the Test Suite
 
 ```bash
-# Run the hermetic test suite (107 tests, zero cloud/network dependency)
+# Run the hermetic test suite (108 tests, zero cloud/network dependency)
 ./build/vectordb_tests
 
 # Run including the opt-in live test against local Ollama
 VECTORDB_LIVE_OLLAMA=1 ./build/vectordb_tests
 ```
 
-All 107 registered unit & integration tests pass with zero failures.
+All 108 registered unit & integration tests pass with zero failures. Browser pure logic tests (17 unit tests) run at `http://127.0.0.1:8080/tests.html`.

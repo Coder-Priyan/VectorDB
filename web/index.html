@@ -1,102 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VectorDB - Semantic Search Engine</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; margin: 40px auto; max-width: 800px; padding: 0 20px; color: #222; }
-        h1 { color: #1a73e8; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; }
-        .status-badge { display: inline-block; background: #34a853; color: white; padding: 4px 12px; border-radius: 12px; font-weight: bold; font-size: 0.85em; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px 12px; text-align: left; }
-        th { background-color: #f8f9fa; }
-        code { background: #f1f3f4; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
-        .method { font-weight: bold; padding: 2px 6px; border-radius: 4px; color: white; }
-        .get { background-color: #1a73e8; }
-        .post { background-color: #188038; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self';">
+  <title>VectorDB - Semantic Search Engine</title>
+  <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-    <h1>VectorDB - Semantic Search Engine <span class="status-badge">ONLINE v0.4.0</span></h1>
-    <p>The VectorDB C++17 REST API server is running and ready to process vector insertions, approximate nearest-neighbor queries, multi-algorithm benchmarks, and HNSW graph introspection.</p>
+  <header class="app-header">
+    <div class="header-brand">
+      <h1 class="app-title">VectorDB</h1>
+      <span class="app-subtitle">Semantic Search &amp; Proximity Graphs</span>
+    </div>
+    <div class="header-controls">
+      <div id="ollama-status-container" class="status-indicator">
+        <span id="ollama-status-badge" class="badge badge-neutral" aria-live="polite">Checking Ollama...</span>
+        <button id="ollama-check-btn" class="btn btn-sm btn-icon" title="Check Ollama status" aria-label="Refresh Ollama status">&#x21bb;</button>
+      </div>
+      <button id="theme-toggle-btn" class="btn btn-sm btn-outline" aria-label="Toggle theme">Theme</button>
+    </div>
+  </header>
 
-    <h2>Available REST API Endpoints</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Method</th>
-                <th>Endpoint</th>
-                <th>Description</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><span class="method get">GET</span></td>
-                <td><code>/api/health</code></td>
-                <td>Server status & version check</td>
-            </tr>
-            <tr>
-                <td><span class="method get">GET</span></td>
-                <td><code>/api/config</code></td>
-                <td>Current collection dimension, metric, and HNSW parameters</td>
-            </tr>
-            <tr>
-                <td><span class="method post">POST</span></td>
-                <td><code>/api/reset</code></td>
-                <td>Reset collection and optionally reconfigure parameters</td>
-            </tr>
-            <tr>
-                <td><span class="method get">GET</span></td>
-                <td><code>/api/stats</code></td>
-                <td>Vector count, dimension, and metric</td>
-            </tr>
-            <tr>
-                <td><span class="method post">POST</span></td>
-                <td><code>/api/vectors</code></td>
-                <td>Insert single vector with optional ID and metadata</td>
-            </tr>
-            <tr>
-                <td><span class="method post">POST</span></td>
-                <td><code>/api/vectors/batch</code></td>
-                <td>All-or-nothing batch vector insertion</td>
-            </tr>
-            <tr>
-                <td><span class="method get">GET</span></td>
-                <td><code>/api/vectors/:id</code></td>
-                <td>Retrieve vector components and metadata by VectorId</td>
-            </tr>
-            <tr>
-                <td><span class="method post">POST</span></td>
-                <td><code>/api/search</code></td>
-                <td>Search top-k neighbors (BruteForce, KD-Tree, HNSW)</td>
-            </tr>
-            <tr>
-                <td><span class="method post">POST</span></td>
-                <td><code>/api/benchmark</code></td>
-                <td>Run query against all three algorithms simultaneously</td>
-            </tr>
-            <tr>
-                <td><span class="method get">GET</span></td>
-                <td><code>/api/hnsw/info</code></td>
-                <td>HNSW multi-layer graph topology overview</td>
-            </tr>
-            <tr>
-                <td><span class="method get">GET</span></td>
-                <td><code>/api/hnsw/node/:id</code></td>
-                <td>Inspect node layer presence and neighbor connections</td>
-            </tr>
-            <tr>
-                <td><span class="method post">POST</span></td>
-                <td><code>/api/hnsw/trace</code></td>
-                <td>Detailed step-by-step distance traversal trace</td>
-            </tr>
-            <tr>
-                <td><span class="method post">POST</span></td>
-                <td><code>/api/demo/random</code></td>
-                <td>Generate and insert N synthetic Gaussian vectors</td>
-            </tr>
-        </tbody>
-    </table>
+  <aside id="global-error-banner" class="alert alert-danger hidden" role="alert" aria-live="assertive">
+    <span id="global-error-text" class="alert-message"></span>
+    <button id="global-error-dismiss" class="btn-close" aria-label="Dismiss error">&times;</button>
+  </aside>
+
+  <nav class="tab-nav" role="tablist" aria-label="Main Navigation">
+    <button id="tab-btn-ask" class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-ask" tabindex="0">Ask (RAG)</button>
+    <button id="tab-btn-explore" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-explore" tabindex="-1">Explore (PCA)</button>
+    <button id="tab-btn-hnsw" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-hnsw" tabindex="-1">HNSW Graph</button>
+    <button id="tab-btn-compare" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-compare" tabindex="-1">Compare</button>
+    <button id="tab-btn-settings" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-settings" tabindex="-1">Settings</button>
+  </nav>
+
+  <main class="app-content">
+    <!-- TAB 1: ASK (RAG) -->
+    <section id="panel-ask" class="tab-panel active" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-ask">
+      <div class="split-view">
+        <!-- Documents Column -->
+        <div class="card panel-column">
+          <div class="card-header">
+            <h2 class="card-title">Document Ingestion</h2>
+            <button id="doc-reset-btn" class="btn btn-sm btn-danger">Reset Docs</button>
+          </div>
+          <form id="doc-ingest-form" class="form-stack">
+            <div class="form-group">
+              <label for="doc-title-input">Document Title</label>
+              <input type="text" id="doc-title-input" class="input-text" placeholder="e.g. Introduction to VectorDB" required>
+            </div>
+            <div class="form-group">
+              <label for="doc-file-input">Load File (.txt, .md, max 2 MB)</label>
+              <input type="file" id="doc-file-input" class="input-file" accept=".txt,.md">
+            </div>
+            <div class="form-group">
+              <label for="doc-text-input">Plain Text Content</label>
+              <textarea id="doc-text-input" class="textarea-field" rows="6" placeholder="Paste document text here..." required></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="doc-strategy-select">Chunking</label>
+                <select id="doc-strategy-select" class="input-select">
+                  <option value="sentence" selected>Sentence</option>
+                  <option value="fixed">Fixed</option>
+                </select>
+              </div>
+              <div class="form-group flex-1">
+                <label for="doc-max-chars">Max Chars</label>
+                <input type="number" id="doc-max-chars" class="input-text" value="800" min="50" max="10000">
+              </div>
+              <div class="form-group flex-1">
+                <label for="doc-overlap-chars">Overlap</label>
+                <input type="number" id="doc-overlap-chars" class="input-text" value="100" min="0" max="2000">
+              </div>
+            </div>
+            <button type="submit" id="doc-ingest-btn" class="btn btn-primary">Ingest Document</button>
+          </form>
+
+          <div class="docs-list-section">
+            <h3 class="section-title">Ingested Documents (<span id="docs-count-label">0</span>)</h3>
+            <div id="docs-list-container" class="docs-list">
+              <p class="text-muted empty-state">No documents ingested yet.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ask / Grounded Q&A Column -->
+        <div class="card panel-column">
+          <div class="card-header">
+            <h2 class="card-title">Grounded Semantic Q&amp;A</h2>
+          </div>
+          <form id="ask-form" class="form-stack">
+            <div class="form-group">
+              <div class="label-row">
+                <label for="ask-question-input">Question</label>
+                <span id="ask-char-count" class="char-count text-muted">0 / 2000</span>
+              </div>
+              <textarea id="ask-question-input" class="textarea-field" rows="3" maxlength="2000" placeholder="Ask a question grounded in your ingested documents..." required></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="ask-k-input">Top k Sources</label>
+                <input type="number" id="ask-k-input" class="input-text" value="4" min="1" max="20">
+              </div>
+              <div class="form-group flex-1">
+                <label for="ask-algo-select">Retrieval Algorithm</label>
+                <select id="ask-algo-select" class="input-select">
+                  <option value="hnsw" selected>HNSW (Approximate)</option>
+                  <option value="kdtree">KD-Tree (Exact)</option>
+                  <option value="brute">Brute Force (Exact)</option>
+                </select>
+              </div>
+            </div>
+            <div class="btn-group">
+              <button type="submit" id="ask-submit-btn" class="btn btn-primary">Ask</button>
+              <button type="button" id="ask-stop-btn" class="btn btn-outline" disabled>Stop</button>
+            </div>
+          </form>
+
+          <!-- Live Streaming Status / Notice -->
+          <div id="ask-loading-notice" class="notice-box notice-warning hidden" role="status">
+            Model is loading or thinking (first answer after idle can take 15+ s on CPU)...
+          </div>
+
+          <!-- Answer Presentation -->
+          <div class="answer-section">
+            <h3 class="section-title">Answer</h3>
+            <div id="ask-answer-box" class="answer-box" aria-live="polite">
+              <p class="text-muted empty-state">Ask a question above to see grounded answers.</p>
+            </div>
+            <div id="ask-timings-container" class="timings-bar hidden"></div>
+          </div>
+
+          <!-- Grounded Sources -->
+          <div class="sources-section">
+            <h3 class="section-title">Retrieved Sources (<span id="sources-count-label">0</span>)</h3>
+            <div id="ask-sources-container" class="sources-list">
+              <p class="text-muted empty-state">No sources retrieved yet.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: EXPLORE (PCA) -->
+    <section id="panel-explore" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-explore">
+      <div class="card placeholder-card">
+        <h2 class="card-title">Explore (2D PCA Map)</h2>
+        <p class="text-muted">Interactive vector projection, scatter plot, zoom/pan, and nearest neighbor visualization coming in Part 2.</p>
+      </div>
+    </section>
+
+    <!-- TAB 3: HNSW GRAPH -->
+    <section id="panel-hnsw" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-hnsw">
+      <div class="card placeholder-card">
+        <h2 class="card-title">HNSW Graph Topology &amp; Search Path</h2>
+        <p class="text-muted">Multi-layer proximity graph visualizer and step-by-step search path animator coming in Part 2.</p>
+      </div>
+    </section>
+
+    <!-- TAB 4: COMPARE -->
+    <section id="panel-compare" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-compare">
+      <div class="card placeholder-card">
+        <h2 class="card-title">Multi-Algorithm Benchmark &amp; Comparison</h2>
+        <p class="text-muted">Latency, distance computations, and Recall@k benchmarks across Brute Force, KD-Tree, and HNSW coming in Part 3.</p>
+      </div>
+    </section>
+
+    <!-- TAB 5: SETTINGS -->
+    <section id="panel-settings" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-settings">
+      <div class="settings-grid">
+        <!-- Health & Server Info -->
+        <div class="card">
+          <h2 class="card-title">Server Status &amp; Configuration</h2>
+          <div id="settings-health-box" class="info-table-container">
+            <p class="text-muted">Loading system health and metrics...</p>
+          </div>
+        </div>
+
+        <!-- Reset Demo Collection Form -->
+        <div class="card">
+          <h2 class="card-title">Demo Vector Collection</h2>
+          <form id="settings-reset-demo-form" class="form-stack">
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="demo-dim-input">Dimension</label>
+                <input type="number" id="demo-dim-input" class="input-text" value="128" min="1" max="4096" required>
+              </div>
+              <div class="form-group flex-1">
+                <label for="demo-metric-select">Metric</label>
+                <select id="demo-metric-select" class="input-select">
+                  <option value="cosine" selected>Cosine</option>
+                  <option value="euclidean">Euclidean (L2)</option>
+                  <option value="manhattan">Manhattan (L1)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="demo-m-input">HNSW M</label>
+                <input type="number" id="demo-m-input" class="input-text" value="16" min="2" max="128">
+              </div>
+              <div class="form-group flex-1">
+                <label for="demo-efc-input">efConstruction</label>
+                <input type="number" id="demo-efc-input" class="input-text" value="64" min="4" max="1000">
+              </div>
+            </div>
+            <button type="submit" id="demo-reset-btn" class="btn btn-warning">Reset Demo Collection</button>
+          </form>
+
+          <hr class="divider">
+
+          <form id="settings-random-demo-form" class="form-row mt-3">
+            <div class="form-group flex-2">
+              <label for="demo-random-count">Insert Random Vectors (max 20,000)</label>
+              <input type="number" id="demo-random-count" class="input-text" value="100" min="1" max="20000">
+            </div>
+            <div class="form-group flex-1 align-end">
+              <button type="submit" id="demo-insert-random-btn" class="btn btn-primary w-100">Insert</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <span>VectorDB &bull; C++17 Core Engine &bull; Zero External Dependencies</span>
+    <span id="footer-version" class="text-muted">v0.4.0</span>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
