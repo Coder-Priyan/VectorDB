@@ -157,7 +157,7 @@ export function initTabs(tablistSelector = ".tab-nav") {
   const tabs = Array.from(tablist.querySelectorAll('[role="tab"]'));
   const panels = Array.from(document.querySelectorAll('[role="tabpanel"]'));
 
-  function activateTab(tab, setFocus = true) {
+  function activateTab(tab, setFocus = true, updateHash = true) {
     tabs.forEach(t => {
       const isSelected = t === tab;
       t.setAttribute("aria-selected", isSelected ? "true" : "false");
@@ -172,13 +172,30 @@ export function initTabs(tablistSelector = ".tab-nav") {
       p.classList.toggle("active", match);
     });
 
+    if (updateHash && targetPanelId) {
+      const hashName = targetPanelId.replace(/^panel-/, "");
+      if (window.location.hash !== `#${hashName}`) {
+        window.history.replaceState(null, "", `#${hashName}`);
+      }
+    }
+
     if (setFocus) {
       tab.focus();
     }
   }
 
+  function applyHash() {
+    const raw = (window.location.hash || "").replace(/^#/, "").toLowerCase();
+    if (!raw) return;
+    const matchingTab = tabs.find(t => t.getAttribute("aria-controls") === `panel-${raw}`);
+    if (matchingTab) {
+      activateTab(matchingTab, false, false);
+      matchingTab.dispatchEvent(new Event("click"));
+    }
+  }
+
   tabs.forEach((tab, index) => {
-    tab.addEventListener("click", () => activateTab(tab, false));
+    tab.addEventListener("click", () => activateTab(tab, false, true));
 
     tab.addEventListener("keydown", (e) => {
       let nextIndex = null;
@@ -194,9 +211,12 @@ export function initTabs(tablistSelector = ".tab-nav") {
 
       if (nextIndex !== null) {
         e.preventDefault();
-        activateTab(tabs[nextIndex], true);
+        activateTab(tabs[nextIndex], true, true);
       }
     });
   });
+
+  window.addEventListener("hashchange", applyHash);
+  applyHash();
 }
 

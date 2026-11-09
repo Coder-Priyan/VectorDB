@@ -146,6 +146,19 @@ export const api = {
 
   // Demo Collection Management
   resetDemo: (payload) => apiRequest("/api/reset", { method: "POST", body: payload }),
-  insertDemoRandom: (payload) => apiRequest("/api/demo/random", { method: "POST", body: payload })
+  insertDemoRandom: (payload) => apiRequest("/api/demo/random", { method: "POST", body: payload }),
+  getVector: (id) => apiRequest(`/api/vectors/${encodeURIComponent(id)}`),
+
+  // 2D PCA Projections
+  getPca: (limit = 5000) => apiRequest(`/api/pca?limit=${encodeURIComponent(limit)}`),
+  getDocsPca: (limit = 5000) => apiRequest(`/api/docs/pca?limit=${encodeURIComponent(limit)}`),
+  queryPca: (payload) => apiRequest("/api/pca/query", { method: "POST", body: payload }),
+  queryDocsPca: (payload) => apiRequest("/api/docs/pca/query", { method: "POST", body: payload, timeoutMs: 30000 }),
+
+  // HNSW Topology & Search Path Trace
+  getHnswInfo: () => apiRequest("/api/hnsw/info"),
+  getHnswGraph: (layer = 0, maxEdges = 20000) => apiRequest(`/api/hnsw/graph?layer=${encodeURIComponent(layer)}&max_edges=${encodeURIComponent(maxEdges)}`),
+  getDocsHnswGraph: (layer = 0, maxEdges = 20000) => apiRequest(`/api/docs/hnsw/graph?layer=${encodeURIComponent(layer)}&max_edges=${encodeURIComponent(maxEdges)}`),
+  traceHnsw: (payload) => apiRequest("/api/hnsw/trace", { method: "POST", body: payload })
 };
 

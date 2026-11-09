@@ -9,6 +9,8 @@ import { api } from "./api.js";
 import { initTabs, updateOllamaBadge } from "./ui.js";
 import { initAskTab } from "./ask.js";
 import { initSettingsTab } from "./settings.js";
+import { initExploreTab } from "./explore.js";
+import { initHnswTab } from "./hnsw.js";
 
 function initTheme() {
   const themeBtn = document.getElementById("theme-toggle-btn");
@@ -62,8 +64,10 @@ document.addEventListener("DOMContentLoaded", () => {
   checkBtn?.addEventListener("click", checkOllamaStatus);
   checkOllamaStatus();
 
-  // 4. Initialize Functional Tabs (Part 1)
+  // 4. Initialize Functional Tabs
   initAskTab();
   initSettingsTab();
+  initExploreTab();
+  initHnswTab();
 });
 
