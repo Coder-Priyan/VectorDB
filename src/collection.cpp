@@ -393,6 +393,9 @@ HnswLayerGraph Collection::hnswLayerGraph(int layer, std::size_t maxEdges) const
         }
     }
 
+    graph.totalEdges = edgeSet.size();
+    graph.truncated = (edgeSet.size() > maxEdges);
+
     graph.edges.reserve(std::min(edgeSet.size(), maxEdges));
     for (const auto& edge : edgeSet) {
         if (graph.edges.size() >= maxEdges) {

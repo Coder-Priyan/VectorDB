@@ -120,6 +120,8 @@ struct HnswLayerGraph {
     int layer = 0;
     std::vector<VectorId> nodes;
     std::vector<HnswEdge> edges;
+    std::size_t totalEdges = 0;
+    bool truncated = false;
 };
 
 /**

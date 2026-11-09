@@ -390,7 +390,7 @@ Inspects the structural topology of the core HNSW multi-layer proximity graph on
 
 #### Parameters:
 - `layer` *(optional, default: 0)*: Target layer index ($0 \le \text{layer} \le \text{maxLevel}$).
-- `max_edges` *(optional, default: 20000, max: 20000)*: Maximum edges to return.
+- `max_edges` *(optional, default: 20000, max: 60000)*: Maximum edges to return.
 
 ```powershell
 curl.exe --max-time 5 -s "http://127.0.0.1:8080/api/hnsw/graph?layer=0"
@@ -400,6 +400,11 @@ curl.exe --max-time 5 -s "http://127.0.0.1:8080/api/hnsw/graph?layer=0"
 ```json
 {
   "layer": 0,
+  "max_level": 3,
+  "entry_point": 42,
+  "edges_count": 1,
+  "total_edges": 1,
+  "truncated": false,
   "nodes": [
     {"id": 1, "x": -0.490, "y": 0.226}
   ],
@@ -777,8 +782,37 @@ curl.exe --max-time 30 -s -X POST -H "Content-Type: application/json" -d '{
 
 Returns the HNSW graph topology of the document chunk index, with each node enriched with `doc_id`, `chunk_index`, and `title`.
 
+#### Parameters:
+- `layer` *(optional, default: 0)*: Target layer index ($0 \le \text{layer} \le \text{maxLevel}$).
+- `max_edges` *(optional, default: 20000, max: 60000)*: Maximum edges to return.
+
 ```powershell
 curl.exe --max-time 5 -s "http://127.0.0.1:8080/api/docs/hnsw/graph?layer=0"
+```
+
+#### Response (200 OK):
+```json
+{
+  "layer": 0,
+  "max_level": 1,
+  "entry_point": 1,
+  "edges_count": 6,
+  "total_edges": 6,
+  "truncated": false,
+  "nodes": [
+    {
+      "id": 1,
+      "x": -0.12,
+      "y": 0.45,
+      "doc_id": 1,
+      "chunk_index": 0,
+      "title": "Machine Learning Primer"
+    }
+  ],
+  "edges": [
+    {"source": 1, "target": 2}
+  ]
+}
 ```
 
 ---

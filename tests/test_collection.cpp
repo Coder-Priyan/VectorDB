@@ -1,4 +1,4 @@
-#include "test_harness.hpp"
+﻿#include "test_harness.hpp"
 #include "vectordb/collection.hpp"
 #include "vectordb/dataset.hpp"
 
@@ -378,19 +378,29 @@ TEST(CollectionTest, HnswLayerGraph) {
         col.insert(i, {static_cast<float>(i), 2.0f, 3.0f, 4.0f});
     }
 
-    auto g0 = col.hnswLayerGraph(0, 10);
-    CHECK(g0.layer == 0);
-    CHECK(g0.nodes.size() == 40);
-    CHECK(g0.edges.size() <= 10);
-    for (const auto& e : g0.edges) {
-        CHECK(e.source < e.target);
+    // Truncated with maxEdges = 5
+    auto g5 = col.hnswLayerGraph(0, 5);
+    CHECK(g5.layer == 0);
+    CHECK(g5.nodes.size() == 40);
+    CHECK(g5.edges.size() == 5);
+    CHECK(g5.truncated == true);
+    CHECK(g5.totalEdges > g5.edges.size());
+    for (std::size_t i = 1; i < g5.edges.size(); ++i) {
+        // Lowest ids first in lexicographical order (src, dst)
+        CHECK(std::make_pair(g5.edges[i - 1].source, g5.edges[i - 1].target) <
+              std::make_pair(g5.edges[i].source, g5.edges[i].target));
     }
 
+    // Large maxEdges: no truncation
     auto g0All = col.hnswLayerGraph(0, 20000);
     CHECK(!g0All.edges.empty());
+    CHECK(g0All.truncated == false);
+    CHECK(g0All.totalEdges == g0All.edges.size());
 
     // Negative layer
     auto gNeg = col.hnswLayerGraph(-1);
     CHECK(gNeg.nodes.empty());
     CHECK(gNeg.edges.empty());
+    CHECK(gNeg.totalEdges == 0);
+    CHECK(gNeg.truncated == false);
 }

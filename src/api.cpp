@@ -1468,17 +1468,23 @@ ApiResponse handleHnswGraph(const Collection& collection, PcaCache& cache, std::
         }
 
         std::size_t maxEdges = maxEdgesOpt.value_or(20000);
-        if (maxEdges > 20000) {
-            maxEdges = 20000;
+        if (maxEdges > 60000) {
+            maxEdges = 60000;
         }
 
         ensurePcaFit(collection, cache, 5000);
 
         auto graph = collection.hnswLayerGraph(layer, maxEdges);
+        auto hnswMeta = collection.hnswInfo();
 
         std::lock_guard<std::mutex> lock(cache.mutex);
         json doc;
         doc["layer"] = graph.layer;
+        doc["max_level"] = hnswMeta.maxLevel;
+        doc["entry_point"] = hnswMeta.entryPointId;
+        doc["edges_count"] = graph.edges.size();
+        doc["total_edges"] = graph.totalEdges;
+        doc["truncated"] = graph.truncated;
 
         json nodeArr = json::array();
         for (VectorId vid : graph.nodes) {

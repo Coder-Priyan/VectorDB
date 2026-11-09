@@ -1,4 +1,4 @@
-#include "test_harness.hpp"
+﻿#include "test_harness.hpp"
 #include "vectordb/api.hpp"
 #include "nlohmann/json.hpp"
 
@@ -362,6 +362,10 @@ TEST(ApiTest, HnswGraphEndpoint) {
     CHECK(gRes.status == 200);
     json gj = json::parse(gRes.body);
     CHECK(gj["layer"] == 0);
+    CHECK(gj.contains("max_level"));
+    CHECK(gj.contains("edges_count"));
+    CHECK(gj.contains("total_edges"));
+    CHECK(gj.contains("truncated"));
     CHECK(gj["nodes"].size() == 25);
     CHECK(!gj["edges"].empty());
     CHECK(gj["nodes"][0].contains("x"));
