@@ -16,7 +16,8 @@ Built strictly with vanilla HTML5, CSS3 (custom properties, responsive flexbox/g
 - **Robust SSE Streaming Parser (`web/js/sse.js`)**: Survives network packet boundaries, comments, and UTF-8 multibyte characters split across chunks using `TextDecoder({ stream: true })`.
 - **Accessible & Responsive**: Keyboard-navigable tabs (`role="tablist"` / `role="tab"` / `role="tabpanel"`), aria-live announcement regions, and responsive CSS down to 360px viewport width.
 - **Theme Support**: Seamless dark and light themes respecting `prefers-color-scheme` with manual toggle stored in `localStorage`.
-- **Deep-Linking via Hash Routing**: Direct URL hash navigation (`#ask`, `#explore`, `#hnsw`, `#settings`, and `#compare`).
+- **Deep-Linking via Hash Routing**: Direct URL hash navigation (`#ask`, `#explore`, `#hnsw`, `#compare`, and `#settings`).
+- **Automated Web Safety Verification (`scripts/check_web_safety.ps1`)**: Scans all HTML and JS files to verify zero dangerous DOM APIs (`innerHTML`, `outerHTML`, `eval()`, `document.write`), zero inline styles or event handlers, and strict CSP meta integrity.
 
 ---
 
@@ -37,12 +38,15 @@ web/
 │   ├── explore.js           # 2D PCA vector map controller, zoom/pan, query star & neighbor table
 │   ├── hnsw_helpers.js      # Pure logic: playback state machine, layer colors, trace mapping
 │   ├── hnsw.js              # HNSW graph layer visualizer, offscreen buffering & search-path animator
+│   ├── compare_helpers.js   # Pure logic: timing stats (median/min/max), GT diff, bar scaling
+│   ├── compare.js           # Multi-algorithm benchmark comparison controller & canvas bar chart
 │   ├── main.js              # Application entry point, theme bootstrapper & Ollama poller
 │   └── tests/
 │       ├── framework.js     # Lightweight assertion and suite framework
 │       ├── test_core.js     # Core logic tests: SSE, Viewport2D, citations, formatters
 │       ├── test_explore_hnsw.js # Explore & HNSW pure logic tests: hit-test, state machine, trace mapping
-│       └── all_tests.js     # Hermetic browser unit test aggregator & DOM runner (32 tests)
+│       ├── test_compare.js  # Compare tab pure tests: stats, ground truth diffs, bar scaling
+│       └── all_tests.js     # Hermetic browser unit test aggregator & DOM runner (43 tests)
 ├── index.html               # Main single-page application shell
 ├── tests.html               # Browser-run unit test runner
 └── README.md                # Web UI documentation
@@ -63,7 +67,7 @@ Start the C++ server with `--web-dir web`:
 ```
 
 Open `http://127.0.0.1:8080/` in any modern web browser.
-Deep-linking is supported via hash routing: `#ask`, `#explore`, `#hnsw`, `#settings` (and later `#compare`).
+Deep-linking is supported via hash routing: `#ask`, `#explore`, `#hnsw`, `#compare`, `#settings`.
 
 ---
 
@@ -71,11 +75,11 @@ Deep-linking is supported via hash routing: `#ask`, `#explore`, `#hnsw`, `#setti
 
 | Tab | Status | Capabilities |
 |---|---|---|
-| **Ask (RAG)** | **Functional (Part 1)** | Document ingestion (plain text, `.txt`, `.md` up to 2 MB), chunk inspection, live SSE token streaming (`POST /api/ask/stream`), interactive citation pills `[1]`, thinking notices, and timing metrics. |
-| **Settings** | **Functional (Part 1)** | Server status inspection (`/api/health`, `/api/config`, `/api/stats`), demo collection reset, and random vector insertion. |
-| **Explore** | **Functional (Part 2)** | Interactive 2D PCA vector projection scatter map with zoom/pan, double-click fit, 8px hit-testing with tooltip, color per document with palette legend, text/vector nearest-neighbor query visualization with query star and neighbor distance lines, side-by-side results table, and empty states. |
-| **HNSW** | **Functional (Part 2)** | Proximity graph visualizer across hierarchy layers $0\dots\text{max\_level}$, edge truncation selector ($2000, 10000, 20000, 60000$) with warning banner, offscreen canvas edge buffering for performance, entry point indicator, graph summary statistics, and animated search-path tracing (`POST /api/hnsw/trace`) with play/pause/step/seek/speed playback controls, aria-live step announcer, and graceful handling of visited nodes missing from PCA projection. |
-| **Compare** | Planned (Part 3) | Multi-algorithm benchmark comparison across Brute Force, KD-Tree, and HNSW with latency distribution charts. |
+| **Ask (RAG)** | **Functional** | Document ingestion (plain text, `.txt`, `.md` up to 2 MB), chunk inspection, live SSE token streaming (`POST /api/ask/stream`), interactive citation pills `[1]`, thinking notices, and timing metrics. |
+| **Settings** | **Functional** | Server status inspection (`/api/health`, `/api/config`, `/api/stats`), demo collection reset, and random vector insertion. |
+| **Explore** | **Functional** | Interactive 2D PCA vector projection scatter map with zoom/pan, double-click fit, 8px hit-testing with tooltip, color per document with palette legend, text/vector nearest-neighbor query visualization with query star and neighbor distance lines, side-by-side results table, and empty states. |
+| **HNSW** | **Functional** | Proximity graph visualizer across hierarchy layers $0\dots\text{max\_level}$, edge truncation selector ($2000, 10000, 20000, 60000$) with warning banner, offscreen canvas edge buffering for performance, entry point indicator, graph summary statistics, and animated search-path tracing (`POST /api/hnsw/trace`) with play/pause/step/seek/speed playback controls, aria-live step announcer, and graceful handling of visited nodes missing from PCA projection. |
+| **Compare** | **Functional** | Multi-algorithm benchmark comparison executing identical queries concurrently across Brute Force, KD-Tree, and HNSW; sequential repeated runs (5, 10, 20) with automatic warm-up discard (accounting for KD-Tree lazy construction); median, min, and max latency statistics; comparative horizontal canvas bars (latency, distances, recall); and side-by-side top-$k$ ground truth discrepancy highlighting. |
 
 ---
 
@@ -83,7 +87,7 @@ Deep-linking is supported via hash routing: `#ask`, `#explore`, `#hnsw`, `#setti
 
 Navigate to `http://127.0.0.1:8080/tests.html` in your browser.
 
-The page executes 32 hermetic pure logic unit tests across 8 suites:
+The page executes 43 hermetic pure logic unit tests across 11 suites:
 1. `SSE Parser (sse.js)`: Single events, split chunk boundaries, multi-byte UTF-8 preservation, comment ignoring, and unknown event handling.
 2. `2D Canvas Viewport (canvas.js)`: Algebraic invertibility between data coordinates and screen pixels, zoom scale centering, pan offsets, and degenerate bound handling.
 3. `UI & Citation Safety (ui.js)`: Regex token splitting for citations (`[1]`, `[2]`), DOM text node injection security against XSS.
@@ -92,3 +96,6 @@ The page executes 32 hermetic pure logic unit tests across 8 suites:
 6. `Color & Bounds Helpers (explore_helpers.js)`: Deterministic palette mapping with wrapping, bounds min/max calculation with degeneracies.
 7. `HNSW Layer & Edge Helpers (hnsw_helpers.js)`: Layer color indexing, edge summary formatting with truncation detection, trace-to-coordinate mapping with missing node tracking.
 8. `Playback State Machine (hnsw_helpers.js)`: Play/pause state transitions, step forward/backward bounds, seek, tick progression, and end-of-animation pausing.
+9. `Compare Timing Stats (compare_helpers.js)`: Median, min, max, count calculation on odd/even/unsorted arrays and empty fallbacks.
+10. `Compare Ground Truth Diff (compare_helpers.js)`: Ground truth match identification, missing ID discrepancy detection, rank assignment.
+11. `Compare Bar Width Scaling (compare_helpers.js)`: Bar scaling clamped to 0..100%, custom maximum bound handling, zero division safety.

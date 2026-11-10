@@ -1,4 +1,4 @@
-﻿# VectorDB - Semantic Search Engine
+# VectorDB - Semantic Search Engine
 
 A high-performance, self-contained vector database and semantic search engine written in modern C++17.
 
@@ -182,6 +182,38 @@ Navigate to `http://127.0.0.1:8080/` to access the offline browser UI. See [web/
 
 ---
 
+## Web UI
+
+A modern, fully offline browser UI for VectorDB built strictly with vanilla HTML5, CSS3, and ES modules without bundlers, npm, CDNs, or external fonts. Fully CSP-compliant with zero `innerHTML` usage.
+
+### Deep-Linking Hash Routes
+
+- `http://127.0.0.1:8080/#ask`: Grounded Question Answering (RAG) with live SSE token streaming, chunk inspection, and interactive citation cards `[1]`.
+- `http://127.0.0.1:8080/#explore`: 2D PCA vector projection scatter map with zoom/pan, double-click fit, 8px hit-testing tooltip, and nearest-neighbor query star.
+- `http://127.0.0.1:8080/#hnsw`: Multi-layer proximity graph topology visualizer ($0\dots\text{max\_level}$) and animated search-path step trace player.
+- `http://127.0.0.1:8080/#compare`: Multi-algorithm benchmark comparison across Brute Force, KD-Tree, and HNSW with sequential repeat runs (5, 10, 20), warmup discard, canvas performance bars, and top-$k$ ground truth difference highlighting.
+- `http://127.0.0.1:8080/#settings`: Server health metrics, live Ollama daemon connectivity, and demo collection management.
+
+### Screenshots
+
+The offline UI includes pre-rendered high-DPI screenshots in `docs/screenshots/`:
+- `docs/screenshots/explore_demo.png`: 2D PCA projection scatter map for 2,000 demo vectors.
+- `docs/screenshots/explore_docs.png`: 2D PCA projection of ingested document chunks with color palette legend.
+- `docs/screenshots/hnsw_demo.png`: Layer 0 graph topology with 2,000 nodes and offscreen-buffered edges.
+- `docs/screenshots/hnsw_docs.png`: Document collection HNSW layer graph view.
+- `docs/screenshots/compare_demo.png`: Multi-algorithm benchmark comparison on 2,000 demo vectors.
+- `docs/screenshots/compare_docs.png`: Document collection semantic query benchmark view.
+
+### Automated Web Safety Scanner
+
+Run the automated web safety scanner to verify zero unsafe DOM operations (`innerHTML`, `eval()`, inline styles/handlers) and strict CSP headers:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\check_web_safety.ps1
+```
+
+---
+
 ## Running the Test Suite
 
 ```bash
@@ -192,4 +224,4 @@ Navigate to `http://127.0.0.1:8080/` to access the offline browser UI. See [web/
 VECTORDB_LIVE_OLLAMA=1 ./build/vectordb_tests
 ```
 
-All 108 registered unit & integration tests pass with zero failures. Browser pure logic tests (17 unit tests) run at `http://127.0.0.1:8080/tests.html`.
+All 108 registered unit & integration tests pass with zero failures. Browser pure logic tests (43 unit tests across 11 test suites) run at `http://127.0.0.1:8080/tests.html`.
