@@ -1,0 +1,119 @@
+/**
+ * Unit Tests for Multi-Algorithm Compare Tab Pure Helpers
+ */
+
+import { describe, assert, assertEqual, assertNear } from "./framework.js";
+import { computeTimingStats, diffAgainstGroundTruth, computeBarWidths } from "../compare_helpers.js";
+
+export function registerCompareTests() {
+  describe("Compare Timing Stats (compare_helpers.js)", (it) => {
+    it("Empty array returns zeroed stats", () => {
+      const stats = computeTimingStats([]);
+      assertEqual(stats.count, 0);
+      assertEqual(stats.median, 0);
+      assertEqual(stats.min, 0);
+      assertEqual(stats.max, 0);
+    });
+
+    it("Single element array returns identical min, max, and median", () => {
+      const stats = computeTimingStats([42.5]);
+      assertEqual(stats.count, 1);
+      assertEqual(stats.median, 42.5);
+      assertEqual(stats.min, 42.5);
+      assertEqual(stats.max, 42.5);
+    });
+
+    it("Odd count array calculates exact median from unsorted input", () => {
+      const stats = computeTimingStats([150, 45, 80, 200, 95]);
+      assertEqual(stats.count, 5);
+      assertEqual(stats.min, 45);
+      assertEqual(stats.max, 200);
+      assertEqual(stats.median, 95); // Sorted: [45, 80, 95, 150, 200]
+    });
+
+    it("Even count array calculates average of middle elements", () => {
+      const stats = computeTimingStats([100, 200, 400, 300]);
+      assertEqual(stats.count, 4);
+      assertEqual(stats.min, 100);
+      assertEqual(stats.max, 400);
+      assertEqual(stats.median, 250); // Sorted: [100, 200, 300, 400] -> (200 + 300)/2
+    });
+  });
+
+  describe("Compare Ground Truth Diff (compare_helpers.js)", (it) => {
+    const groundTruth = [
+      { id: 10, distance: 0.1 },
+      { id: 20, distance: 0.2 },
+      { id: 30, distance: 0.3 }
+    ];
+
+    it("Identifies exact match with ground truth", () => {
+      const candidate = [
+        { id: 10, distance: 0.1 },
+        { id: 20, distance: 0.2 },
+        { id: 30, distance: 0.3 }
+      ];
+      const diff = diffAgainstGroundTruth(candidate, groundTruth);
+      assertEqual(diff.length, 3);
+      assert(diff.every(r => r.isMatch), "All items should match ground truth");
+      assertEqual(diff[0].rank, 1);
+      assertEqual(diff[1].rank, 2);
+      assertEqual(diff[2].rank, 3);
+    });
+
+    it("Flags candidate IDs missing from ground truth as differences", () => {
+      const candidate = [
+        { id: 10, distance: 0.1 },
+        { id: 99, distance: 0.25 }, // Missing from GT
+        { id: 30, distance: 0.3 }
+      ];
+      const diff = diffAgainstGroundTruth(candidate, groundTruth);
+      assertEqual(diff.length, 3);
+      assertEqual(diff[0].isMatch, true);
+      assertEqual(diff[1].isMatch, false);
+      assertEqual(diff[2].isMatch, true);
+    });
+
+    it("Handles empty candidate and ground truth gracefully", () => {
+      const diff1 = diffAgainstGroundTruth([], groundTruth);
+      assertEqual(diff1.length, 0);
+
+      const diff2 = diffAgainstGroundTruth([{ id: 5, distance: 0.5 }], null);
+      assertEqual(diff2.length, 1);
+      assertEqual(diff2[0].isMatch, false);
+    });
+  });
+
+  describe("Compare Bar Width Scaling (compare_helpers.js)", (it) => {
+    it("Empty input returns empty array", () => {
+      const widths = computeBarWidths([]);
+      assertEqual(widths.length, 0);
+    });
+
+    it("Scales array relative to maximum value up to 100%", () => {
+      const values = [50, 100, 25];
+      const widths = computeBarWidths(values);
+      assertEqual(widths.length, 3);
+      assertEqual(widths[0], 50);
+      assertEqual(widths[1], 100);
+      assertEqual(widths[2], 25);
+    });
+
+    it("Honors custom max bound and clamps to 100%", () => {
+      const values = [20, 80, 150];
+      const widths = computeBarWidths(values, 100);
+      assertEqual(widths[0], 20);
+      assertEqual(widths[1], 80);
+      assertEqual(widths[2], 100); // Clamped at 100
+    });
+
+    it("Zero values and degenerate maximum handled without NaN", () => {
+      const widths = computeBarWidths([0, 0, 0]);
+      assertEqual(widths.length, 3);
+      assertEqual(widths[0], 0);
+      assertEqual(widths[1], 0);
+      assertEqual(widths[2], 0);
+    });
+  });
+}
+
