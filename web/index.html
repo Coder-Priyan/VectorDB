@@ -179,7 +179,47 @@
 
     <!-- TAB 4: COMPARE -->
     <section id="panel-compare" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-compare">
-      <div class="card placeholder-card"><h2 class="card-title">Multi-Algorithm Benchmark &amp; Comparison</h2><p class="text-muted">Coming in Part 3.</p></div>
+      <div class="panel-header-bar mb-3">
+        <div class="form-row align-center flex-wrap">
+          <div class="form-group"><label for="compare-coll-select" class="fw-bold">Collection</label><select id="compare-coll-select" class="input-select"><option value="demo" selected>Demo Collection (Random/Vectors)</option><option value="docs">Document Collection (RAG Knowledge)</option></select></div>
+          <div class="form-group"><label for="compare-repeat-select" class="fw-bold">Repetitions (Sequential)</label><select id="compare-repeat-select" class="input-select"><option value="1">1 (Single run)</option><option value="5" selected>5 (Warmup + 5 runs)</option><option value="10">10 (Warmup + 10 runs)</option><option value="20">20 (Warmup + 20 runs)</option></select></div>
+        </div>
+        <div class="notice-box notice-neutral mt-2"><strong>Benchmark Note:</strong> Browser-session timings are indicative only; official benchmark numbers come from the C++ benchmark tool.</div>
+      </div>
+      <div id="compare-empty-state" class="empty-state-box hidden"></div>
+      <div class="panel-columns">
+        <div class="card panel-column">
+          <h2 class="card-title">Benchmark Query Setup</h2>
+          <div id="compare-demo-controls" class="form-stack mt-2">
+            <div class="form-row"><div class="form-group flex-1"><label for="compare-k-input">k (Neighbors)</label><input type="number" id="compare-k-input" class="input-text" value="10" min="1" max="100"></div><div class="form-group flex-1"><label for="compare-ef-input">efSearch (HNSW)</label><input type="number" id="compare-ef-input" class="input-text" value="50" min="1" max="500"></div></div>
+            <div class="form-row mt-2"><button type="button" id="compare-demo-random-btn" class="btn btn-primary w-100">Benchmark Random Query</button></div>
+            <div class="form-row mt-2"><div class="form-group flex-2"><label for="compare-demo-id-input">Stored Vector ID</label><input type="number" id="compare-demo-id-input" class="input-text" placeholder="e.g. 1" min="1"></div><div class="form-group flex-1 align-end"><button type="button" id="compare-demo-id-btn" class="btn btn-outline w-100">Benchmark ID</button></div></div>
+          </div>
+          <div id="compare-docs-controls" class="form-stack mt-2 hidden">
+            <div class="form-group"><label for="compare-docs-query-input">Search Query Text</label><input type="text" id="compare-docs-query-input" class="input-text" value="What is vector search?" placeholder="Enter semantic query..."></div>
+            <div class="form-row mt-2"><div class="form-group flex-1"><label for="compare-docs-k-input">k (Chunks)</label><input type="number" id="compare-docs-k-input" class="input-text" value="5" min="1" max="20"></div><div class="form-group flex-1"><label for="compare-docs-ef-input">efSearch (HNSW)</label><input type="number" id="compare-docs-ef-input" class="input-text" value="50" min="1" max="500"></div><div class="form-group flex-1 align-end"><button type="button" id="compare-docs-run-btn" class="btn btn-primary w-100">Run Benchmark</button></div></div>
+          </div>
+          <div id="compare-progress-status" class="text-muted font-mono text-xs mt-2" aria-live="polite">Ready to benchmark.</div>
+          <h3 class="section-title mt-3">Summary Metrics</h3>
+          <div class="table-container">
+            <table class="info-table">
+              <thead><tr><th>Algorithm</th><th>Median</th><th>Min - Max</th><th>Distances</th><th>Recall@k</th></tr></thead>
+              <tbody id="compare-summary-tbody"><tr><td colspan="5" class="text-muted empty-state">Run a benchmark above to compare algorithms.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="compare-results-card" class="card panel-column hidden">
+          <h2 class="card-title">Comparative Performance Bars</h2>
+          <div class="canvas-wrapper"><canvas id="compare-bars-canvas" width="600" height="230"></canvas></div>
+          <h3 class="section-title mt-3">Top-k Results Ground Truth Diff</h3>
+          <div class="table-container">
+            <table class="info-table">
+              <thead><tr><th>#</th><th>Brute Force (GT)</th><th>KD-Tree</th><th>HNSW</th></tr></thead>
+              <tbody id="compare-topk-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- TAB 5: SETTINGS -->

@@ -159,6 +159,10 @@ export const api = {
   getHnswInfo: () => apiRequest("/api/hnsw/info"),
   getHnswGraph: (layer = 0, maxEdges = 20000) => apiRequest(`/api/hnsw/graph?layer=${encodeURIComponent(layer)}&max_edges=${encodeURIComponent(maxEdges)}`),
   getDocsHnswGraph: (layer = 0, maxEdges = 20000) => apiRequest(`/api/docs/hnsw/graph?layer=${encodeURIComponent(layer)}&max_edges=${encodeURIComponent(maxEdges)}`),
-  traceHnsw: (payload) => apiRequest("/api/hnsw/trace", { method: "POST", body: payload })
+  traceHnsw: (payload) => apiRequest("/api/hnsw/trace", { method: "POST", body: payload }),
+
+  // Multi-Algorithm Benchmarks
+  benchmark: (payload) => apiRequest("/api/benchmark", { method: "POST", body: payload }),
+  benchmarkDocs: (payload) => apiRequest("/api/docs/benchmark", { method: "POST", body: payload, timeoutMs: 30000 })
 };
 

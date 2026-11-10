@@ -11,6 +11,7 @@ import { initAskTab } from "./ask.js";
 import { initSettingsTab } from "./settings.js";
 import { initExploreTab } from "./explore.js";
 import { initHnswTab } from "./hnsw.js";
+import { initCompareTab } from "./compare.js";
 
 function initTheme() {
   const themeBtn = document.getElementById("theme-toggle-btn");
@@ -69,5 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initSettingsTab();
   initExploreTab();
   initHnswTab();
+  initCompareTab();
 });
 
