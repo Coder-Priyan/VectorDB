@@ -8,6 +8,11 @@ All requests and responses use `Content-Type: application/json; charset=utf-8` (
 - **Origin Header Validation**: If an incoming request carries an `Origin` header (sent by browsers), it must match the server's loopback origin (`http://127.0.0.1:<port>`, `http://localhost:<port>`, `http://[::1]:<port>`) or the explicit origin configured via `--cors-origin`. Foreign origins are rejected with HTTP 403 `forbidden_origin`.
 - **Content-Type Enforcement**: All `POST` requests and any requests carrying a payload must specify `Content-Type: application/json`. Requests with missing or alternate media types are rejected with HTTP 415 `unsupported_media_type`.
 - **Same-Origin CORS by Default**: By default, no `Access-Control-Allow-Origin` headers are emitted, enforcing browser same-origin policy. Cross-origin sharing can be enabled explicitly by starting the server with `--cors-origin <origin>`.
+- **Security Response Headers**: Every HTTP response (static assets, JSON API routes, and SSE streaming) includes defense-in-depth hardening headers:
+  - `X-Content-Type-Options: nosniff`
+  - `X-Frame-Options: DENY`
+  - `Referrer-Policy: no-referrer`
+  - `Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none';`
 
 ---
 
@@ -812,6 +817,41 @@ curl.exe --max-time 5 -s "http://127.0.0.1:8080/api/docs/hnsw/graph?layer=0"
   "edges": [
     {"source": 1, "target": 2}
   ]
+}
+```
+
+---
+
+### 29. Get RAG Document HNSW Graph Topology Summary
+`GET /api/docs/hnsw/info`
+
+Returns topological summary statistics for the RAG documents collection HNSW graph (total nodes, maximum layer, entry point ID, nodes per layer, average and maximum degree per layer). Operates safely on both empty and populated document collections.
+
+```powershell
+curl.exe --max-time 5 -s http://127.0.0.1:8080/api/docs/hnsw/info
+```
+
+#### Response (200 OK - Populated Collection):
+```json
+{
+  "avgDegreePerLayer": [12.5, 6.0],
+  "entryPointId": 1,
+  "maxDegreePerLayer": [16, 8],
+  "maxLevel": 1,
+  "nodesPerLayer": [10, 2],
+  "numNodes": 10
+}
+```
+
+#### Response (200 OK - Empty Collection):
+```json
+{
+  "avgDegreePerLayer": [],
+  "entryPointId": 0,
+  "maxDegreePerLayer": [],
+  "maxLevel": -1,
+  "nodesPerLayer": [],
+  "numNodes": 0
 }
 ```
 
