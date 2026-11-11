@@ -5,7 +5,7 @@ import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js
 import { Viewport2D, setupCanvasDpr } from "./canvas.js";
 import { el, formatSimilarity } from "./ui.js";
 import { computeBounds, drawStar } from "./explore_helpers.js";
-import { getLayerColor, formatEdgeSummary, mapTraceToCoordinates, PlaybackController } from "./hnsw_helpers.js";
+import { getLayerColor, formatEdgeSummary, formatHnswTopologySummary, mapTraceToCoordinates, PlaybackController } from "./hnsw_helpers.js";
 
 export function initHnswTab() {
   const canvas = document.getElementById("hnsw-canvas");
@@ -78,17 +78,17 @@ export function initHnswTab() {
 
   async function loadHnswInfo() {
     if (!infoTableBox) return;
+    const isDocs = collSelect?.value === "docs";
     try {
-      const info = await api.getHnswInfo();
-      const nPerL = (info.nodesPerLayer || []).map((c, l) => `L${l}: ${c}`).join(", ");
-      const dPerL = (info.avgDegreePerLayer || []).map((d, l) => `L${l}: ${d.toFixed(1)}`).join(", ");
+      const info = isDocs ? await api.getDocsHnswInfo() : await api.getHnswInfo();
+      const s = formatHnswTopologySummary(info);
       infoTableBox.replaceChildren(
         el("table", { className: "info-table" },
           el("tbody", {},
-            el("tr", {}, el("td", {}, "Nodes / Max Lvl"), el("td", {}, `${info.numNodes} / ${info.maxLevel}`)),
-            el("tr", {}, el("td", {}, "Entry Point ID"), el("td", {}, info.entryPointId)),
-            el("tr", {}, el("td", {}, "Nodes / Layer"), el("td", {}, nPerL || "-")),
-            el("tr", {}, el("td", {}, "Avg Degree / Layer"), el("td", {}, dPerL || "-"))
+            el("tr", {}, el("td", {}, "Nodes / Max Lvl"), el("td", {}, s.nodesMaxLvl)),
+            el("tr", {}, el("td", {}, "Entry Point ID"), el("td", {}, s.entryPointId)),
+            el("tr", {}, el("td", {}, "Nodes / Layer"), el("td", {}, s.nodesPerLayer)),
+            el("tr", {}, el("td", {}, "Avg Degree / Layer"), el("td", {}, s.avgDegreePerLayer))
           )
         )
       );
@@ -269,7 +269,7 @@ export function initHnswTab() {
   // Controls
   layerSlider?.addEventListener("input", () => { edgesDirty = true; loadGraphData(); });
   maxEdgesSelect?.addEventListener("change", () => { edgesDirty = true; loadGraphData(); });
-  collSelect?.addEventListener("change", () => { edgesDirty = true; loadGraphData(); });
+  collSelect?.addEventListener("change", () => { edgesDirty = true; loadGraphData(); loadHnswInfo(); });
   refreshBtn?.addEventListener("click", () => { edgesDirty = true; loadGraphData(); loadHnswInfo(); });
 
   traceRandomBtn?.addEventListener("click", async () => {

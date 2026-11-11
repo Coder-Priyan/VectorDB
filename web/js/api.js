@@ -157,6 +157,7 @@ export const api = {
 
   // HNSW Topology & Search Path Trace
   getHnswInfo: () => apiRequest("/api/hnsw/info"),
+  getDocsHnswInfo: () => apiRequest("/api/docs/hnsw/info"),
   getHnswGraph: (layer = 0, maxEdges = 20000) => apiRequest(`/api/hnsw/graph?layer=${encodeURIComponent(layer)}&max_edges=${encodeURIComponent(maxEdges)}`),
   getDocsHnswGraph: (layer = 0, maxEdges = 20000) => apiRequest(`/api/docs/hnsw/graph?layer=${encodeURIComponent(layer)}&max_edges=${encodeURIComponent(maxEdges)}`),
   traceHnsw: (payload) => apiRequest("/api/hnsw/trace", { method: "POST", body: payload }),

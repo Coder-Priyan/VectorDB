@@ -32,6 +32,32 @@ export function formatEdgeSummary(edgesCount, totalEdges, truncated) {
 }
 
 /**
+ * Formats HNSW graph topology summary into safe display strings.
+ * Gracefully handles empty or uninitialized graphs by displaying "-".
+ *
+ * @param {Object} info - API response from /api/hnsw/info or /api/docs/hnsw/info
+ * @returns {{ nodesMaxLvl: string, entryPointId: string, nodesPerLayer: string, avgDegreePerLayer: string }}
+ */
+export function formatHnswTopologySummary(info) {
+  if (!info || !info.numNodes || info.numNodes === 0) {
+    return {
+      nodesMaxLvl: "-",
+      entryPointId: "-",
+      nodesPerLayer: "-",
+      avgDegreePerLayer: "-"
+    };
+  }
+  const nPerL = (info.nodesPerLayer || []).map((c, l) => `L${l}: ${c}`).join(", ");
+  const dPerL = (info.avgDegreePerLayer || []).map((d, l) => `L${l}: ${d.toFixed(1)}`).join(", ");
+  return {
+    nodesMaxLvl: `${info.numNodes} / ${info.maxLevel}`,
+    entryPointId: info.entryPointId !== undefined && info.entryPointId !== null ? String(info.entryPointId) : "-",
+    nodesPerLayer: nPerL || "-",
+    avgDegreePerLayer: dPerL || "-"
+  };
+}
+
+/**
  * Maps HNSW trace steps to 2D PCA positions using an ID -> {x, y} coordinate map.
  * Gracefully marks nodes not present in the PCA projection set.
  *
