@@ -4,7 +4,15 @@ A high-performance, self-contained vector database and semantic search engine wr
 
 ## Overview
 
-VectorDB is designed from the ground up for fast vector similarity search, approximate nearest neighbor indexing (KD-Tree, HNSW), offline Retrieval-Augmented Generation (RAG with local Ollama), and hybrid search (BM25 + Dense Vectors with Reciprocal Rank Fusion).
+VectorDB is designed from the ground up for fast vector similarity search, approximate nearest neighbor indexing (KD-Tree, HNSW), and offline Retrieval-Augmented Generation (RAG with local Ollama).
+
+## Roadmap (Not Implemented Yet)
+
+The following architectural capabilities are planned for future versions but are currently not implemented:
+- **Hybrid Search**: BM25 inverted index combined with dense vector retrieval using Reciprocal Rank Fusion (RRF).
+- **Reranking**: Second-stage cross-encoder re-scoring of top-$k$ retrieved chunks.
+- **Persistence**: On-disk serialization, snapshotting, and recovery (currently collection data is strictly in-memory).
+- **Delete & Update Operations**: Dynamic vector removal and in-place vector modification across index structures.
 
 ### Current Features (Tasks 1â€“6a)
 - **Core Types & Metrics**: `SearchResult`, `VectorId`, `Metric` enum (`Cosine`, `Euclidean`, `Manhattan`) with case-insensitive string parsing.
