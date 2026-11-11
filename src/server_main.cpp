@@ -505,6 +505,11 @@ int main(int argc, char* argv[]) {
         sendResponse(res, handleHnswGraph(ragPipeline.collection(), docsPcaCache, layer, maxEdges, true));
     });
 
+    // Route: GET /api/docs/hnsw/info
+    svr.Get("/api/docs/hnsw/info", [&](const httplib::Request&, httplib::Response& res) {
+        sendResponse(res, handleHnswInfo(ragPipeline.collection()));
+    });
+
     // Serve static files from webDir
     if (std::filesystem::exists(webDir)) {
         svr.set_mount_point("/", webDir);
