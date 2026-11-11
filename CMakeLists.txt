@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(VectorDB VERSION 0.1.0 LANGUAGES CXX)
+project(VectorDB VERSION 0.4.0 LANGUAGES CXX)
 
 # Default to Release build type if not specified
 if(NOT CMAKE_BUILD_TYPE)
