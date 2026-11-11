@@ -18,9 +18,9 @@ export class ApiError extends Error {
 /**
  * Global Error Banner Controller
  */
-const bannerEl = document.getElementById("global-error-banner");
-const bannerTextEl = document.getElementById("global-error-text");
-const bannerDismissBtn = document.getElementById("global-error-dismiss");
+const bannerEl = typeof document !== "undefined" ? document.getElementById("global-error-banner") : null;
+const bannerTextEl = typeof document !== "undefined" ? document.getElementById("global-error-text") : null;
+const bannerDismissBtn = typeof document !== "undefined" ? document.getElementById("global-error-dismiss") : null;
 
 if (bannerDismissBtn && bannerEl) {
   bannerDismissBtn.addEventListener("click", () => {
@@ -59,22 +59,49 @@ export async function withButtonBusy(button, fn) {
 }
 
 /**
- * Universal JSON Fetch Wrapper with per-call timeout and abort support.
+ * Builds fetch request options ensuring strict Content-Type and valid JSON body
+ * for POST/PUT/PATCH methods (deliberate CSRF defense requirement).
  */
-export async function apiRequest(endpoint, options = {}) {
+export function buildRequestInit(options = {}) {
   const {
     method = "GET",
     body = null,
-    timeoutMs = 30000,
-    signal = null,
     headers = {}
   } = options;
 
   const reqHeaders = { ...headers };
-  // Server returns 415 if Content-Type is missing on requests with bodies or POST/PUT
-  if (body && (method === "POST" || method === "PUT" || method === "PATCH")) {
+  const isPayloadMethod = (method === "POST" || method === "PUT" || method === "PATCH");
+
+  let reqBody = null;
+  if (isPayloadMethod) {
     reqHeaders["Content-Type"] = "application/json";
+    if (body === null || body === undefined) {
+      reqBody = "{}";
+    } else {
+      reqBody = typeof body === "string" ? body : JSON.stringify(body);
+    }
+  } else if (body !== null && body !== undefined) {
+    reqBody = typeof body === "string" ? body : JSON.stringify(body);
   }
+
+  return {
+    method,
+    headers: reqHeaders,
+    body: reqBody
+  };
+}
+
+/**
+ * Universal JSON Fetch Wrapper with per-call timeout and abort support.
+ */
+export async function apiRequest(endpoint, options = {}) {
+  const {
+    timeoutMs = 30000,
+    signal = null,
+    ...initOptions
+  } = options;
+
+  const init = buildRequestInit(initOptions);
 
   // Compose per-call timeout with caller signal
   const timeoutCtrl = new AbortController();
@@ -89,13 +116,10 @@ export async function apiRequest(endpoint, options = {}) {
     signal.addEventListener("abort", () => timeoutCtrl.abort(), { once: true });
   }
 
+  init.signal = combinedSignal;
+
   try {
-    const res = await fetch(endpoint, {
-      method,
-      headers: reqHeaders,
-      body: body ? (typeof body === "string" ? body : JSON.stringify(body)) : null,
-      signal: combinedSignal
-    });
+    const res = await fetch(endpoint, init);
 
     // Parse JSON safely
     let data = null;

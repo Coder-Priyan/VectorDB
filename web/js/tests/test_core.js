@@ -5,6 +5,7 @@ import { describe, assert, assertEqual, assertNear } from "./framework.js";
 import { SseParser } from "../sse.js";
 import { Viewport2D } from "../canvas.js";
 import { el, formatBytes, formatDuration, formatSimilarity, calculateMedian, parseCitations } from "../ui.js";
+import { buildRequestInit } from "../api.js";
 
 export function registerCoreTests() {
   describe("SSE Parser (sse.js)", (it) => {
@@ -154,6 +155,49 @@ export function registerCoreTests() {
     it("formatSimilarity formats percentage", () => {
       assertEqual(formatSimilarity(0.774), "77.4%");
       assertEqual(formatSimilarity(1.0), "100.0%");
+    });
+  });
+
+  describe("Request Init Builder (api.js)", (it) => {
+    it("Bodiless POST gets application/json Content-Type and empty object body", () => {
+      const init = buildRequestInit({ method: "POST" });
+      assertEqual(init.method, "POST");
+      assertEqual(init.headers["Content-Type"], "application/json");
+      assertEqual(init.body, "{}");
+    });
+
+    it("Bodiless PUT gets application/json Content-Type and empty object body", () => {
+      const init = buildRequestInit({ method: "PUT" });
+      assertEqual(init.method, "PUT");
+      assertEqual(init.headers["Content-Type"], "application/json");
+      assertEqual(init.body, "{}");
+    });
+
+    it("POST with payload object gets application/json and stringified JSON", () => {
+      const init = buildRequestInit({ method: "POST", body: { q: "test", k: 5 } });
+      assertEqual(init.method, "POST");
+      assertEqual(init.headers["Content-Type"], "application/json");
+      assertEqual(init.body, JSON.stringify({ q: "test", k: 5 }));
+    });
+
+    it("POST with explicit string body preserves string", () => {
+      const init = buildRequestInit({ method: "POST", body: '{"custom":"json"}' });
+      assertEqual(init.headers["Content-Type"], "application/json");
+      assertEqual(init.body, '{"custom":"json"}');
+    });
+
+    it("GET request leaves Content-Type unset and body null", () => {
+      const init = buildRequestInit({ method: "GET" });
+      assertEqual(init.method, "GET");
+      assertEqual(init.headers["Content-Type"], undefined);
+      assertEqual(init.body, null);
+    });
+
+    it("Custom headers are preserved on POST", () => {
+      const init = buildRequestInit({ method: "POST", headers: { "X-Custom": "custom-val" } });
+      assertEqual(init.headers["X-Custom"], "custom-val");
+      assertEqual(init.headers["Content-Type"], "application/json");
+      assertEqual(init.body, "{}");
     });
   });
 }
