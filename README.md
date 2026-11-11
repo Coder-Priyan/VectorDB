@@ -198,6 +198,36 @@ vectordb/
 
 ---
 
+## Quick Start
+
+### Prerequisites
+- **Compiler**: C++17 compliant compiler (GCC 9+, Clang 10+, or MSVC 2019+; on Windows, MSYS2 UCRT64 GCC recommended)
+- **Build System**: CMake 3.16+ and Ninja (or Make)
+- **Local LLM & Embeddings (for RAG)**: [Ollama](https://ollama.ai/) installed and running locally
+  ```bash
+  ollama pull nomic-embed-text
+  ollama pull llama3.2
+  ```
+
+### Build & Run in 4 Steps
+
+```bash
+# 1. Configure and build (Release mode)
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+
+# 2. Run the test suite (110 tests)
+./build/vectordb_tests
+
+# 3. Start the server (with static web UI)
+./build/vectordb_server --port 8080 --web-dir web
+
+# 4. Open the Web UI
+# Navigate to http://127.0.0.1:8080 in any modern browser
+```
+
+---
+
 ## Building with CMake
 
 ### Prerequisites
@@ -214,10 +244,11 @@ cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
 
-This compiles three executables:
+This compiles four executables:
 1. `vectordb_demo`: Interactive 2D demo and hardened multi-algorithm benchmarks with CSV export.
 2. `vectordb_server`: Multi-threaded HTTP REST API server with RAG support.
 3. `vectordb_tests`: Automated unit and integration test runner.
+4. `vectordb_rag_eval`: Automated evaluation harness scoring RAG answers across prompt templates.
 
 ---
 
@@ -295,11 +326,11 @@ powershell -ExecutionPolicy Bypass -File scripts\check_web_safety.ps1
 ## Running the Test Suite
 
 ```bash
-# Run the hermetic test suite (108 tests, zero cloud/network dependency)
+# Run the hermetic test suite (109 passed, 1 skipped, zero cloud/network dependency)
 ./build/vectordb_tests
 
 # Run including the opt-in live test against local Ollama
 VECTORDB_LIVE_OLLAMA=1 ./build/vectordb_tests
 ```
 
-All 108 registered unit & integration tests pass with zero failures. Browser pure logic tests (43 unit tests across 11 test suites) run at `http://127.0.0.1:8080/tests.html`.
+All 110 registered unit & integration tests (109 hermetic passed, 1 opt-in live Ollama test skipped unless `VECTORDB_LIVE_OLLAMA=1` is set). In-browser pure logic tests (55 unit tests across 13 test suites) run at `http://127.0.0.1:8080/tests.html`.
