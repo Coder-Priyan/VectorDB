@@ -6,7 +6,7 @@ All requests and responses use `Content-Type: application/json; charset=utf-8` (
 ### Security Architecture
 - **DNS Rebinding Protection**: When bound to loopback (`127.0.0.1`, `localhost`, `[::1]`), all incoming requests must carry a valid loopback `Host` header (`127.0.0.1:<port>`, `localhost:<port>`, `[::1]:<port>`, or port 80 equivalent). Requests with foreign or forged host headers are rejected with HTTP 403 `forbidden_host`.
 - **Origin Header Validation**: If an incoming request carries an `Origin` header (sent by browsers), it must match the server's loopback origin (`http://127.0.0.1:<port>`, `http://localhost:<port>`, `http://[::1]:<port>`) or the explicit origin configured via `--cors-origin`. Foreign origins are rejected with HTTP 403 `forbidden_origin`.
-- **Content-Type Enforcement**: All `POST` requests and any requests carrying a payload must specify `Content-Type: application/json`. Requests with missing or alternate media types are rejected with HTTP 415 `unsupported_media_type`.
+- **Content-Type Enforcement**: EVERY `POST` request must send `Content-Type: application/json` (even when there is no payload, send `{}`), otherwise the server answers HTTP 415 `unsupported_media_type`.
 - **Same-Origin CORS by Default**: By default, no `Access-Control-Allow-Origin` headers are emitted, enforcing browser same-origin policy. Cross-origin sharing can be enabled explicitly by starting the server with `--cors-origin <origin>`.
 - **Security Response Headers**: Every HTTP response (static assets, JSON API routes, and SSE streaming) includes defense-in-depth hardening headers:
   - `X-Content-Type-Options: nosniff`
@@ -78,7 +78,7 @@ curl.exe -s http://127.0.0.1:8080/api/config
 
 Clears all stored vectors, metadata, and index structures. Re-initializes indexes with optional configuration overrides.
 
-#### Request Body (optional parameters):
+#### Request Body (optional parameters; if no parameters are sent, `{}` must be provided):
 ```json
 {
   "dimension": 4,
@@ -303,7 +303,7 @@ curl.exe --max-time 5 -s -X POST http://127.0.0.1:8080/api/hnsw/trace -H "Conten
 
 Generates and inserts $N$ random uniform vectors into the collection for rapid testing and visual benchmarking.
 
-#### Request Body (optional parameters):
+#### Request Body (optional parameters; if no parameters are sent, `{}` must be provided):
 ```json
 {
   "count": 50
@@ -706,7 +706,7 @@ data: {"answer":"Vector search discovers vectors that minimize distance function
 Clears all ingested documents and wipes the RAG vector collection.
 
 ```powershell
-curl.exe -s -X POST http://127.0.0.1:8080/api/docs/reset
+curl.exe -s -X POST http://127.0.0.1:8080/api/docs/reset -H "Content-Type: application/json" -d "{}"
 ```
 
 #### Response (200 OK):

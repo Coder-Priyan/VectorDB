@@ -43,7 +43,7 @@ Each step indicates the target tab and URL hash, the user action, what the audie
 
 ### Step 5: 2D PCA Vector Space Exploration
 - **Tab & URL**: Explore (`http://127.0.0.1:8080/#explore`)
-- **Action**: Click the **Explore (PCA)** tab; select the Demo collection (2,000 vectors) or Documents collection; use the mouse wheel to zoom into a cluster, drag to pan, and hover over individual points.
+- **Action**: Click the **Explore (PCA)** tab; select the Demo collection (populate it via **Insert Random** with a default count of 100, configurable up to 20,000) or Documents collection; use the mouse wheel to zoom into a cluster, drag to pan, and hover over individual points.
 - **Audience Sees**: A responsive HTML5 2D scatter plot showing projected vectors with explained variance ratios on both axes ($PC_1$ and $PC_2$), an interactive document color legend, and an 8-pixel hover tooltip displaying vector ID, coordinates, and document chunk titles.
 - **Explanation**: A zero-dependency C++ Principal Component Analysis (PCA) engine reduces high-dimensional vector spaces down to two principal variance axes using power iteration and Rayleigh quotient deflation.
 - **Viva Defense Point**: The 2D projection is an exploratory approximation; while relative cluster proximity is preserved, higher-dimensional nuances are compressed onto the top two eigenvectors.
@@ -53,7 +53,7 @@ Each step indicates the target tab and URL hash, the user action, what the audie
 ### Step 6: Semantic Nearest-Neighbor Projection Query
 - **Tab & URL**: Explore (`http://127.0.0.1:8080/#explore`)
 - **Action**: Enter a query or click **Query Random**, and click **Search**.
-- **Audience Sees**: A gold star plotted at the query vector's projected coordinates, connecting line segments drawn to the top-$k$ nearest neighbors on the map, and a synchronized side table listing neighboring IDs, distances, and similarity percentages.
+- **Audience Sees**: A red star (#ef4444) plotted at the query vector's projected coordinates, connecting line segments drawn to the top-$k$ nearest neighbors on the map, and a synchronized side table listing neighboring IDs, distances, and similarity percentages.
 - **Explanation**: The query vector is projected onto the pre-computed principal component eigenvectors in $O(d)$ time and visualized alongside index vectors in data-space coordinates.
 - **Viva Defense Point**: Nearest neighbors in 768-dimensional space are geometrically faithful in full precision, even when 2D projections show slight visual overlap due to dimensionality reduction.
 
