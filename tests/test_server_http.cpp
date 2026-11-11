@@ -532,5 +532,122 @@ TEST(ServerHttpTest, StaticFileServingAndPathTraversalSafety) {
     }
 }
 
+TEST(ServerHttpTest, DocsResetAndDemoResetContentTypeChecks) {
+    CollectionConfig config;
+    config.dimension = 4;
+    config.metric = Metric::Euclidean;
+    Collection collection(config);
+
+    vectordb::testing::FakeOllamaServer fakeOllama;
+    OllamaConfig oCfg;
+    oCfg.baseUrl = fakeOllama.baseUrl();
+    OllamaClient oClient(oCfg);
+
+    RagConfig rCfg;
+    rCfg.dimension = 4;
+    RagPipeline rag(rCfg, oClient);
+
+    httplib::Server svr;
+
+    auto sendResponse = [](httplib::Response& res, const ApiResponse& apiRes) {
+        res.status = apiRes.status;
+        res.set_content(apiRes.body, apiRes.contentType);
+    };
+
+    // Pre-routing handler replicating src/server_main.cpp strict Content-Type enforcement
+    svr.set_pre_routing_handler([](const httplib::Request& req, httplib::Response& res) {
+        bool isPost = (req.method == "POST");
+        bool hasBody = (!req.body.empty() || (req.has_header("Content-Length") && std::stoull(req.get_header_value("Content-Length")) > 0));
+        if ((isPost || hasBody) && req.method != "OPTIONS" && req.method != "GET" && req.method != "HEAD") {
+            if (!req.has_header("Content-Type")) {
+                res.status = 415;
+                res.set_content(makeErrorResponse(415, "unsupported_media_type", "Content-Type header must be application/json").body, "application/json");
+                return httplib::Server::HandlerResponse::Handled;
+            }
+            std::string ct = req.get_header_value("Content-Type");
+            std::string ctLower = ct;
+            for (char& c : ctLower) {
+                c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+            }
+            if (ctLower.find("application/json") != 0) {
+                res.status = 415;
+                res.set_content(makeErrorResponse(415, "unsupported_media_type", "Content-Type must be application/json, got " + ct).body, "application/json");
+                return httplib::Server::HandlerResponse::Handled;
+            }
+        }
+        return httplib::Server::HandlerResponse::Unhandled;
+    });
+
+    svr.Post("/api/docs/reset", [&](const httplib::Request&, httplib::Response& res) {
+        sendResponse(res, handleResetDocs(rag));
+    });
+
+    svr.Post("/api/reset", [&](const httplib::Request& req, httplib::Response& res) {
+        sendResponse(res, handleReset(collection, req.body));
+    });
+
+    int port = svr.bind_to_any_port("127.0.0.1");
+    CHECK(port > 0);
+
+    std::thread serverThread([&svr]() {
+        svr.listen_after_bind();
+    });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+    httplib::Client cli("127.0.0.1", port);
+    cli.set_connection_timeout(5, 0);
+    cli.set_read_timeout(5, 0);
+    cli.set_write_timeout(5, 0);
+
+    // 1. POST /api/docs/reset without Content-Type must return 415
+    httplib::Request reqDocsNoCt;
+    reqDocsNoCt.method = "POST";
+    reqDocsNoCt.path = "/api/docs/reset";
+    auto resDocsNoCt = cli.send(reqDocsNoCt);
+    CHECK(resDocsNoCt != nullptr);
+    if (resDocsNoCt) {
+        CHECK(resDocsNoCt->status == 415);
+        json j = json::parse(resDocsNoCt->body);
+        CHECK(j["error"]["code"] == "unsupported_media_type");
+    }
+
+    // 2. POST /api/docs/reset with Content-Type: application/json and body "{}" must return 200
+    auto resDocsJson = cli.Post("/api/docs/reset", "{}", "application/json");
+    CHECK(resDocsJson != nullptr);
+    if (resDocsJson) {
+        CHECK(resDocsJson->status == 200);
+        json j = json::parse(resDocsJson->body);
+        CHECK(j["status"] == "ok");
+    }
+
+    // 3. POST /api/reset without Content-Type must return 415
+    httplib::Request reqDemoNoCt;
+    reqDemoNoCt.method = "POST";
+    reqDemoNoCt.path = "/api/reset";
+    auto resDemoNoCt = cli.send(reqDemoNoCt);
+    CHECK(resDemoNoCt != nullptr);
+    if (resDemoNoCt) {
+        CHECK(resDemoNoCt->status == 415);
+        json j = json::parse(resDemoNoCt->body);
+        CHECK(j["error"]["code"] == "unsupported_media_type");
+    }
+
+    // 4. POST /api/reset with Content-Type: application/json and body "{}" must return 200
+    auto resDemoJson = cli.Post("/api/reset", "{}", "application/json");
+    CHECK(resDemoJson != nullptr);
+    if (resDemoJson) {
+        CHECK(resDemoJson->status == 200);
+        json j = json::parse(resDemoJson->body);
+        CHECK(j["dimension"] == 4);
+        CHECK(j.contains("hnsw"));
+    }
+
+    svr.stop();
+    if (serverThread.joinable()) {
+        serverThread.join();
+    }
+}
+
 
 
