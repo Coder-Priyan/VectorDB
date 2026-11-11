@@ -5,7 +5,7 @@ import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js
 import { Viewport2D, setupCanvasDpr } from "./canvas.js";
 import { el, formatSimilarity } from "./ui.js";
 import { computeBounds, drawStar } from "./explore_helpers.js";
-import { getLayerColor, formatEdgeSummary, formatHnswTopologySummary, mapTraceToCoordinates, PlaybackController } from "./hnsw_helpers.js";
+import { getLayerColor, formatEdgeSummary, formatHnswTopologySummary, mapTraceToCoordinates, PlaybackController, isCanvasDrawable } from "./hnsw_helpers.js";
 
 export function initHnswTab() {
   const canvas = document.getElementById("hnsw-canvas");
@@ -96,6 +96,7 @@ export function initHnswTab() {
   }
 
   function rebuildOffscreenEdges(w, h) {
+    if (!isCanvasDrawable(w, h)) return;
     offscreenCanvas.width = w; offscreenCanvas.height = h;
     offCtx.clearRect(0, 0, w, h);
     const edges = currentGraph.edges || [];
@@ -118,12 +119,19 @@ export function initHnswTab() {
   }
 
   function render() {
+    const rect = canvas.getBoundingClientRect();
+    if (!isCanvasDrawable(rect.width, rect.height)) return;
+
     const { width, height } = setupCanvasDpr(canvas, ctx);
+    if (!isCanvasDrawable(width, height)) return;
+
     viewport.width = width; viewport.height = height;
     ctx.clearRect(0, 0, width, height);
 
-    if (edgesDirty) rebuildOffscreenEdges(width, height);
-    if (!isDragging) ctx.drawImage(offscreenCanvas, 0, 0, width, height);
+    if (edgesDirty && isCanvasDrawable(width, height)) rebuildOffscreenEdges(width, height);
+    if (!isDragging && isCanvasDrawable(offscreenCanvas.width, offscreenCanvas.height) && isCanvasDrawable(width, height)) {
+      ctx.drawImage(offscreenCanvas, 0, 0, width, height);
+    }
 
     const nodes = currentGraph.nodes || [];
     const entryId = currentGraph.entry_point;
@@ -293,7 +301,21 @@ export function initHnswTab() {
   traceSlider?.addEventListener("input", (e) => { stopPlayback(); playback.seek(parseInt(e.target.value, 10)); updatePlaybackUi(); render(); });
   traceSpeedSelect?.addEventListener("change", () => { if (playback.getState().isPlaying) startPlayback(); });
 
-  byId("tab-btn-hnsw")?.addEventListener("click", () => { edgesDirty = true; loadGraphData(); loadHnswInfo(); });
-  window.addEventListener("resize", () => { edgesDirty = true; render(); });
+  function onTabVisible() {
+    requestAnimationFrame(() => {
+      edgesDirty = true;
+      if (currentGraph?.nodes?.length > 0) render();
+      loadGraphData();
+      loadHnswInfo();
+    });
+  }
+
+  byId("tab-btn-hnsw")?.addEventListener("click", onTabVisible);
+  window.addEventListener("resize", () => {
+    requestAnimationFrame(() => {
+      edgesDirty = true;
+      render();
+    });
+  });
   loadGraphData(); loadHnswInfo();
 }

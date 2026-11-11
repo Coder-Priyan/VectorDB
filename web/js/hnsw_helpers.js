@@ -58,6 +58,20 @@ export function formatHnswTopologySummary(info) {
 }
 
 /**
+ * Determines whether canvas or offscreen buffer dimensions are valid and drawable.
+ * Avoids DOMException 11 (INVALID_STATE_ERR) when elements are hidden or 0x0.
+ *
+ * @param {number} width - Canvas display or pixel width
+ * @param {number} height - Canvas display or pixel height
+ * @returns {boolean} True if both dimensions are finite numbers strictly greater than 0
+ */
+export function isCanvasDrawable(width, height) {
+  return typeof width === "number" && typeof height === "number" &&
+         Number.isFinite(width) && Number.isFinite(height) &&
+         width > 0 && height > 0;
+}
+
+/**
  * Maps HNSW trace steps to 2D PCA positions using an ID -> {x, y} coordinate map.
  * Gracefully marks nodes not present in the PCA projection set.
  *

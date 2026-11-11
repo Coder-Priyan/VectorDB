@@ -4,7 +4,7 @@
 import { describe, assert, assertEqual, assertNear } from "./framework.js";
 import { Viewport2D } from "../canvas.js";
 import { findHitPoint, getDocColor, computeBounds, DOC_COLOR_PALETTE } from "../explore_helpers.js";
-import { getLayerColor, formatEdgeSummary, formatHnswTopologySummary, mapTraceToCoordinates, PlaybackController, LAYER_COLORS } from "../hnsw_helpers.js";
+import { getLayerColor, formatEdgeSummary, formatHnswTopologySummary, mapTraceToCoordinates, PlaybackController, LAYER_COLORS, isCanvasDrawable } from "../hnsw_helpers.js";
 
 export function registerExploreHnswTests() {
   describe("Hit-Testing (explore_helpers.js)", (it) => {
@@ -209,6 +209,34 @@ export function registerExploreHnswTests() {
       pb.reset();
       assertEqual(pb.getState().currentIndex, -1);
       assertEqual(pb.getState().isPlaying, false);
+    });
+  });
+
+  describe("Canvas Drawable Guard (hnsw_helpers.js)", (it) => {
+    it("Positive finite dimensions are drawable", () => {
+      assertEqual(isCanvasDrawable(680, 460), true);
+      assertEqual(isCanvasDrawable(1, 1), true);
+      assertEqual(isCanvasDrawable(1920, 1080), true);
+    });
+
+    it("Zero dimensions are not drawable", () => {
+      assertEqual(isCanvasDrawable(0, 460), false);
+      assertEqual(isCanvasDrawable(680, 0), false);
+      assertEqual(isCanvasDrawable(0, 0), false);
+    });
+
+    it("Negative dimensions are not drawable", () => {
+      assertEqual(isCanvasDrawable(-10, 460), false);
+      assertEqual(isCanvasDrawable(680, -5), false);
+      assertEqual(isCanvasDrawable(-10, -10), false);
+    });
+
+    it("Non-numeric or NaN dimensions are not drawable", () => {
+      assertEqual(isCanvasDrawable(NaN, 460), false);
+      assertEqual(isCanvasDrawable(680, NaN), false);
+      assertEqual(isCanvasDrawable(undefined, 460), false);
+      assertEqual(isCanvasDrawable(680, null), false);
+      assertEqual(isCanvasDrawable(Infinity, 460), false);
     });
   });
 }
