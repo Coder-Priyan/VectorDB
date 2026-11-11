@@ -198,14 +198,22 @@ int main(int argc, char* argv[]) {
         return httplib::Server::HandlerResponse::Unhandled;
     });
 
-    // CORS headers: same-origin by default; enabled only if --cors-origin is provided
-    if (!corsOrigin.empty()) {
-        svr.set_post_routing_handler([corsOrigin](const httplib::Request&, httplib::Response& res) {
+    // Security & CORS response headers: applied to all responses (static files, JSON, SSE)
+    svr.set_post_routing_handler([corsOrigin](const httplib::Request&, httplib::Response& res) {
+        res.set_header("X-Content-Type-Options", "nosniff");
+        res.set_header("X-Frame-Options", "DENY");
+        res.set_header("Referrer-Policy", "no-referrer");
+        res.set_header("Content-Security-Policy",
+            "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none';");
+
+        if (!corsOrigin.empty()) {
             res.set_header("Access-Control-Allow-Origin", corsOrigin);
             res.set_header("Access-Control-Allow-Headers", "Content-Type, Authorization");
             res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-        });
+        }
+    });
 
+    if (!corsOrigin.empty()) {
         svr.Options(R"(/api/.*)", [corsOrigin](const httplib::Request&, httplib::Response& res) {
             res.set_header("Access-Control-Allow-Origin", corsOrigin);
             res.set_header("Access-Control-Allow-Headers", "Content-Type, Authorization");
