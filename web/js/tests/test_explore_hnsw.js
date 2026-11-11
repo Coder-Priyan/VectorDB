@@ -4,7 +4,7 @@
 import { describe, assert, assertEqual, assertNear } from "./framework.js";
 import { Viewport2D } from "../canvas.js";
 import { findHitPoint, getDocColor, computeBounds, DOC_COLOR_PALETTE } from "../explore_helpers.js";
-import { getLayerColor, formatEdgeSummary, mapTraceToCoordinates, PlaybackController, LAYER_COLORS } from "../hnsw_helpers.js";
+import { getLayerColor, formatEdgeSummary, formatHnswTopologySummary, mapTraceToCoordinates, PlaybackController, LAYER_COLORS } from "../hnsw_helpers.js";
 
 export function registerExploreHnswTests() {
   describe("Hit-Testing (explore_helpers.js)", (it) => {
@@ -107,6 +107,40 @@ export function registerExploreHnswTests() {
       assertEqual(result.mappedSteps[0].x, 1.2);
       assertEqual(result.mappedSteps[2].onMap, false);
       assertEqual(result.mappedSteps[2].id, 999);
+    });
+
+    it("formatHnswTopologySummary formats populated graph correctly", () => {
+      const info = {
+        numNodes: 2000,
+        maxLevel: 3,
+        entryPointId: 1050,
+        nodesPerLayer: [2000, 122, 14, 1],
+        avgDegreePerLayer: [24.3, 15.8, 11.2, 4.0]
+      };
+      const s = formatHnswTopologySummary(info);
+      assertEqual(s.nodesMaxLvl, "2000 / 3");
+      assertEqual(s.entryPointId, "1050");
+      assertEqual(s.nodesPerLayer, "L0: 2000, L1: 122, L2: 14, L3: 1");
+      assertEqual(s.avgDegreePerLayer, "L0: 24.3, L1: 15.8, L2: 11.2, L3: 4.0");
+    });
+
+    it("formatHnswTopologySummary handles empty or uninitialized graph safely", () => {
+      const emptyInfo = {
+        numNodes: 0,
+        maxLevel: -1,
+        entryPointId: 0,
+        nodesPerLayer: [],
+        avgDegreePerLayer: []
+      };
+      const s1 = formatHnswTopologySummary(emptyInfo);
+      assertEqual(s1.nodesMaxLvl, "-");
+      assertEqual(s1.entryPointId, "-");
+      assertEqual(s1.nodesPerLayer, "-");
+      assertEqual(s1.avgDegreePerLayer, "-");
+
+      const s2 = formatHnswTopologySummary(null);
+      assertEqual(s2.nodesMaxLvl, "-");
+      assertEqual(s2.entryPointId, "-");
     });
   });
 

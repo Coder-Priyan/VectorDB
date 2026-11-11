@@ -53,6 +53,26 @@ TEST(ServerHttpTest, RealIntegrationTestEphemeralPort) {
         sendResponse(res, handleBenchmark(collection, req.body));
     });
 
+    RagConfig rCfg;
+    rCfg.dimension = 4;
+    vectordb::testing::FakeOllamaServer fakeOllama;
+    OllamaConfig oCfg;
+    oCfg.baseUrl = fakeOllama.baseUrl();
+    OllamaClient oClient(oCfg);
+    RagPipeline rag(rCfg, oClient);
+
+    svr.Get("/api/docs/hnsw/info", [&](const httplib::Request&, httplib::Response& res) {
+        sendResponse(res, handleHnswInfo(rag.collection()));
+    });
+
+    svr.set_post_routing_handler([](const httplib::Request&, httplib::Response& res) {
+        res.set_header("X-Content-Type-Options", "nosniff");
+        res.set_header("X-Frame-Options", "DENY");
+        res.set_header("Referrer-Policy", "no-referrer");
+        res.set_header("Content-Security-Policy",
+            "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none';");
+    });
+
     // Bind to an ephemeral OS-assigned port on loopback
     int port = svr.bind_to_any_port("127.0.0.1");
     CHECK(port > 0);
@@ -79,6 +99,28 @@ TEST(ServerHttpTest, RealIntegrationTestEphemeralPort) {
         json hj = json::parse(healthRes->body);
         CHECK(hj["status"] == "ok");
         CHECK(hj["version"] == "0.4.0");
+
+        // Verify security response headers on /api/health
+        CHECK(healthRes->get_header_value("X-Content-Type-Options") == "nosniff");
+        CHECK(healthRes->get_header_value("X-Frame-Options") == "DENY");
+        CHECK(healthRes->get_header_value("Referrer-Policy") == "no-referrer");
+        CHECK(healthRes->get_header_value("Content-Security-Policy") ==
+              "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none';");
+    }
+
+    // 1b. Test GET /api/docs/hnsw/info (empty docs collection)
+    auto docsHnswRes = cli.Get("/api/docs/hnsw/info");
+    CHECK(docsHnswRes != nullptr);
+    if (docsHnswRes) {
+        CHECK(docsHnswRes->status == 200);
+        json dhj = json::parse(docsHnswRes->body);
+        CHECK(dhj["numNodes"] == 0);
+        CHECK(dhj["maxLevel"] == -1);
+        CHECK(docsHnswRes->get_header_value("X-Content-Type-Options") == "nosniff");
+        CHECK(docsHnswRes->get_header_value("X-Frame-Options") == "DENY");
+        CHECK(docsHnswRes->get_header_value("Referrer-Policy") == "no-referrer");
+        CHECK(docsHnswRes->get_header_value("Content-Security-Policy") ==
+              "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none';");
     }
 
     // 2. Test POST /api/vectors
@@ -209,6 +251,14 @@ TEST(ServerHttpTest, SseRealIntegrationEventOrderAndTimings) {
         sendResponse(res, handleAsk(rag, req.body));
     });
 
+    svr.set_post_routing_handler([](const httplib::Request&, httplib::Response& res) {
+        res.set_header("X-Content-Type-Options", "nosniff");
+        res.set_header("X-Frame-Options", "DENY");
+        res.set_header("Referrer-Policy", "no-referrer");
+        res.set_header("Content-Security-Policy",
+            "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none';");
+    });
+
     svr.Post("/api/ask/stream", [&](const httplib::Request& req, httplib::Response& res) {
         AskRequest askReq;
         if (auto err = parseAskRequest(req.body, askReq)) {
@@ -293,6 +343,14 @@ TEST(ServerHttpTest, SseRealIntegrationEventOrderAndTimings) {
     CHECK(res != nullptr);
     if (res) {
         CHECK(res->status == 200);
+
+        // Verify security response headers on SSE stream
+        CHECK(res->get_header_value("X-Content-Type-Options") == "nosniff");
+        CHECK(res->get_header_value("X-Frame-Options") == "DENY");
+        CHECK(res->get_header_value("Referrer-Policy") == "no-referrer");
+        CHECK(res->get_header_value("Content-Security-Policy") ==
+              "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none';");
+
         auto events = parseSseStream(rawStream);
         CHECK(events.size() >= 3);
         if (events.size() >= 3) {
@@ -386,6 +444,14 @@ TEST(ServerHttpTest, StaticFileServingAndPathTraversalSafety) {
     CHECK(std::filesystem::exists(webDir));
     CHECK(svr.set_mount_point("/", webDir));
 
+    svr.set_post_routing_handler([](const httplib::Request&, httplib::Response& res) {
+        res.set_header("X-Content-Type-Options", "nosniff");
+        res.set_header("X-Frame-Options", "DENY");
+        res.set_header("Referrer-Policy", "no-referrer");
+        res.set_header("Content-Security-Policy",
+            "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none';");
+    });
+
     int port = svr.bind_to_any_port("127.0.0.1");
     CHECK(port > 0);
 
@@ -404,6 +470,13 @@ TEST(ServerHttpTest, StaticFileServingAndPathTraversalSafety) {
     CHECK(resRoot->get_header_value("Content-Type").find("text/html") != std::string::npos);
     CHECK(resRoot->body.find("VectorDB") != std::string::npos);
     CHECK(resRoot->body.find("Content-Security-Policy") != std::string::npos);
+
+    // Verify security response headers on static file serving
+    CHECK(resRoot->get_header_value("X-Content-Type-Options") == "nosniff");
+    CHECK(resRoot->get_header_value("X-Frame-Options") == "DENY");
+    CHECK(resRoot->get_header_value("Referrer-Policy") == "no-referrer");
+    CHECK(resRoot->get_header_value("Content-Security-Policy") ==
+          "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none';");
 
     // 2. Direct GET /index.html
     auto resIndex = cli.Get("/index.html");

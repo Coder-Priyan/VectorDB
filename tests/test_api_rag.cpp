@@ -319,3 +319,39 @@ TEST(ApiRagTest, AskStreamWithTokensAndEarlyAbort) {
     CHECK(receivedSources[0].title == "VectorDB Doc");
     CHECK(receivedTokens.size() == 1);
 }
+
+TEST(ApiRagTest, DocsHnswInfoEmptyAndPopulated) {
+    FakeOllamaServer fake;
+
+    OllamaConfig ollamaCfg;
+    ollamaCfg.baseUrl = fake.baseUrl();
+    OllamaClient client(ollamaCfg);
+
+    RagConfig ragCfg;
+    ragCfg.dimension = 768;
+    RagPipeline pipeline(ragCfg, client);
+
+    // 1. Empty collection should return valid JSON (numNodes = 0, maxLevel = -1), not an error or crash
+    auto emptyRes = handleHnswInfo(pipeline.collection());
+    CHECK(emptyRes.status == 200);
+    auto ej = json::parse(emptyRes.body);
+    CHECK(ej["numNodes"] == 0);
+    CHECK(ej["maxLevel"] == -1);
+    CHECK(ej["entryPointId"] == 0);
+    CHECK(ej["nodesPerLayer"].empty());
+    CHECK(ej["avgDegreePerLayer"].empty());
+    CHECK(ej["maxDegreePerLayer"].empty());
+
+    // 2. Ingest a document and check populated HNSW graph info
+    std::string docText = "Hierarchical Navigable Small World graphs provide approximate nearest neighbor search with logarithmic scaling.";
+    pipeline.ingest("HNSW Overview", docText);
+
+    auto popRes = handleHnswInfo(pipeline.collection());
+    CHECK(popRes.status == 200);
+    auto pj = json::parse(popRes.body);
+    CHECK(pj["numNodes"] >= 1);
+    CHECK(pj["maxLevel"] >= 0);
+    CHECK(pj["entryPointId"] > 0);
+    CHECK(!pj["nodesPerLayer"].empty());
+    CHECK(pj["nodesPerLayer"][0] == pj["numNodes"]);
+}
