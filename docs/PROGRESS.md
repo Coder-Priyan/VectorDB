@@ -1,10 +1,10 @@
 # Project Progress
 
-Last updated: 2026-11-12 by T-011
+Last updated: 2026-11-12 by T-012
 
-## 1. Current Phase: UI/UX Redesign Phase 1 Complete (Branch `ui-redesign`); Design Tokens, Local Fonts & Dark Shell Verified; Awaiting Human Browser Review
+## 1. Current Phase: UI/UX Redesign Phase 2 Complete (Branch `ui-redesign`); Ask Tab Restructure & Shell Fixes Verified; Awaiting Human Browser Review
 
-All core engine development and bug fix tasks are completed and verified (111 C++ tests, 62 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Phase 1 (foundation, design tokens, local IBM Plex fonts, dark app shell, global controls, removal of light theme) is completed across production UI files (`web/css/app.css`, `web/index.html`, `web/js/main.js`). All 5 tabs and 62 browser unit tests remain functional [CONFIRMED: git status, git log].
+All core engine development and bug fix tasks are completed and verified (111 C++ tests, 62 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Phase 1 (foundation) and Phase 2 (Ask tab layout restructure into ~320px left ingestion sidebar, centered 820px calm reading column, single-line telemetry string, flat ruled source rows, 2-column chunking grid; shell fixes for tab bar line, tab width shift, and red destructive reset button) are completed across production UI files (`web/css/app.css`, `web/index.html`, `web/js/ask.js`). All 23 Ask tab DOM IDs and all 62 browser unit tests remain functional [CONFIRMED: git status, git log].
 
 ---
 
