@@ -1,10 +1,10 @@
 # Project Progress
 
-Last updated: 2026-11-12 by T-016
+Last updated: 2026-11-12 by T-017
 
-## 1. Current Phase: UI/UX Redesign Phase 4b Complete & T-016 Browser Test Fix (Branch `ui-redesign`); Awaiting Human Browser Review
+## 1. Current Phase: One-Screen UI Feasibility Study (Task T-017, Branch `ui-redesign`); UI Redesign Complete Through Phase 4b & T-016 Test Fix; Awaiting Human Decision on One-Screen Layout
 
-All core engine development and bug fix tasks are completed and verified (111 C++ tests, 62 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Phase 1 (foundation), Phase 2 (Ask tab), Phase 3 (Settings tab), Phase 4a (Explore and HNSW tabs), Phase 4b (Compare tab unboxed toolbar, `.viz-layout` structure, table horizontal scroll container, flat thin amber progress bar, taupe/moss/amber algorithm colors with zero blue hex codes across all assets), and T-016 (updating test expectation for `getDocColor` fallback to `#807c74`) are completed across production UI files (`web/css/app.css`, `web/index.html`, `web/js/compare.js`, `web/js/compare_helpers.js`, `web/js/ask.js`) and test suite (`web/js/tests/test_explore_hnsw.js`). All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs, 23 Ask DOM IDs, and all 62 browser unit tests remain functional [CONFIRMED: git status, git log].
+All core engine development and bug fix tasks are completed and verified (111 C++ tests, 62 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Phase 1 (foundation), Phase 2 (Ask tab), Phase 3 (Settings tab), Phase 4a (Explore and HNSW tabs), Phase 4b (Compare tab), and T-016 (test fix) are completed across production UI files (`web/css/app.css`, `web/index.html`, `web/js/compare.js`, `web/js/compare_helpers.js`, `web/js/ask.js`) and test suite (`web/js/tests/test_explore_hnsw.js`). Task T-017 evaluates one-screen UI feasibility (zero page scroll, inner panel scrolling). All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs, 23 Ask DOM IDs, and all 62 browser unit tests remain functional [CONFIRMED: git status, git log].
 
 ---
 

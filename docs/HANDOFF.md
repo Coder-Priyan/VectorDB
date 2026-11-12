@@ -55,9 +55,10 @@ UI redesign phases (branch `ui-redesign`):
   - Verification task T-007 (docs vs git audit): SKIPPED by human decision.
 
 ## 7. Open Decisions / Known Gaps
+- **One-Screen UI Goal**: Human goal (2026-11-12): one-screen UI feel. Page never scrolls; long content (answers, sources, tables) scrolls only inside its own panel. Pending: T-017 feasibility report, then human decision. Cleanup task is renumbered T-018 (mockup removal, alert/confirm replacement, docs cleanup, HANDOFF dedupe); merge is T-019 after human browser check.
 - Known UI gaps to address:
   - Compare tab bars and table wrapping: FIXED in T-015.
-  - Native `alert()` in Settings reset/save: scheduled for Phase 5 polish.
+  - Native `alert()` in Settings reset/save: scheduled for cleanup task (T-018).
   - `DEMO_SCRIPT.md` refers to "red star" marker: query star is now off-white `#f0ede6` with black outline. (Human handles viva/presentation docs independently).
 - Roadmap features (hybrid search, reranking, disk persistence, delete) remain ON HOLD until the human confirms they are required.
 - Strategy for rollback during `RagPipeline::ingest` if a vector insert fails midway (ISS-006) remains documented for future work.
