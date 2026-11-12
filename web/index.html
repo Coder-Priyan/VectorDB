@@ -284,21 +284,70 @@
 
     <!-- TAB 5: SETTINGS -->
     <section id="panel-settings" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-settings">
-      <div class="settings-grid">
-        <div class="card"><h2 class="card-title">Server Status &amp; Configuration</h2><div id="settings-health-box" class="info-table-container"><p class="text-muted">Loading metrics...</p></div></div>
-        <div class="card">
-          <h2 class="card-title">Demo Vector Collection</h2>
+      <div class="settings-layout">
+        <!-- Section 1: Server Status -->
+        <section class="settings-section">
+          <h2 class="section-title">Server</h2>
+          <div id="settings-health-box" class="settings-status-box">
+            <p class="text-muted empty-state">Loading metrics...</p>
+          </div>
+        </section>
+
+        <hr class="settings-divider">
+
+        <!-- Section 2: Demo Collection Configuration & Random Vectors -->
+        <section class="settings-section">
+          <h2 class="section-title">Demo collection</h2>
           <form id="settings-reset-demo-form" class="form-stack">
-            <div class="form-row"><div class="form-group flex-1"><label for="demo-dim-input">Dimension</label><input type="number" id="demo-dim-input" class="input-text" value="128" min="1" max="4096" required></div><div class="form-group flex-1"><label for="demo-metric-select">Metric</label><select id="demo-metric-select" class="input-select"><option value="cosine" selected>Cosine</option><option value="euclidean">Euclidean</option><option value="manhattan">Manhattan</option></select></div></div>
-            <div class="form-row"><div class="form-group flex-1"><label for="demo-m-input">M</label><input type="number" id="demo-m-input" class="input-text" value="16" min="2" max="128"></div><div class="form-group flex-1"><label for="demo-efc-input">efConstruction</label><input type="number" id="demo-efc-input" class="input-text" value="200" min="4" max="1000"></div></div>
-            <button type="submit" id="demo-reset-btn" class="btn btn-danger">Reset Demo Collection</button>
+            <div class="two-col-grid">
+              <div class="form-group">
+                <label for="demo-dim-input">Dimension</label>
+                <input type="number" id="demo-dim-input" class="input-text" value="128" min="1" max="4096" required>
+              </div>
+              <div class="form-group">
+                <label for="demo-metric-select">Metric</label>
+                <select id="demo-metric-select" class="input-select">
+                  <option value="cosine" selected>Cosine</option>
+                  <option value="euclidean">Euclidean</option>
+                  <option value="manhattan">Manhattan</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="demo-m-input">M</label>
+                <input type="number" id="demo-m-input" class="input-text" value="16" min="2" max="128">
+              </div>
+              <div class="form-group">
+                <label for="demo-efc-input">efConstruction</label>
+                <input type="number" id="demo-efc-input" class="input-text" value="200" min="4" max="1000">
+              </div>
+            </div>
           </form>
-          <hr class="divider">
-          <form id="settings-random-demo-form" class="form-row mt-3">
-            <div class="form-group flex-2"><label for="demo-random-count">Insert Random Vectors</label><input type="number" id="demo-random-count" class="input-text" value="100" min="1" max="20000"></div>
-            <div class="form-group flex-1 align-end"><button type="submit" id="demo-insert-random-btn" class="btn btn-primary w-100">Insert</button></div>
-          </form>
-        </div>
+
+          <div class="settings-random-group">
+            <form id="settings-random-demo-form" class="form-row">
+              <div class="form-group flex-2">
+                <label for="demo-random-count">Insert random vectors</label>
+                <input type="number" id="demo-random-count" class="input-text" value="100" min="1" max="20000">
+              </div>
+              <div class="form-group flex-1 align-end">
+                <button type="submit" id="demo-insert-random-btn" class="btn btn-primary w-100">Insert</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <hr class="settings-divider">
+
+        <!-- Section 3: Danger Zone -->
+        <section class="settings-section">
+          <h2 class="section-title">Danger zone</h2>
+          <div class="settings-danger-card">
+            <div class="settings-danger-info">
+              <p class="text-muted">Clears all demo vectors and rebuilds index with the configuration above.</p>
+            </div>
+            <button type="submit" id="demo-reset-btn" form="settings-reset-demo-form" class="btn btn-danger">Reset Demo Collection</button>
+          </div>
+        </section>
       </div>
     </section>
   </main>

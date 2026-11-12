@@ -889,6 +889,86 @@ html {
   font-size: 13px;
 }
 
+/* Settings Tab Layout */
+#panel-settings .settings-layout {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+#panel-settings .settings-section {
+  display: flex;
+  flex-direction: column;
+}
+
+#panel-settings .section-title {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+#panel-settings .settings-divider {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 0;
+}
+
+#panel-settings .info-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#panel-settings .info-table tr {
+  border-bottom: 1px solid var(--border-color);
+}
+
+#panel-settings .info-table tr:last-child {
+  border-bottom: none;
+}
+
+#panel-settings .info-table td {
+  padding: 10px 0;
+  border: none;
+  font-size: 14px;
+}
+
+#panel-settings .info-table td:first-child {
+  color: var(--text-muted);
+  width: 220px;
+}
+
+#panel-settings .info-table td:last-child {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+#panel-settings .settings-random-group {
+  margin-top: 24px;
+}
+
+#panel-settings .settings-danger-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+#panel-settings .settings-danger-info p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+#panel-settings .settings-danger-card .btn-danger {
+  white-space: nowrap;
+}
+
 .info-table th {
   padding: 8px 10px;
   text-align: left;

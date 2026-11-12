@@ -46,14 +46,14 @@ export function initSettingsTab() {
       healthBox.replaceChildren(
         el("table", { className: "info-table" },
           el("tbody", {},
-            el("tr", {}, el("td", {}, "Server Status"), el("td", {}, health.status || "healthy")),
-            el("tr", {}, el("td", {}, "Server Version"), el("td", {}, health.version || "-")),
-            el("tr", {}, el("td", {}, "Demo Dimension"), el("td", {}, config.dimension)),
-            el("tr", {}, el("td", {}, "Demo Metric"), el("td", {}, config.metric)),
-            el("tr", {}, el("td", {}, "HNSW Parameters"), el("td", {}, `M=${config.hnsw?.M}, efC=${config.hnsw?.efConstruction}, efS=${config.hnsw?.efSearch}`)),
-            el("tr", {}, el("td", {}, "Demo Vectors Count"), el("td", {}, stats.count)),
-            el("tr", {}, el("td", {}, "Demo Memory (Approx)"), el("td", {}, formatBytes(stats.memory_bytes || 0))),
-            el("tr", {}, el("td", {}, "Ollama Models"), el("td", {}, formatOllamaModels(ollama)))
+            el("tr", {}, el("td", {}, "Server status"), el("td", {}, health.status || "healthy")),
+            el("tr", {}, el("td", {}, "Server version"), el("td", {}, health.version || "-")),
+            el("tr", {}, el("td", {}, "Dimension"), el("td", {}, config.dimension)),
+            el("tr", {}, el("td", {}, "Metric"), el("td", {}, config.metric)),
+            el("tr", {}, el("td", {}, "HNSW parameters"), el("td", {}, `M=${config.hnsw?.M}, efC=${config.hnsw?.efConstruction}, efS=${config.hnsw?.efSearch}`)),
+            el("tr", {}, el("td", {}, "Vectors count"), el("td", {}, stats.count)),
+            el("tr", {}, el("td", {}, "Memory (approx)"), el("td", {}, formatBytes(stats.memory_bytes || 0))),
+            el("tr", {}, el("td", {}, "Ollama models"), el("td", {}, formatOllamaModels(ollama)))
           )
         )
       );
@@ -94,6 +94,14 @@ export function initSettingsTab() {
         }
       });
     });
+
+    if (resetDemoBtn) {
+      resetDemoBtn.addEventListener("click", () => {
+        if (resetDemoBtn.form !== resetDemoForm) {
+          resetDemoForm.requestSubmit();
+        }
+      });
+    }
   }
 
   // Handle Random Demo Vectors Insertion
