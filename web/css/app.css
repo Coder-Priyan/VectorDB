@@ -173,13 +173,12 @@ html {
 }
 
 .tab-nav {
-  background: var(--bg-surface);
-  border-bottom: 1px solid var(--border-color);
   display: flex;
+  align-items: stretch;
   overflow-x: auto;
-  padding: 0 28px;
-  height: 44px;
+  height: 48px;
   gap: 6px;
+  margin-bottom: -1px;
 }
 
 .tab-btn {
@@ -205,7 +204,7 @@ html {
 .tab-btn.active {
   color: var(--text-primary);
   border-bottom-color: var(--accent-color);
-  font-weight: 500;
+  font-weight: 400;
 }
 
 /* Main Content Area */
