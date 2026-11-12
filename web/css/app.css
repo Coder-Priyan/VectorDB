@@ -232,6 +232,12 @@ html {
   display: none !important;
 }
 
+#panel-ask {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
 /* Temporary panel-level scroll for tabs pending redesign */
 #panel-explore,
 #panel-hnsw,
@@ -579,14 +585,19 @@ html {
 .ask-layout {
   display: flex;
   gap: 48px;
-  align-items: flex-start;
+  align-items: stretch;
   width: 100%;
+  height: 100%;
+  min-height: 0;
 }
 
 .ask-sidebar {
   width: 320px;
   max-width: 100%;
   flex-shrink: 0;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 32px;
@@ -614,6 +625,8 @@ html {
 .ask-main {
   flex: 1;
   min-width: 0;
+  height: 100%;
+  min-height: 0;
   display: flex;
   justify-content: center;
 }
@@ -621,9 +634,32 @@ html {
 .reading-column {
   max-width: 820px;
   width: 100%;
+  height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 36px;
+  gap: 20px;
+}
+
+.ask-query-section {
+  flex-shrink: 0;
+}
+
+#ask-loading-notice {
+  flex-shrink: 0;
+}
+
+.answer-section {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sources-section {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .two-col-grid {
@@ -695,13 +731,55 @@ html {
   font-size: 13px;
 }
 
-@media (max-width: 1100px) {
+@media (max-height: 520px), (max-width: 1100px) {
+  html, body {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .app-content {
+    height: auto;
+    overflow: visible;
+  }
+
+  .tab-panel {
+    height: auto;
+    min-height: 0;
+  }
+
+  #panel-ask,
+  #panel-explore,
+  #panel-hnsw,
+  #panel-compare,
+  #panel-settings {
+    height: auto;
+    overflow: visible;
+  }
+
   .ask-layout {
+    height: auto;
+    overflow: visible;
     flex-direction: column;
     gap: 32px;
   }
+
   .ask-sidebar {
     width: 100%;
+    height: auto;
+    overflow-y: visible;
+  }
+
+  .ask-main {
+    height: auto;
+  }
+
+  .reading-column {
+    height: auto;
+  }
+
+  .answer-box {
+    max-height: 360px;
   }
 }
 
@@ -777,7 +855,9 @@ html {
   border-left: 2px solid var(--accent-color);
   border-radius: 0;
   padding: 4px 0 4px 20px;
-  min-height: 60px;
+  flex: 1;
+  min-height: 120px;
+  overflow-y: auto;
   font-size: 16px;
   line-height: 1.65;
   white-space: pre-wrap;
@@ -790,6 +870,13 @@ html {
   border-left: none;
   padding-left: 0;
   min-height: auto;
+  flex: 0 0 auto;
+}
+
+.answer-box:focus-visible,
+.sources-list:focus-visible {
+  outline: 1px solid var(--accent-color);
+  outline-offset: 1px;
 }
 
 .answer-box.notice-neutral {
@@ -844,8 +931,9 @@ html {
   display: flex;
   flex-direction: column;
   gap: 0;
-  max-height: none;
-  overflow-y: visible;
+  max-height: 180px;
+  overflow-y: auto;
+  flex-shrink: 0;
   margin-top: 4px;
   border-top: 1px solid var(--border-color);
 }
