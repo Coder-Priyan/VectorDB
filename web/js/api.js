@@ -153,6 +153,20 @@ export async function apiRequest(endpoint, options = {}) {
 }
 
 /**
+ * Builds the payload for /api/demo/random, ensuring the server contract ('n') is always satisfied.
+ * Accepts either a numeric count or an object.
+ */
+export function buildDemoRandomPayload(countOrPayload) {
+  if (typeof countOrPayload === "object" && countOrPayload !== null) {
+    if ("count" in countOrPayload && !("n" in countOrPayload)) {
+      return { n: Number(countOrPayload.count) };
+    }
+    return countOrPayload;
+  }
+  return { n: Number(countOrPayload) };
+}
+
+/**
  * Typed API Endpoint Methods
  */
 export const api = {
@@ -170,7 +184,7 @@ export const api = {
 
   // Demo Collection Management
   resetDemo: (payload) => apiRequest("/api/reset", { method: "POST", body: payload }),
-  insertDemoRandom: (payload) => apiRequest("/api/demo/random", { method: "POST", body: payload }),
+  insertDemoRandom: (n) => apiRequest("/api/demo/random", { method: "POST", body: buildDemoRandomPayload(n) }),
   getVector: (id) => apiRequest(`/api/vectors/${encodeURIComponent(id)}`),
 
   // 2D PCA Projections

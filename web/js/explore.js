@@ -71,7 +71,7 @@ export function initExploreTab() {
       insertBtn.addEventListener("click", async () => {
         const count = parseInt(countInput.value, 10) || 1000;
         await withButtonBusy(insertBtn, async () => {
-          try { await api.insertDemoRandom({ count }); await loadData(); } catch (err) { showGlobalError(err.code, err.message); }
+          try { await api.insertDemoRandom(count); await loadData(); } catch (err) { showGlobalError(err.code, err.message); }
         });
       });
       emptyStateBox.replaceChildren(el("p", { className: "text-muted" }, "Demo collection is empty."), el("div", { className: "form-row mt-3" }, countInput, insertBtn));

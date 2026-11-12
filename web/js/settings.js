@@ -98,7 +98,7 @@ export function initSettingsTab() {
 
       await withButtonBusy(insertRandomBtn, async () => {
         try {
-          const res = await api.insertDemoRandom({ count });
+          const res = await api.insertDemoRandom(count);
           await loadSystemStatus();
           alert(`Inserted ${res.inserted || count} random vectors!`);
         } catch (err) {
