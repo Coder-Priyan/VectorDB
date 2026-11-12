@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-12 by T-001
+Last updated: 2026-11-12 by SYNC
 
 ## 1. Operating Model
 
@@ -22,7 +22,7 @@ This project operates on a strict three-party workflow:
 - **What It Does**: VectorDB is a fully offline, zero-cloud C++17 in-memory vector database and retrieval-augmented generation (RAG) engine. It provides exact brute-force search, flat-array KD-Tree spatial indexing, hierarchical navigable small-world (HNSW) graphs, document chunking, matrix-free 2D PCA projection, a multi-threaded REST HTTP API server, and a dependency-free vanilla HTML5/ES6 web UI [CONFIRMED: README.md:1-80, src/].
 - **Target Users**: Academic evaluators, students, and engineers seeking an offline, inspectable semantic search and RAG engine without external cloud or proprietary vector database services [INFERRED from B.Tech Major Project context, zero-cloud architecture, and educational demo tabs].
 - **Deadlines & Non-Code Deliverables**: Academic major project report, viva defense presentation, and demo walkthrough script [INFERRED from docs/DEMO_SCRIPT.md; exact calendar deadlines are [UNCLEAR]].
-- **Collaboration Preferences**: English language, concise factual reports, strict evidence tagging, no invented output [CONFIRMED: Operating Model prompt guidelines; human-specific personal preferences [UNCLEAR]].
+- **Collaboration Preferences**: Human writes Hinglish (Hindi in Roman letters). Brain should reply in simple short Hinglish. One step at a time. Human is not a technical planner: questions to the human must be short and answerable in one line. When several bugs are found in manual testing, batch them into ONE fix task instead of one task per bug. Human sometimes uses ChatGPT or another Claude as a testing helper and pastes their report; such reports are human-reported, not proof. [CONFIRMED: human instruction in chat]
 
 ---
 
@@ -109,4 +109,28 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 5. **In-Memory Non-Atomic Ingestion**: Document ingestion embeddings are validated before committing, but if vector insertion fails mid-loop, already inserted chunks remain in memory without a DocumentRecord until `POST /api/docs/reset` is called [CONFIRMED: src/rag.cpp:138].
 6. **Audit Claims Verification Status**: Claims from Antigravity's audit were verified by the human in their own terminal on 2026-11-12: 110/110 tests, zero warnings on clean rebuild, 4 executables, web safety scan pass, 72 commits with 6 ahead of origin, 29 API routes, 17 server flags. Not yet verified by the human: HNSW recall numbers (ISS-003, ISS-004), 55 browser tests, live Ollama RAG run.
 7. **Demo Random Endpoint Contract**: Demo random insert uses field 'n', not 'count'. Docs claiming TESTED for the web UI meant pure-logic tests only; real browser testing by the human found a bug on 2026-11-12.
+
+---
+
+## 7. Verification Status (as of 2026-11-12)
+
+Features verified in a real browser by the human (with screenshots saved in results/screenshots/):
+- Settings tab: Insert Random Vectors (Demo Vectors Count = 100) [CONFIRMED: human screenshot]
+- Explore tab: Empty-state Insert 1000 Vectors button (1000 points shown on canvas) [CONFIRMED: human screenshot]
+
+Features reported working by the human without screenshots:
+- Compare tab: Brute 34 µs, KD-Tree 41 µs, HNSW 103 µs on 100 vectors, all recall 100%. Nearest neighbors panel works, red star drawn. [CONFIRMED: human manual test]
+- HNSW tab: Demo collection graph works (100 nodes, max level 2, 1324 edges). [CONFIRMED: human manual test]
+- Ask tab: vectordb_intro.txt ingested (6 chunks), 3 test Q&A answered with sources and timings. [CONFIRMED: human manual test]
+- Live Ollama test: 1 passed, 0 skipped, 529,746 assertions (run by human with VECTORDB_LIVE_OLLAMA=1). [CONFIRMED: human test run]
+
+All these were broken or unverified before Task 7a / 7a-fix / 7a-fix2 / T-002.
+
+---
+
+## 8. Viva Talking Points (Honest Answers) [INFERRED]
+
+- Why KD-Tree search time is close to Brute Force at D=128: curse of dimensionality. KD-Tree partitions space with orthogonal hyperplanes; above ~10-15 dimensions, almost every leaf cell intersects the search hypersphere, so it visits nearly all leaves, degrading to O(N).
+- Why HNSW search time is higher than Brute Force on 100 vectors: constant factor overhead. HNSW does priority-queue operations, visited-set lookups, and pointer chasing across layers; Brute Force is a single contiguous array scan that fits entirely in L1 cache and is vectorized by SIMD. HNSW only wins when N is large (thousands to millions).
+- Why the live Ollama test has 529,746 assertions: it loops through large embeddings, running ASSERT_NEAR on every float element across multiple vectors.
 

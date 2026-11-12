@@ -1,6 +1,6 @@
 # Known Issues, Limitations & Risk Tracker
 
-Last updated: 2026-11-12 by T-001
+Last updated: 2026-11-12 by SYNC
 
 | ID | Type | Description | Where (File/Function) | Severity | Evidence | Status | Date |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -21,3 +21,8 @@ Last updated: 2026-11-12 by T-001
 | ISS-015 | Bug | HNSW tab graph topology summary table displayed Demo collection counts even when Docs collection was selected; fixed in Task 7a | `web/js/hnsw.js`, `src/api.cpp` | High | [CONFIRMED: git show dc82c36] | FIXED | 2026-11-11 |
 | ISS-016 | Bug | `POST /api/docs/reset` and `POST /api/reset` rejected curl and browser requests with HTTP 415 when empty body lacked `Content-Type: application/json` | `src/server_main.cpp:218` | Medium | [CONFIRMED: git show 0328f21] | FIXED | 2026-11-11 |
 | ISS-017 | Bug | Settings and Explore frontend sent {count} to POST /api/demo/random while server requires {n}; found by human manual test on 2026-11-12. Lesson: unit tests passed 110/110 but no test covered the frontend-to-server field names. | `web/js/settings.js`, `web/js/explore.js`, `web/js/api.js` | High | [CONFIRMED: human manual test] | FIXED | 2026-11-12 |
+| ISS-018 | Bug | Settings tab "Demo Memory (Approx)" shows "0 B" with 100 and 1000 vectors inserted. Expected: nonzero bytes. In investigate queue. | `web/js/settings.js`, `src/collection.cpp` | Low | [CONFIRMED: human manual browser test] | OPEN | 2026-11-12 |
+| ISS-019 | Bug | Settings tab shows "HNSW efConstruction: 64" in the config form, but the status table below shows "efC: 200". In investigate queue. | `web/js/settings.js`, `web/index.html` | Low | [CONFIRMED: human manual browser test] | OPEN | 2026-11-12 |
+| ISS-020 | Bug | Ask tab Title field does not clear after a document is successfully ingested. Document ingested, chunks created, but the Title box keeps its text. In investigate queue. | `web/js/ask.js` | Low | [CONFIRMED: human manual browser test] | OPEN | 2026-11-12 |
+| ISS-021 | Bug | Ask tab answered an irrelevant question ("pizza banane ki recipe kya hai?") with RAG pipeline text before saying no recipe exists (mild ISS-001 prompt leakage). Also replied in English when question was in Hinglish, and repeated the question text in line 1. In investigate queue. | `src/rag.cpp` | Low | [CONFIRMED: human manual browser test] | OPEN | 2026-11-12 |
+| ISS-022 | Enhancement | Settings tab shows only an Ollama badge (green dot / version), but not the list of installed models. In investigate queue. | `web/js/settings.js`, `src/api.cpp` | Low | [CONFIRMED: human manual browser test] | OPEN | 2026-11-12 |
