@@ -7,7 +7,7 @@
 
 // Visually distinct palette for document clusters
 export const DOC_COLOR_PALETTE = [
-  "#2563eb", // Blue
+  "#d9a441", // Amber
   "#16a34a", // Green
   "#d97706", // Amber
   "#9333ea", // Purple

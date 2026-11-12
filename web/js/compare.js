@@ -190,7 +190,7 @@ export function initCompareTab() {
     const ctx = canvas.getContext("2d");
     setupCanvasDpr(canvas, ctx);
 
-    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    const isDark = true;
     const algs = lastReportData.report.algorithms;
     const stats = {
       brute: computeTimingStats(lastReportData.latencies.brute),

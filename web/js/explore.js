@@ -128,7 +128,7 @@ export function initExploreTab() {
       if (scr.x < -10 || scr.x > width + 10 || scr.y < -10 || scr.y > height + 10) continue;
       ctx.beginPath();
       ctx.arc(scr.x, scr.y, 3.5, 0, Math.PI * 2);
-      ctx.fillStyle = isDocs ? getDocColor(pt.doc_id) : "#2563eb";
+      ctx.fillStyle = isDocs ? getDocColor(pt.doc_id) : "#d9a441";
       ctx.fill();
     }
 
