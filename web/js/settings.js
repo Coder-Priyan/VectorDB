@@ -6,7 +6,7 @@
  */
 
 import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js";
-import { el, formatBytes } from "./ui.js";
+import { el, formatBytes, formatOllamaModels } from "./ui.js";
 
 export function initSettingsTab() {
   const healthBox = document.getElementById("settings-health-box");
@@ -22,11 +22,22 @@ export function initSettingsTab() {
   async function loadSystemStatus() {
     if (!healthBox) return;
     try {
-      const [health, config, stats] = await Promise.all([
+      const [health, config, stats, ollama] = await Promise.all([
         api.getHealth(),
         api.getConfig(),
-        api.getStats()
+        api.getStats(),
+        api.getOllamaStatus().catch(() => ({ reachable: false, models: [] }))
       ]);
+
+      const dimInput = document.getElementById("demo-dim-input");
+      const metricSelect = document.getElementById("demo-metric-select");
+      const mInput = document.getElementById("demo-m-input");
+      const efcInput = document.getElementById("demo-efc-input");
+
+      if (dimInput && config?.dimension) dimInput.value = config.dimension;
+      if (metricSelect && config?.metric) metricSelect.value = config.metric;
+      if (mInput && config?.hnsw?.M) mInput.value = config.hnsw.M;
+      if (efcInput && config?.hnsw?.efConstruction) efcInput.value = config.hnsw.efConstruction;
 
       if (footerVersionEl && health.version) {
         footerVersionEl.textContent = `v${health.version}`;
@@ -41,7 +52,8 @@ export function initSettingsTab() {
             el("tr", {}, el("td", {}, "Demo Metric"), el("td", {}, config.metric)),
             el("tr", {}, el("td", {}, "HNSW Parameters"), el("td", {}, `M=${config.hnsw?.M}, efC=${config.hnsw?.efConstruction}, efS=${config.hnsw?.efSearch}`)),
             el("tr", {}, el("td", {}, "Demo Vectors Count"), el("td", {}, stats.count)),
-            el("tr", {}, el("td", {}, "Demo Memory (Approx)"), el("td", {}, formatBytes(stats.memory_bytes || 0)))
+            el("tr", {}, el("td", {}, "Demo Memory (Approx)"), el("td", {}, formatBytes(stats.memory_bytes || 0))),
+            el("tr", {}, el("td", {}, "Ollama Models"), el("td", {}, formatOllamaModels(ollama)))
           )
         )
       );

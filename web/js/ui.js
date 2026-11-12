@@ -148,6 +148,21 @@ export function updateOllamaBadge(status, badgeEl) {
 }
 
 /**
+ * Formats Ollama models list or status message for table display.
+ * @param {Object} status - Status object with { reachable, models }
+ * @returns {string} Formatted model list or fallback status message
+ */
+export function formatOllamaModels(status) {
+  if (!status || !status.reachable) {
+    return "Ollama Offline";
+  }
+  if (Array.isArray(status.models) && status.models.length > 0) {
+    return status.models.join(", ");
+  }
+  return "None installed";
+}
+
+/**
  * Initializes Keyboard-Accessible Tab Navigation (WAI-ARIA Tablist pattern).
  */
 export function initTabs(tablistSelector = ".tab-nav") {

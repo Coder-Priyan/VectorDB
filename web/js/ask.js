@@ -57,6 +57,7 @@ export function initAskTab() {
     await withButtonBusy(docIngestBtn, async () => {
       try {
         await api.ingestDoc(payload);
+        if (docTitleInput) docTitleInput.value = "";
         docTextInput.value = "";
         docFileInput.value = "";
         await refreshDocumentsList();
