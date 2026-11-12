@@ -1235,9 +1235,9 @@ html {
   color: #d9a441;
 }
 
-.swatch-brute { background-color: #64748b; }
-.swatch-kdtree { background-color: #0284c7; }
-.swatch-hnsw { background-color: #10b981; }
+.swatch-brute { background-color: #9c8269; }
+.swatch-kdtree { background-color: #708a78; }
+.swatch-hnsw { background-color: #d9a441; }
 
 /* Test Suite Styles */
 .test-suite {

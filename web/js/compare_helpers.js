@@ -3,9 +3,9 @@
  */
 
 export const ALGORITHM_COLORS = {
-  brute: "#64748b",   // Slate / Neutral
-  kdtree: "#0284c7",  // Sky Blue
-  hnsw: "#10b981"     // Emerald Green
+  brute: "#9c8269",   // Taupe
+  kdtree: "#708a78",  // Moss
+  hnsw: "#d9a441"     // Amber
 };
 
 export const ALGORITHM_LABELS = {
@@ -100,12 +100,13 @@ export function drawComparisonBars(canvas, data, isDark = false) {
 
   const w = canvas.width;
   const h = canvas.height;
-  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = "#0a0a0a";
+  ctx.fillRect(0, 0, w, h);
 
   const algorithms = ["brute", "kdtree", "hnsw"];
-  const textColor = isDark ? "#f3f4f6" : "#1f2937";
-  const mutedColor = isDark ? "#9ca3af" : "#6b7280";
-  const gridColor = isDark ? "#374151" : "#e5e7eb";
+  const textColor = "#f0ede6";
+  const mutedColor = "#949087";
+  const gridColor = "#2a2a2a";
 
   // Section configs
   const sections = [
@@ -125,7 +126,7 @@ export function drawComparisonBars(canvas, data, isDark = false) {
 
     // Title
     ctx.fillStyle = mutedColor;
-    ctx.font = "bold 11px sans-serif";
+    ctx.font = '12px "IBM Plex Sans", sans-serif';
     ctx.fillText(sec.title, 10, secY + 12);
 
     // Baseline grid rule
@@ -146,16 +147,16 @@ export function drawComparisonBars(canvas, data, isDark = false) {
 
       // Label
       ctx.fillStyle = textColor;
-      ctx.font = "11px sans-serif";
+      ctx.font = '12px "IBM Plex Sans", sans-serif';
       ctx.fillText(ALGORITHM_LABELS[alg] || alg, 10, rowY + rowHeight - 4);
 
       // Bar
-      ctx.fillStyle = ALGORITHM_COLORS[alg] || "#3b82f6";
+      ctx.fillStyle = ALGORITHM_COLORS[alg] || "#807c74";
       ctx.fillRect(barStartX, rowY + 2, barW, rowHeight - 5);
 
       // Value text
       ctx.fillStyle = textColor;
-      ctx.font = "bold 10px monospace";
+      ctx.font = '11px "IBM Plex Mono", monospace';
       ctx.fillText(sec.format(rawVal), barStartX + barW + 6, rowY + rowHeight - 4);
     });
   });
