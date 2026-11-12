@@ -1,12 +1,12 @@
 # Project Handoff
 
-Last updated: 2026-11-12 by T-004
+Last updated: 2026-11-12 by T-005
 
 ## 1. Current Status
-VectorDB is in a stable, verified state following completion of Task T-004. The batched fixes for ISS-018 to ISS-022 are in place: approximate `memory_bytes` is reported by `GET /api/stats`, Settings form syncs with `/api/config` defaults (`efConstruction: 200`), Ask tab clears document title on ingest success, V2 prompt prioritizes refusal with language and no-repeat rules, and Settings displays installed Ollama models. The test suite stands at 111 C++ tests and 62 browser pure-logic tests with zero compiler warnings and zero web safety violations.
+VectorDB is in a stable, verified state following completion and human browser verification of Task T-004. Settings tab (Demo Memory 50.8 KB with 100 vectors, efConstruction form default 200, Ollama Models row with models list) and Ask tab (Title field clears after ingest, pizza question refused, Hinglish question tested) have been confirmed working in a real browser by the human. The test suite stands at 111 C++ tests and 62 browser pure-logic tests with zero compiler warnings and zero web safety violations.
 
 ## 2. Last Work Done (From Git)
-- **Task T-004** (commits `2c92b6a`, `03d23d6`, `fe51206`, `c2cf8e4`): Batched fix for ISS-018 to ISS-022 across backend stats (`memory_bytes`), web settings form sync (`efConstruction: 200`), title clearing after ingest, refusal-first V2 prompt with language-matching, Ollama models table row, regression tests, and documentation updates.
+- **Task T-004** (commits `2c92b6a`, `03d23d6`, `fe51206`, `c2cf8e4`, `c1ee64e`): Batched fix for ISS-018 to ISS-022 across backend stats (`memory_bytes`), web settings form sync (`efConstruction: 200`), title clearing after ingest, refusal-first V2 prompt with language-matching, Ollama models table row, regression tests, and documentation updates. Confirmed in real browser by human; pushed to `origin/main`.
 - **Task T-003**: Read-only investigation of ISS-018..022 root causes and test count reconciliation (57 tests identified prior to T-004).
 - **T-SYNC-001** (commit `e300385`): Recorded Brain chat knowledge into docs (verification status, ISS-018..022, ADR-015, viva talking points, collaboration preferences).
 - **T-002** (commits `a57bd3f`, `d998065`, `2704c36`): Fixed demo/random field mismatch (frontend sent "count", server requires "n") in `web/js/api.js`, `web/js/settings.js`, `web/js/explore.js`.
@@ -14,18 +14,18 @@ VectorDB is in a stable, verified state following completion of Task T-004. The 
 
 ## 3. Git State
 - **Active Branch**: `main`
-- **Tracking Status**: Ahead of `origin/main` by local commits from T-004 (not pushed).
+- **Tracking Status**: `## main...origin/main` (up to date with remote; confirmed via `git status -sb`).
 - **Working Tree**: Clean. Untracked logs remain in `results/logs/`.
 - Always read the real state with `git status -sb` before trusting this section.
 
 ## 4. Recommended Next Step
-- **Human Manual Browser Re-Test**: Test Settings tab (Demo Memory nonzero with vectors, efC input shows 200, Ollama Models row shows models or status) and Ask tab (Title field clears after ingest, pizza question refusal, Hinglish question answered appropriately).
+- No code task pending; await human decision on roadmap features or further manual testing of Explore, HNSW, Compare tabs after T-004.
 
 ## 5. Pending Human Actions
-1. Perform manual browser re-test of Settings and Ask tabs.
-2. Tell Brain the submission and viva dates (even an approximate month).
-3. Tell Brain the status of the project report and slides (done, partly done, not started).
-4. Decide whether commits ahead of `origin/main` should be pushed to GitHub.
+1. Decide whether any roadmap features (hybrid search, reranking, persistence, delete) are desired.
+2. Decide whether further manual testing of Explore, HNSW, and Compare tabs is needed.
+3. Tell Brain the submission and viva dates (even an approximate month).
+4. Tell Brain the status of the project report and slides (done, partly done, not started).
 5. Decide whether the college requires disk persistence or any other roadmap feature.
 
 ## 6. Open Decisions

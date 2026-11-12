@@ -1,6 +1,6 @@
 # Known Issues, Limitations & Risk Tracker
 
-Last updated: 2026-11-12 by T-004
+Last updated: 2026-11-12 by T-005
 
 | ID | Type | Description | Where (File/Function) | Severity | Evidence | Status | Date |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -24,5 +24,5 @@ Last updated: 2026-11-12 by T-004
 | ISS-018 | Bug | Settings tab "Demo Memory (Approx)" shows "0 B" with 100 and 1000 vectors inserted. Expected: nonzero bytes. In investigate queue. | `web/js/settings.js`, `src/collection.cpp` | Low | [CONFIRMED: human manual browser test] | FIXED | 2026-11-12 |
 | ISS-019 | Bug | Settings tab shows "HNSW efConstruction: 64" in the config form, but the status table below shows "efC: 200". In investigate queue. | `web/js/settings.js`, `web/index.html` | Low | [CONFIRMED: human manual browser test] | FIXED | 2026-11-12 |
 | ISS-020 | Bug | Ask tab Title field does not clear after a document is successfully ingested. Document ingested, chunks created, but the Title box keeps its text. In investigate queue. | `web/js/ask.js` | Low | [CONFIRMED: human manual browser test] | FIXED | 2026-11-12 |
-| ISS-021 | Bug | Ask tab answered an irrelevant question ("pizza banane ki recipe kya hai?") with RAG pipeline text before saying no recipe exists (mild ISS-001 prompt leakage). Also replied in English when question was in Hinglish, and repeated the question text in line 1. In investigate queue. | `src/rag.cpp` | Low | [CONFIRMED: human manual browser test] | FIXED (prompt tuned, not verified by human; small-model behavior may still vary) | 2026-11-12 |
+| ISS-021 | Bug | Ask tab answered an irrelevant question ("pizza banane ki recipe kya hai?") with RAG pipeline text before saying no recipe exists (mild ISS-001 prompt leakage). Also replied in English when question was in Hinglish, and repeated the question text in line 1. In investigate queue. | `src/rag.cpp` | Low | [CONFIRMED: human manual browser test] | FIXED (prompt tuned; human-tested pass on 2026-11-12; small-model behavior may still vary) | 2026-11-12 |
 | ISS-022 | Enhancement | Settings tab shows only an Ollama badge (green dot / version), but not the list of installed models. In investigate queue. | `web/js/settings.js`, `src/api.cpp` | Low | [CONFIRMED: human manual browser test] | FIXED | 2026-11-12 |

@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-12 by T-004
+Last updated: 2026-11-12 by T-005
 
 ## 1. Operating Model
 
@@ -119,13 +119,17 @@ Features verified in a real browser by the human (with screenshots saved in resu
 - Settings tab: Insert Random Vectors (Demo Vectors Count = 100) [CONFIRMED: human screenshot]
 - Explore tab: Empty-state Insert 1000 Vectors button (1000 points shown on canvas) [CONFIRMED: human screenshot]
 
+Features verified in a real browser by the human (2026-11-12, T-004):
+- Settings tab: Demo Memory shows 50.8 KB with 100 vectors, efConstruction form default 200, Ollama Models row shows llama3.2:latest and nomic-embed-text:latest [CONFIRMED: screenshot saved by human in chat, not in results/screenshots/]
+- Ask tab: Title clears after ingest, pizza question refused, Hinglish question tested [CONFIRMED: human-reported, no screenshots]
+
 Features reported working by the human without screenshots:
 - Compare tab: Brute 34 µs, KD-Tree 41 µs, HNSW 103 µs on 100 vectors, all recall 100%. Nearest neighbors panel works, red star drawn. [CONFIRMED: human manual test]
 - HNSW tab: Demo collection graph works (100 nodes, max level 2, 1324 edges). [CONFIRMED: human manual test]
 - Ask tab: vectordb_intro.txt ingested (6 chunks), 3 test Q&A answered with sources and timings. [CONFIRMED: human manual test]
-- Live Ollama test: 1 passed, 0 skipped, 529,746 assertions (run by human with VECTORDB_LIVE_OLLAMA=1). [CONFIRMED: human test run]
+- Live Ollama test: 1 passed, 0 skipped when run with VECTORDB_LIVE_OLLAMA=1; total assertions reported 529,746. [CONFIRMED: human test run]
 
-All these were broken or unverified before Task 7a / 7a-fix / 7a-fix2 / T-002.
+All these were broken or unverified before Task 7a / 7a-fix / 7a-fix2 / T-002 / T-004.
 
 ---
 
@@ -133,5 +137,5 @@ All these were broken or unverified before Task 7a / 7a-fix / 7a-fix2 / T-002.
 
 - Why KD-Tree search time is close to Brute Force at D=128: curse of dimensionality. KD-Tree partitions space with orthogonal hyperplanes; above ~10-15 dimensions, almost every leaf cell intersects the search hypersphere, so it visits nearly all leaves, degrading to O(N).
 - Why HNSW search time is higher than Brute Force on 100 vectors: constant factor overhead. HNSW does priority-queue operations, visited-set lookups, and pointer chasing across layers; Brute Force is a single contiguous array scan that fits entirely in L1 cache and is vectorized by SIMD. HNSW only wins when N is large (thousands to millions).
-- Why the live Ollama test has 529,746 assertions: it loops through large embeddings, running ASSERT_NEAR on every float element across multiple vectors.
+- Total assertions (529,746) is reported by the custom test runner; the same number appeared with and without the live Ollama test, so do not claim it comes from the live test.
 
