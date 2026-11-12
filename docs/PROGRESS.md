@@ -1,10 +1,10 @@
 # Project Progress
 
-Last updated: 2026-11-12 by T-014
+Last updated: 2026-11-12 by T-015
 
-## 1. Current Phase: UI/UX Redesign Phase 4a Complete (Branch `ui-redesign`); Explore & HNSW Tabs Redesigned, Dark Canvas Colors Applied; Awaiting Human Browser Review
+## 1. Current Phase: UI/UX Redesign Phase 4b Complete (Branch `ui-redesign`); Compare Tab Redesigned with Flat Progress Bar, Taupe/Moss/Amber Palette with Zero Blue; Awaiting Human Browser Review
 
-All core engine development and bug fix tasks are completed and verified (111 C++ tests, 62 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Phase 1 (foundation), Phase 2 (Ask tab), Phase 3 (Settings tab), and Phase 4a (toolbar select width regression fix, unboxed flat toolbars, `.viz-layout` structure for Explore and HNSW tabs, warm/earth 8-color PCA doc palette, gray/amber HNSW layer colors, off-white query stars, and amber trace path) are completed across production UI files (`web/css/app.css`, `web/index.html`, `web/js/explore.js`, `web/js/explore_helpers.js`, `web/js/hnsw.js`, `web/js/hnsw_helpers.js`). All 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs, 23 Ask DOM IDs, and all 62 browser unit tests remain functional [CONFIRMED: git status, git log].
+All core engine development and bug fix tasks are completed and verified (111 C++ tests, 62 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Phase 1 (foundation), Phase 2 (Ask tab), Phase 3 (Settings tab), Phase 4a (Explore and HNSW tabs), and Phase 4b (Compare tab unboxed toolbar, `.viz-layout` structure, table horizontal scroll container, flat thin amber progress bar, taupe/moss/amber algorithm colors with zero blue hex codes across all assets) are completed across production UI files (`web/css/app.css`, `web/index.html`, `web/js/compare.js`, `web/js/compare_helpers.js`, `web/js/ask.js`). All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs, 23 Ask DOM IDs, and all 62 browser unit tests remain functional [CONFIRMED: git status, git log].
 
 ---
 
