@@ -231,48 +231,90 @@
 
     <!-- TAB 3: HNSW GRAPH -->
     <section id="panel-hnsw" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-hnsw">
-      <div class="card mb-3">
-        <div class="card-header flex-wrap">
-          <div class="form-row align-center">
-            <label for="hnsw-coll-select" class="fw-bold">Collection:</label>
-            <select id="hnsw-coll-select" class="input-select"><option value="demo" selected>Demo</option><option value="docs">Docs</option></select>
-            <label for="hnsw-layer-slider" id="hnsw-layer-label" class="ml-2 font-mono">Layer 0</label>
-            <input type="range" id="hnsw-layer-slider" min="0" max="0" value="0" class="input-range">
-            <label for="hnsw-max-edges-select" class="ml-2">Max Edges:</label>
-            <select id="hnsw-max-edges-select" class="input-select"><option value="2000">2,000</option><option value="10000">10,000</option><option value="20000" selected>20,000</option><option value="60000">60,000</option></select>
-            <button id="hnsw-refresh-btn" class="btn btn-sm btn-outline">Refresh</button>
-          </div>
-          <div class="form-row align-center"><span id="hnsw-edge-summary" class="text-muted font-mono text-xs"></span><span id="hnsw-edge-warn-badge" class="badge badge-warning hidden">Truncated</span></div>
+      <div class="tab-toolbar">
+        <div class="toolbar-left">
+          <label for="hnsw-coll-select" class="toolbar-label">Collection</label>
+          <select id="hnsw-coll-select" class="input-select toolbar-select">
+            <option value="demo" selected>Demo</option>
+            <option value="docs">Docs</option>
+          </select>
+          <label for="hnsw-layer-slider" id="hnsw-layer-label" class="toolbar-label font-mono ml-2">Layer 0</label>
+          <input type="range" id="hnsw-layer-slider" min="0" max="0" value="0" class="input-range">
+          <label for="hnsw-max-edges-select" class="toolbar-label ml-2">Max Edges</label>
+          <select id="hnsw-max-edges-select" class="input-select toolbar-select">
+            <option value="2000">2,000</option>
+            <option value="10000">10,000</option>
+            <option value="20000" selected>20,000</option>
+            <option value="60000">60,000</option>
+          </select>
+          <button id="hnsw-refresh-btn" class="btn btn-sm btn-outline">Refresh</button>
+        </div>
+        <div class="toolbar-right">
+          <span id="hnsw-edge-summary" class="text-muted font-mono text-xs"></span>
+          <span id="hnsw-edge-warn-badge" class="badge badge-warning hidden">Truncated</span>
         </div>
       </div>
-      <div class="split-view">
-        <div class="card panel-column canvas-card">
-          <div class="canvas-wrapper"><canvas id="hnsw-canvas" width="680" height="460"></canvas></div>
-          <h3 class="section-title">Graph Topology Summary</h3>
-          <div id="hnsw-info-box" class="info-table-container"></div>
+      <div class="viz-layout">
+        <div class="viz-main">
+          <div class="canvas-wrapper">
+            <canvas id="hnsw-canvas" width="680" height="460"></canvas>
+          </div>
+          <div class="viz-results-section mt-4">
+            <h3 class="section-title">Graph Topology Summary</h3>
+            <div id="hnsw-info-box" class="info-table-container"></div>
+          </div>
         </div>
-        <div class="card panel-column">
+        <aside class="viz-sidebar">
           <div id="hnsw-trace-notice" class="notice-box notice-neutral hidden">Search path trace is available for the Demo collection (documents index does not support step trace).</div>
           <div id="hnsw-trace-section">
-            <h3 class="card-title">Search Path Step Trace</h3>
+            <h3 class="section-title">Search Path Step Trace</h3>
             <div class="form-stack mt-2">
-              <div class="form-row"><div class="form-group flex-1"><label for="hnsw-trace-k">k</label><input type="number" id="hnsw-trace-k" class="input-text" value="5" min="1" max="50"></div><div class="form-group flex-1"><label for="hnsw-trace-ef">efSearch</label><input type="number" id="hnsw-trace-ef" class="input-text" value="16" min="1" max="500"></div><div class="form-group flex-1 align-end"><button type="button" id="hnsw-trace-random-btn" class="btn btn-primary w-100">Random</button></div></div>
-              <div class="form-row mt-2"><div class="form-group flex-2"><label for="hnsw-trace-id-input">Stored Vector ID</label><input type="number" id="hnsw-trace-id-input" class="input-text" placeholder="e.g. 1" min="1"></div><div class="form-group flex-1 align-end"><button type="button" id="hnsw-trace-id-btn" class="btn btn-outline w-100">Trace ID</button></div></div>
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="hnsw-trace-k">k</label>
+                  <input type="number" id="hnsw-trace-k" class="input-text" value="5" min="1" max="50">
+                </div>
+                <div class="form-group flex-1">
+                  <label for="hnsw-trace-ef">efSearch</label>
+                  <input type="number" id="hnsw-trace-ef" class="input-text" value="16" min="1" max="500">
+                </div>
+                <div class="form-group flex-1 align-end">
+                  <button type="button" id="hnsw-trace-random-btn" class="btn btn-primary w-100">Random</button>
+                </div>
+              </div>
+              <div class="form-row mt-2">
+                <div class="form-group flex-2">
+                  <label for="hnsw-trace-id-input">Stored Vector ID</label>
+                  <input type="number" id="hnsw-trace-id-input" class="input-text" placeholder="e.g. 1" min="1">
+                </div>
+                <div class="form-group flex-1 align-end">
+                  <button type="button" id="hnsw-trace-id-btn" class="btn btn-outline w-100">Trace ID</button>
+                </div>
+              </div>
               <div class="player-bar mt-3">
                 <button type="button" id="hnsw-trace-play-btn" class="btn btn-sm btn-primary">Play</button>
                 <button type="button" id="hnsw-trace-prev-btn" class="btn btn-sm btn-outline">Prev</button>
                 <button type="button" id="hnsw-trace-next-btn" class="btn btn-sm btn-outline">Next</button>
                 <button type="button" id="hnsw-trace-reset-btn" class="btn btn-sm btn-outline">Reset</button>
-                <select id="hnsw-trace-speed" class="input-select btn-sm"><option value="0.5">0.5x</option><option value="1" selected>1x</option><option value="2">2x</option><option value="5">5x</option></select>
+                <select id="hnsw-trace-speed" class="input-select btn-sm">
+                  <option value="0.5">0.5x</option>
+                  <option value="1" selected>1x</option>
+                  <option value="2">2x</option>
+                  <option value="5">5x</option>
+                </select>
               </div>
               <input type="range" id="hnsw-trace-slider" min="-1" max="-1" value="-1" class="input-range mt-2">
               <div id="hnsw-trace-announcement" class="text-muted font-mono text-xs mt-1" aria-live="polite">Search trace ready</div>
               <div id="hnsw-trace-missing" class="notice-box notice-warning hidden"></div>
             </div>
-            <h3 class="section-title">Search Traversal Statistics</h3>
-            <div id="hnsw-trace-stats-box" class="info-table-container"><p class="text-muted empty-state">Run a trace above to see hop diagnostics.</p></div>
+            <div class="viz-results-section mt-4">
+              <h3 class="section-title">Search Traversal Statistics</h3>
+              <div id="hnsw-trace-stats-box" class="info-table-container">
+                <p class="text-muted empty-state">Run a trace above to see hop diagnostics.</p>
+              </div>
+            </div>
           </div>
-        </div>
+        </aside>
       </div>
     </section>
 

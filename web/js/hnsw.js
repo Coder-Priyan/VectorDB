@@ -112,7 +112,9 @@ export function initHnswTab() {
         offCtx.moveTo(sScr.x, sScr.y); offCtx.lineTo(tScr.x, tScr.y);
       }
     }
-    offCtx.strokeStyle = "rgba(100, 116, 139, 0.35)";
+    offCtx.strokeStyle = (currentGraph.layer > 0)
+      ? "rgba(217, 164, 65, 0.45)"
+      : "rgba(110, 106, 99, 0.25)";
     offCtx.lineWidth = 1;
     offCtx.stroke();
     edgesDirty = false;
@@ -144,9 +146,9 @@ export function initHnswTab() {
       const isEntry = n.id === entryId;
       ctx.beginPath();
       ctx.arc(scr.x, scr.y, isEntry ? 6.5 : 3.5, 0, Math.PI * 2);
-      ctx.fillStyle = isEntry ? "#eab308" : getLayerColor(currentGraph.layer);
+      ctx.fillStyle = isEntry ? "#f0ede6" : getLayerColor(currentGraph.layer);
       ctx.fill();
-      if (isEntry) { ctx.strokeStyle = "#000000"; ctx.lineWidth = 1.5; ctx.stroke(); }
+      if (isEntry) { ctx.strokeStyle = "#d9a441"; ctx.lineWidth = 1.5; ctx.stroke(); }
     }
 
     // Render Search Path
@@ -158,18 +160,24 @@ export function initHnswTab() {
         if (!step.onMap) continue;
         const curScr = viewport.toScreen(step.x, step.y);
         if (prevScr) {
-          ctx.strokeStyle = getLayerColor(step.layer);
+          ctx.strokeStyle = "#d9a441";
           ctx.lineWidth = 2;
           ctx.beginPath(); ctx.moveTo(prevScr.x, prevScr.y); ctx.lineTo(curScr.x, curScr.y); ctx.stroke();
         }
-        ctx.fillStyle = getLayerColor(step.layer);
-        ctx.beginPath(); ctx.arc(curScr.x, curScr.y, 5.5, 0, Math.PI * 2); ctx.fill();
+        const isCurrent = i === state.currentIndex;
+        ctx.fillStyle = isCurrent ? "#d9a441" : "#e2ded6";
+        ctx.beginPath(); ctx.arc(curScr.x, curScr.y, isCurrent ? 6.5 : 4.5, 0, Math.PI * 2); ctx.fill();
+        if (isCurrent) {
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
         prevScr = curScr;
       }
       if (traceQueryStar) {
         const qScr = viewport.toScreen(traceQueryStar.x, traceQueryStar.y);
-        ctx.fillStyle = "#ef4444"; ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5;
-        drawStar(ctx, qScr.x, qScr.y, 5, 10, 5); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#f0ede6"; ctx.strokeStyle = "#0b0b0b"; ctx.lineWidth = 1.5;
+        drawStar(ctx, qScr.x, qScr.y, 5, 9, 4.5); ctx.fill(); ctx.stroke();
       }
     }
   }

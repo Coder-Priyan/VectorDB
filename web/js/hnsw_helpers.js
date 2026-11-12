@@ -6,15 +6,14 @@
  */
 
 export const LAYER_COLORS = [
-  "#3b82f6", // Layer 0: Blue
-  "#10b981", // Layer 1: Green
-  "#f59e0b", // Layer 2: Amber
-  "#8b5cf6", // Layer 3: Purple
-  "#ef4444"  // Layer 4+: Red
+  "#6e6a63", // Layer 0: Muted gray
+  "#a67c2e", // Layer 1: Dim amber
+  "#d9a441", // Layer 2: Bright amber
+  "#f0ede6"  // Layer 3+: Off-white
 ];
 
 export function getLayerColor(layer) {
-  if (layer < 0) return "#94a3b8";
+  if (layer < 0) return "#6e6a63";
   return LAYER_COLORS[Math.min(layer, LAYER_COLORS.length - 1)];
 }
 
