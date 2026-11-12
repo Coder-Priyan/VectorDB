@@ -1,11 +1,15 @@
 # Project Handoff
 
-Last updated: 2026-11-12 by T-013
+Last updated: 2026-11-12 by T-014
 
 ## 1. Current Status
-VectorDB engine is in a stable, verified, and frozen state. The current active work is UI/UX redesign on branch `ui-redesign`. Phase 1 (foundation), Phase 2 (Ask tab), and Phase 3 (Settings tab industrial redesign + Phase 2 polish fixes) are complete across `web/css/app.css`, `web/index.html`, `web/js/ask.js`, and `web/js/settings.js`. All 11 Settings DOM IDs, 23 Ask DOM IDs, 62 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
+VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. Phase 1 (foundation), Phase 2 (Ask tab), Phase 3 (Settings tab), and Phase 4a (toolbar regression fix, Explore and HNSW tab redesign, dark canvas colors) are complete across `web/css/app.css`, `web/index.html`, `web/js/explore.js`, `web/js/explore_helpers.js`, `web/js/hnsw.js`, and `web/js/hnsw_helpers.js`. All 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs, 23 Ask DOM IDs, 62 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
 
 ## 2. Last Work Done (From Git)
+- **Task T-014** (branch `ui-redesign`): Redesign Phase 4a complete.
+  1. *Toolbar Regression & Empty Answer Fix* (commit `5ff39d8`): Fixed input width regression from `af6a101` where `width: 100%` on `.input-text, .input-select, .textarea-field` expanded toolbar selects to 100% width across Explore, HNSW, and Compare. Scoped `width: 100%` strictly to `.form-stack`, `.two-col-grid`, `#panel-ask .ask-sidebar`, and `#panel-settings`, setting `width: auto` for `.tab-toolbar select, .player-bar select`. Removed tall amber left-border box on empty Ask answer state (`.answer-box.empty { border-left: none; padding-left: 0; min-height: auto; }`).
+  2. *Explore Tab Redesign & Canvas Colors* (commit `98d1505`): Restructured `#panel-explore` to unboxed `.tab-toolbar` and `.viz-layout` (large canvas main area + ~320px narrow right query sidebar). Replaced PCA doc color palette with 8 desaturated warm/earth hex colors (`#d9a441`, `#529b67`, `#c47043`, `#9c8269`, `#a0616a`, `#849646`, `#c89f65`, `#708a78`), fallback `#807c74`, dark canvas background `#0a0a0a`, `#2a2a2a` axes, `#949087` 12px Plex Sans labels, off-white `#f0ede6` query star with `#0b0b0b` outline, thin amber `rgba(217, 164, 65, 0.45)` neighbor connecting lines, `#d9a441` neighbor circles, `#f0ede6` hovered circle. All blue, indigo, and violet shades eliminated. Preserved all 19 Explore DOM IDs.
+  3. *HNSW Tab Redesign & Canvas Colors* (commit `cc91def`): Restructured `#panel-hnsw` to unboxed `.tab-toolbar` and `.viz-layout` (canvas + topology summary main area + ~320px right trace sidebar). Replaced `LAYER_COLORS` with `["#6e6a63", "#a67c2e", "#d9a441", "#f0ede6"]` (L0 muted gray, L1 dim amber, L2 bright amber, L3+ off-white). Updated offscreen edges to subtle gray `rgba(110, 106, 99, 0.25)` for layer 0 and amber `rgba(217, 164, 65, 0.45)` for higher layers. Entry point rendered off-white `#f0ede6` with amber `#d9a441` stroke (lineWidth 1.5). Search trace hops rendered with amber path `#d9a441` (lineWidth 2), visited nodes `#e2ded6`, active hop highlighted `#d9a441` with `#ffffff` stroke (lineWidth 1.5), off-white `#f0ede6` query star. Preserved all 26 HNSW DOM IDs.
 - **Task T-013** (branch `ui-redesign`): Redesign Phase 3 complete. Fixed Ask sidebar two-col-grid overflow (`min-width: 0`, 100% width, box-sizing), stabilized `scrollbar-gutter` to prevent 7px tab horizontal shift, disabled question input spellcheck. Redesigned Settings tab into a single centered column (~720px) with 40px section gaps and hairline dividers: Server status table with muted sentence case labels and monospace numbers; Demo collection configuration 2-column grid and Insert random vectors row; Danger zone section with accurate explanation and red outline Reset button. Preserved all 11 Settings DOM IDs.
 - **Task T-012** (branch `ui-redesign`): Redesign Phase 2 complete. Implemented shell fixes (Fix 1: removed duplicate border line under tab bar; Fix 2: removed tab active font-weight jump to prevent horizontal layout shift; Fix 3: styled `#demo-reset-btn` as destructive `.btn-danger`). Restructured `#panel-ask` in `web/index.html` and `web/css/app.css` to `.ask-layout`: ~320px left ingestion column with 2-column chunking grid and clean document cards; centered ~820px calm reading column with 4-row question input, unified search controls bar, borderless answer box with amber left rule, single-line telemetry string, and flat ruled source rows. Preserved all 23 DOM IDs and dynamic classes in `web/js/ask.js`.
 - **Task T-011** (branch `ui-redesign`): Redesign Phase 1 foundation complete. Rewrote `web/css/app.css` with dark-only tokens, local IBM Plex Sans and Mono fonts, flat hairline borders, zero gradients/shadows, single amber accent (`#d9a441`), and dark scrollbars. Restyled app shell in `web/index.html` (brand, integrated nav tabs, status indicator with text Refresh button, removed light theme button). Removed `initTheme()` in `web/js/main.js` and removed `#2563eb` and `data-theme` across the codebase.
@@ -26,15 +30,16 @@ VectorDB engine is in a stable, verified, and frozen state. The current active w
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
 ## 4. Recommended Next Step
-- Human verifies Phase 3 in browser: Settings tab (Reset demo collection, Insert random vectors, config values), Ask overlap fix, tab bar no longer shifts, /tests.html; then Phase 4 (Explore, HNSW, Compare incl. canvas colors, Compare table text wrapping).
+- Human verifies Phase 4a: Explore (hover, zoom, pan, random query, stored-ID query, docs collection) and HNSW (layer slider, trace play/prev/next/reset) plus /tests.html; then T-015 Compare.
 
 ## 5. UI Redesign Phase Plan
 UI redesign phases (branch `ui-redesign`):
 1. **Phase 1 (Foundation + Shell - T-011)**: Design tokens, local IBM Plex fonts, dark app shell, global controls, light theme removal. [COMPLETED]
 2. **Phase 2 (Ask Tab - T-012)**: Full layout restructure of Ask tab matching approved minimalist mockup v2; shell fixes for tab line, tab width shift, and red destructive reset button. [COMPLETED]
 3. **Phase 3 (Settings Tab - T-013)**: Clean industrial layout for server health, metrics, and demo reset controls. [COMPLETED]
-4. **Phase 4 (Explore + HNSW + Compare)**: Layout updates and dark-theme canvas color adaptations. *(Known gaps to address during Phase 4: canvas background/node color schemes for PCA and HNSW, benchmark bar colors, table border styling).*
-5. **Phase 5 (Polish & Merge)**: Final responsiveness, remove `web/mockup/`, regression testing, merge to `main`.
+4. **Phase 4a (Explore + HNSW Tabs - T-014)**: Toolbar width regression fix, unboxed toolbars, `.viz-layout` restructure, dark canvas colors (warm/earth palette, muted gray/amber HNSW layers, off-white query stars, amber trace path). [COMPLETED]
+5. **Phase 4b (Compare Tab - T-015)**: Benchmark layout restructure, flat progress bar, comparison table wrapping, bar charts color harmonization. [NEXT]
+6. **Phase 5 (Polish & Merge)**: Final responsiveness, remove `web/mockup/`, regression testing, merge to `main`.
 *Dark only. Human verifies in browser after each phase.*
 
 ## 6. Pending Human Actions
@@ -43,7 +48,11 @@ UI redesign phases (branch `ui-redesign`):
   - Post-T-004 manual re-check of Explore, HNSW, Compare tabs: SKIPPED by human decision; do not ask again.
   - Verification task T-007 (docs vs git audit): SKIPPED by human decision.
 
-## 7. Open Decisions
+## 7. Open Decisions / Known Gaps
+- Known UI gaps to address:
+  - Compare tab bars and table wrapping: deferred to T-015.
+  - Native `alert()` in Settings reset/save: deferred to Phase 5 polish.
+  - `DEMO_SCRIPT.md` refers to "red star" marker: query star is now off-white `#f0ede6` with black outline. (Human handles viva/presentation docs independently).
 - Roadmap features (hybrid search, reranking, disk persistence, delete) remain ON HOLD until the human confirms they are required.
 - Strategy for rollback during `RagPipeline::ingest` if a vector insert fails midway (ISS-006) remains documented for future work.
 
