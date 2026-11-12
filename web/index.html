@@ -43,7 +43,10 @@
           <div class="ask-sidebar-section">
             <div class="ask-sidebar-header">
               <h2 class="section-title">Document Ingestion</h2>
-              <button type="button" id="doc-reset-btn" class="btn btn-sm btn-danger">Reset Docs</button>
+              <div class="ask-reset-actions">
+                <button type="button" id="doc-reset-cancel-btn" class="btn btn-sm btn-outline hidden">Cancel</button>
+                <button type="button" id="doc-reset-btn" class="btn btn-sm btn-danger">Reset Docs</button>
+              </div>
             </div>
             <form id="doc-ingest-form" class="form-stack">
               <div class="form-group">
@@ -470,6 +473,7 @@
                 <button type="submit" id="demo-insert-random-btn" class="btn btn-primary w-100">Insert</button>
               </div>
             </form>
+            <div id="settings-random-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
           </div>
         </section>
 
@@ -481,8 +485,12 @@
           <div class="settings-danger-card">
             <div class="settings-danger-info">
               <p class="text-muted">Clears all demo vectors and rebuilds index with the configuration above.</p>
+              <div id="settings-reset-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
             </div>
-            <button type="submit" id="demo-reset-btn" form="settings-reset-demo-form" class="btn btn-danger">Reset Demo Collection</button>
+            <div class="settings-confirm-actions">
+              <button type="button" id="demo-reset-cancel-btn" class="btn btn-outline hidden">Cancel</button>
+              <button type="button" id="demo-reset-btn" class="btn btn-danger">Reset Demo Collection</button>
+            </div>
           </div>
         </section>
       </div>

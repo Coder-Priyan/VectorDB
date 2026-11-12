@@ -13,8 +13,26 @@ export function initSettingsTab() {
   const resetDemoForm = document.getElementById("settings-reset-demo-form");
   const randomDemoForm = document.getElementById("settings-random-demo-form");
   const resetDemoBtn = document.getElementById("demo-reset-btn");
+  const resetDemoCancelBtn = document.getElementById("demo-reset-cancel-btn");
+  const resetDemoStatus = document.getElementById("settings-reset-status");
   const insertRandomBtn = document.getElementById("demo-insert-random-btn");
+  const randomStatus = document.getElementById("settings-random-status");
   const footerVersionEl = document.getElementById("footer-version");
+
+  let resetStateTimer = null;
+  let isResetPromptPending = false;
+
+  function cancelResetPrompt() {
+    if (resetStateTimer) {
+      clearTimeout(resetStateTimer);
+      resetStateTimer = null;
+    }
+    isResetPromptPending = false;
+    if (resetDemoBtn) resetDemoBtn.textContent = "Reset Demo Collection";
+    if (resetDemoCancelBtn) resetDemoCancelBtn.classList.add("hidden");
+  }
+
+  resetDemoCancelBtn?.addEventListener("click", cancelResetPrompt);
 
   /**
    * Loads and renders system health, config, and collection statistics.
@@ -88,7 +106,11 @@ export function initSettingsTab() {
         try {
           await api.resetDemo(payload);
           await loadSystemStatus();
-          alert("Demo collection reset successfully!");
+          if (resetDemoStatus) {
+            resetDemoStatus.textContent = "Demo collection reset successfully.";
+            resetDemoStatus.classList.remove("hidden");
+            setTimeout(() => resetDemoStatus?.classList.add("hidden"), 5000);
+          }
         } catch (err) {
           showGlobalError(err.code, `Reset failed: ${err.message}`);
         }
@@ -97,9 +119,15 @@ export function initSettingsTab() {
 
     if (resetDemoBtn) {
       resetDemoBtn.addEventListener("click", () => {
-        if (resetDemoBtn.form !== resetDemoForm) {
-          resetDemoForm.requestSubmit();
+        if (!isResetPromptPending) {
+          isResetPromptPending = true;
+          resetDemoBtn.textContent = "Confirm reset";
+          resetDemoCancelBtn?.classList.remove("hidden");
+          resetStateTimer = setTimeout(cancelResetPrompt, 5000);
+          return;
         }
+        cancelResetPrompt();
+        resetDemoForm.requestSubmit();
       });
     }
   }
@@ -120,7 +148,11 @@ export function initSettingsTab() {
         try {
           const res = await api.insertDemoRandom(count);
           await loadSystemStatus();
-          alert(`Inserted ${res.inserted || count} random vectors!`);
+          if (randomStatus) {
+            randomStatus.textContent = `Inserted ${res.inserted || count} random vectors.`;
+            randomStatus.classList.remove("hidden");
+            setTimeout(() => randomStatus?.classList.add("hidden"), 5000);
+          }
         } catch (err) {
           showGlobalError(err.code, `Insert failed: ${err.message}`);
         }

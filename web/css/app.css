@@ -988,6 +988,26 @@ html {
   white-space: nowrap;
 }
 
+.settings-inline-msg {
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+}
+
+.notice-success {
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+  color: var(--success-color);
+}
+
+.settings-confirm-actions,
+.ask-reset-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .info-table th {
   padding: 8px 10px;
   text-align: left;

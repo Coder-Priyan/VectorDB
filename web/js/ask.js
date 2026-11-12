@@ -68,8 +68,32 @@ export function initAskTab() {
   });
 
   // Reset Documents
+  const docResetCancelBtn = byId("doc-reset-cancel-btn");
+  let docResetTimer = null;
+  let isDocResetPending = false;
+
+  function cancelDocResetPrompt() {
+    if (docResetTimer) {
+      clearTimeout(docResetTimer);
+      docResetTimer = null;
+    }
+    isDocResetPending = false;
+    if (docResetBtn) docResetBtn.textContent = "Reset Docs";
+    if (docResetCancelBtn) docResetCancelBtn.classList.add("hidden");
+  }
+
+  docResetCancelBtn?.addEventListener("click", cancelDocResetPrompt);
+
   docResetBtn?.addEventListener("click", async () => {
-    if (!confirm("Are you sure you want to reset and clear all ingested documents?")) return;
+    if (!isDocResetPending) {
+      isDocResetPending = true;
+      docResetBtn.textContent = "Confirm reset";
+      docResetCancelBtn?.classList.remove("hidden");
+      docResetTimer = setTimeout(cancelDocResetPrompt, 5000);
+      return;
+    }
+
+    cancelDocResetPrompt();
     clearGlobalError();
     await withButtonBusy(docResetBtn, async () => {
       try {
