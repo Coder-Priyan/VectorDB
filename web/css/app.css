@@ -104,6 +104,8 @@ html, body {
 /* Dark Minimalist Scrollbars */
 html {
   scrollbar-color: var(--border-active) var(--bg-primary);
+  scrollbar-gutter: stable;
+  overflow-y: scroll;
 }
 
 ::-webkit-scrollbar {
@@ -349,6 +351,8 @@ html {
   background: var(--bg-secondary);
   color: var(--text-primary);
   outline: none;
+  width: 100%;
+  box-sizing: border-box;
   transition: border-color 100ms ease;
 }
 
@@ -554,15 +558,19 @@ html {
 
 .ask-sidebar {
   width: 320px;
+  max-width: 100%;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 32px;
+  box-sizing: border-box;
 }
 
 .ask-sidebar-section {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .ask-sidebar-header {
@@ -593,8 +601,20 @@ html {
 
 .two-col-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.two-col-grid > * {
+  min-width: 0;
+}
+
+.two-col-grid input,
+.two-col-grid select {
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .question-input {
