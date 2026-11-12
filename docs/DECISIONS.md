@@ -1,0 +1,21 @@
+# Architectural Decision Records (ADR)
+
+Last updated: 2026-11-12 by T-001
+
+| ID | Date | Decision | Reason | Alternatives Rejected | Evidence Tag |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| ADR-001 | 2026-11-07 | Adopt pure C++17 language standard (`-std=c++17`) | Leverage standard vocabulary types (`std::string_view`, `std::optional`, structured bindings) with universal compiler support | C++11/C++14 (lacks vocabulary types), C++20 (variable compiler support across academic platforms) | [CONFIRMED: CMakeLists.txt:10] |
+| ADR-002 | 2026-11-07 | Vendor `cpp-httplib` and `nlohmann/json` as single headers in `third_party/` | Eliminate package manager prerequisites (vcpkg, conan) enabling zero-install hermetic builds | System package managers, Boost.Beast, libcurl | [CONFIRMED: third_party/README.md:3] |
+| ADR-003 | 2026-11-07 | In-memory storage model without disk persistence | Educational and benchmarking focus; simplifies concurrency and eliminates disk I/O noise | SQLite WAL, LMDB, custom binary file format | [CONFIRMED: include/vectordb/collection.hpp:172] |
+| ADR-004 | 2026-11-08 | Implement Malkov & Yashunin (2018) HNSW with heuristic neighbor selection | Provides state-of-the-art $O(\log N)$ approximate nearest neighbor query performance with clustering diversity | ScaNN, Annoy, IVF-PQ, plain naive NSW | [CONFIRMED: src/hnsw.cpp:10] |
+| ADR-005 | 2026-11-08 | Flat-array contiguous memory KD-Tree with median-split and lazy rebuilding | Cache-friendly array layout with $2i$ and $2i+1$ heap traversal; avoids node pointer chasing overhead | Pointer-linked binary tree nodes, dynamic balanced KD-tree | [CONFIRMED: src/kd_tree.cpp:25] |
+| ADR-006 | 2026-11-09 | Matrix-free 2D Principal Component Analysis via power iteration & Rayleigh deflation | Low-overhead 2D dimensionality reduction computed directly on sample covariance without BLAS/LAPACK dependencies | Eigen3 dependency, LAPACK/BLAS SVD, t-SNE, UMAP | [CONFIRMED: src/pca.cpp:20] |
+| ADR-007 | 2026-11-10 | Local Ollama daemon (`http://127.0.0.1:11434`) as dedicated embedding and LLM provider | Enables fully offline, private RAG pipeline with zero cloud API keys or telemetry | OpenAI / Anthropic cloud APIs, embedded llama.cpp runtime | [CONFIRMED: src/server_main.cpp:32] |
+| ADR-008 | 2026-11-10 | Lock decoupling during Ollama HTTP calls in RAG pipeline | Prevent long-running network/inference latency from blocking concurrent collection reads | Holding collection mutex throughout HTTP chat completion | [CONFIRMED: src/rag.cpp:230] |
+| ADR-009 | 2026-11-10 | Enforce loopback Host rebinding and Origin validation on server loopback bindings | Protect local desktop users against drive-by DNS rebinding and cross-origin browser attacks | Permissive open HTTP binding, unvalidated Host headers | [CONFIRMED: src/server_main.cpp:177] |
+| ADR-010 | 2026-11-11 | Mandatory `Content-Type: application/json` on all HTTP `POST` requests | Strict CSRF mitigation preventing unauthorized browser form submissions; returns HTTP 415 | Permissive content-type handling, accepting urlencoded forms | [CONFIRMED: src/server_main.cpp:218] |
+| ADR-011 | 2026-11-11 | Vanilla HTML5/CSS3/ES6 frontend without npm, webpack, or external CDNs | Ensure web UI functions 100% offline, eliminating supply-chain attack vectors and external runtime dependencies | React, Vue, Vite, Tailwind CDN, Google Fonts | [CONFIRMED: web/index.html:1] |
+| ADR-012 | 2026-11-11 | Prohibit all HTML injection APIs (`innerHTML`, `outerHTML`, `eval`, `DOMParser`) in UI | Absolute defense against Cross-Site Scripting (XSS) from ingested document payloads | DOMPurify sanitization, regex escaping | [CONFIRMED: scripts/check_web_safety.ps1:48] |
+| ADR-013 | 2026-11-11 | Cap HNSW layer graph serialization at 60,000 edges | Prevent browser main thread freezing when rendering high-density layer 0 proximity graphs | Unbounded edge serialization, WebGL GPU rendering | [CONFIRMED: src/collection.cpp:227] |
+| ADR-014 | 2026-11-11 | Defensive `isCanvasDrawable` viewport guard on hidden tab switches | Prevent Chrome `DOMException: INVALID_STATE_ERR` when `drawImage` executes on unmeasured 0x0 canvases | Global unhandled rejection suppressors, synchronous resize polling | [CONFIRMED: web/js/hnsw_helpers.js:15] |
+
