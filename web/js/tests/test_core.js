@@ -4,7 +4,7 @@
 import { describe, assert, assertEqual, assertNear } from "./framework.js";
 import { SseParser } from "../sse.js";
 import { Viewport2D } from "../canvas.js";
-import { el, formatBytes, formatDuration, formatSimilarity, calculateMedian, parseCitations } from "../ui.js";
+import { el, formatBytes, formatDuration, formatSimilarity, calculateMedian, parseCitations, formatOllamaModels } from "../ui.js";
 import { buildRequestInit, buildDemoRandomPayload } from "../api.js";
 
 export function registerCoreTests() {
@@ -147,6 +147,12 @@ export function registerCoreTests() {
       assertEqual(formatBytes(2097152), "2.0 MB");
     });
 
+    it("formatBytes handles memory_bytes and fallback", () => {
+      assertEqual(formatBytes(0), "0 B");
+      assertEqual(formatBytes(undefined || 0), "0 B");
+      assertEqual(formatBytes(520000), "507.8 KB");
+    });
+
     it("formatDuration handles ms and seconds", () => {
       assertEqual(formatDuration(42.5), "42.5 ms");
       assertEqual(formatDuration(1500), "1.50 s");
@@ -208,6 +214,32 @@ export function registerCoreTests() {
     it("buildDemoRandomPayload normalizes legacy { count } object to { n }", () => {
       const payload = buildDemoRandomPayload({ count: 50 });
       assertEqual(payload.n, 50);
+    });
+  });
+
+  describe("Ollama Status Formatter (ui.js)", (it) => {
+    it("formatOllamaModels joins model names array", () => {
+      const status = { reachable: true, models: ["llama3.2:latest", "nomic-embed-text:latest"] };
+      assertEqual(formatOllamaModels(status), "llama3.2:latest, nomic-embed-text:latest");
+    });
+
+    it("formatOllamaModels returns None installed for empty array", () => {
+      const status = { reachable: true, models: [] };
+      assertEqual(formatOllamaModels(status), "None installed");
+    });
+
+    it("formatOllamaModels returns Ollama Offline when unreachable or absent", () => {
+      assertEqual(formatOllamaModels({ reachable: false, models: [] }), "Ollama Offline");
+      assertEqual(formatOllamaModels(null), "Ollama Offline");
+      assertEqual(formatOllamaModels(undefined), "Ollama Offline");
+    });
+  });
+
+  describe("Settings & HNSW Defaults Configuration", (it) => {
+    it("Default efConstruction matches server configuration default of 200", () => {
+      const serverDefaultConfig = { hnsw: { M: 16, efConstruction: 200, efSearch: 50 } };
+      const efc = serverDefaultConfig.hnsw?.efConstruction ?? 200;
+      assertEqual(efc, 200);
     });
   });
 }

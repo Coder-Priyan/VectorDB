@@ -444,3 +444,30 @@ TEST(ApiTest, OriginHeaderSecurityCheck) {
     CHECK(isAllowedOrigin("http://other.com", 8080, "http://localhost:3000") == false);
 }
 
+TEST(ApiTest, StatsEndpointMemoryBytes) {
+    CollectionConfig cfg;
+    cfg.dimension = 4;
+    cfg.metric = Metric::Euclidean;
+    Collection col(cfg);
+
+    // 1. Empty collection: memory_bytes exists and is 0
+    ApiResponse emptyRes = handleGetStats(col);
+    CHECK(emptyRes.status == 200);
+    json emptyDoc = json::parse(emptyRes.body);
+    CHECK(emptyDoc.contains("memory_bytes"));
+    CHECK(emptyDoc["memory_bytes"] == 0);
+
+    // 2. Insert vectors: memory_bytes must be > 0
+    col.insert(1, {1.0f, 2.0f, 3.0f, 4.0f});
+    col.insert(2, {5.0f, 6.0f, 7.0f, 8.0f});
+
+    ApiResponse popRes = handleGetStats(col);
+    CHECK(popRes.status == 200);
+    json popDoc = json::parse(popRes.body);
+    CHECK(popDoc.contains("memory_bytes"));
+    CHECK(popDoc["memory_bytes"].get<std::size_t>() > 0);
+    // Approximate: 2 * (4 * sizeof(float) + sizeof(VectorId)) = 2 * (16 + 8) = 48 bytes
+    CHECK(popDoc["memory_bytes"] == 48);
+}
+
+
