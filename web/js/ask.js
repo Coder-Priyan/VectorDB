@@ -3,7 +3,7 @@
  */
 import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js";
 import { readSseStream } from "./sse.js";
-import { el, formatBytes, formatDuration, formatSimilarity, parseCitations } from "./ui.js";
+import { el, formatBytes, formatDuration, formatSimilarity, parseCitations, shouldAutoScroll } from "./ui.js";
 
 export function initAskTab() {
   const byId = (id) => document.getElementById(id);
@@ -221,8 +221,14 @@ export function initAskTab() {
             try {
               const parsed = JSON.parse(data);
               const piece = parsed.t !== undefined ? parsed.t : (parsed.token || "");
+              const autoScroll = askAnswerBox
+                ? shouldAutoScroll(askAnswerBox.scrollTop, askAnswerBox.scrollHeight, askAnswerBox.clientHeight)
+                : false;
               rawAnswer += piece;
               renderAnswerWithCitations(rawAnswer, askAnswerBox);
+              if (autoScroll && askAnswerBox) {
+                askAnswerBox.scrollTop = askAnswerBox.scrollHeight;
+              }
             } catch (_) {}
           } else if (event === "done") {
             clearTimeout(thinkTimer);

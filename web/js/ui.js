@@ -235,3 +235,11 @@ export function initTabs(tablistSelector = ".tab-nav") {
   applyHash();
 }
 
+/**
+ * Determines whether a scrolling container should auto-scroll to the bottom.
+ * Returns true when remaining distance to the bottom is within threshold.
+ */
+export function shouldAutoScroll(scrollTop, scrollHeight, clientHeight, threshold = 40) {
+  return (scrollHeight - scrollTop - clientHeight) <= threshold;
+}
+

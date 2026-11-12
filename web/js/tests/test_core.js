@@ -4,7 +4,7 @@
 import { describe, assert, assertEqual, assertNear } from "./framework.js";
 import { SseParser } from "../sse.js";
 import { Viewport2D } from "../canvas.js";
-import { el, formatBytes, formatDuration, formatSimilarity, calculateMedian, parseCitations, formatOllamaModels } from "../ui.js";
+import { el, formatBytes, formatDuration, formatSimilarity, calculateMedian, parseCitations, formatOllamaModels, shouldAutoScroll } from "../ui.js";
 import { buildRequestInit, buildDemoRandomPayload } from "../api.js";
 
 export function registerCoreTests() {
@@ -240,6 +240,27 @@ export function registerCoreTests() {
       const serverDefaultConfig = { hnsw: { M: 16, efConstruction: 200, efSearch: 50 } };
       const efc = serverDefaultConfig.hnsw?.efConstruction ?? 200;
       assertEqual(efc, 200);
+    });
+  });
+
+  describe("Smart Auto-Scroll (ui.js)", (it) => {
+    it("Returns true when scroll position is exactly at bottom", () => {
+      assertEqual(shouldAutoScroll(600, 1000, 400, 40), true);
+    });
+
+    it("Returns true when scroll position is within threshold from bottom", () => {
+      assertEqual(shouldAutoScroll(580, 1000, 400, 40), true);
+      assertEqual(shouldAutoScroll(560, 1000, 400, 40), true);
+    });
+
+    it("Returns false when scroll position is far from bottom", () => {
+      assertEqual(shouldAutoScroll(200, 1000, 400, 40), false);
+      assertEqual(shouldAutoScroll(550, 1000, 400, 40), false);
+    });
+
+    it("Uses default threshold of 40 when threshold argument is omitted", () => {
+      assertEqual(shouldAutoScroll(560, 1000, 400), true);
+      assertEqual(shouldAutoScroll(559, 1000, 400), false);
     });
   });
 }
