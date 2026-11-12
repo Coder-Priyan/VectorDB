@@ -1,11 +1,12 @@
 # Project Handoff
 
-Last updated: 2026-11-12 by T-SYNC-002
+Last updated: 2026-11-12 by T-009
 
 ## 1. Current Status
-VectorDB is in a stable, verified state following completion and human browser verification of Task T-004. Settings tab (Demo Memory 50.8 KB with 100 vectors, efConstruction form default 200, Ollama Models row with models list) and Ask tab (Title field clears after ingest, pizza question refused, Hinglish question tested) have been confirmed working in a real browser by the human. The test suite stands at 111 C++ tests and 62 browser pure-logic tests with zero compiler warnings and zero web safety violations.
+VectorDB engine is in a stable, verified, and frozen state. The current active work is UI/UX redesign on branch `ui-redesign` in the Editor/Terminal direction (serious, flat, dark, tool-like, IBM Plex typography, amber accent). A complete static mockup of the Ask tab has been implemented in `web/mockup/ask.html` for human review before touching any real UI production code.
 
 ## 2. Last Work Done (From Git)
+- **Task T-009** (branch `ui-redesign`): Downloaded official IBM Plex Sans and Mono `.woff2` fonts with license into `web/fonts/`; created static Ask tab mockup in `web/mockup/ask.html` and `web/mockup/mockup.css` in the Editor/Terminal direction; verified 100% compliance with strict CSP, zero forbidden patterns, and HTTP 200 via `vectordb_server.exe`.
 - **Task T-006** (commit `c0585f1`): Cleaned up issue wording in `KNOWN_ISSUES.md` (removed leftover "In investigate queue" strings), recorded collaboration preferences (human handles viva/report/slides independently), and refreshed `HANDOFF.md` to match pushed state.
 - **Task T-005** (commit `46e8cfc`): Recorded T-004 human verification across Settings and Ask tabs, corrected the 529,746 assertion count explanation, and confirmed push to `origin/main`.
 - **Task T-004** (commits `2c92b6a`, `03d23d6`, `fe51206`, `c2cf8e4`, `c1ee64e`): Batched fix for ISS-018 to ISS-022 across backend stats (`memory_bytes`), web settings form sync (`efConstruction: 200`), title clearing after ingest, refusal-first V2 prompt with language-matching, Ollama models table row, regression tests, and documentation updates. Confirmed in real browser by human; pushed to `origin/main`.
@@ -15,22 +16,13 @@ VectorDB is in a stable, verified state following completion and human browser v
 - **T-001** (commits `2f9f9a4`, `1b0fa80`): Fixed doc errors (29 endpoints, no CI exists, severity of ISS-005/006, ingest wording).
 
 ## 3. Git State
-- **Active Branch**: `main` [CONFIRMED: git status -sb]
-- **Tracking Status**: `## main...origin/main` (all commits through `c0585f1` pushed to remote; verified by human terminal screenshot and builder git status) [CONFIRMED: human terminal screenshot 2026-11-12]
-- **Recent Commits (`git log --oneline -8`)**:
-  - `c0585f1` docs: sync handoff, preferences and issue wording after T-005
-  - `46e8cfc` docs: record T-004 human verification, fix assertion count claim
-  - `c1ee64e` docs: mark ISS-018..022 fixed, update test counts
-  - `c2cf8e4` test: add regression tests for ISS-018, ISS-019, ISS-022
-  - `fe51206` fix(rag): refusal-first V2 prompt with language and no-repeat rules (ISS-021)
-  - `03d23d6` fix(web): sync settings form defaults, clear title after ingest, show Ollama models (ISS-019, ISS-020, ISS-022)
-  - `2c92b6a` fix(api): add approximate memory_bytes to /api/stats (ISS-018)
-  - `9930634` docs: correct handoff git state and commit references
+- **Active Branch**: `ui-redesign` (branched from `main` at `689aa47`) [CONFIRMED: git status -sb]
+- **Tracking Status**: Local branch `ui-redesign` without upstream tracking (commits unpushed per protocol).
 - **Working Tree**: Clean (only untracked test logs in `results/logs/`) [CONFIRMED: git status -sb]
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
 ## 4. Recommended Next Step
-- No task pending. Wait for human.
+- Human reviews web/mockup/ask.html in browser; then decide full redesign phases.
 
 ## 5. Pending Human Actions
 - All previous action items resolved by human decision on 2026-11-12:

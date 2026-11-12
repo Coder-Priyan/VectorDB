@@ -1,10 +1,10 @@
 # Project Progress
 
-Last updated: 2026-11-12 by T-005
+Last updated: 2026-11-12 by T-009
 
-## 1. Current Phase: Task T-004 completed and human-verified in real browser; 111 C++ tests and 62 browser tests passing; awaiting roadmap/testing decisions
+## 1. Current Phase: UI/UX Redesign in Progress (Branch `ui-redesign`); Engine Frozen & Verified; Static Mockup Ready for Human Review
 
-All primary development tasks (Tasks 1 through 7b) and bug fix tasks (T-001, T-002, T-004) are completed, verified, and pushed to origin/main. The repository stands with zero build warnings, 111 passing C++ test cases with regression coverage, 62 browser pure-logic tests across 16 suites, and 0 open pull requests [CONFIRMED: git status, git log].
+All core engine development and bug fix tasks are completed and verified (111 C++ tests, 62 browser tests). Engine code is frozen. Active development has transitioned to UI/UX redesign on branch `ui-redesign` in the Editor/Terminal aesthetic (flat, dark, tool-like, IBM Plex typography, amber accent). A complete static mockup of the Ask tab has been implemented in `web/mockup/ask.html` with local fonts in `web/fonts/` awaiting human browser review. [CONFIRMED: git status, git log].
 
 ---
 

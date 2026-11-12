@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-12 by T-SYNC-002
+Last updated: 2026-11-12 by T-009
 
 ## 1. Operating Model
 
@@ -22,7 +22,7 @@ This project operates on a strict three-party workflow:
 - **What It Does**: VectorDB is a fully offline, zero-cloud C++17 in-memory vector database and retrieval-augmented generation (RAG) engine. It provides exact brute-force search, flat-array KD-Tree spatial indexing, hierarchical navigable small-world (HNSW) graphs, document chunking, matrix-free 2D PCA projection, a multi-threaded REST HTTP API server, and a dependency-free vanilla HTML5/ES6 web UI [CONFIRMED: README.md:1-80, src/].
 - **Target Users**: Academic evaluators, students, and engineers seeking an offline, inspectable semantic search and RAG engine without external cloud or proprietary vector database services [INFERRED from B.Tech Major Project context, zero-cloud architecture, and educational demo tabs].
 - **Deadlines & Non-Code Deliverables**: Academic major project report, viva defense presentation, and demo walkthrough script [INFERRED from docs/DEMO_SCRIPT.md; exact calendar deadlines are [UNCLEAR]].
-- **Collaboration Preferences**: Human writes Hinglish (Hindi in Roman letters). Brain should reply in simple short Hinglish. One step at a time. Human is not a technical planner: questions to the human must be short and answerable in one line. When several bugs are found in manual testing, batch them into ONE fix task instead of one task per bug. Human sometimes uses ChatGPT or another Claude as a testing helper and pastes their report; such reports are human-reported, not proof. Human handles viva, report and slides on their own. Brain must focus only on development and must not ask about viva dates or report status again. [CONFIRMED: human instruction in chat]
+- **Collaboration Preferences**: Human writes Hinglish (Hindi in Roman letters). Brain should reply in simple short Hinglish. One step at a time. Human is not a technical planner: questions to the human must be short and answerable in one line. When several bugs are found in manual testing, batch them into ONE fix task instead of one task per bug. Human sometimes uses ChatGPT or another Claude as a testing helper and pastes their report; such reports are human-reported, not proof. Human handles viva, report and slides on their own. Brain must focus only on development and must not ask about viva dates or report status again. Human does not want AI-slop UI (gradients, glow, glass, indigo/violet accents); dark theme for now; has no reference website; delegated design choice to Brain. [CONFIRMED: human instruction in chat]
 
 ---
 
