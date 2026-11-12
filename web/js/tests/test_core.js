@@ -5,7 +5,7 @@ import { describe, assert, assertEqual, assertNear } from "./framework.js";
 import { SseParser } from "../sse.js";
 import { Viewport2D } from "../canvas.js";
 import { el, formatBytes, formatDuration, formatSimilarity, calculateMedian, parseCitations } from "../ui.js";
-import { buildRequestInit } from "../api.js";
+import { buildRequestInit, buildDemoRandomPayload } from "../api.js";
 
 export function registerCoreTests() {
   describe("SSE Parser (sse.js)", (it) => {
@@ -198,6 +198,16 @@ export function registerCoreTests() {
       assertEqual(init.headers["X-Custom"], "custom-val");
       assertEqual(init.headers["Content-Type"], "application/json");
       assertEqual(init.body, "{}");
+    });
+
+    it("buildDemoRandomPayload converts numeric argument to { n: number }", () => {
+      assertEqual(buildDemoRandomPayload(10).n, 10);
+      assertEqual(buildDemoRandomPayload("100").n, 100);
+    });
+
+    it("buildDemoRandomPayload normalizes legacy { count } object to { n }", () => {
+      const payload = buildDemoRandomPayload({ count: 50 });
+      assertEqual(payload.n, 50);
     });
   });
 }

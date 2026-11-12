@@ -294,6 +294,21 @@ TEST(ApiTest, DemoRandomEndpoint) {
     std::string zeroN = R"({"n": 0})";
     ApiResponse zeroErr = handleDemoRandom(col, zeroN);
     CHECK(zeroErr.status == 400);
+
+    // Regression check: reject legacy "count" field name with descriptive error
+    std::string countField = R"({"count": 10})";
+    ApiResponse countErr = handleDemoRandom(col, countField);
+    CHECK(countErr.status == 400);
+    json cj = json::parse(countErr.body);
+    CHECK(cj["error"]["code"] == "invalid_request");
+    CHECK(cj["error"]["message"] == "Missing or invalid 'n' field");
+
+    // Accept valid "n" field
+    std::string validN = R"({"n": 10})";
+    ApiResponse validRes = handleDemoRandom(col, validN);
+    CHECK(validRes.status == 200);
+    json vj = json::parse(validRes.body);
+    CHECK(vj["inserted"] == 10);
 }
 
 TEST(ApiTest, PcaAndPcaQueryEndpoints) {
