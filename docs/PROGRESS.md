@@ -1,10 +1,10 @@
 # Project Progress
 
-Last updated: 2026-11-12 by T-010
+Last updated: 2026-11-12 by T-011
 
-## 1. Current Phase: UI/UX Redesign in Progress (Branch `ui-redesign`); Engine Frozen & Verified; Minimalist Mockup v2 Ready for Human Review
+## 1. Current Phase: UI/UX Redesign Phase 1 Complete (Branch `ui-redesign`); Design Tokens, Local Fonts & Dark Shell Verified; Awaiting Human Browser Review
 
-All core engine development and bug fix tasks are completed and verified (111 C++ tests, 62 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic with minimalist polish (generous whitespace, 820px reading column, reduced borders, single-line telemetry, and WCAG AA contrast). Mockup v2 of the Ask tab has been implemented in `web/mockup/ask.html` for human browser review [CONFIRMED: git status, git log].
+All core engine development and bug fix tasks are completed and verified (111 C++ tests, 62 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Phase 1 (foundation, design tokens, local IBM Plex fonts, dark app shell, global controls, removal of light theme) is completed across production UI files (`web/css/app.css`, `web/index.html`, `web/js/main.js`). All 5 tabs and 62 browser unit tests remain functional [CONFIRMED: git status, git log].
 
 ---
 

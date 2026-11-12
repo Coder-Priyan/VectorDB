@@ -1,11 +1,12 @@
 # Project Handoff
 
-Last updated: 2026-11-12 by T-010
+Last updated: 2026-11-12 by T-011
 
 ## 1. Current Status
-VectorDB engine is in a stable, verified, and frozen state. The current active work is UI/UX redesign on branch `ui-redesign` in the Editor/Terminal direction. Mockup v2 of the Ask tab (`web/mockup/ask.html`, `mockup.css`) has been polished with a calm, minimalist aesthetic (generous whitespace, 820px reading column, reduced borders/boxes, single-line telemetry, and WCAG AA contrast).
+VectorDB engine is in a stable, verified, and frozen state. The current active work is UI/UX redesign on branch `ui-redesign`. Phase 1 (design tokens, local IBM Plex fonts, dark app shell, global controls, removal of light theme) is complete across `web/css/app.css`, `web/index.html`, and `web/js/main.js`. All 5 tabs and 62 browser logic tests remain fully functional.
 
 ## 2. Last Work Done (From Git)
+- **Task T-011** (branch `ui-redesign`): Redesign Phase 1 foundation complete. Rewrote `web/css/app.css` with dark-only tokens, local IBM Plex Sans and Mono fonts, flat hairline borders, zero gradients/shadows, single amber accent (`#d9a441`), and dark scrollbars. Restyled app shell in `web/index.html` (brand, integrated nav tabs, status indicator with text Refresh button, removed light theme button). Removed `initTheme()` in `web/js/main.js` and removed `#2563eb` and `data-theme` across the codebase.
 - **Task T-010** (branch `ui-redesign`): Minimalist polish of Ask mockup v2 (`web/mockup/ask.html`, `mockup.css`). Increased whitespace (15-16px text, 32-48px gaps), centered 820px reading column, reduced uppercase labels to 4, simplified borders, single-line telemetry, flat source rows, and fixed sidebar layout.
 - **Task T-009** (branch `ui-redesign`): Downloaded official IBM Plex Sans and Mono `.woff2` fonts with license into `web/fonts/`; created static Ask tab mockup in `web/mockup/ask.html` and `web/mockup/mockup.css` in the Editor/Terminal direction; verified 100% compliance with strict CSP, zero forbidden patterns, and HTTP 200 via `vectordb_server.exe`.
 - **Task T-006** (commit `c0585f1`): Cleaned up issue wording in `KNOWN_ISSUES.md` (removed leftover "In investigate queue" strings), recorded collaboration preferences (human handles viva/report/slides independently), and refreshed `HANDOFF.md` to match pushed state.
@@ -23,7 +24,16 @@ VectorDB engine is in a stable, verified, and frozen state. The current active w
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
 ## 4. Recommended Next Step
-- Human reviews mockup v2 at /mockup/ask.html.
+- Human verifies Phase 1 in browser (all 5 tabs, /tests.html).
+
+## 5. UI Redesign Phase Plan
+UI redesign phases (branch `ui-redesign`):
+1. **Phase 1 (Foundation + Shell - T-011)**: Design tokens, local IBM Plex fonts, dark app shell, global controls, light theme removal. [COMPLETED]
+2. **Phase 2 (Ask Tab)**: Full layout restructure of Ask tab matching approved minimalist mockup v2.
+3. **Phase 3 (Settings Tab)**: Clean industrial layout for server health, metrics, and demo reset controls.
+4. **Phase 4 (Explore + HNSW + Compare)**: Layout updates and dark-theme canvas color adaptations.
+5. **Phase 5 (Polish & Merge)**: Final responsiveness, remove `web/mockup/`, regression testing, merge to `main`.
+*Dark only. Human verifies in browser after each phase.*
 
 ## 5. Pending Human Actions
 - All previous action items resolved by human decision on 2026-11-12:
