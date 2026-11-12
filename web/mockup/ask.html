@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self';">
+  <title>VectorDB - Ask (RAG) Terminal Mockup</title>
+  <link rel="stylesheet" href="mockup.css">
+</head>
+<body>
+  <!-- Top Navigation Bar -->
+  <header class="mock-header">
+    <div class="brand-section">
+      <span class="brand-title">VectorDB</span>
+      <span class="brand-tag">ENGINE v0.4.0</span>
+    </div>
+
+    <nav class="nav-tabs" aria-label="Main Navigation">
+      <a href="#" class="nav-tab-item active">Ask (RAG)</a>
+      <a href="#" class="nav-tab-item">Explore (PCA)</a>
+      <a href="#" class="nav-tab-item">HNSW Graph</a>
+      <a href="#" class="nav-tab-item">Compare</a>
+      <a href="#" class="nav-tab-item">Settings</a>
+    </nav>
+
+    <div class="system-status">
+      <span class="status-dot"></span>
+      <span>OLLAMA ONLINE &bull; llama3.2 / nomic-embed-text</span>
+    </div>
+  </header>
+
+  <!-- Main Technical Workspace -->
+  <div class="mock-workspace">
+    <!-- Left Instrument Panel: Document Ingestion & Document Inventory -->
+    <aside class="sidebar-panel">
+      <div class="panel-header-strip">
+        <span class="panel-title">Document Ingestion</span>
+        <button type="button" class="btn-terminal btn-danger-outline">Reset All</button>
+      </div>
+
+      <div class="sidebar-content">
+        <!-- Ingestion Form -->
+        <div class="field-group">
+          <label for="mock-doc-title" class="field-label">Document Title</label>
+          <input type="text" id="mock-doc-title" class="field-input" value="Attention Is All You Need" placeholder="Document title">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Source File (.txt, .md &le; 2 MB)</label>
+          <div class="file-drop-area">vaswani_2017_attention.txt (4.8 KB loaded)</div>
+        </div>
+
+        <div class="field-group">
+          <label for="mock-doc-text" class="field-label">Plain Text Content</label>
+          <textarea id="mock-doc-text" class="field-textarea" rows="4" placeholder="Document body...">The dominant sequence transduction models are based on complex recurrent or convolutional neural networks that include an encoder and a decoder. We propose a new simple network architecture, the Transformer, based solely on attention mechanisms...</textarea>
+        </div>
+
+        <div class="field-row-grid">
+          <div class="field-group">
+            <label for="mock-doc-strategy" class="field-label">Chunking</label>
+            <select id="mock-doc-strategy" class="field-select">
+              <option selected>Sentence</option>
+              <option>Fixed</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="mock-doc-max" class="field-label">Max Chars</label>
+            <input type="number" id="mock-doc-max" class="field-input" value="800">
+          </div>
+          <div class="field-group">
+            <label for="mock-doc-overlap" class="field-label">Overlap</label>
+            <input type="number" id="mock-doc-overlap" class="field-input" value="100">
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button type="button" class="btn-terminal btn-amber">Ingest Document</button>
+        </div>
+
+        <hr class="sidebar-section-divider">
+
+        <!-- Document Inventory -->
+        <div class="panel-header-strip">
+          <span class="panel-title">Ingested Documents (1)</span>
+          <span class="block-tag">6 CHUNKS &bull; 4.8 KB</span>
+        </div>
+
+        <div class="doc-tree-item">
+          <div class="doc-tree-header">
+            <span class="doc-tree-title">Attention Is All You Need</span>
+            <span class="doc-tree-meta">Doc #1</span>
+          </div>
+
+          <table class="chunk-tree-table">
+            <tbody>
+              <tr>
+                <td>
+                  <strong>Chunk 0</strong> (540 chars)
+                  <div class="chunk-snippet-box">The dominant sequence transduction models are based on complex recurrent or convolutional neural networks that include an encoder and a decoder. The best performing models also connect the encoder and decoder through an attention mechanism...</div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Chunk 1</strong> &bull; 384 chars &bull; tokens 140-280
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Chunk 2</strong> &bull; 412 chars &bull; tokens 270-410
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Workspace: Q&A Instrument, Grounded Answer, Telemetry & Sources -->
+    <main class="main-instrument-area">
+      <!-- Section 1: Grounded Semantic Query -->
+      <section class="instrument-block">
+        <div class="block-title-row">
+          <span class="block-label">Grounded Semantic Query</span>
+          <span class="block-tag">78 / 2000 CHARACTERS</span>
+        </div>
+
+        <textarea class="field-input field-textarea" rows="2" placeholder="Ask a question grounded in your ingested documents...">How does the self-attention mechanism compute attention weights across tokens?</textarea>
+
+        <div class="query-control-strip">
+          <div class="query-param-cell">
+            <label for="mock-query-k">TOP-K:</label>
+            <input type="number" id="mock-query-k" class="param-input-compact" value="4" min="1" max="20">
+          </div>
+
+          <div class="query-param-cell">
+            <label for="mock-query-algo">ALGORITHM:</label>
+            <select id="mock-query-algo" class="param-select-compact">
+              <option selected>HNSW</option>
+              <option>KD-Tree</option>
+              <option>Brute</option>
+            </select>
+          </div>
+
+          <div class="query-param-cell">
+            <span>METRIC: COSINE</span>
+          </div>
+
+          <button type="button" class="btn-terminal btn-amber">Ask Question</button>
+          <button type="button" class="btn-terminal btn-outline" disabled>Stop</button>
+        </div>
+      </section>
+
+      <!-- Section 2: Grounded Synthesized Answer -->
+      <section class="instrument-block">
+        <div class="block-title-row">
+          <span class="block-label">Grounded Synthesized Answer</span>
+          <span class="block-tag">STATUS: 200 OK &bull; PROMPT: V2 (REFUSAL-FIRST) &bull; SEED: 42</span>
+        </div>
+
+        <div class="answer-terminal-panel">
+          <p class="answer-prose">
+            The self-attention mechanism computes attention weights by first projecting input token vectors into query (Q), key (K), and value (V) matrices <span class="citation-mark">[1]</span>. The attention weights are calculated as the scaled dot-product between queries and keys, divided by the square root of the key dimension \(\sqrt{d_k}\) to prevent numerical instability in large dimensions <span class="citation-mark">[2]</span>. Applying the softmax function yields a normalized probability distribution over all positions, which is then used to weight the value vectors to produce the contextualized token representation <span class="citation-mark">[3]</span>.
+          </p>
+        </div>
+
+        <!-- Telemetry Strip -->
+        <div class="telemetry-strip">
+          <div class="telemetry-cell">
+            <span class="telemetry-key">Ollama Embed</span>
+            <span class="telemetry-val">18.4 ms</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="telemetry-key">HNSW Search</span>
+            <span class="telemetry-val">0.12 ms</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="telemetry-key">First Token (TTFT)</span>
+            <span class="telemetry-val">142.0 ms</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="telemetry-key">Generation</span>
+            <span class="telemetry-val">820.5 ms</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="telemetry-key">Total Latency</span>
+            <span class="telemetry-val highlight-amber">981.0 ms</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Retrieved Sources Breakdown -->
+      <section class="instrument-block">
+        <div class="block-title-row">
+          <span class="block-label">Retrieved Evidence Sources (3)</span>
+          <span class="block-tag">TOP-K CHUNKS RANKED BY COSINE SIMILARITY</span>
+        </div>
+
+        <table class="source-table">
+          <thead>
+            <tr>
+              <th class="source-rank-col">#</th>
+              <th>Document &bull; Chunk</th>
+              <th class="source-sim-col">Cosine Similarity</th>
+              <th>Grounded Context Excerpt</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="source-rank-col"><span class="citation-mark">[1]</span></td>
+              <td>
+                <strong>Attention Is All You Need</strong><br>
+                <span class="doc-tree-meta">Doc #1 &bull; Chunk 0</span>
+              </td>
+              <td class="source-sim-col">
+                0.9142 (91.4%)
+                <div class="sim-bar-track"><div class="sim-bar-fill w-sim-1"></div></div>
+              </td>
+              <td>
+                <div class="source-excerpt">An attention function can be described as mapping a query and a set of key-value pairs to an output, where the query, keys, values, and output are all vectors. The output is computed as a weighted sum of the values, where the weight assigned to each value is computed by a compatibility function of the query with the corresponding key.</div>
+              </td>
+            </tr>
+            <tr>
+              <td class="source-rank-col"><span class="citation-mark">[2]</span></td>
+              <td>
+                <strong>Attention Is All You Need</strong><br>
+                <span class="doc-tree-meta">Doc #1 &bull; Chunk 2</span>
+              </td>
+              <td class="source-sim-col">
+                0.8671 (86.7%)
+                <div class="sim-bar-track"><div class="sim-bar-fill w-sim-2"></div></div>
+              </td>
+              <td>
+                <div class="source-excerpt">We compute the matrix of outputs as: Attention(Q, K, V) = softmax(Q K^T / sqrt(d_k)) V. We compute the attention function on a set of queries simultaneously, packed together into a matrix Q. The keys and values are also packed together into matrices K and V.</div>
+              </td>
+            </tr>
+            <tr>
+              <td class="source-rank-col"><span class="citation-mark">[3]</span></td>
+              <td>
+                <strong>Attention Is All You Need</strong><br>
+                <span class="doc-tree-meta">Doc #1 &bull; Chunk 3</span>
+              </td>
+              <td class="source-sim-col">
+                0.8125 (81.2%)
+                <div class="sim-bar-track"><div class="sim-bar-fill w-sim-3"></div></div>
+              </td>
+              <td>
+                <div class="source-excerpt">Instead of performing a single attention function with d_model-dimensional keys, values and queries, we found it beneficial to linearly project the queries, keys and values h times with different, learned linear projections to d_k, d_k and d_v dimensions, respectively.</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Section 4: Empty State Specification Reference -->
+      <section class="instrument-block">
+        <div class="block-title-row">
+          <span class="block-label">Empty State Specification (Reference Preview)</span>
+          <span class="block-tag">HOW UI RENDERS BEFORE INGESTION / QUERY</span>
+        </div>
+
+        <div class="empty-reference-panel">
+          <span class="empty-reference-title">No Ingested Documents State</span>
+          <p class="empty-reference-text">
+            No documents ingested yet. Paste or upload a plain-text or markdown file (&le; 2 MB) using the ingestion panel on the left to index into 768-dimensional vector space.
+          </p>
+          <hr class="sidebar-section-divider">
+          <span class="empty-reference-title">No Active Query State</span>
+          <p class="empty-reference-text">
+            Waiting for query. Enter a question above to retrieve nearest neighbor chunks using HNSW proximity graph traversal and synthesize a grounded response.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
