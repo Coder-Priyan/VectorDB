@@ -54,6 +54,7 @@ struct CollectionStats {
     std::size_t count = 0;
     std::size_t dimension = 0;
     Metric metric = Metric::Cosine;
+    std::size_t memoryBytes = 0;
 };
 
 /**

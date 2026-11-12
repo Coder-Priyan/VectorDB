@@ -261,6 +261,7 @@ CollectionStats Collection::stats() const {
     s.count = vectors_.size();
     s.dimension = config_.dimension;
     s.metric = config_.metric;
+    s.memoryBytes = s.count * (s.dimension * sizeof(float) + sizeof(VectorId));
     return s;
 }
 

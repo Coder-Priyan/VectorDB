@@ -143,6 +143,7 @@ ApiResponse handleGetStats(const Collection& collection) {
         doc["count"] = st.count;
         doc["dimension"] = st.dimension;
         doc["metric"] = metricToString(st.metric);
+        doc["memory_bytes"] = st.memoryBytes;
         return {200, doc.dump()};
     } catch (const std::exception& e) {
         return makeErrorResponse(500, "internal_error", e.what());
