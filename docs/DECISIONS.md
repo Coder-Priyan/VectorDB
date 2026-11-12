@@ -1,6 +1,6 @@
 # Architectural Decision Records (ADR)
 
-Last updated: 2026-11-12 by T-009
+Last updated: 2026-11-12 by T-010
 
 | ID | Date | Decision | Reason | Alternatives Rejected | Evidence Tag |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -21,5 +21,5 @@ Last updated: 2026-11-12 by T-009
 | ADR-015 | 2026-11-12 | Batch UI bug fixes after manual testing into one fix task following a read-only investigation | When manual testing surfaces multiple small UI issues (e.g. ISS-018 to ISS-022), creating separate tasks per issue causes high round-trip overhead and context churn. Frontend-to-server field names must also be covered by tests (lesson from ISS-017 / T-002) | One task per minor bug; fixing bugs on the fly during manual testing without investigation | [CONFIRMED: human instruction in chat] |
 | ADR-016 | 2026-11-12 | V2 prompt reordered: refusal rule first, plus no-repeat and language-match rules | Avoids rambling context summaries on irrelevant questions, stops question echoing on line 1, and matches input dialect (Hinglish/Hindi/English) | Relevance threshold filter (bigger algorithmic change, left for later) | [CONFIRMED: human instruction in chat] |
 | ADR-017 | 2026-11-12 | Roadmap features on hold; post-T-004 manual re-check of Explore/HNSW/Compare skipped; no verification task T-007 run | Human decision: project stable and verified, no further work wanted right now | Starting hybrid search / persistence / delete now; running T-007 docs-vs-git check | [CONFIRMED: human instruction in chat] |
-| ADR-018 | 2026-11-12 | UI/UX redesign is the new focus; engine frozen; direction = Editor/Terminal feel: dark, flat, serious, IBM Plex Sans + Plex Mono (local woff2 in web/fonts/), one muted amber accent, no gradients/shadows/glow/glass; work on branch ui-redesign, Ask tab static mockup first | Human wants no AI-slop look; major UI changes allowed; no compromise on UI/UX | Linear/Raycast style dark indigo studio (AI-template look), Datadog/Bloomberg neon telemetry, light Apple/Stripe style, editorial serif, brutalist | [CONFIRMED: human instruction in chat] |
+| ADR-018 | 2026-11-12 | UI/UX redesign is the new focus; engine frozen; direction = Editor/Terminal feel: dark, flat, serious, IBM Plex Sans + Plex Mono (local woff2 in web/fonts/), one muted amber accent, no gradients/shadows/glow/glass; work on branch ui-redesign, Ask tab static mockup first. Human reviewed mockup v1: direction OK but too dense; wants MINIMALIST aesthetic (whitespace, fewer labels/borders, calm). Mockup v2 (T-010) addresses this. | Human wants no AI-slop look; major UI changes allowed; no compromise on UI/UX | Linear/Raycast style dark indigo studio (AI-template look), Datadog/Bloomberg neon telemetry, light Apple/Stripe style, editorial serif, brutalist | [CONFIRMED: human instruction in chat] |
 

@@ -1,11 +1,12 @@
 # Project Handoff
 
-Last updated: 2026-11-12 by T-009
+Last updated: 2026-11-12 by T-010
 
 ## 1. Current Status
-VectorDB engine is in a stable, verified, and frozen state. The current active work is UI/UX redesign on branch `ui-redesign` in the Editor/Terminal direction (serious, flat, dark, tool-like, IBM Plex typography, amber accent). A complete static mockup of the Ask tab has been implemented in `web/mockup/ask.html` for human review before touching any real UI production code.
+VectorDB engine is in a stable, verified, and frozen state. The current active work is UI/UX redesign on branch `ui-redesign` in the Editor/Terminal direction. Mockup v2 of the Ask tab (`web/mockup/ask.html`, `mockup.css`) has been polished with a calm, minimalist aesthetic (generous whitespace, 820px reading column, reduced borders/boxes, single-line telemetry, and WCAG AA contrast).
 
 ## 2. Last Work Done (From Git)
+- **Task T-010** (branch `ui-redesign`): Minimalist polish of Ask mockup v2 (`web/mockup/ask.html`, `mockup.css`). Increased whitespace (15-16px text, 32-48px gaps), centered 820px reading column, reduced uppercase labels to 4, simplified borders, single-line telemetry, flat source rows, and fixed sidebar layout.
 - **Task T-009** (branch `ui-redesign`): Downloaded official IBM Plex Sans and Mono `.woff2` fonts with license into `web/fonts/`; created static Ask tab mockup in `web/mockup/ask.html` and `web/mockup/mockup.css` in the Editor/Terminal direction; verified 100% compliance with strict CSP, zero forbidden patterns, and HTTP 200 via `vectordb_server.exe`.
 - **Task T-006** (commit `c0585f1`): Cleaned up issue wording in `KNOWN_ISSUES.md` (removed leftover "In investigate queue" strings), recorded collaboration preferences (human handles viva/report/slides independently), and refreshed `HANDOFF.md` to match pushed state.
 - **Task T-005** (commit `46e8cfc`): Recorded T-004 human verification across Settings and Ask tabs, corrected the 529,746 assertion count explanation, and confirmed push to `origin/main`.
@@ -22,7 +23,7 @@ VectorDB engine is in a stable, verified, and frozen state. The current active w
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
 ## 4. Recommended Next Step
-- Human reviews web/mockup/ask.html in browser; then decide full redesign phases.
+- Human reviews mockup v2 at /mockup/ask.html.
 
 ## 5. Pending Human Actions
 - All previous action items resolved by human decision on 2026-11-12:
