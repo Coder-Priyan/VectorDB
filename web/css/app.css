@@ -351,9 +351,21 @@ html {
   background: var(--bg-secondary);
   color: var(--text-primary);
   outline: none;
-  width: 100%;
   box-sizing: border-box;
   transition: border-color 100ms ease;
+}
+
+.form-stack .input-text,
+.form-stack .input-select,
+.form-stack .textarea-field,
+.form-group .textarea-field {
+  width: 100%;
+}
+
+.form-row.align-center select,
+.player-bar select,
+.tab-toolbar select {
+  width: auto;
 }
 
 .input-text:focus, .input-select:focus, .textarea-field:focus {
@@ -756,6 +768,13 @@ html {
   white-space: pre-wrap;
   word-break: break-word;
   color: var(--text-primary);
+}
+
+.answer-box.empty,
+.answer-box:has(.empty-state) {
+  border-left: none;
+  padding-left: 0;
+  min-height: auto;
 }
 
 .answer-box.notice-neutral {
