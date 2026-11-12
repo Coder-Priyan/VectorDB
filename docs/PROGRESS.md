@@ -1,10 +1,10 @@
 # Project Progress
 
-Last updated: 2026-11-12 by T-017
+Last updated: 2026-11-12 by T-018
 
-## 1. Current Phase: One-Screen UI Feasibility Study (Task T-017, Branch `ui-redesign`); UI Redesign Complete Through Phase 4b & T-016 Test Fix; Awaiting Human Decision on One-Screen Layout
+## 1. Current Phase: Cleanup Complete (Task T-018, Branch `ui-redesign`); Ready for Human Verification
 
-All core engine development and bug fix tasks are completed and verified (111 C++ tests, 62 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Phase 1 (foundation), Phase 2 (Ask tab), Phase 3 (Settings tab), Phase 4a (Explore and HNSW tabs), Phase 4b (Compare tab), and T-016 (test fix) are completed across production UI files (`web/css/app.css`, `web/index.html`, `web/js/compare.js`, `web/js/compare_helpers.js`, `web/js/ask.js`) and test suite (`web/js/tests/test_explore_hnsw.js`). Task T-017 evaluates one-screen UI feasibility (zero page scroll, inner panel scrolling). All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs, 23 Ask DOM IDs, and all 62 browser unit tests remain functional [CONFIRMED: git status, git log].
+All core engine development and bug fix tasks are completed and verified (111 C++ tests, 62 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Phases 1 through 4b and T-016 (test fix) were verified in the browser by the human on 2026-11-12. Task T-017 (one-screen UI feasibility study) and Task T-018 (cleanup: mockup removal, alert/confirm replaced with inline UI and two-step confirm, docs cleanup) are completed. All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 23 Ask DOM IDs (plus new `doc-reset-cancel-btn`), and all 62 browser unit tests remain functional [CONFIRMED: git status, git log].
 
 ---
 

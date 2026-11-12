@@ -1,6 +1,6 @@
 # Architecture
 
-Last updated: 2026-11-12 by T-001
+Last updated: 2026-11-12 by T-018
 
 ## 1. Directory Tree & Artifact Layout
 
@@ -40,7 +40,8 @@ vectordb/
 ├── web/                        # Fully offline browser SPA (HTML5/CSS3/ES6) [CONFIRMED]
 │   ├── index.html              # Main application UI mounted at / [CONFIRMED]
 │   ├── tests.html              # In-browser pure-logic test runner [CONFIRMED]
-│   ├── css/app.css             # Unified dark/light stylesheet [CONFIRMED]
+│   ├── css/app.css             # Dark-only Editor/Terminal stylesheet [CONFIRMED]
+│   ├── fonts/                  # Local IBM Plex Sans/Mono .woff2 fonts + OFL license [CONFIRMED]
 │   └── js/                     # Modular frontend controllers and helpers [CONFIRMED]
 ├── samples/                    # Test documents and evaluation datasets [CONFIRMED]
 │   ├── vectordb_intro.txt      # Sample document on vector databases [CONFIRMED]
@@ -94,7 +95,7 @@ vectordb/
 1. **REST API Server (`api.hpp`, `src/api.cpp`, `src/server_main.cpp`)**:
    - Embedded multi-threaded HTTP server exposing 29 REST endpoints and static file routes [CONFIRMED: src/server_main.cpp:230-380].
 2. **Browser Single Page App (`web/`)**:
-   - Zero-dependency client featuring 5 tabs: `#ask` (RAG chat), `#explore` (2D PCA), `#hnsw` (graph viewer), `#compare` (benchmarks), `#settings` (server health) [CONFIRMED: web/js/main.js:15-60].
+   - Zero-dependency client featuring 5 tabs: `#ask` (RAG chat), `#explore` (2D PCA), `#hnsw` (graph viewer), `#compare` (benchmarks), `#settings` (server health) rendered in a dark-only Editor/Terminal aesthetic [CONFIRMED: web/js/main.js:15-60, ADR-018, ADR-019].
 
 ---
 

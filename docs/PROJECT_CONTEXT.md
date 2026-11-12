@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-12 by T-009
+Last updated: 2026-11-12 by T-018
 
 ## 1. Operating Model
 
@@ -15,7 +15,7 @@ This project operates on a strict three-party workflow:
 
 - **Project Name**: VectorDB [CONFIRMED: CMakeLists.txt:2]
 - **Repository Remote URL**: `https://github.com/Coder-Priyan/VectorDB.git` [CONFIRMED: git remote -v]
-- **Current Active Branch**: `main` [CONFIRMED: git branch]
+- **Current Active Branch**: `ui-redesign` [CONFIRMED: git branch]
 - **Fork Status**: Direct repository; not recorded as a git fork [CONFIRMED: git remote -v]
 - **License**: Unlicensed in repository root; third-party headers `httplib.h` and `nlohmann/json.hpp` are licensed under the MIT License [CONFIRMED: third_party/README.md:14,26]
 - **Last Commit Author**: Coder-Priyan `<230001938+Coder-Priyan@users.noreply.github.com.>` [CONFIRMED: git log -n 1]
@@ -40,7 +40,7 @@ This project operates on a strict three-party workflow:
   - Chat LLM: `llama3.2` [CONFIRMED: src/server_main.cpp:34]
 - **Web Frontend**:
   - Vanilla HTML5, CSS3, ES6 JavaScript modules [CONFIRMED: web/index.html, web/js/main.js]
-  - Zero bundlers, zero npm, zero external CDNs, zero third-party fonts [CONFIRMED: web/index.html:1-249]
+  - Zero bundlers, zero npm, zero external CDNs, local IBM Plex Sans/Mono woff2 in web/fonts/, no CDN fonts [CONFIRMED: web/index.html:1-249]
   - Security hardening: Strict CSP meta tag and headers (`default-src 'self'`), zero `innerHTML` / `outerHTML` [CONFIRMED: web/index.html:6, scripts/check_web_safety.ps1].
 - **Operating Systems**: Primary development on Windows 11 (PowerShell, MSYS2 UCRT64 toolchain); POSIX-compatible standard C++17 [CONFIRMED: CMakeLists.txt:55,79,127].
 
@@ -111,6 +111,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 7. **Demo Random Endpoint Contract**: Demo random insert uses field 'n', not 'count'. Docs claiming TESTED for the web UI meant pure-logic tests only; real browser testing by the human found a bug on 2026-11-12.
 8. **Browser Test Count History**: Browser test count was 57 after T-002; older docs said 55; reached 62 after T-004.
 9. **Git State in Documentation**: Git state claims in docs can go stale after pushes; always trust human's git status -sb over docs.
+10. **Browser Test Execution by Agent**: Antigravity cannot run browser tests; only the human can. Never tick browser checks.
 
 ---
 
@@ -119,6 +120,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 Features verified in a real browser by the human (with screenshots saved in results/screenshots/):
 - Settings tab: Insert Random Vectors (Demo Vectors Count = 100) [CONFIRMED: human screenshot]
 - Explore tab: Empty-state Insert 1000 Vectors button (1000 points shown on canvas) [CONFIRMED: human screenshot]
+- Phase 1 to 4b UI (Settings, Compare, Explore, HNSW, Ask, resize, console) and /tests.html 62/62 verified in real browser by human on 2026-11-12 [CONFIRMED: human screenshot/approval]
 
 Features verified in a real browser by the human (2026-11-12, T-004):
 - Settings tab: Demo Memory shows 50.8 KB with 100 vectors, efConstruction form default 200, Ollama Models row shows llama3.2:latest and nomic-embed-text:latest [CONFIRMED: screenshot saved by human in chat, not in results/screenshots/]

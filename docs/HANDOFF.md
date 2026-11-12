@@ -1,21 +1,20 @@
 # Project Handoff
 
-Last updated: 2026-11-12 by T-016
+Last updated: 2026-11-12 by T-018
 
 ## 1. Current Status
-VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. Phase 1 (foundation), Phase 2 (Ask tab), Phase 3 (Settings tab), Phase 4a (Explore + HNSW tabs), Phase 4b (Compare tab redesign, flat progress bar, table wrapping prevention, taupe/moss/amber palette with zero blue), and T-016 (browser test fallback color fix) are complete across `web/css/app.css`, `web/index.html`, `web/js/compare.js`, `web/js/compare_helpers.js`, `web/js/ask.js`, and `web/js/tests/test_explore_hnsw.js`. All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs, 23 Ask DOM IDs, 62 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
+VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. Phase 1 (foundation), Phase 2 (Ask tab), Phase 3 (Settings tab), Phase 4a (Explore + HNSW tabs), Phase 4b (Compare tab redesign, flat progress bar, table wrapping prevention, taupe/moss/amber palette with zero blue), T-016 (browser test fallback color fix), T-017 (one-screen UI feasibility study), and T-018 (cleanup before one-screen UI: mockup removed, alert/confirm replaced with inline UI and two-step confirm, docs cleanup) are complete. All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 23 Ask DOM IDs (plus new `doc-reset-cancel-btn`), 62 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
 
 ## 2. Last Work Done (From Git)
-- **Task T-016** (branch `ui-redesign`): Fixed failing browser unit test in `web/js/tests/test_explore_hnsw.js`. Human ne `/tests.html` chalaya (2026-11-12): 1 fail ("getDocColor handles invalid input with fallback" expected `#64748b`, got `#807c74`) because T-014 changed the fallback color without updating the test. Fixed in T-016 by updating expected fallback to `#807c74`. Lesson: Antigravity reported 62 pass without running browser tests; browser tests can only be verified by the human.
-- **Task T-015** (branch `ui-redesign`): Redesign Phase 4b complete.
-  1. *Compare Tab Layout & Progress Bar* (commit `17d1a28`): Restructured `#panel-compare` in `web/index.html` and `web/css/app.css` to unboxed `.tab-toolbar` (collection and repetitions dropdowns with indicative timing note) and `.viz-layout` (wide `.viz-main` for Summary Metrics and results; ~320px `.viz-sidebar` for Demo/Docs benchmark query parameters and flat thin progress bar `#compare-progress-fill` in `#2a2a2a` track). Enforced `overflow-x: auto` on `.table-container` to guarantee page body never scrolls horizontally. Styled Ground Truth diff badges with muted green `#529b67` for match and amber `#d9a441` for diff. Added explicit `empty` class handling in `web/js/ask.js` on doc reset. Preserved all 20 Compare DOM IDs.
-  2. *Compare Canvas & Swatch Colors, No Blue* (commit `7ae5cf0`): Replaced blue/green algorithm colors with earthy palette in `web/js/compare_helpers.js` and `web/css/app.css`: brute `#9c8269` (taupe), kdtree `#708a78` (moss), hnsw `#d9a441` (amber), fallback `#807c74`. Configured dark canvas bar charts with `#0a0a0a` background, `#2a2a2a` rules, `#949087` IBM Plex Sans titles/labels, `#f0ede6` text, and monospace numbers. Fully eliminated all blue hex occurrences across active production web assets.
-- **Task T-014** (branch `ui-redesign`): Redesign Phase 4a complete.
-  1. *Toolbar Regression & Empty Answer Fix* (commit `5ff39d8`): Fixed input width regression from `af6a101` by scoping `width: 100%` strictly to form stacks / grids and restoring `width: auto` on toolbar selects. Lightened empty answer box state on Ask tab.
-  2. *Explore Tab Redesign & Canvas Colors* (commit `98d1505`): Restructured `#panel-explore` to unboxed `.tab-toolbar` and `.viz-layout`. Replaced PCA doc color palette with 8 desaturated warm/earth hex colors (`#d9a441`, `#529b67`, `#c47043`, `#9c8269`, `#a0616a`, `#849646`, `#c89f65`, `#708a78`), fallback `#807c74`, dark canvas background `#0a0a0a`, `#2a2a2a` axes, `#949087` labels, off-white query star. Preserved all 19 Explore DOM IDs.
-  3. *HNSW Tab Redesign & Canvas Colors* (commit `cc91def`): Restructured `#panel-hnsw` to unboxed `.tab-toolbar` and `.viz-layout`. Replaced `LAYER_COLORS` with `["#6e6a63", "#a67c2e", "#d9a441", "#f0ede6"]`. Updated offscreen edges to subtle gray `rgba(110, 106, 99, 0.25)` and amber `rgba(217, 164, 65, 0.45)`. Entry point rendered off-white with amber stroke. Search trace rendered with amber path, `#e2ded6` visited nodes, active hop highlighted `#d9a441` with white stroke. Preserved all 26 HNSW DOM IDs.
-  - *Human Verification Note*: Human verified T-014 command checks in their terminal (clean git state, id diff: only theme-toggle-btn removed per ADR-019, blue only in Compare files, src/tests/CMake diff empty, scanner pass). Browser verification of Phase 4a: pending human browser testing.
-- **Task T-013** (branch `ui-redesign`): Redesign Phase 3 complete (Settings tab industrial layout, 2-column config grid, Danger zone reset card, Ask overlap fix, stable scrollbar gutter, question input spellcheck disabled).
+- **Task T-018** (branch `ui-redesign`): Cleanup before one-screen UI work.
+  1. *Mockup Removal*: Removed temporary directory `web/mockup/` (`ask.html` and `mockup.css`) while retaining local fonts in `web/fonts/`.
+  2. *Replace Native alert()/confirm()*: Replaced all native dialogs in production JavaScript with non-blocking inline DOM elements. Replaced `confirm()` on `#doc-reset-btn` and `#demo-reset-btn` with a 2-step inline confirmation flow (button text changes to "Confirm reset", displays a "Cancel" button, and auto-resets after a 5-second timeout). Replaced `alert()` on random vector insertion and demo reset with `#settings-random-status` and `#settings-reset-status` banner notices (`role="status"` with 5-second auto-hide).
+  3. *Documentation Cleanup*: Deduplicated sections in `HANDOFF.md`, updated `PROJECT_CONTEXT.md` (active branch `ui-redesign`, local IBM Plex fonts, human verification of Phases 1 to 4b + 62 tests, agent browser testing gotcha), updated `ARCHITECTURE.md` (local fonts, dark-only Editor/Terminal UI), recorded ADR-020 in `DECISIONS.md`, and updated `PROGRESS.md`.
+- **Task T-017** (branch `ui-redesign`): One-screen UI feasibility study (read-only architectural analysis). Evaluated viewport layout constraints, overflow configurations, and sizing mechanics across all 5 tabs for zero-page-scroll instrument-panel UX.
+- **Task T-016** (branch `ui-redesign`): Fixed failing browser unit test in `web/js/tests/test_explore_hnsw.js`. Updated expected fallback color to `#807c74` matching T-014 production constant.
+- **Task T-015** (branch `ui-redesign`): Redesign Phase 4b complete (Compare tab layout, flat progress bar, zero blue palette).
+- **Task T-014** (branch `ui-redesign`): Redesign Phase 4a complete (Explore & HNSW tabs redesign, warm/earth palette, trace colors).
+- **Task T-013** (branch `ui-redesign`): Redesign Phase 3 complete (Settings tab industrial layout, 2-column config grid, Danger zone reset card, Ask overlap fix).
 - **Task T-012** (branch `ui-redesign`): Redesign Phase 2 complete (Ask tab layout restructure into ingestion column, reading column, sources rows).
 - **Task T-011** (branch `ui-redesign`): Redesign Phase 1 foundation complete (design tokens, local IBM Plex fonts, dark app shell, global controls, light theme removal).
 - **Task T-010** (branch `ui-redesign`): Minimalist polish of Ask mockup v2 (`web/mockup/ask.html`, `mockup.css`).
@@ -31,7 +30,7 @@ VectorDB engine is in a stable, verified, and frozen state. Active development i
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
 ## 4. Recommended Next Step
-- Human verifies Phase 4b Compare in browser: Benchmark Demo Random Query, Benchmark ID, Document benchmark, repetition passes, timing bars, Ground Truth diff table wrapping, /tests.html; then proceed to Phase 5.
+- Human verifies T-018 in browser (Settings reset/confirm flow, no popups). Then decide: T-019 merge ui-redesign to main, or one-screen UI Phase 1 (Shell + Ask tab) first; human decides.
 
 ## 5. UI Redesign Phase Plan
 UI redesign phases (branch `ui-redesign`):
@@ -40,12 +39,11 @@ UI redesign phases (branch `ui-redesign`):
 3. **Phase 3 (Settings Tab - T-013)**: Clean industrial layout for server health, metrics, and demo reset controls. [COMPLETED]
 4. **Phase 4a (Explore + HNSW Tabs - T-014)**: Toolbar width regression fix, unboxed toolbars, `.viz-layout` restructure, dark canvas colors (warm/earth palette, muted gray/amber HNSW layers, off-white query stars, amber trace path). [COMPLETED]
 5. **Phase 4b (Compare Tab - T-015)**: Unboxed toolbar, `.viz-layout` restructure, horizontal table scrolling container, flat thin amber progress bar, taupe/moss/amber palette with zero blue. [COMPLETED]
-6. **Phase 5 (Polish & Merge)**:
-   - Remove temporary directory `web/mockup/`
-   - Replace native `alert()` / `confirm()` in Settings reset/save with inline message / banner
-   - Docs cleanup (`PROJECT_CONTEXT.md` references to "Current Active Branch: main" and "zero third-party fonts" are stale)
-   - Note on `DEMO_SCRIPT.md`: "red star" is now off-white star (human handles viva/presentation docs independently)
-   - Final responsiveness pass, browser regression test, merge `ui-redesign` to `main`.
+6. **Phase 5 (Polish & Cleanup - T-018)**:
+   - Removed temporary directory `web/mockup/` [COMPLETED]
+   - Replaced native `alert()` / `confirm()` with inline notices and 2-step confirmation [COMPLETED]
+   - Docs cleanup (`PROJECT_CONTEXT.md`, `ARCHITECTURE.md`, `DECISIONS.md`, `PROGRESS.md`, `HANDOFF.md`) [COMPLETED]
+   - Human browser verification, then proceed to T-019 merge or One-screen UI Phase 1.
 *Dark only. Human verifies in browser after each phase.*
 
 ## 6. Pending Human Actions
@@ -55,32 +53,15 @@ UI redesign phases (branch `ui-redesign`):
   - Verification task T-007 (docs vs git audit): SKIPPED by human decision.
 
 ## 7. Open Decisions / Known Gaps
-- **One-Screen UI Goal**: Human goal (2026-11-12): one-screen UI feel. Page never scrolls; long content (answers, sources, tables) scrolls only inside its own panel. Pending: T-017 feasibility report, then human decision. Cleanup task is renumbered T-018 (mockup removal, alert/confirm replacement, docs cleanup, HANDOFF dedupe); merge is T-019 after human browser check.
+- **One-Screen UI Goal**: Human goal (2026-11-12): one-screen UI feel. Page never scrolls; long content (answers, sources, tables) scrolls only inside its own panel. Feasibility analysis completed in T-017; recorded in ADR-020.
+  - Feasibility risk notes from Brain review: (1) Explore/HNSW canvas uses width:100%; height:auto, so max-height alone will distort/crop it and break hover/zoom coordinates; Phase 2 needs JS sizing from the wrapper (canvas.js). (2) Fallback media query max-height: 640px may trigger on 1280x720 laptops; test the threshold in Phase 1. (3) Settings 'fits without scroll at 900px' is INFERRED only.
 - Known UI gaps to address:
-  - Compare tab bars and table wrapping: FIXED in T-015.
-  - Native `alert()` in Settings reset/save: scheduled for cleanup task (T-018).
   - `DEMO_SCRIPT.md` refers to "red star" marker: query star is now off-white `#f0ede6` with black outline. (Human handles viva/presentation docs independently).
 - Roadmap features (hybrid search, reranking, disk persistence, delete) remain ON HOLD until the human confirms they are required.
 - Strategy for rollback during `RagPipeline::ingest` if a vector insert fails midway (ISS-006) remains documented for future work.
 
 ## 8. Important Warnings (Fragile Areas)
 - **Do not start roadmap features** (hybrid search, reranking, persistence, delete) until the human confirms they are required.
-- **Zero-innerHTML rule**: Never introduce `innerHTML`, `outerHTML` or `insertAdjacentHTML` in `web/js/`. There is no CI; run the scanner manually: `powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1`.
-- **Strict POST Content-Type**: Every POST route requires `Content-Type: application/json` (send `{}` for empty bodies). Do not weaken this in `server_main.cpp`.
-- **No mutex held during Ollama calls** in `src/rag.cpp`.
-- **Canvas zero-dimension guard**: Check `isCanvasDrawable` before drawing on hidden canvases.
-- **Frontend-to-server field names must be covered by tests** (lesson from ISS-017 / ADR-015).
-- **Testing from the human's side**: Reports from ChatGPT or another Claude are human-reported, not proof. Ask for terminal output or screenshots.
-
-## 9. UNCLEAR Items
-- Whether disk persistence is required for grading [UNCLEAR; on hold, human decided not to pursue for now].
-
-## 10. Files to Read for Next Task
-- `docs/PROJECT_CONTEXT.md`
-- `docs/KNOWN_ISSUES.md`
-- `docs/DECISIONS.md`
-- `docs/PROGRESS.md`
-- `docs/HANDOFF.md`
 - **Zero-innerHTML rule**: Never introduce `innerHTML`, `outerHTML` or `insertAdjacentHTML` in `web/js/`. There is no CI; run the scanner manually: `powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1`.
 - **Strict POST Content-Type**: Every POST route requires `Content-Type: application/json` (send `{}` for empty bodies). Do not weaken this in `server_main.cpp`.
 - **No mutex held during Ollama calls** in `src/rag.cpp`.
