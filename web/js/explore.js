@@ -108,7 +108,7 @@ export function initExploreTab() {
 
     // Axes
     const orig = viewport.toScreen(0, 0);
-    ctx.strokeStyle = "rgba(100, 116, 139, 0.25)";
+    ctx.strokeStyle = "#2a2a2a";
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, orig.y); ctx.lineTo(width, orig.y);
@@ -116,10 +116,10 @@ export function initExploreTab() {
     ctx.stroke();
 
     // Axis Labels
-    ctx.fillStyle = "rgba(100, 116, 139, 0.7)";
-    ctx.font = "11px sans-serif";
-    ctx.fillText(`PC1 (${((explainedRatios[0] || 0) * 100).toFixed(1)}%)`, width - 85, Math.min(Math.max(20, orig.y - 6), height - 10));
-    ctx.fillText(`PC2 (${((explainedRatios[1] || 0) * 100).toFixed(1)}%)`, Math.min(Math.max(10, orig.x + 6), width - 80), 20);
+    ctx.fillStyle = "#949087";
+    ctx.font = "12px 'IBM Plex Sans', -apple-system, sans-serif";
+    ctx.fillText(`PC1 (${((explainedRatios[0] || 0) * 100).toFixed(1)}%)`, width - 95, Math.min(Math.max(20, orig.y - 6), height - 10));
+    ctx.fillText(`PC2 (${((explainedRatios[1] || 0) * 100).toFixed(1)}%)`, Math.min(Math.max(10, orig.x + 6), width - 90), 20);
 
     const isDocs = collSelect.value === "docs";
     for (let i = 0; i < currentPoints.length; i++) {
@@ -137,19 +137,19 @@ export function initExploreTab() {
       for (let i = 0; i < topKResults.length; i++) {
         const res = topKResults[i];
         const rScr = viewport.toScreen(res.x, res.y);
-        ctx.strokeStyle = "rgba(220, 38, 38, 0.65)"; ctx.lineWidth = 1.5;
+        ctx.strokeStyle = "rgba(217, 164, 65, 0.45)"; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(qScr.x, qScr.y); ctx.lineTo(rScr.x, rScr.y); ctx.stroke();
-        ctx.strokeStyle = "#dc2626"; ctx.lineWidth = 2;
+        ctx.strokeStyle = "#d9a441"; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.arc(rScr.x, rScr.y, 6.5, 0, Math.PI * 2); ctx.stroke();
       }
-      ctx.fillStyle = "#ef4444"; ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5;
-      drawStar(ctx, qScr.x, qScr.y, 5, 10, 5);
+      ctx.fillStyle = "#f0ede6"; ctx.strokeStyle = "#0b0b0b"; ctx.lineWidth = 1.5;
+      drawStar(ctx, qScr.x, qScr.y, 5, 9, 4.5);
       ctx.fill(); ctx.stroke();
     }
 
     if (hoveredPoint) {
       const hScr = viewport.toScreen(hoveredPoint.x, hoveredPoint.y);
-      ctx.strokeStyle = "#000000"; ctx.lineWidth = 2;
+      ctx.strokeStyle = "#f0ede6"; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.arc(hScr.x, hScr.y, 6.5, 0, Math.PI * 2); ctx.stroke();
     }
   }

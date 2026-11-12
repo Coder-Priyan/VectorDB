@@ -150,18 +150,21 @@
 
     <!-- TAB 2: EXPLORE (PCA) -->
     <section id="panel-explore" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-explore">
-      <div class="card mb-3">
-        <div class="card-header flex-wrap">
-          <div class="form-row align-center">
-            <label for="explore-coll-select" class="fw-bold">Collection:</label>
-            <select id="explore-coll-select" class="input-select"><option value="demo" selected>Demo Vectors</option><option value="docs">Document Chunks</option></select>
-            <button id="explore-refresh-btn" class="btn btn-sm btn-outline">Refresh</button>
-          </div>
+      <div class="tab-toolbar">
+        <div class="toolbar-left">
+          <label for="explore-coll-select" class="toolbar-label">Collection</label>
+          <select id="explore-coll-select" class="input-select toolbar-select">
+            <option value="demo" selected>Demo Vectors</option>
+            <option value="docs">Document Chunks</option>
+          </select>
+          <button id="explore-refresh-btn" class="btn btn-sm btn-outline">Refresh</button>
+        </div>
+        <div class="toolbar-right">
           <span id="explore-variance-note" class="text-muted font-mono text-xs">Loading variance...</span>
         </div>
       </div>
-      <div class="split-view">
-        <div class="card panel-column canvas-card">
+      <div class="viz-layout">
+        <div class="viz-main">
           <div class="canvas-wrapper">
             <canvas id="explore-canvas" width="680" height="460"></canvas>
             <div id="explore-tooltip" class="canvas-tooltip hidden" role="tooltip"></div>
@@ -169,24 +172,60 @@
           <div id="explore-legend-container" class="legend-row"></div>
           <div id="explore-empty-state" class="empty-state-box hidden"></div>
         </div>
-        <div class="card panel-column">
+        <aside class="viz-sidebar">
           <div id="explore-docs-controls" class="hidden">
-            <h3 class="card-title">Query Document Space</h3>
+            <h3 class="section-title">Query Document Space</h3>
             <form id="explore-query-docs-form" class="form-stack mt-2">
-              <div class="form-group"><label for="explore-query-docs-input">Query Text</label><input type="text" id="explore-query-docs-input" class="input-text" placeholder="e.g. vector search" required></div>
-              <div class="form-row"><div class="form-group flex-1"><label for="explore-query-docs-k">Top k</label><input type="number" id="explore-query-docs-k" class="input-text" value="5" min="1" max="50"></div><div class="form-group flex-1 align-end"><button type="submit" id="explore-query-docs-btn" class="btn btn-primary w-100">Project &amp; Search</button></div></div>
+              <div class="form-group">
+                <label for="explore-query-docs-input">Query Text</label>
+                <input type="text" id="explore-query-docs-input" class="input-text" placeholder="e.g. vector search" required>
+              </div>
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="explore-query-docs-k">Top k</label>
+                  <input type="number" id="explore-query-docs-k" class="input-text" value="5" min="1" max="50">
+                </div>
+                <div class="form-group flex-1 align-end">
+                  <button type="submit" id="explore-query-docs-btn" class="btn btn-primary w-100">Project &amp; Search</button>
+                </div>
+              </div>
             </form>
           </div>
           <div id="explore-demo-controls">
-            <h3 class="card-title">Query Demo Vectors</h3>
+            <h3 class="section-title">Query Demo Vectors</h3>
             <div class="form-stack mt-2">
-              <div class="form-row"><div class="form-group flex-1"><label for="explore-demo-k">Top k</label><input type="number" id="explore-demo-k" class="input-text" value="5" min="1" max="50"></div><div class="form-group flex-1 align-end"><button type="button" id="explore-demo-random-btn" class="btn btn-primary w-100">Random Query</button></div></div>
-              <div class="form-row mt-2"><div class="form-group flex-2"><label for="explore-demo-id-input">Query by Stored ID</label><input type="number" id="explore-demo-id-input" class="input-text" placeholder="Vector ID (e.g. 1)" min="1"></div><div class="form-group flex-1 align-end"><button type="button" id="explore-demo-id-btn" class="btn btn-outline w-100">Search ID</button></div></div>
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="explore-demo-k">Top k</label>
+                  <input type="number" id="explore-demo-k" class="input-text" value="5" min="1" max="50">
+                </div>
+                <div class="form-group flex-1 align-end">
+                  <button type="button" id="explore-demo-random-btn" class="btn btn-primary w-100">Random Query</button>
+                </div>
+              </div>
+              <div class="form-row mt-2">
+                <div class="form-group flex-2">
+                  <label for="explore-demo-id-input">Query by Stored ID</label>
+                  <input type="number" id="explore-demo-id-input" class="input-text" placeholder="Vector ID (e.g. 1)" min="1">
+                </div>
+                <div class="form-group flex-1 align-end">
+                  <button type="button" id="explore-demo-id-btn" class="btn btn-outline w-100">Search ID</button>
+                </div>
+              </div>
             </div>
           </div>
-          <h3 class="section-title">Nearest Neighbors</h3>
-          <div class="table-container"><table class="info-table"><thead><tr><th>Rank</th><th>Target</th><th>Distance</th><th>Similarity</th></tr></thead><tbody id="explore-results-tbody"></tbody></table></div>
-        </div>
+          <div class="viz-results-section mt-4">
+            <h3 class="section-title">Nearest Neighbors</h3>
+            <div class="table-container">
+              <table class="info-table">
+                <thead>
+                  <tr><th>Rank</th><th>Target</th><th>Distance</th><th>Similarity</th></tr>
+                </thead>
+                <tbody id="explore-results-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </aside>
       </div>
     </section>
 

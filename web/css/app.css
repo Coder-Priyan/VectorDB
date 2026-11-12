@@ -1023,6 +1023,79 @@ html {
   margin: 18px 0;
 }
 
+/* Visualization Layout (Explore & HNSW) */
+.tab-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 0 0 16px 0;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toolbar-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.toolbar-select {
+  width: auto;
+  min-width: 140px;
+}
+
+.viz-layout {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.viz-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.viz-sidebar {
+  width: 320px;
+  max-width: 100%;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.viz-results-section {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 1100px) {
+  .viz-layout {
+    flex-direction: column;
+    gap: 32px;
+  }
+  .viz-sidebar {
+    width: 100%;
+  }
+}
+
 /* Canvas, Legend & Player Elements */
 .canvas-card {
   position: relative;
@@ -1033,7 +1106,7 @@ html {
   width: 100%;
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: #080808;
+  background: #0a0a0a;
   border: 1px solid var(--border-color);
 }
 

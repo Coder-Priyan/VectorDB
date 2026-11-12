@@ -5,18 +5,16 @@
  * coordinate bounding, and star marker geometry.
  */
 
-// Visually distinct palette for document clusters
+// Visually distinct warm/earth palette for document clusters (no blue/indigo/violet)
 export const DOC_COLOR_PALETTE = [
-  "#d9a441", // Amber
-  "#16a34a", // Green
-  "#d97706", // Amber
-  "#9333ea", // Purple
-  "#06b6d4", // Cyan
-  "#e11d48", // Rose
-  "#ea580c", // Orange
-  "#4f46e5", // Indigo
-  "#059669", // Emerald
-  "#ca8a04"  // Yellow
+  "#d9a441", // Warm amber
+  "#529b67", // Muted sage green
+  "#c47043", // Terracotta
+  "#9c8269", // Warm taupe
+  "#a0616a", // Dusty rose
+  "#849646", // Olive bronze
+  "#c89f65", // Ochre sand
+  "#708a78"  // Muted moss
 ];
 
 /**
@@ -24,7 +22,7 @@ export const DOC_COLOR_PALETTE = [
  */
 export function getDocColor(docId) {
   if (docId === null || docId === undefined || isNaN(docId)) {
-    return "#64748b"; // Slate fallback
+    return "#807c74"; // Warm neutral fallback
   }
   const idNum = Math.abs(parseInt(docId, 10));
   return DOC_COLOR_PALETTE[idNum % DOC_COLOR_PALETTE.length];
