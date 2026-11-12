@@ -453,7 +453,7 @@ curl.exe -s http://127.0.0.1:8080/api/ollama/status
 ### 18. Ingest Document
 `POST /api/docs`
 
-Splits plain text into UTF-8 safe chunks, embeds all chunks using local Ollama (`nomic-embed-text`), and atomically inserts them into the document collection. Guarantees all-or-nothing semantics: if embedding fails or dimension mismatches, no document record is created and no vectors are indexed.
+Splits plain text into UTF-8 safe chunks, embeds all chunks using local Ollama (`nomic-embed-text`), and inserts them into the document collection. All-or-nothing if embedding fails or dimensions mismatch. If a vector insert fails midway (e.g. out of memory), already inserted chunk vectors can remain until POST /api/docs/reset (see ISS-006).
 
 #### Request Body:
 ```json

@@ -66,7 +66,7 @@ The following architectural capabilities are planned for future versions but are
   - Strict lock discipline: mutexes are never held while awaiting Ollama HTTP communication.
 - **REST API Server (`vectordb_server`)**:
   - Embedded HTTP server built with vendored `cpp-httplib` and `nlohmann/json`.
-  - 28 endpoints covering collection management, vector operations, HNSW topology inspection, document ingestion, semantic search, benchmarking, RAG question answering, PCA projections, and real-time SSE token streaming (`/api/ask/stream`).
+  - 29 endpoints covering collection management, vector operations, HNSW topology inspection, document ingestion, semantic search, benchmarking, RAG question answering, PCA projections, and real-time SSE token streaming (`/api/ask/stream`).
   - Security hardening:
     - Host header DNS rebinding protection on loopback (HTTP 403 `forbidden_host`).
     - Origin header validation against loopback origins and `--cors-origin` (HTTP 403 `forbidden_origin`).
