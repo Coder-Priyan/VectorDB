@@ -119,7 +119,8 @@ curl.exe -s http://127.0.0.1:8080/api/stats
 {
   "count": 1000,
   "dimension": 128,
-  "metric": "cosine"
+  "metric": "cosine",
+  "memory_bytes": 520000
 }
 ```
 

@@ -1,6 +1,6 @@
 # Project Takeover Audit & History
 
-Last updated: 2026-11-12 by T-001
+Last updated: 2026-11-12 by T-004
 
 ## 1. Project History Reconstructed from Git
 
@@ -19,7 +19,7 @@ The VectorDB repository consists of 72 commits authored by `Coder-Priyan` spanni
 
 ### System Strengths
 - **Strictly Zero Cloud / Zero Telemetry**: Operates completely offline with zero external network dependencies [CONFIRMED: CMakeLists.txt].
-- **Hermetic Testing**: 109 out of 110 C++ tests run without network access using an in-process mock HTTP server [CONFIRMED: tests/fake_ollama.hpp].
+- **Hermetic Testing**: 110 out of 111 C++ tests run without network access using an in-process mock HTTP server [CONFIRMED: tests/fake_ollama.hpp].
 - **High Web Safety Discipline**: 100% free of `innerHTML`, `outerHTML`, or `eval()`; verified by automated scanner [CONFIRMED: scripts/check_web_safety.ps1].
 - **Modern C++ Standards**: Clean build with zero warnings under `-Wall -Wextra -Wpedantic` [CONFIRMED: CMakeLists.txt:21].
 
@@ -40,7 +40,7 @@ The VectorDB repository consists of 72 commits authored by `Coder-Priyan` spanni
 | "Zero External Dependencies" | `web/index.html:246` | Server vendors `httplib.h` and `json.hpp` and requires local Ollama | Reworded to "runs fully offline - no cloud, no external vector DB" in commit `b147097` |
 | "A gold star plotted at the query vector's projected coordinates" | `docs/DEMO_SCRIPT.md:56` | Query marker is rendered as a red star (`#ef4444`) with white stroke | Corrected color name to red in commit `79335c3` |
 | `curl.exe -s -X POST http://127.0.0.1:8080/api/docs/reset` (no headers) | `docs/API.md:709` | Server rejected request with HTTP 415 `unsupported_media_type` | Added `-H "Content-Type: application/json" -d "{}"` in commit `79335c3` |
-| "99 registered unit & integration tests" | `README.md:70` | Real test runner registers 110 C++ tests and 55 browser tests | Updated test counts in commit `5a1d2a4` |
+| "99 registered unit & integration tests" | `README.md:70` | Real test runner registers 111 C++ tests and 62 browser tests | Updated test counts in commit `5a1d2a4` and subsequent tasks |
 
 ---
 
@@ -59,11 +59,11 @@ The VectorDB repository consists of 72 commits authored by `Coder-Priyan` spanni
 
 ## 5. Five Claims the Human Can Verify with One Command
 
-1. **Verify All 110 C++ Tests Pass**:
+1. **Verify All 111 C++ Tests Pass**:
    ```powershell
    .\build\vectordb_tests.exe
    ```
-   *Expected output*: `Tests passed: 110 / 110`, `Tests failed: 0 / 110`, `OVERALL STATUS: ALL TESTS PASSED`.
+   *Expected output*: `Tests passed: 111 / 111`, `Tests failed: 0 / 111`, `OVERALL STATUS: ALL TESTS PASSED`.
 
 2. **Verify Clean Rebuild with Zero Warnings**:
    ```powershell

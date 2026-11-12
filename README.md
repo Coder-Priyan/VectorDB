@@ -75,8 +75,8 @@ The following architectural capabilities are planned for future versions but are
   - Server CLI flags: 17 command-line flags including `--port`, `--host`, `--dim`, `--metric`, `--M`, `--efConstruction`, `--efSearch`, `--seed`, `--web-dir`, `--ollama-url`, `--embed-model`, `--chat-model`, `--rag-dim`, `--rag-prompt` (v1|v2|v3), `--allow-remote-ollama`, `--cors-origin`, and `--help`.
   - Static file hosting mounting `/web` at the root URL `/`.
 - **Comprehensive Test Suite**:
-  - 110 registered C++ unit & integration tests in `vectordb_tests.exe` (1 test, `LiveOllamaTest.RealOllamaIntegration`, is skipped unless `VECTORDB_LIVE_OLLAMA=1` is set).
-  - 55 browser unit tests in `web/tests.html` across 13 test suites testing the SSE parser, 2D canvas viewport, request builders, citation parsing, hit-testing, and HNSW/Compare logic helpers.
+  - 111 registered C++ unit & integration tests in `vectordb_tests.exe` (1 test, `LiveOllamaTest.RealOllamaIntegration`, is skipped unless `VECTORDB_LIVE_OLLAMA=1` is set).
+  - 62 browser unit tests in `web/tests.html` across 16 test suites testing the SSE parser, 2D canvas viewport, request builders, citation parsing, hit-testing, and HNSW/Compare logic helpers.
 
 ---
 
@@ -216,7 +216,7 @@ vectordb/
 cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 
-# 2. Run the test suite (110 tests)
+# 2. Run the test suite (111 tests)
 ./build/vectordb_tests
 
 # 3. Start the server (with static web UI)
@@ -326,11 +326,11 @@ powershell -ExecutionPolicy Bypass -File scripts\check_web_safety.ps1
 ## Running the Test Suite
 
 ```bash
-# Run the hermetic test suite (109 passed, 1 skipped, zero cloud/network dependency)
+# Run the hermetic test suite (110 passed, 1 skipped, zero cloud/network dependency)
 ./build/vectordb_tests
 
 # Run including the opt-in live test against local Ollama
 VECTORDB_LIVE_OLLAMA=1 ./build/vectordb_tests
 ```
 
-All 110 registered unit & integration tests (109 hermetic passed, 1 opt-in live Ollama test skipped unless `VECTORDB_LIVE_OLLAMA=1` is set). In-browser pure logic tests (55 unit tests across 13 test suites) run at `http://127.0.0.1:8080/tests.html`.
+All 111 registered unit & integration tests (110 hermetic passed, 1 opt-in live Ollama test skipped unless `VECTORDB_LIVE_OLLAMA=1` is set). In-browser pure logic tests (62 unit tests across 16 test suites) run at `http://127.0.0.1:8080/tests.html`.

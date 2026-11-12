@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-12 by SYNC
+Last updated: 2026-11-12 by T-004
 
 ## 1. Operating Model
 
@@ -75,7 +75,7 @@ cmake --build build
 # 3. Clean full rebuild
 cmake --build build --clean-first
 
-# 4. Run automated C++ test suite (110 registered tests, 109 hermetic + 1 opt-in skipped)
+# 4. Run automated C++ test suite (111 registered tests, 110 hermetic + 1 opt-in skipped)
 .\build\vectordb_tests.exe
 
 # 5. Run test suite including live local Ollama
@@ -107,8 +107,9 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 3. **Canvas Zero-Dimension Layout Guard**: Browsers reporting hidden tabs can pass `0x0` dimensions to HTML5 canvas render routines, triggering `DOMException: INVALID_STATE_ERR` on `drawImage`. Always verify `width > 0 && height > 0` before drawing [CONFIRMED: web/js/hnsw_helpers.js:15].
 4. **HNSW Graph Edge Cap**: Rendering huge proximity graphs in the browser hangs the UI thread. The backend strictly truncates edge export at 60,000 edges and sets `"truncated": true`, while computing the true total edge count beforehand [CONFIRMED: src/collection.cpp:227].
 5. **In-Memory Non-Atomic Ingestion**: Document ingestion embeddings are validated before committing, but if vector insertion fails mid-loop, already inserted chunks remain in memory without a DocumentRecord until `POST /api/docs/reset` is called [CONFIRMED: src/rag.cpp:138].
-6. **Audit Claims Verification Status**: Claims from Antigravity's audit were verified by the human in their own terminal on 2026-11-12: 110/110 tests, zero warnings on clean rebuild, 4 executables, web safety scan pass, 72 commits with 6 ahead of origin, 29 API routes, 17 server flags. Not yet verified by the human: HNSW recall numbers (ISS-003, ISS-004), 55 browser tests, live Ollama RAG run.
+6. **Audit Claims Verification Status**: Claims from Antigravity's audit were verified by the human in their own terminal on 2026-11-12: 110/110 tests, zero warnings on clean rebuild, 4 executables, web safety scan pass, 72 commits with 6 ahead of origin, 29 API routes, 17 server flags. Not yet verified by the human: HNSW recall numbers (ISS-003, ISS-004), 62 browser tests, live Ollama RAG run.
 7. **Demo Random Endpoint Contract**: Demo random insert uses field 'n', not 'count'. Docs claiming TESTED for the web UI meant pure-logic tests only; real browser testing by the human found a bug on 2026-11-12.
+8. **Browser Test Count History**: Browser test count was 57 after T-002; older docs said 55; reached 62 after T-004.
 
 ---
 

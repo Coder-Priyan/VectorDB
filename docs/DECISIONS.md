@@ -1,6 +1,6 @@
 # Architectural Decision Records (ADR)
 
-Last updated: 2026-11-12 by SYNC
+Last updated: 2026-11-12 by T-004
 
 | ID | Date | Decision | Reason | Alternatives Rejected | Evidence Tag |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -19,4 +19,5 @@ Last updated: 2026-11-12 by SYNC
 | ADR-013 | 2026-11-11 | Cap HNSW layer graph serialization at 60,000 edges | Prevent browser main thread freezing when rendering high-density layer 0 proximity graphs | Unbounded edge serialization, WebGL GPU rendering | [CONFIRMED: src/collection.cpp:227] |
 | ADR-014 | 2026-11-11 | Defensive `isCanvasDrawable` viewport guard on hidden tab switches | Prevent Chrome `DOMException: INVALID_STATE_ERR` when `drawImage` executes on unmeasured 0x0 canvases | Global unhandled rejection suppressors, synchronous resize polling | [CONFIRMED: web/js/hnsw_helpers.js:15] |
 | ADR-015 | 2026-11-12 | Batch UI bug fixes after manual testing into one fix task following a read-only investigation | When manual testing surfaces multiple small UI issues (e.g. ISS-018 to ISS-022), creating separate tasks per issue causes high round-trip overhead and context churn. Frontend-to-server field names must also be covered by tests (lesson from ISS-017 / T-002) | One task per minor bug; fixing bugs on the fly during manual testing without investigation | [CONFIRMED: human instruction in chat] |
+| ADR-016 | 2026-11-12 | V2 prompt reordered: refusal rule first, plus no-repeat and language-match rules | Avoids rambling context summaries on irrelevant questions, stops question echoing on line 1, and matches input dialect (Hinglish/Hindi/English) | Relevance threshold filter (bigger algorithmic change, left for later) | [CONFIRMED: human instruction in chat] |
 

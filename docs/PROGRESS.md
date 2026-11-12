@@ -1,10 +1,10 @@
 # Project Progress
 
-Last updated: 2026-11-12 by SYNC
+Last updated: 2026-11-12 by T-004
 
-## 1. Current Phase: Manual browser testing done by the human on 2026-11-12; T-001 and T-002 done; T-003 (investigation) next
+## 1. Current Phase: Batched fixes T-004 completed for ISS-018 to ISS-022; human manual browser re-test next
 
-All primary development tasks (Tasks 1 through 7b) and bug fix tasks (T-001, T-002) are completed and committed to local git history. The repository stands with zero build warnings, 110 passing C++ test cases with regression coverage, 57 browser test suites, and 0 open pull requests [CONFIRMED: git status, git log].
+All primary development tasks (Tasks 1 through 7b) and bug fix tasks (T-001, T-002, T-004) are completed and committed to local git history. The repository stands with zero build warnings, 111 passing C++ test cases with regression coverage, 62 browser pure-logic tests across 16 suites, and 0 open pull requests [CONFIRMED: git status, git log].
 
 ---
 
@@ -27,8 +27,8 @@ All primary development tasks (Tasks 1 through 7b) and bug fix tasks (T-001, T-0
 | **Real-time SSE Token Streaming** (`/api/ask/stream` endpoint) | `src/server_main.cpp`, `src/api.cpp`, `web/js/sse.js` | [CONFIRMED] | TESTED |
 | **Interactive Offline Browser UI** (5 tabs: Ask, Explore, HNSW, Compare, Settings) | `web/index.html`, `web/css/app.css`, `web/js/*.js` | [CONFIRMED] | TESTED |
 | **Automated Web Safety Scanner** (Zero innerHTML, strict CSP verified) | `scripts/check_web_safety.ps1` | [CONFIRMED] | TESTED |
-| **Hermetic C++ Unit & Integration Test Suite** (110 registered tests) | `tests/*.cpp`, `tests/fake_ollama.hpp` | [CONFIRMED] | TESTED |
-| **Browser Pure-Logic Unit Test Suite** (55 registered unit tests) | `web/tests.html`, `web/js/tests/*.js` | [CONFIRMED] | TESTED |
+| **Hermetic C++ Unit & Integration Test Suite** (111 registered tests) | `tests/*.cpp`, `tests/fake_ollama.hpp` | [CONFIRMED] | TESTED |
+| **Browser Pure-Logic Unit Test Suite** (62 registered unit tests) | `web/tests.html`, `web/js/tests/*.js` | [CONFIRMED] | TESTED |
 
 *(Note: For real browser verification results and human-tested status as of 2026-11-12, see the [Verification status (as of 2026-11-12)](PROJECT_CONTEXT.md#verification-status-as-of-2026-11-12) section in docs/PROJECT_CONTEXT.md).*
 
