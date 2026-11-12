@@ -1,15 +1,19 @@
 # Project Handoff
 
-Last updated: 2026-11-12 by T-018
+Last updated: 2026-11-12 by T-019
 
 ## 1. Current Status
-VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. Phase 1 (foundation), Phase 2 (Ask tab), Phase 3 (Settings tab), Phase 4a (Explore + HNSW tabs), Phase 4b (Compare tab redesign, flat progress bar, table wrapping prevention, taupe/moss/amber palette with zero blue), T-016 (browser test fallback color fix), T-017 (one-screen UI feasibility study), and T-018 (cleanup before one-screen UI: mockup removed, alert/confirm replaced with inline UI and two-step confirm, docs cleanup) are complete. All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 23 Ask DOM IDs (plus new `doc-reset-cancel-btn`), 62 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
+VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. Phase 1 (foundation), Phase 2 (Ask tab), Phase 3 (Settings tab), Phase 4a (Explore + HNSW tabs), Phase 4b (Compare tab redesign, flat progress bar, table wrapping prevention, taupe/moss/amber palette with zero blue), T-016 (browser test fallback color fix), T-017 (one-screen UI feasibility study), T-018 (cleanup before one-screen UI: mockup removed, alert/confirm replaced with inline UI and two-step confirm, docs cleanup), and T-019 (One-screen UI Phase 1: fixed 100dvh app shell, Ask tab one-screen pilot with inner scroll areas, smart auto-scroll, temporary panel scroll for other tabs) are complete. All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), 66 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
 
 ## 2. Last Work Done (From Git)
+- **Task T-019** (branch `ui-redesign`): One-screen UI Phase 1 - fixed app shell + Ask tab pilot.
+  1. *App Shell & Panel Scroll*: Set `html, body` to `height: 100% / 100vh / 100dvh` with `overflow: hidden`, removed `html` scrollbar-gutter and `overflow-y: scroll`. Pinned `.app-header` and `.app-footer` with `flex-shrink: 0`. `.app-content` configured with `flex: 1`, `min-height: 0`, `overflow: hidden`, and tighter vertical padding `16px 28px 12px 28px`. Added temporary panel-level scroll (`overflow-y: auto; height: 100%`) for `#panel-explore`, `#panel-hnsw`, `#panel-compare`, and `#panel-settings`.
+  2. *Ask Tab Layout*: Configured `#panel-ask` with `overflow: hidden; height: 100%`. `.ask-layout` set to `height: 100%; min-height: 0; align-items: stretch`. `.ask-sidebar` (320px) scrolls with its own `overflow-y: auto`. `.reading-column` set to `height: 100%; min-height: 0` with pinned query section (`flex-shrink: 0`). `.answer-box` gets `flex: 1; min-height: 120px; overflow-y: auto`, preserving natural height when empty (`border-left: none; min-height: auto; flex: 0 0 auto`). `.sources-list` capped at `max-height: 180px; overflow-y: auto; flex-shrink: 0`. Added `tabindex="0"` and `aria-label` to answer box and sources list with calm 1px amber `:focus-visible`. Added fallback `@media (max-height: 520px), (max-width: 1100px)` restoring document scroll.
+  3. *Smart Auto-Scroll*: Added pure helper `shouldAutoScroll(scrollTop, scrollHeight, clientHeight, threshold = 40)` in `web/js/ui.js` and wired into `web/js/ask.js` token streaming handler (evaluates scroll condition before appending new tokens). Added 4 unit tests in `web/js/tests/test_core.js`, raising browser test count from 62 to 66.
 - **Task T-018** (branch `ui-redesign`): Cleanup before one-screen UI work.
   1. *Mockup Removal*: Removed temporary directory `web/mockup/` (`ask.html` and `mockup.css`) while retaining local fonts in `web/fonts/`.
   2. *Replace Native alert()/confirm()*: Replaced all native dialogs in production JavaScript with non-blocking inline DOM elements. Replaced `confirm()` on `#doc-reset-btn` and `#demo-reset-btn` with a 2-step inline confirmation flow (button text changes to "Confirm reset", displays a "Cancel" button, and auto-resets after a 5-second timeout). Replaced `alert()` on random vector insertion and demo reset with `#settings-random-status` and `#settings-reset-status` banner notices (`role="status"` with 5-second auto-hide).
-  3. *Documentation Cleanup*: Deduplicated sections in `HANDOFF.md`, updated `PROJECT_CONTEXT.md` (active branch `ui-redesign`, local IBM Plex fonts, human verification of Phases 1 to 4b + 62 tests, agent browser testing gotcha), updated `ARCHITECTURE.md` (local fonts, dark-only Editor/Terminal UI), recorded ADR-020 in `DECISIONS.md`, and updated `PROGRESS.md`.
+  3. *Documentation Cleanup*: Deduplicated sections in `HANDOFF.md`, updated `PROJECT_CONTEXT.md`, updated `ARCHITECTURE.md`, recorded ADR-020 in `DECISIONS.md`, and updated `PROGRESS.md`.
 - **Task T-017** (branch `ui-redesign`): One-screen UI feasibility study (read-only architectural analysis). Evaluated viewport layout constraints, overflow configurations, and sizing mechanics across all 5 tabs for zero-page-scroll instrument-panel UX.
 - **Task T-016** (branch `ui-redesign`): Fixed failing browser unit test in `web/js/tests/test_explore_hnsw.js`. Updated expected fallback color to `#807c74` matching T-014 production constant.
 - **Task T-015** (branch `ui-redesign`): Redesign Phase 4b complete (Compare tab layout, flat progress bar, zero blue palette).
@@ -30,7 +34,7 @@ VectorDB engine is in a stable, verified, and frozen state. Active development i
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
 ## 4. Recommended Next Step
-- Human verifies T-018 in browser (Settings reset/confirm flow, no popups). Then decide: T-019 merge ui-redesign to main, or one-screen UI Phase 1 (Shell + Ask tab) first; human decides.
+- Human verifies T-019 in browser on both normal desktop and resized window (one-screen layout, no page scroll on desktop, inner scroll on Ask tab answer and sources, smart auto-scroll while streaming, temporary panel scroll on other 4 tabs, fallback on <= 520px height or <= 1100px width, /tests.html 66/66). Then decide next phase: merge ui-redesign to main, or proceed with One-screen UI Phase 2 (Explore + HNSW canvas sizing).
 
 ## 5. UI Redesign Phase Plan
 UI redesign phases (branch `ui-redesign`):
@@ -39,11 +43,11 @@ UI redesign phases (branch `ui-redesign`):
 3. **Phase 3 (Settings Tab - T-013)**: Clean industrial layout for server health, metrics, and demo reset controls. [COMPLETED]
 4. **Phase 4a (Explore + HNSW Tabs - T-014)**: Toolbar width regression fix, unboxed toolbars, `.viz-layout` restructure, dark canvas colors (warm/earth palette, muted gray/amber HNSW layers, off-white query stars, amber trace path). [COMPLETED]
 5. **Phase 4b (Compare Tab - T-015)**: Unboxed toolbar, `.viz-layout` restructure, horizontal table scrolling container, flat thin amber progress bar, taupe/moss/amber palette with zero blue. [COMPLETED]
-6. **Phase 5 (Polish & Cleanup - T-018)**:
-   - Removed temporary directory `web/mockup/` [COMPLETED]
-   - Replaced native `alert()` / `confirm()` with inline notices and 2-step confirmation [COMPLETED]
-   - Docs cleanup (`PROJECT_CONTEXT.md`, `ARCHITECTURE.md`, `DECISIONS.md`, `PROGRESS.md`, `HANDOFF.md`) [COMPLETED]
-   - Human browser verification, then proceed to T-019 merge or One-screen UI Phase 1.
+6. **Phase 5 (Polish & Cleanup - T-018)**: Removed temporary mockup folder, replaced native alert/confirm with inline UI, docs cleanup. [COMPLETED]
+7. **One-Screen UI Phase 1 (Shell + Ask Pilot - T-019)**: Fixed 100dvh app shell, Ask tab one-screen layout with inner scroll areas, smart auto-scroll, 4 unit tests (66 total), temporary panel-level scroll on non-Ask tabs, responsive fallback media query. [COMPLETED]
+8. **One-Screen UI Phase 2 (Explore + HNSW Canvas Sizing)**: Container-driven canvas sizing in `canvas.js`, unboxed toolbar pinned, sidebar inner scroll. [PENDING]
+9. **One-Screen UI Phase 3 (Compare Option A)**: Table and canvas chart inner scrolling. [PENDING]
+10. **One-Screen UI Phase 4 (Settings)**: Settings 2-column grid inner scroll and compact tuning. [PENDING]
 *Dark only. Human verifies in browser after each phase.*
 
 ## 6. Pending Human Actions
@@ -53,8 +57,12 @@ UI redesign phases (branch `ui-redesign`):
   - Verification task T-007 (docs vs git audit): SKIPPED by human decision.
 
 ## 7. Open Decisions / Known Gaps
-- **One-Screen UI Goal**: Human goal (2026-11-12): one-screen UI feel. Page never scrolls; long content (answers, sources, tables) scrolls only inside its own panel. Feasibility analysis completed in T-017; recorded in ADR-020.
-  - Feasibility risk notes from Brain review: (1) Explore/HNSW canvas uses width:100%; height:auto, so max-height alone will distort/crop it and break hover/zoom coordinates; Phase 2 needs JS sizing from the wrapper (canvas.js). (2) Fallback media query max-height: 640px may trigger on 1280x720 laptops; test the threshold in Phase 1. (3) Settings 'fits without scroll at 900px' is INFERRED only.
+- **One-Screen UI Phase 1 (T-019)** = shell + Ask pilot. Explore/HNSW/Compare/Settings have TEMPORARY panel-level scroll until Phases 2-4. Fallback threshold (max-height 520px / max-width 1100px) is a guess; human tests on 1280x720. Merge to main only after human approves the one-screen feel.
+- Total Ask DOM IDs is 25 (including `panel-ask`, 24 child IDs including `doc-reset-cancel-btn`).
+- Feasibility risk notes from Brain review:
+  1. Explore/HNSW canvas uses width:100%; height:auto, so max-height alone will distort/crop it and break hover/zoom coordinates; Phase 2 needs JS sizing from the wrapper (canvas.js).
+  2. Fallback media query max-height: 520px is a guess; human will test threshold on a 1280x720 laptop window.
+  3. Settings 'fits without scroll at 900px' is INFERRED only.
 - Known UI gaps to address:
   - `DEMO_SCRIPT.md` refers to "red star" marker: query star is now off-white `#f0ede6` with black outline. (Human handles viva/presentation docs independently).
 - Roadmap features (hybrid search, reranking, disk persistence, delete) remain ON HOLD until the human confirms they are required.

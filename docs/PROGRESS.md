@@ -1,10 +1,10 @@
 # Project Progress
 
-Last updated: 2026-11-12 by T-018
+Last updated: 2026-11-12 by T-019
 
-## 1. Current Phase: Cleanup Complete (Task T-018, Branch `ui-redesign`); Ready for Human Verification
+## 1. Current Phase: One-Screen UI Phase 1 Complete (Task T-019, Branch `ui-redesign`); Ready for Human Verification
 
-All core engine development and bug fix tasks are completed and verified (111 C++ tests, 62 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Phases 1 through 4b and T-016 (test fix) were verified in the browser by the human on 2026-11-12. Task T-017 (one-screen UI feasibility study) and Task T-018 (cleanup: mockup removal, alert/confirm replaced with inline UI and two-step confirm, docs cleanup) are completed. All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 23 Ask DOM IDs (plus new `doc-reset-cancel-btn`), and all 62 browser unit tests remain functional [CONFIRMED: git status, git log].
+All core engine development and bug fix tasks are completed and verified (111 C++ tests, 66 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Phases 1 through 4b and T-016 (test fix) were verified in the browser by the human on 2026-11-12. Task T-017 (feasibility study) and Task T-018 (cleanup) are completed. Task T-019 implements One-screen UI Phase 1: fixed 100dvh app shell, Ask tab one-screen layout with inner scroll areas, smart auto-scroll with 4 unit tests, temporary panel-level scroll on non-Ask tabs, and fallback media query for small viewports. All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), and all 66 browser unit tests remain functional [CONFIRMED: git status, git log].
 
 ---
 
@@ -28,7 +28,7 @@ All core engine development and bug fix tasks are completed and verified (111 C+
 | **Interactive Offline Browser UI** (5 tabs: Ask, Explore, HNSW, Compare, Settings) | `web/index.html`, `web/css/app.css`, `web/js/*.js` | [CONFIRMED] | TESTED |
 | **Automated Web Safety Scanner** (Zero innerHTML, strict CSP verified) | `scripts/check_web_safety.ps1` | [CONFIRMED] | TESTED |
 | **Hermetic C++ Unit & Integration Test Suite** (111 registered tests) | `tests/*.cpp`, `tests/fake_ollama.hpp` | [CONFIRMED] | TESTED |
-| **Browser Pure-Logic Unit Test Suite** (62 registered unit tests) | `web/tests.html`, `web/js/tests/*.js` | [CONFIRMED] | TESTED |
+| **Browser Pure-Logic Unit Test Suite** (66 registered unit tests) | `web/tests.html`, `web/js/tests/*.js` | [CONFIRMED] | TESTED |
 
 *(Note: For real browser verification results and human-tested status as of 2026-11-12, see the [Verification status (as of 2026-11-12)](PROJECT_CONTEXT.md#verification-status-as-of-2026-11-12) section in docs/PROJECT_CONTEXT.md).*
 
