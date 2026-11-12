@@ -37,51 +37,112 @@
   <main class="app-content">
     <!-- TAB 1: ASK (RAG) -->
     <section id="panel-ask" class="tab-panel active" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-ask">
-      <div class="split-view">
-        <div class="card panel-column">
-          <div class="card-header">
-            <h2 class="card-title">Document Ingestion</h2>
-            <button id="doc-reset-btn" class="btn btn-sm btn-danger">Reset Docs</button>
-          </div>
-          <form id="doc-ingest-form" class="form-stack">
-            <div class="form-group"><label for="doc-title-input">Title</label><input type="text" id="doc-title-input" class="input-text" placeholder="Title" required></div>
-            <div class="form-group"><label for="doc-file-input">Load File (.txt, .md, &le; 2 MB)</label><input type="file" id="doc-file-input" class="input-file" accept=".txt,.md"></div>
-            <div class="form-group"><label for="doc-text-input">Plain Text Content</label><textarea id="doc-text-input" class="textarea-field" rows="5" placeholder="Paste document text..." required></textarea></div>
-            <div class="form-row">
-              <div class="form-group flex-1"><label for="doc-strategy-select">Chunking</label><select id="doc-strategy-select" class="input-select"><option value="sentence" selected>Sentence</option><option value="fixed">Fixed</option></select></div>
-              <div class="form-group flex-1"><label for="doc-max-chars">Max</label><input type="number" id="doc-max-chars" class="input-text" value="800"></div>
-              <div class="form-group flex-1"><label for="doc-overlap-chars">Overlap</label><input type="number" id="doc-overlap-chars" class="input-text" value="100"></div>
+      <div class="ask-layout">
+        <!-- Left Sidebar: Ingestion & Inventory -->
+        <aside class="ask-sidebar">
+          <div class="ask-sidebar-section">
+            <div class="ask-sidebar-header">
+              <h2 class="section-title">Document Ingestion</h2>
+              <button type="button" id="doc-reset-btn" class="btn btn-sm btn-danger">Reset Docs</button>
             </div>
-            <button type="submit" id="doc-ingest-btn" class="btn btn-primary">Ingest Document</button>
-          </form>
-          <div class="docs-list-section">
-            <h3 class="section-title">Ingested Documents (<span id="docs-count-label">0</span>)</h3>
-            <div id="docs-list-container" class="docs-list"><p class="text-muted empty-state">No documents ingested.</p></div>
+            <form id="doc-ingest-form" class="form-stack">
+              <div class="form-group">
+                <label for="doc-title-input">Document title</label>
+                <input type="text" id="doc-title-input" class="input-text" placeholder="Title" required>
+              </div>
+              <div class="form-group">
+                <label for="doc-file-input">Load file (.txt, .md &le; 2 MB)</label>
+                <input type="file" id="doc-file-input" class="input-file" accept=".txt,.md">
+              </div>
+              <div class="form-group">
+                <label for="doc-text-input">Plain text content</label>
+                <textarea id="doc-text-input" class="textarea-field" rows="8" placeholder="Paste document text..." required></textarea>
+              </div>
+              <div class="form-group">
+                <label for="doc-strategy-select">Chunking strategy</label>
+                <select id="doc-strategy-select" class="input-select">
+                  <option value="sentence" selected>Sentence boundary</option>
+                  <option value="fixed">Fixed character window</option>
+                </select>
+              </div>
+              <div class="two-col-grid">
+                <div class="form-group">
+                  <label for="doc-max-chars">Max chars</label>
+                  <input type="number" id="doc-max-chars" class="input-text" value="800">
+                </div>
+                <div class="form-group">
+                  <label for="doc-overlap-chars">Overlap</label>
+                  <input type="number" id="doc-overlap-chars" class="input-text" value="100">
+                </div>
+              </div>
+              <button type="submit" id="doc-ingest-btn" class="btn btn-primary w-100">Ingest Document</button>
+            </form>
           </div>
-        </div>
 
-        <div class="card panel-column">
-          <div class="card-header"><h2 class="card-title">Grounded Semantic Q&amp;A</h2></div>
-          <form id="ask-form" class="form-stack">
-            <div class="form-group">
-              <div class="label-row"><label for="ask-question-input">Question</label><span id="ask-char-count" class="char-count text-muted">0 / 2000</span></div>
-              <textarea id="ask-question-input" class="textarea-field" rows="3" maxlength="2000" placeholder="Ask a question grounded in your documents..." required></textarea>
+          <div class="ask-sidebar-section">
+            <div class="ask-sidebar-header">
+              <h3 class="section-title">Ingested Documents (<span id="docs-count-label">0</span>)</h3>
             </div>
-            <div class="form-row">
-              <div class="form-group flex-1"><label for="ask-k-input">Top k</label><input type="number" id="ask-k-input" class="input-text" value="4" min="1" max="20"></div>
-              <div class="form-group flex-1"><label for="ask-algo-select">Algorithm</label><select id="ask-algo-select" class="input-select"><option value="hnsw" selected>HNSW</option><option value="kdtree">KD-Tree</option><option value="brute">Brute</option></select></div>
+            <div id="docs-list-container" class="docs-list">
+              <p class="text-muted empty-state">No documents ingested.</p>
             </div>
-            <div class="btn-group"><button type="submit" id="ask-submit-btn" class="btn btn-primary">Ask</button><button type="button" id="ask-stop-btn" class="btn btn-outline" disabled>Stop</button></div>
-          </form>
-          <div id="ask-loading-notice" class="notice-box notice-warning hidden" role="status">Model is loading or thinking (first answer after idle can take 15+ s on CPU)...</div>
-          <div class="answer-section">
-            <h3 class="section-title">Answer</h3>
-            <div id="ask-answer-box" class="answer-box" aria-live="polite"><p class="text-muted empty-state">Ask a question above to see grounded answers.</p></div>
-            <div id="ask-timings-container" class="timings-bar hidden"></div>
           </div>
-          <div class="sources-section">
-            <h3 class="section-title">Retrieved Sources (<span id="sources-count-label">0</span>)</h3>
-            <div id="ask-sources-container" class="sources-list"><p class="text-muted empty-state">No sources retrieved yet.</p></div>
+        </aside>
+
+        <!-- Center Main Viewport: Focused Reading Column -->
+        <div class="ask-main">
+          <div class="reading-column">
+            <!-- Question Form -->
+            <section class="ask-query-section">
+              <form id="ask-form" class="form-stack">
+                <div class="form-group">
+                  <div class="label-row">
+                    <label for="ask-question-input">Question</label>
+                    <span id="ask-char-count" class="char-count text-muted">0 / 2000</span>
+                  </div>
+                  <textarea id="ask-question-input" class="textarea-field question-input" rows="4" maxlength="2000" placeholder="Ask a question grounded in your documents..." required></textarea>
+                </div>
+                <div class="search-controls-bar">
+                  <div class="controls-left-group">
+                    <div class="control-inline-item">
+                      <label for="ask-k-input">Top k</label>
+                      <input type="number" id="ask-k-input" class="input-text control-mini-input" value="4" min="1" max="20">
+                    </div>
+                    <div class="control-inline-item">
+                      <label for="ask-algo-select">Algorithm</label>
+                      <select id="ask-algo-select" class="input-select control-mini-select">
+                        <option value="hnsw" selected>HNSW</option>
+                        <option value="kdtree">KD-Tree</option>
+                        <option value="brute">Brute</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="btn-group">
+                    <button type="submit" id="ask-submit-btn" class="btn btn-primary">Ask</button>
+                    <button type="button" id="ask-stop-btn" class="btn btn-outline" disabled>Stop</button>
+                  </div>
+                </div>
+              </form>
+            </section>
+
+            <div id="ask-loading-notice" class="notice-box notice-warning hidden" role="status">Model is loading or thinking (first answer after idle can take 15+ s on CPU)...</div>
+
+            <!-- Answer Section -->
+            <section class="answer-section">
+              <h3 class="section-title">Answer</h3>
+              <div id="ask-answer-box" class="answer-box" aria-live="polite">
+                <p class="text-muted empty-state">Ask a question above to see grounded answers.</p>
+              </div>
+              <div id="ask-timings-container" class="timings-bar hidden"></div>
+            </section>
+
+            <!-- Sources Section -->
+            <section class="sources-section">
+              <h3 class="section-title">Retrieved Sources (<span id="sources-count-label">0</span>)</h3>
+              <div id="ask-sources-container" class="sources-list">
+                <p class="text-muted empty-state">No sources retrieved yet.</p>
+              </div>
+            </section>
           </div>
         </div>
       </div>

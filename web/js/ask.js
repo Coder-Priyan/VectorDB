@@ -282,12 +282,15 @@ export function initAskTab() {
 
   function renderTimings(t) {
     if (!askTimingsContainer) return;
+    const parts = [
+      `embed ${formatDuration(t.embed_ms)}`,
+      `search ${formatDuration(t.search_ms)}`,
+      `first token ${formatDuration(t.first_token_ms)}`,
+      `generation ${formatDuration(t.generate_ms)}`,
+      `total ${formatDuration(t.total_ms)}`
+    ];
     askTimingsContainer.replaceChildren(
-      el("span", { className: "timing-chip" }, `Embed: ${formatDuration(t.embed_ms)}`),
-      el("span", { className: "timing-chip" }, `Search: ${formatDuration(t.search_ms)}`),
-      el("span", { className: "timing-chip" }, `First Token: ${formatDuration(t.first_token_ms)}`),
-      el("span", { className: "timing-chip" }, `Generate: ${formatDuration(t.generate_ms)}`),
-      el("span", { className: "timing-chip" }, `Total: ${formatDuration(t.total_ms)}`)
+      el("span", { className: "timing-chip" }, parts.join(" \u00B7 "))
     );
     askTimingsContainer.classList.remove("hidden");
   }
