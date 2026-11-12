@@ -11,29 +11,28 @@
   <header class="app-header">
     <div class="header-brand">
       <h1 class="app-title">VectorDB</h1>
-      <span class="app-subtitle">Semantic Search &amp; Proximity Graphs</span>
     </div>
+
+    <nav class="tab-nav" role="tablist" aria-label="Main Navigation">
+      <button id="tab-btn-ask" class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-ask" tabindex="0">Ask (RAG)</button>
+      <button id="tab-btn-explore" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-explore" tabindex="-1">Explore (PCA)</button>
+      <button id="tab-btn-hnsw" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-hnsw" tabindex="-1">HNSW Graph</button>
+      <button id="tab-btn-compare" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-compare" tabindex="-1">Compare</button>
+      <button id="tab-btn-settings" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-settings" tabindex="-1">Settings</button>
+    </nav>
+
     <div class="header-controls">
       <div id="ollama-status-container" class="status-indicator">
         <span id="ollama-status-badge" class="badge badge-neutral" aria-live="polite">Checking Ollama...</span>
-        <button id="ollama-check-btn" class="btn btn-sm btn-icon" title="Check Ollama" aria-label="Refresh Ollama">&#x21bb;</button>
+        <button id="ollama-check-btn" class="btn btn-sm btn-outline" title="Check Ollama" aria-label="Refresh Ollama">Refresh</button>
       </div>
-      <button id="theme-toggle-btn" class="btn btn-sm btn-outline" aria-label="Toggle theme">Theme</button>
     </div>
   </header>
 
   <aside id="global-error-banner" class="alert alert-danger hidden" role="alert" aria-live="assertive">
     <span id="global-error-text" class="alert-message"></span>
-    <button id="global-error-dismiss" class="btn-close" aria-label="Dismiss error">&times;</button>
+    <button id="global-error-dismiss" class="btn-close" aria-label="Dismiss error">Dismiss</button>
   </aside>
-
-  <nav class="tab-nav" role="tablist" aria-label="Main Navigation">
-    <button id="tab-btn-ask" class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-ask" tabindex="0">Ask (RAG)</button>
-    <button id="tab-btn-explore" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-explore" tabindex="-1">Explore (PCA)</button>
-    <button id="tab-btn-hnsw" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-hnsw" tabindex="-1">HNSW Graph</button>
-    <button id="tab-btn-compare" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-compare" tabindex="-1">Compare</button>
-    <button id="tab-btn-settings" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-settings" tabindex="-1">Settings</button>
-  </nav>
 
   <main class="app-content">
     <!-- TAB 1: ASK (RAG) -->
@@ -95,7 +94,7 @@
           <div class="form-row align-center">
             <label for="explore-coll-select" class="fw-bold">Collection:</label>
             <select id="explore-coll-select" class="input-select"><option value="demo" selected>Demo Vectors</option><option value="docs">Document Chunks</option></select>
-            <button id="explore-refresh-btn" class="btn btn-sm btn-outline">&#x21bb; Refresh</button>
+            <button id="explore-refresh-btn" class="btn btn-sm btn-outline">Refresh</button>
           </div>
           <span id="explore-variance-note" class="text-muted font-mono text-xs">Loading variance...</span>
         </div>
@@ -141,7 +140,7 @@
             <input type="range" id="hnsw-layer-slider" min="0" max="0" value="0" class="input-range">
             <label for="hnsw-max-edges-select" class="ml-2">Max Edges:</label>
             <select id="hnsw-max-edges-select" class="input-select"><option value="2000">2,000</option><option value="10000">10,000</option><option value="20000" selected>20,000</option><option value="60000">60,000</option></select>
-            <button id="hnsw-refresh-btn" class="btn btn-sm btn-outline">&#x21bb;</button>
+            <button id="hnsw-refresh-btn" class="btn btn-sm btn-outline">Refresh</button>
           </div>
           <div class="form-row align-center"><span id="hnsw-edge-summary" class="text-muted font-mono text-xs"></span><span id="hnsw-edge-warn-badge" class="badge badge-warning hidden">Truncated</span></div>
         </div>
@@ -161,9 +160,9 @@
               <div class="form-row mt-2"><div class="form-group flex-2"><label for="hnsw-trace-id-input">Stored Vector ID</label><input type="number" id="hnsw-trace-id-input" class="input-text" placeholder="e.g. 1" min="1"></div><div class="form-group flex-1 align-end"><button type="button" id="hnsw-trace-id-btn" class="btn btn-outline w-100">Trace ID</button></div></div>
               <div class="player-bar mt-3">
                 <button type="button" id="hnsw-trace-play-btn" class="btn btn-sm btn-primary">Play</button>
-                <button type="button" id="hnsw-trace-prev-btn" class="btn btn-sm btn-outline">&#x25C0;</button>
-                <button type="button" id="hnsw-trace-next-btn" class="btn btn-sm btn-outline">&#x25B6;</button>
-                <button type="button" id="hnsw-trace-reset-btn" class="btn btn-sm btn-outline">&#x23EE;</button>
+                <button type="button" id="hnsw-trace-prev-btn" class="btn btn-sm btn-outline">Prev</button>
+                <button type="button" id="hnsw-trace-next-btn" class="btn btn-sm btn-outline">Next</button>
+                <button type="button" id="hnsw-trace-reset-btn" class="btn btn-sm btn-outline">Reset</button>
                 <select id="hnsw-trace-speed" class="input-select btn-sm"><option value="0.5">0.5x</option><option value="1" selected>1x</option><option value="2">2x</option><option value="5">5x</option></select>
               </div>
               <input type="range" id="hnsw-trace-slider" min="-1" max="-1" value="-1" class="input-range mt-2">
