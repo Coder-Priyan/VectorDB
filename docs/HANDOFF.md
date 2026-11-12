@@ -1,19 +1,18 @@
 # Project Handoff
 
-Last updated: 2026-11-12 by T-001
+Last updated: 2026-11-12 by T-002
 
 ## 1. Current Status
-VectorDB is in a stable, fully functional state following completion of Task T-001 documentation verification. All core search indexes (Brute Force, KD-Tree, HNSW), the matrix-free 2D PCA visualizer, the offline Ollama RAG pipeline, the 29-route REST HTTP server, and the 5-tab offline web UI are compiled and passing all hermetic tests.
+VectorDB is fully functional following completion of Task T-002. The field name mismatch between frontend ({count}) and backend ({n}) for POST /api/demo/random is resolved, with defensive normalization in api.js and regression tests in both C++ and browser test suites.
 
 ## 2. Last Work Done (From Git)
+- **Task T-002**: Fixed demo/random contract ({n}), updated settings.js, explore.js, and api.js, corrected API.md section 13 with live server curl output, and added regression tests.
 - **Task T-001**: Reconciled endpoint count (29 routes), removed stale CI claims, aligned ISS-005/006 severities, corrected document ingest transaction wording, and committed project memory docs.
-- **Commit `1297c59`**: Extended `scripts/check_web_safety.ps1` to detect DOM injection APIs (`createContextualFragment`, `DOMParser`, `srcdoc`, `javascript:`, `setAttribute on*`, `.href`/`.src` assignments) and split comment matches from code findings.
-- **Commit `79335c3`**: Aligned `docs/DEMO_SCRIPT.md` (red star `#ef4444`, default 100 vectors) and `docs/API.md` (mandatory POST `Content-Type: application/json` on empty payloads).
 
 ## 3. Git State
 - **Active Branch**: `main` [CONFIRMED]
-- **Unpushed Commits**: Ahead of `origin/main` (commits from Task 7b and T-001) [CONFIRMED]
-- **Working Tree**: Project documentation committed; untracked verification logs remain in `results/logs/` [CONFIRMED: git status]
+- **Unpushed Commits**: Ahead of `origin/main` (commits from Task T-002) [CONFIRMED]
+- **Working Tree**: Committing task documentation; untracked verification logs remain in `results/logs/` [CONFIRMED: git status]
 
 ## 4. Recommended Next Step
 Review the verified project documentation with Claude (Brain) and select the next engineering goal (e.g. hybrid BM25 search, cross-encoder reranking, disk persistence, or presentation preparations).

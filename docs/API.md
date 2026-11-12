@@ -303,23 +303,23 @@ curl.exe --max-time 5 -s -X POST http://127.0.0.1:8080/api/hnsw/trace -H "Conten
 
 Generates and inserts $N$ random uniform vectors into the collection for rapid testing and visual benchmarking.
 
-#### Request Body (optional parameters; if no parameters are sent, `{}` must be provided):
+#### Request Body:
 ```json
 {
-  "count": 50
+  "n": 50,
+  "seed": 42
 }
 ```
+*(Parameter `n` is required, integer between 1 and 100000; `seed` is optional unsigned integer, default 42).*
 
 ```powershell
-curl.exe --max-time 5 -s -X POST http://127.0.0.1:8080/api/demo/random -H "Content-Type: application/json" -d "{\"count\": 50}"
+curl.exe --max-time 5 -s -X POST http://127.0.0.1:8080/api/demo/random -H "Content-Type: application/json" -d "{\"n\": 50}"
 ```
 
 #### Response (200 OK):
 ```json
 {
-  "status": "ok",
-  "inserted": 50,
-  "dimension": 128
+  "inserted": 50
 }
 ```
 
