@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-12 by T-006
+Last updated: 2026-11-12 by T-SYNC-002
 
 ## 1. Operating Model
 
@@ -110,6 +110,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 6. **Audit Claims Verification Status**: Claims from Antigravity's audit were verified by the human in their own terminal on 2026-11-12: 110/110 tests, zero warnings on clean rebuild, 4 executables, web safety scan pass, 72 commits with 6 ahead of origin, 29 API routes, 17 server flags. Not yet verified by the human: HNSW recall numbers (ISS-003, ISS-004), 62 browser tests, live Ollama RAG run.
 7. **Demo Random Endpoint Contract**: Demo random insert uses field 'n', not 'count'. Docs claiming TESTED for the web UI meant pure-logic tests only; real browser testing by the human found a bug on 2026-11-12.
 8. **Browser Test Count History**: Browser test count was 57 after T-002; older docs said 55; reached 62 after T-004.
+9. **Git State in Documentation**: Git state claims in docs can go stale after pushes; always trust human's git status -sb over docs.
 
 ---
 
@@ -122,6 +123,7 @@ Features verified in a real browser by the human (with screenshots saved in resu
 Features verified in a real browser by the human (2026-11-12, T-004):
 - Settings tab: Demo Memory shows 50.8 KB with 100 vectors, efConstruction form default 200, Ollama Models row shows llama3.2:latest and nomic-embed-text:latest [CONFIRMED: screenshot saved by human in chat, not in results/screenshots/]
 - Ask tab: Title clears after ingest, pizza question refused, Hinglish question tested [CONFIRMED: human-reported, no screenshots]
+- Git sync status (pushed, nothing ahead) verified by human terminal screenshot 2026-11-12. [CONFIRMED: human terminal screenshot 2026-11-12]
 
 Features reported working by the human without screenshots:
 - Compare tab: Brute 34 µs, KD-Tree 41 µs, HNSW 103 µs on 100 vectors, all recall 100%. Nearest neighbors panel works, red star drawn. [CONFIRMED: human manual test]
