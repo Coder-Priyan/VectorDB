@@ -1,11 +1,12 @@
 # Project Handoff
 
-Last updated: 2026-11-12 by T-012
+Last updated: 2026-11-12 by T-013
 
 ## 1. Current Status
-VectorDB engine is in a stable, verified, and frozen state. The current active work is UI/UX redesign on branch `ui-redesign`. Phase 1 (foundation) and Phase 2 (Ask tab layout restructure + shell fixes) are complete across `web/css/app.css`, `web/index.html`, and `web/js/ask.js`. All 23 Ask tab DOM IDs, SSE streaming, citation clicking/scrolling, chunk drawers, and 111 C++ tests (529,746 assertions) are verified.
+VectorDB engine is in a stable, verified, and frozen state. The current active work is UI/UX redesign on branch `ui-redesign`. Phase 1 (foundation), Phase 2 (Ask tab), and Phase 3 (Settings tab industrial redesign + Phase 2 polish fixes) are complete across `web/css/app.css`, `web/index.html`, `web/js/ask.js`, and `web/js/settings.js`. All 11 Settings DOM IDs, 23 Ask DOM IDs, 62 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
 
 ## 2. Last Work Done (From Git)
+- **Task T-013** (branch `ui-redesign`): Redesign Phase 3 complete. Fixed Ask sidebar two-col-grid overflow (`min-width: 0`, 100% width, box-sizing), stabilized `scrollbar-gutter` to prevent 7px tab horizontal shift, disabled question input spellcheck. Redesigned Settings tab into a single centered column (~720px) with 40px section gaps and hairline dividers: Server status table with muted sentence case labels and monospace numbers; Demo collection configuration 2-column grid and Insert random vectors row; Danger zone section with accurate explanation and red outline Reset button. Preserved all 11 Settings DOM IDs.
 - **Task T-012** (branch `ui-redesign`): Redesign Phase 2 complete. Implemented shell fixes (Fix 1: removed duplicate border line under tab bar; Fix 2: removed tab active font-weight jump to prevent horizontal layout shift; Fix 3: styled `#demo-reset-btn` as destructive `.btn-danger`). Restructured `#panel-ask` in `web/index.html` and `web/css/app.css` to `.ask-layout`: ~320px left ingestion column with 2-column chunking grid and clean document cards; centered ~820px calm reading column with 4-row question input, unified search controls bar, borderless answer box with amber left rule, single-line telemetry string, and flat ruled source rows. Preserved all 23 DOM IDs and dynamic classes in `web/js/ask.js`.
 - **Task T-011** (branch `ui-redesign`): Redesign Phase 1 foundation complete. Rewrote `web/css/app.css` with dark-only tokens, local IBM Plex Sans and Mono fonts, flat hairline borders, zero gradients/shadows, single amber accent (`#d9a441`), and dark scrollbars. Restyled app shell in `web/index.html` (brand, integrated nav tabs, status indicator with text Refresh button, removed light theme button). Removed `initTheme()` in `web/js/main.js` and removed `#2563eb` and `data-theme` across the codebase.
 - **Task T-010** (branch `ui-redesign`): Minimalist polish of Ask mockup v2 (`web/mockup/ask.html`, `mockup.css`). Increased whitespace (15-16px text, 32-48px gaps), centered 820px reading column, reduced uppercase labels to 4, simplified borders, single-line telemetry, flat source rows, and fixed sidebar layout.
@@ -25,13 +26,13 @@ VectorDB engine is in a stable, verified, and frozen state. The current active w
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
 ## 4. Recommended Next Step
-- Human verifies Phase 2 in browser: Ask tab (ingest, ask, citations, Stop, Reset Docs) and /tests.html; then Phase 3 (Settings).
+- Human verifies Phase 3 in browser: Settings tab (Reset demo collection, Insert random vectors, config values), Ask overlap fix, tab bar no longer shifts, /tests.html; then Phase 4 (Explore, HNSW, Compare incl. canvas colors, Compare table text wrapping).
 
 ## 5. UI Redesign Phase Plan
 UI redesign phases (branch `ui-redesign`):
 1. **Phase 1 (Foundation + Shell - T-011)**: Design tokens, local IBM Plex fonts, dark app shell, global controls, light theme removal. [COMPLETED]
 2. **Phase 2 (Ask Tab - T-012)**: Full layout restructure of Ask tab matching approved minimalist mockup v2; shell fixes for tab line, tab width shift, and red destructive reset button. [COMPLETED]
-3. **Phase 3 (Settings Tab)**: Clean industrial layout for server health, metrics, and demo reset controls.
+3. **Phase 3 (Settings Tab - T-013)**: Clean industrial layout for server health, metrics, and demo reset controls. [COMPLETED]
 4. **Phase 4 (Explore + HNSW + Compare)**: Layout updates and dark-theme canvas color adaptations. *(Known gaps to address during Phase 4: canvas background/node color schemes for PCA and HNSW, benchmark bar colors, table border styling).*
 5. **Phase 5 (Polish & Merge)**: Final responsiveness, remove `web/mockup/`, regression testing, merge to `main`.
 *Dark only. Human verifies in browser after each phase.*

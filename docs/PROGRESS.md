@@ -1,10 +1,10 @@
 # Project Progress
 
-Last updated: 2026-11-12 by T-012
+Last updated: 2026-11-12 by T-013
 
-## 1. Current Phase: UI/UX Redesign Phase 2 Complete (Branch `ui-redesign`); Ask Tab Restructure & Shell Fixes Verified; Awaiting Human Browser Review
+## 1. Current Phase: UI/UX Redesign Phase 3 Complete (Branch `ui-redesign`); Settings Tab Restructure & Small Fixes Verified; Awaiting Human Browser Review
 
-All core engine development and bug fix tasks are completed and verified (111 C++ tests, 62 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Phase 1 (foundation) and Phase 2 (Ask tab layout restructure into ~320px left ingestion sidebar, centered 820px calm reading column, single-line telemetry string, flat ruled source rows, 2-column chunking grid; shell fixes for tab bar line, tab width shift, and red destructive reset button) are completed across production UI files (`web/css/app.css`, `web/index.html`, `web/js/ask.js`). All 23 Ask tab DOM IDs and all 62 browser unit tests remain functional [CONFIRMED: git status, git log].
+All core engine development and bug fix tasks are completed and verified (111 C++ tests, 62 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Phase 1 (foundation), Phase 2 (Ask tab), and Phase 3 (Settings tab industrial redesign in single centered ~720px column, 2-column config grid, Danger zone reset card, Ask overlap fix, stable scrollbar gutter, question input spellcheck disabled) are completed across production UI files (`web/css/app.css`, `web/index.html`, `web/js/settings.js`). All 11 Settings DOM IDs, 23 Ask DOM IDs, and all 62 browser unit tests remain functional [CONFIRMED: git status, git log].
 
 ---
 
