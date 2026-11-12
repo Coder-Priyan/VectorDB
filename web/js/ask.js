@@ -74,6 +74,10 @@ export function initAskTab() {
     await withButtonBusy(docResetBtn, async () => {
       try {
         await api.resetDocs();
+        if (askAnswerBox) {
+          askAnswerBox.className = "answer-box empty";
+          askAnswerBox.replaceChildren(el("p", { className: "text-muted empty-state" }, "Ask a question above to generate an answer with grounded citations."));
+        }
         await refreshDocumentsList();
       } catch (err) {
         showGlobalError(err.code, `Reset failed: ${err.message}`);
@@ -187,6 +191,7 @@ export function initAskTab() {
               firstTokenReceived = true;
               clearTimeout(thinkTimer);
               askLoadingNotice?.classList.add("hidden");
+              askAnswerBox.classList.remove("empty");
               askAnswerBox.replaceChildren();
             }
             try {

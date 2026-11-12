@@ -36,6 +36,7 @@ export function initCompareTab() {
   const docsEfInput = byId("compare-docs-ef-input");
 
   const statusNotice = byId("compare-progress-status");
+  const progressBar = byId("compare-progress-fill");
   const emptyStateBox = byId("compare-empty-state");
   const resultsCard = byId("compare-results-card");
   const canvas = byId("compare-bars-canvas");
@@ -88,6 +89,7 @@ export function initCompareTab() {
       emptyStateBox.textContent = msg;
       emptyStateBox.classList.remove("hidden");
     }
+    if (progressBar) progressBar.style.setProperty("width", "0%");
     resultsCard?.classList.add("hidden");
   }
 
@@ -98,6 +100,7 @@ export function initCompareTab() {
   async function runBenchmarkSuite(getPayloadFn, isDocs) {
     clearGlobalError();
     resultsCard?.classList.add("hidden");
+    if (progressBar) progressBar.style.setProperty("width", "0%");
     const ready = await checkCollectionStats();
     if (!ready) return;
 
@@ -109,6 +112,7 @@ export function initCompareTab() {
       // 1. Warm-up pass if repeatCount > 1 (discards KD-tree lazy build overhead)
       if (repeatCount > 1) {
         if (statusNotice) statusNotice.textContent = "Running warm-up pass (KD-Tree lazy construction)...";
+        if (progressBar) progressBar.style.setProperty("width", "5%");
         const warmupPayload = await getPayloadFn();
         if (isDocs) {
           await api.benchmarkDocs(warmupPayload);
@@ -121,6 +125,9 @@ export function initCompareTab() {
       for (let i = 1; i <= repeatCount; i++) {
         if (statusNotice) {
           statusNotice.textContent = `Running iteration ${i} of ${repeatCount}...`;
+        }
+        if (progressBar) {
+          progressBar.style.setProperty("width", `${Math.round((i / repeatCount) * 100)}%`);
         }
         const payload = await getPayloadFn();
         const report = isDocs
@@ -137,10 +144,12 @@ export function initCompareTab() {
       if (statusNotice) {
         statusNotice.textContent = `Completed ${repeatCount} benchmark run${repeatCount > 1 ? "s" : ""}.`;
       }
+      if (progressBar) progressBar.style.setProperty("width", "100%");
 
       renderReport(lastReport, latencies);
     } catch (err) {
       if (statusNotice) statusNotice.textContent = "Benchmark failed.";
+      if (progressBar) progressBar.style.setProperty("width", "0%");
       showGlobalError(err.code, err.message);
     }
   }
