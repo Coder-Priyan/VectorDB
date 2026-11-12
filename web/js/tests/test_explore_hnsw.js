@@ -52,8 +52,8 @@ export function registerExploreHnswTests() {
     });
 
     it("getDocColor handles invalid input with fallback", () => {
-      assertEqual(getDocColor(null), "#64748b");
-      assertEqual(getDocColor(undefined), "#64748b");
+      assertEqual(getDocColor(null), "#807c74");
+      assertEqual(getDocColor(undefined), "#807c74");
     });
 
     it("computeBounds calculates min and max coordinates", () => {
