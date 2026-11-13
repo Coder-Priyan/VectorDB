@@ -1,10 +1,10 @@
 # Project Progress
 
-Last updated: 2026-11-12 by T-019
+Last updated: 2026-11-13 by T-020
 
-## 1. Current Phase: One-Screen UI Phase 1 Complete (Task T-019, Branch `ui-redesign`); Ready for Human Verification
+## 1. Current Phase: One-Screen UI Phase 2 Complete (Task T-020, Branch `ui-redesign`); Ready for Human Verification
 
-All core engine development and bug fix tasks are completed and verified (111 C++ tests, 66 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Phases 1 through 4b and T-016 (test fix) were verified in the browser by the human on 2026-11-12. Task T-017 (feasibility study) and Task T-018 (cleanup) are completed. Task T-019 implements One-screen UI Phase 1: fixed 100dvh app shell, Ask tab one-screen layout with inner scroll areas, smart auto-scroll with 4 unit tests, temporary panel-level scroll on non-Ask tabs, and fallback media query for small viewports. All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), and all 66 browser unit tests remain functional [CONFIRMED: git status, git log].
+All core engine development and bug fix tasks are completed and verified (111 C++ tests, 66 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. T-019 (One-screen Phase 1 shell + Ask pilot) was verified in the real browser by the human on 2026-11-13 (66/66 browser tests pass). Task T-020 implements One-screen UI Phase 2: fixed-height layout for Explore and HNSW tabs, `.canvas-frame` wrapper decoupling canvas from intrinsic aspect ratio, `ResizeObserver` sizing with rAF throttling, `isCanvasDrawable` safety guards, and sidebar inner scrolling. All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), and all 66 browser unit tests remain functional [CONFIRMED: git status, git log].
 
 ---
 
