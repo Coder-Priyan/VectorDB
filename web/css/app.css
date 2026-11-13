@@ -241,18 +241,19 @@ html {
 }
 
 #panel-explore,
-#panel-hnsw {
+#panel-hnsw,
+#panel-compare {
   display: flex;
   flex-direction: column;
 }
 
 #panel-explore.hidden,
-#panel-hnsw.hidden {
+#panel-hnsw.hidden,
+#panel-compare.hidden {
   display: none !important;
 }
 
 /* Temporary panel-level scroll for tabs pending redesign */
-#panel-compare,
 #panel-settings {
   overflow-y: auto;
   height: 100%;
@@ -1353,6 +1354,72 @@ html {
   overflow-y: auto;
 }
 
+/* Compare Tab Fixed Layout (One-Screen Phase 3a) */
+#panel-compare .viz-sidebar {
+  width: 380px;
+  max-width: 100%;
+  flex-shrink: 0;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+#panel-compare .viz-main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#panel-compare #compare-results-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#panel-compare #compare-results-card .table-container {
+  flex: 1;
+  min-height: 140px;
+  max-height: none;
+  overflow-y: auto;
+  overflow-x: auto;
+  margin-top: 10px;
+}
+
+#panel-compare .viz-sidebar .table-container {
+  max-height: 220px;
+  overflow-y: auto;
+  overflow-x: auto;
+  margin-top: 8px;
+}
+
+#panel-compare .info-table td:first-child,
+#panel-compare .info-table th:first-child {
+  width: auto;
+}
+
+#panel-compare #compare-results-card .info-table th:first-child,
+#panel-compare #compare-results-card .info-table td:first-child {
+  width: 48px;
+  text-align: center;
+}
+
+#panel-compare .info-table th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-primary);
+  z-index: 2;
+}
+
+#panel-compare .table-container:focus-visible {
+  outline: 1px solid var(--accent-color);
+  outline-offset: 1px;
+}
+
 /* Responsive Small-Screen & Low-Height Fallback */
 @media (max-height: 520px), (max-width: 1100px) {
   html, body {
@@ -1435,6 +1502,26 @@ html {
     width: 100%;
     height: auto;
     overflow-y: visible;
+  }
+
+  #panel-compare .viz-sidebar {
+    width: 100%;
+    height: auto;
+    overflow-y: visible;
+  }
+
+  #panel-compare #compare-results-card {
+    height: auto;
+    flex: none;
+  }
+
+  #panel-compare #compare-results-card .table-container {
+    flex: none;
+    max-height: 320px;
+  }
+
+  #panel-compare .viz-sidebar .table-container {
+    max-height: 240px;
   }
 
   .canvas-frame {

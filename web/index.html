@@ -345,20 +345,11 @@
       <div class="viz-layout">
         <div class="viz-main">
           <div id="compare-empty-state" class="empty-state-box hidden"></div>
-          <div>
-            <h3 class="section-title">Summary Metrics</h3>
-            <div class="table-container">
-              <table class="info-table">
-                <thead><tr><th>Algorithm</th><th>Median</th><th>Min - Max</th><th>Distances</th><th>Recall@k</th></tr></thead>
-                <tbody id="compare-summary-tbody"><tr><td colspan="5" class="text-muted empty-state">Run a benchmark to compare algorithms.</td></tr></tbody>
-              </table>
-            </div>
-          </div>
-          <div id="compare-results-card" class="viz-results-section mt-4 hidden">
+          <div id="compare-results-card" class="viz-results-section hidden">
             <h3 class="section-title">Comparative Performance Bars</h3>
             <div class="canvas-wrapper"><canvas id="compare-bars-canvas" width="680" height="260"></canvas></div>
             <h3 class="section-title mt-4">Top-k Results Ground Truth Diff</h3>
-            <div class="table-container">
+            <div class="table-container" tabindex="0" aria-label="Top-k Ground Truth Diff">
               <table class="info-table">
                 <thead><tr><th>#</th><th>Brute Force (GT)</th><th>KD-Tree</th><th>HNSW</th></tr></thead>
                 <tbody id="compare-topk-tbody"></tbody>
@@ -417,6 +408,15 @@
           <div class="mt-4">
             <div id="compare-progress-status" class="text-muted font-mono text-xs" aria-live="polite">Ready to benchmark.</div>
             <div class="progress-track mt-1"><div id="compare-progress-fill" class="progress-fill"></div></div>
+          </div>
+          <div class="compare-summary-section mt-4">
+            <h3 class="section-title">Summary Metrics</h3>
+            <div class="table-container" tabindex="0" aria-label="Summary Metrics">
+              <table class="info-table">
+                <thead><tr><th>Algorithm</th><th>Median</th><th>Min - Max</th><th>Distances</th><th>Recall@k</th></tr></thead>
+                <tbody id="compare-summary-tbody"><tr><td colspan="5" class="text-muted empty-state">Run a benchmark to compare algorithms.</td></tr></tbody>
+              </table>
+            </div>
           </div>
         </aside>
       </div>
