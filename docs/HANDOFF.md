@@ -1,11 +1,16 @@
 # Project Handoff
 
-Last updated: 2026-11-13 by T-028
+Last updated: 2026-11-13 by T-029
 
 ## 1. Current Status
-VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. UI redesign T-011 to T-028 complete. Latest finished task is T-028 (Settings tab aligned with other tabs: toolbar row with hairline, left main = Server status hairline table with 8px green status dot, right 460px sidebar = Demo collection 2x2 grid, Insert random with solid amber button, Danger zone with red-outline button; no bordered cards; top-aligned). All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs (including `panel-settings`, `settings-health-box`, `settings-reset-demo-form`, `demo-dim-input`, `demo-metric-select`, `demo-m-input`, `demo-efc-input`, `settings-random-demo-form`, `demo-random-count`, `demo-insert-random-btn`, `settings-random-status`, `settings-reset-status`, `demo-reset-cancel-btn`, `demo-reset-btn`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), 74 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
+VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. UI redesign T-011 to T-029 complete. Latest finished task is T-029 (Settings tab reworked into page header + 4x2 Server status metric strip + full-width 3-column hairline config row; no bordered cards, calm breathing room ending at ~60% height at 1920x1080). All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs (including `panel-settings`, `settings-health-box`, `settings-reset-demo-form`, `demo-dim-input`, `demo-metric-select`, `demo-m-input`, `demo-efc-input`, `settings-random-demo-form`, `demo-random-count`, `demo-insert-random-btn`, `settings-random-status`, `settings-reset-status`, `demo-reset-cancel-btn`, `demo-reset-btn`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), 74 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
 
 ## 2. Last Work Done (From Git)
+- **Task T-029** (branch `ui-redesign`): Settings tab - page header + metric strip + 3-column config row.
+  1. *Page Header*: Added clean page header with h1 "Settings" (22px, weight 500, primary text) and muted subtitle "Server status and demo collection configuration." (13px) with 24px top / 20px bottom padding and 1px hairline border-bottom.
+  2. *Metric Strip (4x2)*: Restyled Server status `#settings-health-box` table using CSS grid on `tbody` (`grid-template-columns: repeat(4, minmax(0, 1fr))`) into a full-width 4x2 metric strip with 18px mono values, 12px muted top labels, 8px green status dot before "ok", smaller 14px mono for wrapping Ollama models, and vertical/horizontal 1px hairlines without outer boxes. Zero JS changes.
+  3. *3-Column Configuration Row*: Full-width 3-column row separated by 1px vertical hairlines (no boxes, first column left 0, last column right 0): Column 1 = Demo collection (2x2 grid), Column 2 = Insert random vectors (description + count input and solid amber button), Column 3 = Danger zone (description + red-outline Reset button with two-step confirm).
+  4. *Vertical Rhythm & Fallback*: 32px spacing between header, metric strip, and config row; content ends calmly at ~60% of viewport at 1920x1080. In fallback @media (max-height: 520px / max-width: 1100px), metric strip becomes 2 columns and config row stacks into 1 column with horizontal hairlines.
 - **Task T-028** (branch `ui-redesign`): Settings tab - align with other tabs (toolbar + main/sidebar layout, no cards).
   1. *Toolbar & Layout Language*: Rebuilt Settings tab using `.tab-toolbar` (left title "Settings" 14px medium + muted subtitle "Server status and demo collection configuration.") and `.viz-layout` with `.viz-main` and `.viz-sidebar` (width 460px), exactly matching Compare/Explore/HNSW tabs. Removed all bordered cards, vertical centering, and equal-height panel logic (ADR-025 superseding ADR-023/ADR-024). Top-aligned directly under toolbar hairline.
   2. *Server Status Hairline Table*: Restyled `#settings-health-box .info-table` with 44px row height (padding 12px 0), 1px hairlines between rows, 200px muted label column, mono tabular-nums value column with `overflow-wrap: anywhere;` (stays on one line at 1920 width), and 8px green status dot (`::before` with `--success-color`) before "ok". Zero JS changes.
@@ -76,7 +81,7 @@ VectorDB engine is in a stable, verified, and frozen state. Active development i
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
 ## 4. Recommended Next Step
-Human browser verification of T-028 (Settings layout at 1920x1080 and 1366x768, toolbar alignment, table hairline rows, 460px sidebar, two-step reset confirm, random insert, fallback stacking). Then decide merge of ui-redesign to main or optional polish.
+Human browser verification of T-029 (Settings layout at 1920x1080 and 1366x768, page header, 4x2 metric strip, 3-column config row, two-step reset confirm, random insert, fallback stacking). Then decide merge of ui-redesign to main or optional polish.
 
 ## 5. UI Redesign Phase Plan
 UI redesign phases (branch `ui-redesign`):
@@ -94,14 +99,15 @@ UI redesign phases (branch `ui-redesign`):
 *Dark only. Human verifies in browser after each phase.*
 
 ## 6. Pending Human Actions
-- (1) Verify T-028 in real browser (Settings layout at 1920x1080, 1366x768, zoom, reset, insert, fallback).
+- (1) Verify T-029 in real browser (Settings layout at 1920x1080, 1366x768, zoom, reset, insert, fallback).
 - (2) Decide merge of ui-redesign into main (Brain will ask for backup branch and safety checks first).
 - (3) Optional polish of Compare sidebar empty space below Summary Metrics at 1920x1080.
 - (4) Roadmap features (hybrid search, reranking, disk persistence, delete) stay ON HOLD.
 
 ## 7. Open Decisions / Known Gaps
 - **Compare layout choice**: RESOLVED: Option A chosen (form + metrics in sidebar, bars + diff table on right). Cited in ADR-021.
-- **T-028 (completed)**: Settings tab aligned with other tabs (toolbar + main/sidebar layout, no cards, 460px right sidebar, 8-row hairline server status table with 8px green dot, solid amber insert button, red outline reset button). Pending human browser verification.
+- **T-029 (completed)**: Settings tab page header + 4x2 Server status metric strip + full-width 3-column config row (Demo collection, Insert random, Danger zone); no bordered cards; content ends calmly at ~60% panel height. Pending human browser verification.
+- **T-028 (completed)**: Settings tab aligned with other tabs (toolbar + main/sidebar layout, no cards, 460px right sidebar, 8-row hairline server status table with 8px green dot, solid amber insert button, red outline reset button).
 - **T-027 (completed)**: Settings tab balanced bordered panels (`--bg-surface`, 1px `--border-color`, `--radius-md`, 24px padding), vertically centered with `margin: auto`, Danger zone pinned to bottom of right panel (`margin-top: auto; border-top: 1px solid var(--border-color)`), Server table row padding 13px 0. Human-verified by screenshot at 1920x1080 on 2026-11-13.
 - **T-026 (completed)**: Header flexible min-height: 48px + badge line-height: 1.2 (ISS-025 fix) + Settings column tabindex removal. Verified by human in real browser (screenshot at 200% zoom).
 - **T-025 (completed)**: Settings tab 2-column layout implemented (left = Server status, right = Demo collection + Danger zone) with stacked fallback below 1100px width or 520px height. Verified by human in real browser.

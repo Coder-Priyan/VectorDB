@@ -1,6 +1,6 @@
 # Architectural Decision Records (ADR)
 
-Last updated: 2026-11-13 by T-028
+Last updated: 2026-11-13 by T-029
 
 | ID | Date | Decision | Reason | Alternatives Rejected | Evidence Tag |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -29,4 +29,5 @@ Last updated: 2026-11-13 by T-028
 | ADR-023 | 2026-11-13 | Settings tab uses 2-column layout (left = Server status table, right = Demo collection + Danger zone) with stacked fallback below 1100px width or 520px height | Human delegated choice to Brain; fits 1366x768 with zero scroll (T-024 estimate: columns about 350px and about 324px) | Alternative rejected: single column with compact spacing (about 638px, scrolls at 1366x768) | [CONFIRMED: human instruction in chat] |
 | ADR-024 | 2026-11-13 | Settings tab polish: two equal-height bordered panels, block vertically centered with margin auto, Danger zone pinned to bottom of right panel | Human found empty space below Settings content unprofessional and delegated the fix to Brain | Alternatives rejected: adding filler content (engine frozen, no new data), single full-width stretched layout | [CONFIRMED: human instruction in chat] |
 | ADR-025 | 2026-11-13 | Settings tab rebuilt to match Compare/Explore/HNSW layout language: toolbar row with hairline, left main = Server status hairline table, right 460px sidebar = Demo collection, Insert random, Danger zone; no bordered cards; top-aligned. Supersedes ADR-023 two-column cards and ADR-024 equal-height panels. | Human found floating bordered cards with dead space unprofessional; Settings was the only tab not following the shared layout language; design choice delegated to Brain. | Keep two equal-height cards; centered 960px config page with 240px label column (inconsistent with other tabs); outline Insert button (inconsistent with primary buttons elsewhere). | [CONFIRMED: human instruction in chat] |
+| ADR-026 | 2026-11-13 | Settings tab: page header (h1 22px + subtitle line), Server status as 4x2 metric strip (CSS-restyled table, no JS), config sections in a full-width 3-column hairline row (Demo collection | Insert random vectors | Danger zone). Supersedes ADR-025 main/sidebar layout for Settings only. | Human found T-028 inline 14px title off and ~400px dead space at bottom; Settings has no canvas to fill space, so a metric strip + full-width config row scales better; design delegated to Brain. | Keep long 8-row table + 460px sidebar (left empty, small scale); centered 960px config page (inconsistent edges with other tabs); filler/decorative content. | [CONFIRMED: human instruction in chat] |
 

@@ -1,10 +1,10 @@
 # Project Progress
 
-Last updated: 2026-11-13 by T-028
+Last updated: 2026-11-13 by T-029
 
-## 1. Current Phase: Settings Tab Layout Aligned with Other Tabs (Task T-028, Branch `ui-redesign`); Next Step: Human Browser Verification
+## 1. Current Phase: Settings Tab Page Header + Metric Strip + 3-Column Config Row Complete (Task T-029, Branch `ui-redesign`); Next Step: Human Browser Verification
 
-All core engine development, bug fix tasks, and UI redesign tasks (T-011 through T-028) are completed (111 C++ tests, 74 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Latest finished task is T-028 (Settings tab rebuilt to match Compare/Explore/HNSW layout language: toolbar row with hairline, left main = Server status hairline table with 8px green status dot, right 460px sidebar = Demo collection 2x2 grid, Insert random with solid amber button, Danger zone with red-outline button; no bordered cards; top-aligned). Next step: human browser verification of T-028 (Settings layout at 1920x1080 and 1366x768, toolbar alignment, table hairline rows, 460px sidebar, two-step reset confirm, random insert, fallback stacking). All 20 Compare DOM IDs (plus `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs, 25 Ask DOM IDs, and all 74 browser unit tests remain functional [CONFIRMED: git status, git log].
+All core engine development, bug fix tasks, and UI redesign tasks (T-011 through T-029) are completed (111 C++ tests, 74 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Latest finished task is T-029 (Settings tab reworked into a modern, calm layout: page header with 22px h1 and subtitle, full-width 4x2 Server status metric strip via CSS grid on JS-rendered table with 18px mono values and 8px green status dot, and full-width 3-column hairline config row for Demo collection 2x2 grid, Insert random, and Danger zone; content ends calmly at ~60% of viewport at 1920x1080 with zero bordered cards). Next step: human browser verification of T-029 (Settings page header, metric strip, 3-column row at 1920x1080 and 1366x768, two-step reset confirm, random insert, fallback stacking). All 20 Compare DOM IDs (plus `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs, 25 Ask DOM IDs, and all 74 browser unit tests remain functional [CONFIRMED: git status, git log].
 
 ---
 
