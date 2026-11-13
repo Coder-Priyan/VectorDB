@@ -1356,7 +1356,7 @@ html {
 
 /* Compare Tab Fixed Layout (One-Screen Phase 3a) */
 #panel-compare .viz-sidebar {
-  width: 380px;
+  width: 420px;
   max-width: 100%;
   flex-shrink: 0;
   height: 100%;
@@ -1402,10 +1402,25 @@ html {
 }
 
 #panel-compare .viz-sidebar .table-container {
-  max-height: 220px;
-  overflow-y: auto;
+  max-height: none;
+  overflow-y: visible;
   overflow-x: auto;
   margin-top: 8px;
+}
+
+#panel-compare .viz-sidebar .info-table th,
+#panel-compare .viz-sidebar .info-table td {
+  white-space: nowrap;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+#panel-compare .viz-sidebar .info-table th {
+  font-size: 11px;
+}
+
+#panel-compare .viz-sidebar .info-table td.font-mono {
+  font-size: 12px;
 }
 
 #panel-compare .info-table td:first-child,
@@ -1537,7 +1552,8 @@ html {
   }
 
   #panel-compare .viz-sidebar .table-container {
-    max-height: 240px;
+    max-height: none;
+    overflow-y: visible;
   }
 
   .canvas-frame {
