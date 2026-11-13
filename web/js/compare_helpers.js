@@ -119,7 +119,110 @@ export function resolveChartSize(cssW, cssH, bufW, bufH, dpr = 1) {
 }
 
 /**
+ * Computes side-by-side 3-panel chart layout geometry for comparison bars.
+ * Returns left label gutter rect, 3 equal-width panel rects, and 3 row y positions.
+ * All coordinates are in CSS pixels and clamped to stay within w x h without negative sizes.
+ *
+ * @param {number} w - Total width in CSS px
+ * @param {number} h - Total height in CSS px
+ * @param {object} [options]
+ * @returns {{
+ *   gutter: { x: number, y: number, w: number, h: number },
+ *   panels: Array<{ x: number, y: number, w: number, h: number }>,
+ *   rowY: number[],
+ *   rowHeight: number,
+ *   rows: Array<{ y: number, height: number }>
+ * }}
+ */
+export function computeChartLayout(w, h, options = {}) {
+  const safeW = (typeof w === "number" && Number.isFinite(w) && w > 0) ? w : 0;
+  const safeH = (typeof h === "number" && Number.isFinite(h) && h > 0) ? h : 0;
+
+  const padLeft = options.paddingLeft ?? 12;
+  const padRight = options.paddingRight ?? 12;
+  const padTop = options.paddingTop ?? 10;
+  const padBottom = options.paddingBottom ?? 10;
+  const reqGutterW = options.gutterWidth ?? 80;
+  const targetGap = options.gap ?? 16;
+  const headerHeight = options.headerHeight ?? 24;
+
+  if (safeW <= 0 || safeH <= 0) {
+    return {
+      gutter: { x: 0, y: 0, w: 0, h: 0 },
+      panels: [
+        { x: 0, y: 0, w: 0, h: 0 },
+        { x: 0, y: 0, w: 0, h: 0 },
+        { x: 0, y: 0, w: 0, h: 0 }
+      ],
+      rowY: [0, 0, 0],
+      rowHeight: 0,
+      rows: [
+        { y: 0, height: 0 },
+        { y: 0, height: 0 },
+        { y: 0, height: 0 }
+      ]
+    };
+  }
+
+  // Vertical layout
+  const contentY = Math.min(safeH, padTop + headerHeight);
+  const contentH = Math.max(0, safeH - contentY - padBottom);
+  const rowHeight = Math.max(0, Math.floor(contentH / 3));
+
+  const rowY = [
+    contentY,
+    contentY + rowHeight,
+    contentY + 2 * rowHeight
+  ];
+
+  const rows = [
+    { y: rowY[0], height: rowHeight },
+    { y: rowY[1], height: rowHeight },
+    { y: rowY[2], height: rowHeight }
+  ];
+
+  // Horizontal layout
+  const availW = Math.max(0, safeW - padLeft - padRight);
+  const gutterX = Math.min(padLeft, safeW);
+  const gutterW = Math.min(reqGutterW, availW);
+  const gutterH = Math.max(0, safeH - padTop - padBottom);
+
+  const gutter = {
+    x: gutterX,
+    y: padTop,
+    w: gutterW,
+    h: gutterH
+  };
+
+  const afterGutterX = gutterX + gutterW;
+  const remainingW = Math.max(0, safeW - afterGutterX - padRight);
+
+  // Spacing for 3 panels: 1 gap after gutter + 2 gaps between panels
+  const gap = remainingW >= 3 * targetGap ? targetGap : Math.max(0, Math.floor(remainingW / 4));
+  const panelsStartX = afterGutterX + (remainingW > 0 ? gap : 0);
+  const panelsTotalW = Math.max(0, safeW - panelsStartX - padRight);
+  const panelW = Math.max(0, Math.floor((panelsTotalW - 2 * gap) / 3));
+  const panelH = gutterH;
+
+  const panels = [
+    { x: panelsStartX, y: padTop, w: panelW, h: panelH },
+    { x: panelsStartX + panelW + gap, y: padTop, w: panelW, h: panelH },
+    { x: panelsStartX + 2 * (panelW + gap), y: padTop, w: panelW, h: panelH }
+  ];
+
+  return {
+    gutter,
+    panels,
+    rowY,
+    rowHeight,
+    rows
+  };
+}
+
+/**
  * Draws comparison bar charts on an HTML5 canvas without any inline CSS styles.
+ * Renders 3 side-by-side metric charts (Latency, Distance Computations, Recall @ k)
+ * with a single left algorithm label gutter. Sized strictly in CSS pixels.
  *
  * @param {HTMLCanvasElement} canvas
  * @param {Record<string, { latency: number, dist: number, recall: number }>} data
@@ -145,61 +248,121 @@ export function drawComparisonBars(canvas, data, isDark = false) {
   ctx.fillStyle = "#0a0a0a";
   ctx.fillRect(0, 0, w, h);
 
+  const layout = computeChartLayout(w, h, { gutterWidth: 80, gap: 16 });
+
   const algorithms = ["brute", "kdtree", "hnsw"];
   const textColor = "#f0ede6";
   const mutedColor = "#949087";
   const gridColor = "#2a2a2a";
 
-  // Section configs
+  // 1. Draw left label gutter (once for the 3 algorithms)
+  if (layout.gutter.w > 0 && layout.rowHeight > 0) {
+    ctx.fillStyle = textColor;
+    ctx.font = '12px "IBM Plex Sans", sans-serif';
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "left";
+
+    algorithms.forEach((alg, aIdx) => {
+      const rowY = layout.rowY[aIdx];
+      const rowCenterY = rowY + Math.floor(layout.rowHeight / 2);
+      ctx.fillText(ALGORITHM_LABELS[alg] || alg, layout.gutter.x, rowCenterY);
+    });
+  }
+
+  // 2. Section configs for the 3 side-by-side panels
   const sections = [
-    { title: "Latency (μs) - lower is better", key: "latency", max: Math.max(...algorithms.map(a => data[a]?.latency || 0), 1), format: v => `${Math.round(v)} μs` },
-    { title: "Distance Computations - lower is better", key: "dist", max: Math.max(...algorithms.map(a => data[a]?.dist || 0), 1), format: v => `${v}` },
-    { title: "Recall @ k - higher is better", key: "recall", max: 1.0, format: v => `${(v * 100).toFixed(1)}%` }
+    {
+      fullTitle: "Latency (μs) - lower is better",
+      shortTitle: "Latency (μs)",
+      compactTitle: "Latency",
+      key: "latency",
+      max: Math.max(...algorithms.map(a => data?.[a]?.latency || 0), 1),
+      format: v => `${Math.round(v)} μs`
+    },
+    {
+      fullTitle: "Distance Computations - lower is better",
+      shortTitle: "Distance Computations",
+      compactTitle: "Distances",
+      key: "dist",
+      max: Math.max(...algorithms.map(a => data?.[a]?.dist || 0), 1),
+      format: v => `${v}`
+    },
+    {
+      fullTitle: "Recall @ k - higher is better",
+      shortTitle: "Recall @ k",
+      compactTitle: "Recall",
+      key: "recall",
+      max: 1.0,
+      format: v => `${(v * 100).toFixed(1)}%`
+    }
   ];
 
-  const secHeight = (h - 20) / sections.length;
-  const labelWidth = 85;
-  const valueWidth = 75;
-  const barStartX = labelWidth + 10;
-  const maxBarWidth = w - barStartX - valueWidth - 15;
-
+  // 3. Draw each panel
   sections.forEach((sec, sIdx) => {
-    const secY = 10 + sIdx * secHeight;
+    const panel = layout.panels[sIdx];
+    if (!panel || panel.w <= 0 || panel.h <= 0) return;
+
+    // Pick best fitting title
+    ctx.font = '11px "IBM Plex Sans", sans-serif';
+    let displayTitle = sec.fullTitle;
+    if (ctx.measureText(displayTitle).width > panel.w) {
+      displayTitle = sec.shortTitle;
+    }
+    if (ctx.measureText(displayTitle).width > panel.w) {
+      displayTitle = sec.compactTitle;
+    }
 
     // Title
     ctx.fillStyle = mutedColor;
-    ctx.font = '12px "IBM Plex Sans", sans-serif';
-    ctx.fillText(sec.title, 10, secY + 12);
+    ctx.textBaseline = "top";
+    ctx.textAlign = "left";
+    ctx.fillText(displayTitle, panel.x, panel.y + 2);
 
-    // Baseline grid rule
+    // Baseline grid rule below title
+    const contentY = layout.rowY[0];
+    const dividerY = Math.max(panel.y + 16, contentY - 6);
     ctx.strokeStyle = gridColor;
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(10, secY + 16);
-    ctx.lineTo(w - 10, secY + 16);
+    ctx.moveTo(panel.x, dividerY);
+    ctx.lineTo(panel.x + panel.w, dividerY);
     ctx.stroke();
 
-    const rowHeight = (secHeight - 24) / algorithms.length;
+    if (layout.rowHeight <= 0) return;
+
+    const barHeight = Math.max(2, Math.min(14, layout.rowHeight - 8));
 
     algorithms.forEach((alg, aIdx) => {
-      const rowY = secY + 22 + aIdx * rowHeight;
-      const rawVal = data[alg]?.[sec.key] || 0;
+      const rowY = layout.rowY[aIdx];
+      const barY = rowY + Math.floor((layout.rowHeight - barHeight) / 2);
+      const rowCenterY = rowY + Math.floor(layout.rowHeight / 2);
+
+      const rawVal = data?.[alg]?.[sec.key] || 0;
       const fraction = sec.max > 0 ? Math.min(1.0, Math.max(0, rawVal / sec.max)) : 0;
-      const barW = Math.max(2, Math.round(fraction * maxBarWidth));
 
-      // Label
-      ctx.fillStyle = textColor;
-      ctx.font = '12px "IBM Plex Sans", sans-serif';
-      ctx.fillText(ALGORITHM_LABELS[alg] || alg, 10, rowY + rowHeight - 4);
-
-      // Bar
-      ctx.fillStyle = ALGORITHM_COLORS[alg] || "#807c74";
-      ctx.fillRect(barStartX, rowY + 2, barW, rowHeight - 5);
-
-      // Value text
-      ctx.fillStyle = textColor;
+      const valStr = sec.format(rawVal);
       ctx.font = '11px "IBM Plex Mono", monospace';
-      ctx.fillText(sec.format(rawVal), barStartX + barW + 6, rowY + rowHeight - 4);
+      const valWidth = ctx.measureText(valStr).width;
+
+      const textPad = 6;
+      const maxBarW = Math.max(0, panel.w - valWidth - textPad - 4);
+      const barW = maxBarW > 0 ? Math.max(2, Math.round(fraction * maxBarW)) : 0;
+
+      // Draw horizontal bar
+      if (barW > 0) {
+        ctx.fillStyle = ALGORITHM_COLORS[alg] || "#807c74";
+        ctx.fillRect(panel.x, barY, barW, barHeight);
+      }
+
+      // Draw value text
+      if (panel.w > valWidth + 4) {
+        const valX = panel.x + barW + textPad;
+        const clampedValX = Math.min(valX, panel.x + panel.w - valWidth);
+        ctx.fillStyle = textColor;
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "left";
+        ctx.fillText(valStr, clampedValX, rowCenterY);
+      }
     });
   });
 }

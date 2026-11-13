@@ -3,7 +3,7 @@
  */
 
 import { describe, assert, assertEqual, assertNear } from "./framework.js";
-import { computeTimingStats, diffAgainstGroundTruth, computeBarWidths, resolveChartSize } from "../compare_helpers.js";
+import { computeTimingStats, diffAgainstGroundTruth, computeBarWidths, resolveChartSize, computeChartLayout } from "../compare_helpers.js";
 
 export function registerCompareTests() {
   describe("Compare Timing Stats (compare_helpers.js)", (it) => {
@@ -151,6 +151,75 @@ export function registerCompareTests() {
       const sizeNegative = resolveChartSize(-10, -20, -100, -200, 1.5);
       assertEqual(sizeNegative.w, 0);
       assertEqual(sizeNegative.h, 0);
+    });
+  });
+
+  describe("Compare Chart Layout Computation (compare_helpers.js)", (it) => {
+    it("Three panels have equal width and do not overlap", () => {
+      const layout = computeChartLayout(900, 140);
+      assertEqual(layout.panels.length, 3);
+      assertEqual(layout.panels[0].w, layout.panels[1].w);
+      assertEqual(layout.panels[1].w, layout.panels[2].w);
+      assert(layout.panels[0].w > 0, "Panels must have positive width");
+      // Verify no overlap between panels
+      assert(layout.panels[0].x + layout.panels[0].w <= layout.panels[1].x, "Panel 0 and 1 must not overlap");
+      assert(layout.panels[1].x + layout.panels[1].w <= layout.panels[2].x, "Panel 1 and 2 must not overlap");
+      // Gutter does not overlap first panel
+      assert(layout.gutter.x + layout.gutter.w <= layout.panels[0].x, "Gutter and Panel 0 must not overlap");
+    });
+
+    it("All rects stay inside w x h bounding box", () => {
+      const w = 800;
+      const h = 140;
+      const layout = computeChartLayout(w, h);
+      // Gutter inside w x h
+      assert(layout.gutter.x >= 0 && layout.gutter.x + layout.gutter.w <= w, "Gutter within width");
+      assert(layout.gutter.y >= 0 && layout.gutter.y + layout.gutter.h <= h, "Gutter within height");
+      // Panels inside w x h
+      for (let i = 0; i < layout.panels.length; i++) {
+        const p = layout.panels[i];
+        assert(p.x >= 0 && p.x + p.w <= w, `Panel ${i} within width`);
+        assert(p.y >= 0 && p.y + p.h <= h, `Panel ${i} within height`);
+      }
+      // Rows inside h
+      for (let i = 0; i < layout.rows.length; i++) {
+        const r = layout.rows[i];
+        assert(r.y >= 0 && r.y + r.height <= h, `Row ${i} within height`);
+      }
+    });
+
+    it("Very small w/h gives no negative sizes", () => {
+      const cases = [
+        computeChartLayout(0, 0),
+        computeChartLayout(-50, 100),
+        computeChartLayout(100, -20),
+        computeChartLayout(20, 15)
+      ];
+      for (const layout of cases) {
+        assert(layout.gutter.w >= 0 && layout.gutter.h >= 0 && layout.gutter.x >= 0 && layout.gutter.y >= 0, "Gutter coords non-negative");
+        for (const p of layout.panels) {
+          assert(p.w >= 0 && p.h >= 0 && p.x >= 0 && p.y >= 0, "Panel coords non-negative");
+        }
+        assert(layout.rowHeight >= 0, "rowHeight non-negative");
+        for (const r of layout.rows) {
+          assert(r.y >= 0 && r.height >= 0, "Row coords non-negative");
+        }
+      }
+    });
+
+    it("Row order and count are exactly 3 with non-decreasing y positions", () => {
+      const layout = computeChartLayout(900, 140);
+      assertEqual(layout.rows.length, 3);
+      assertEqual(layout.rowY.length, 3);
+      assert(layout.rowHeight > 0, "rowHeight must be positive for standard height");
+      assertEqual(layout.rows[0].y, layout.rowY[0]);
+      assertEqual(layout.rows[1].y, layout.rowY[1]);
+      assertEqual(layout.rows[2].y, layout.rowY[2]);
+      assert(layout.rowY[0] < layout.rowY[1], "Row 0 before Row 1");
+      assert(layout.rowY[1] < layout.rowY[2], "Row 1 before Row 2");
+      assertEqual(layout.rows[0].height, layout.rowHeight);
+      assertEqual(layout.rows[1].height, layout.rowHeight);
+      assertEqual(layout.rows[2].height, layout.rowHeight);
     });
   });
 }

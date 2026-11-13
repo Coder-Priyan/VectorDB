@@ -1382,7 +1382,7 @@ html {
 }
 
 #panel-compare .canvas-wrapper {
-  height: 240px;
+  height: 140px;
   flex-shrink: 0;
 }
 
@@ -1542,7 +1542,7 @@ html {
   }
 
   #panel-compare .canvas-wrapper {
-    height: 240px;
+    height: 140px;
     flex: none;
   }
 
