@@ -24,7 +24,7 @@
     <div class="header-controls">
       <div id="ollama-status-container" class="status-indicator">
         <span id="ollama-status-badge" class="badge badge-neutral" aria-live="polite">Checking Ollama...</span>
-        <button id="ollama-check-btn" class="btn btn-sm btn-outline" title="Check Ollama" aria-label="Refresh Ollama">Refresh</button>
+        <button id="ollama-check-btn" class="btn btn-sm btn-ghost" title="Check Ollama" aria-label="Refresh Ollama">Refresh</button>
       </div>
     </div>
   </header>
@@ -44,7 +44,7 @@
             <div class="ask-sidebar-header">
               <h2 class="section-title">Document Ingestion</h2>
               <div class="ask-reset-actions">
-                <button type="button" id="doc-reset-cancel-btn" class="btn btn-sm btn-outline hidden">Cancel</button>
+                <button type="button" id="doc-reset-cancel-btn" class="btn btn-sm btn-secondary hidden">Cancel</button>
                 <button type="button" id="doc-reset-btn" class="btn btn-sm btn-danger">Reset Docs</button>
               </div>
             </div>
@@ -78,7 +78,7 @@
                   <input type="number" id="doc-overlap-chars" class="input-text" value="100">
                 </div>
               </div>
-              <button type="submit" id="doc-ingest-btn" class="btn btn-primary w-100">Ingest Document</button>
+              <button type="submit" id="doc-ingest-btn" class="btn btn-secondary w-100">Ingest Document</button>
             </form>
           </div>
 
@@ -122,7 +122,7 @@
                   </div>
                   <div class="btn-group">
                     <button type="submit" id="ask-submit-btn" class="btn btn-primary">Ask</button>
-                    <button type="button" id="ask-stop-btn" class="btn btn-outline" disabled>Stop</button>
+                    <button type="button" id="ask-stop-btn" class="btn btn-ghost" disabled>Stop</button>
                   </div>
                 </div>
               </form>
@@ -160,7 +160,7 @@
             <option value="demo" selected>Demo Vectors</option>
             <option value="docs">Document Chunks</option>
           </select>
-          <button id="explore-refresh-btn" class="btn btn-sm btn-outline">Refresh</button>
+          <button id="explore-refresh-btn" class="btn btn-sm btn-ghost">Refresh</button>
         </div>
         <div class="toolbar-right">
           <span id="explore-variance-note" class="text-muted font-mono text-xs">Loading variance...</span>
@@ -212,7 +212,7 @@
                   <input type="number" id="explore-demo-id-input" class="input-text" placeholder="Vector ID (e.g. 1)" min="1">
                 </div>
                 <div class="form-group flex-1 align-end">
-                  <button type="button" id="explore-demo-id-btn" class="btn btn-outline w-100">Search ID</button>
+                  <button type="button" id="explore-demo-id-btn" class="btn btn-secondary w-100">Search ID</button>
                 </div>
               </div>
             </div>
@@ -250,7 +250,7 @@
             <option value="20000" selected>20,000</option>
             <option value="60000">60,000</option>
           </select>
-          <button id="hnsw-refresh-btn" class="btn btn-sm btn-outline">Refresh</button>
+          <button id="hnsw-refresh-btn" class="btn btn-sm btn-ghost">Refresh</button>
         </div>
         <div class="toolbar-right">
           <span id="hnsw-edge-summary" class="text-muted font-mono text-xs"></span>
@@ -291,14 +291,14 @@
                   <input type="number" id="hnsw-trace-id-input" class="input-text" placeholder="e.g. 1" min="1">
                 </div>
                 <div class="form-group flex-1 align-end">
-                  <button type="button" id="hnsw-trace-id-btn" class="btn btn-outline w-100">Trace ID</button>
+                  <button type="button" id="hnsw-trace-id-btn" class="btn btn-secondary w-100">Trace ID</button>
                 </div>
               </div>
               <div class="player-bar mt-3">
-                <button type="button" id="hnsw-trace-play-btn" class="btn btn-sm btn-primary">Play</button>
-                <button type="button" id="hnsw-trace-prev-btn" class="btn btn-sm btn-outline">Prev</button>
-                <button type="button" id="hnsw-trace-next-btn" class="btn btn-sm btn-outline">Next</button>
-                <button type="button" id="hnsw-trace-reset-btn" class="btn btn-sm btn-outline">Reset</button>
+                <button type="button" id="hnsw-trace-play-btn" class="btn btn-sm btn-secondary">Play</button>
+                <button type="button" id="hnsw-trace-prev-btn" class="btn btn-sm btn-secondary">Prev</button>
+                <button type="button" id="hnsw-trace-next-btn" class="btn btn-sm btn-secondary">Next</button>
+                <button type="button" id="hnsw-trace-reset-btn" class="btn btn-sm btn-secondary">Reset</button>
                 <select id="hnsw-trace-speed" class="input-select btn-sm">
                   <option value="0.5">0.5x</option>
                   <option value="1" selected>1x</option>
@@ -380,7 +380,7 @@
                   <input type="number" id="compare-demo-id-input" class="input-text" placeholder="e.g. 1" min="1">
                 </div>
                 <div class="form-group flex-1 align-end">
-                  <button type="button" id="compare-demo-id-btn" class="btn btn-outline w-100">Benchmark ID</button>
+                  <button type="button" id="compare-demo-id-btn" class="btn btn-secondary w-100">Benchmark ID</button>
                 </div>
               </div>
             </div>
@@ -491,7 +491,7 @@
           <h2 class="section-title">Danger zone</h2>
           <p class="settings-col-desc">Clears all demo vectors and rebuilds the index with the configuration above.</p>
           <div class="settings-confirm-actions mt-3">
-            <button type="button" id="demo-reset-cancel-btn" class="btn btn-sm btn-outline hidden">Cancel</button>
+            <button type="button" id="demo-reset-cancel-btn" class="btn btn-sm btn-secondary hidden">Cancel</button>
             <button type="button" id="demo-reset-btn" class="btn btn-sm btn-danger">Reset Demo Collection</button>
           </div>
           <div id="settings-reset-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>

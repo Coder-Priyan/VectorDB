@@ -1,10 +1,10 @@
 # Project Progress
 
-Last updated: 2026-11-13 by T-031
+Last updated: 2026-11-13 by T-032
 
-## 1. Current Phase: UI Consistency Audit Complete (Task T-031, Branch `ui-redesign`); Next Step: Brain reviews UI_AUDIT.md and plans Phase 1 foundation
+## 1. Current Phase: UI Foundation 1 Complete (Task T-032, Branch `ui-redesign`); Next Step: Full-App Polish Tab Passes (ADR-027)
 
-All core engine development, bug fix tasks, and UI redesign tasks (T-011 through T-031) are completed (111 C++ tests, 74 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Latest finished task is T-031 (read-only full-app UI consistency audit documented in `docs/UI_AUDIT.md`: complete inventory of design tokens, hardcoded colors/px values, typography scales and heading hierarchies, spacing counts and lack of spacing scale, button classes and solid-amber button counts per tab, native browser form control unresets, table density and column sizing differences, empty-state patterns, layout frames and toolbar structures including HNSW toolbar wrapping flaw, canvas color tables across Explore/HNSW/Compare, and Top 10 inconsistencies ranked by visual impact. ADR-027 recorded). Next step: Brain reviews UI_AUDIT.md and plans Phase 1 foundation. All 20 Compare DOM IDs (plus `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs, 25 Ask DOM IDs, and all 74 browser unit tests remain functional [CONFIRMED: git status, git log].
+All core engine development, bug fix tasks, and UI redesign tasks (T-011 through T-032) are completed (111 C++ tests, 74 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Latest finished task is T-032 (UI foundation 1: button hierarchy establishing at most one primary solid-amber button per view, styled native controls without browser defaults—custom select with inline SVG chevron, hidden number spinners, styled file input button, custom 2px range slider track with 12px thumb—and calm interaction states with 150ms transitions, focus-visible outlines, and prefers-reduced-motion support. ADR-028 recorded). Next step: continue full-app UI polish per ADR-027 starting with Ask tab polish. All 20 Compare DOM IDs (plus `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs, 25 Ask DOM IDs, and all 74 browser unit tests remain functional [CONFIRMED: git status, git log].
 
 ---
 

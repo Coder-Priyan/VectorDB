@@ -69,7 +69,7 @@ export function initExploreTab() {
       emptyStateBox.replaceChildren(el("p", { className: "text-muted" }, "No documents ingested yet. Go to Ask tab to ingest documents."));
     } else {
       const countInput = el("input", { type: "number", className: "input-text", value: "1000", min: "10", max: "20000" });
-      const insertBtn = el("button", { type: "button", className: "btn btn-sm btn-primary" }, "Insert Demo Vectors");
+      const insertBtn = el("button", { type: "button", className: "btn btn-sm btn-secondary" }, "Insert Demo Vectors");
       insertBtn.addEventListener("click", async () => {
         const count = parseInt(countInput.value, 10) || 1000;
         await withButtonBusy(insertBtn, async () => {

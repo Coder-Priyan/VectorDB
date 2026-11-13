@@ -1,11 +1,25 @@
 # Project Handoff
 
-Last updated: 2026-11-13 by T-031
+Last updated: 2026-11-13 by T-032
 
 ## 1. Current Status
-VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. UI redesign T-011 to T-031 complete. Latest finished task is T-031 (read-only comprehensive UI consistency audit across design tokens, typography, spacing, buttons, form controls, tables, empty states, layouts, canvas colors, and Top 10 inconsistencies documented in `docs/UI_AUDIT.md`; ADR-027 recorded). All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs, 25 Ask DOM IDs, 74 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
+VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. UI redesign T-011 to T-032 complete. Latest finished task is T-032 (UI foundation 1: button hierarchy establishing at most one primary solid-amber button per view, styled native controls without browser defaults—custom select with inline SVG chevron, hidden number spinners, styled file input button, custom 2px range slider track with 12px thumb—and calm interaction states with 150ms transitions, focus-visible outlines, and prefers-reduced-motion support; ADR-028 recorded). All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs, 25 Ask DOM IDs, 74 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
 
 ## 2. Last Work Done (From Git)
+- **Task T-032** (branch `ui-redesign`): UI foundation 1 - button hierarchy, styled native controls, calm interaction states (all tabs).
+  1. *Button Hierarchy*: Established 4 button variants (`.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-danger`; kept `.btn-sm`, `.btn-outline` as alias of `.btn-secondary`). Enforced at most ONE visible `.btn-primary` per tab in any state: Ask tab `#ask-submit-btn` (with `#doc-ingest-btn` set to `.btn-secondary`), Explore tab `#explore-demo-random-btn` in Demo mode vs `#explore-query-docs-btn` in Docs mode (mutually exclusive; `#explore-demo-id-btn` to `.btn-secondary`, dynamic empty state button in `explore.js` to `.btn-secondary`), HNSW tab `#hnsw-trace-random-btn` (`#hnsw-trace-id-btn` to `.btn-secondary`), Compare tab `#compare-demo-random-btn` in Demo mode vs `#compare-docs-run-btn` in Docs mode (mutually exclusive; `#compare-demo-id-btn` to `.btn-secondary`), Settings tab `#demo-insert-random-btn`. Header `#ollama-check-btn`, Explore `#explore-refresh-btn`, HNSW `#hnsw-refresh-btn`, Ask `#ask-stop-btn` converted to `.btn-ghost`.
+  2. *Styled Native Controls (CSS only, no JS widgets)*:
+     - Select: `appearance: none; -webkit-appearance: none;` with inline SVG data URI amber chevron (`url('data:image/svg+xml...')`), 28px right padding, matching font, background, and border tokens. CSP `img-src 'self' data:;` permits data URI.
+     - Number inputs: Spinners removed via `::-webkit-inner-spin-button, ::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }` and `-moz-appearance: textfield;`.
+     - File input: `.input-file::file-selector-button` styled identical to `.btn-secondary` (height 36px, padding 0 14px, 13px font, 12px margin-right, pointer cursor).
+     - Range slider: `appearance: none` with 2px height track (`background: var(--border-color); border-radius: 1px;`), 12px round thumb (`background: var(--accent-color); border: none; border-radius: 50%; box-shadow: none;`), and smooth thumb hover (`transform: scale(1.15)`).
+  3. *Calm Interaction States*:
+     - Standardized 150ms transitions (`background-color 150ms ease, border-color 150ms ease, color 150ms ease, outline 150ms ease`).
+     - Disabled states: `opacity: 0.45; cursor: not-allowed; pointer-events: none;`.
+     - Hover/Active states: Subtle dark tinting via `color-mix(in srgb, var(--accent-color) 88%, #000000)` and `var(--bg-elevated)`.
+     - Focus: High-contrast calm `:focus-visible` with `outline: 1px solid var(--accent-color); outline-offset: 2px;`.
+     - Accessibility: `@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }`.
+  4. *Zero Regressions*: Automated web safety check passed (0 forbidden patterns, strict CSP intact), 111 C++ unit tests passed (529,746 assertions), all 14 Settings DOM IDs and all other tab DOM IDs verified intact.
 - **Task T-031** (branch `ui-redesign`): UI consistency audit (read-only) before full-app polish.
   1. *Comprehensive Audit in `docs/UI_AUDIT.md`*: Conducted full inventory of `web/css/app.css`, `web/index.html`, and `web/js/*.js` covering: (1) Design tokens and 15 hardcoded colors / 289 px occurrences; (2) Typography scale and heading hierarchy breakdown; (3) Spacing inventory (136 declarations, 47 arbitrary expressions, zero spacing tokens); (4) Buttons, button classes, and solid-amber primary count per tab (2 in Ask, 2-3 in Explore, 2 in HNSW, 2 in Compare, 1 in Settings); (5) Unreset native browser form controls (file input, number spinners, select dropdowns, range sliders); (6) Table styles and density differences; (7) Disparate empty-state patterns; (8) Layout container frames and toolbar alignment flaws (HNSW slider wrapping flaw); (9) Canvas drawing color tables; (10) Top 10 inconsistencies ranked by visual impact with exact selectors.
   2. *ADR-027 Recorded*: Documented strategic architectural decision to execute full-app UI polish in structured phases (Foundation, Ask, Explore, HNSW, Compare, Settings final pass, consistency sweep). Settings docs verification task paused until polish is complete.
@@ -91,7 +105,7 @@ VectorDB engine is in a stable, verified, and frozen state. Active development i
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
 ## 4. Recommended Next Step
-Brain reviews UI_AUDIT.md and plans Phase 1 foundation.
+Brain reviews UI foundation 1 (T-032) and plans next full-app polish tab pass (Ask tab) per ADR-027.
 
 ## 5. UI Redesign Phase Plan
 UI redesign phases (branch `ui-redesign`):
@@ -106,16 +120,18 @@ UI redesign phases (branch `ui-redesign`):
 9. **Phase 9: Ask Answer Box & Sources Height Tuning (T-021)**: Answer box sizes to content with `flex: 0 1 auto` and `max-height: 50vh`, sources list takes remaining height with `flex: 1`, responsive fallback updated. Verified in real browser by human on 2026-11-13. [COMPLETED]
 10. **Phase 10: One-Screen UI Phase 3 (Compare Option A - T-022 feasibility, T-023a layout complete, T-023b-1 DPR & table fix complete, T-023b-2 side-by-side canvas)**: T-023a fixed layout + T-023b-1 DPR CSS px fix & compact sidebar table + T-023b-2 side-by-side 3-panel canvas & full-width Summary Metrics. [COMPLETED and human-verified]
 11. **Phase 11: One-Screen UI Phase 4 (Settings - T-024 feasibility complete, T-025 implementation complete, human-verified; T-028/T-029/T-030 polish complete)**: [COMPLETED]
-12. **Phase 12: Full-App UI Polish (ADR-027)**: (a) Audit complete (T-031); (b) Shared foundation (tokens, spacing scale, custom controls, button rules); (c) Ask; (d) Explore; (e) HNSW; (f) Compare; (g) Settings final pass; (h) Consistency sweep. [IN PROGRESS]
+12. **Phase 12: Full-App UI Polish (ADR-027)**: (a) Audit complete (T-031); (b) Shared foundation 1 complete (T-032: buttons, controls, calm interaction states); (c) Ask; (d) Explore; (e) HNSW; (f) Compare; (g) Settings final pass; (h) Consistency sweep. [IN PROGRESS]
 *Dark only. Human verifies in browser after each phase.*
 
 ## 6. Pending Human Actions
-- (1) Brain reviews `docs/UI_AUDIT.md` and generates task for Phase 1 Foundation.
+- (1) Brain reviews UI foundation 1 (T-032) and plans next full-app polish tab pass (Ask tab).
 - (2) Settings docs verification task is paused until full-app polish is complete (ADR-027).
 - (3) Merge of ui-redesign into main paused until full polish is complete.
 - (4) Roadmap features (hybrid search, reranking, disk persistence, delete) stay ON HOLD.
 
 ## 7. Open Decisions / Known Gaps
+- **ADR-028 (established)**: Button hierarchy (at most one solid amber primary button per view, outline secondary, ghost, red outline danger), styled native controls (custom SVG chevron select, hidden number spinners, styled file selector button, 2px slider track with 12px amber thumb), 150ms interaction states with calm hover/focus/disabled and prefers-reduced-motion support.
+- **T-032 (completed)**: UI foundation 1 - button hierarchy, styled native controls, calm interaction states implemented across all tabs with zero layout regressions.
 - **ADR-027 (established)**: Full-app UI polish order: audit (T-031), shared foundation, Ask, Explore, HNSW, Compare, Settings final pass, consistency sweep.
 - **T-031 (completed)**: UI consistency audit documented in `docs/UI_AUDIT.md` with Top 10 inconsistencies identified.
 - **Compare layout choice**: RESOLVED: Option A chosen (form + metrics in sidebar, bars + diff table on right). Cited in ADR-021.
