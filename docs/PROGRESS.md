@@ -1,10 +1,10 @@
 # Project Progress
 
-Last updated: 2026-11-13 by T-023b-1
+Last updated: 2026-11-13 by SYNC
 
-## 1. Current Phase: Compare DPR Fix & Compact Sidebar Table Complete (Task T-023b-1, Branch `ui-redesign`); Ready for Human Verification
+## 1. Current Phase: Compare DPR Fix & Compact Sidebar Table Complete (Task T-023b-1, Branch `ui-redesign`); Next Task: T-023b-2 (Side-by-Side Charts)
 
-All core engine development and bug fix tasks are completed and verified (111 C++ tests, 70 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. T-019 (One-screen Phase 1 shell + Ask pilot), T-020 (One-screen Phase 2 Explore + HNSW canvas sizing), T-021 (Ask answer box & sources height tuning), and T-023a (Compare fixed-height layout) are completed and human-verified. Task T-023b-1 fixes the canvas drawing coordinate bounds to use CSS pixels via `resolveChartSize(cssW, cssH, bufW, bufH, dpr)` so bar charts render accurately across all DPR values (100%, 125%, 150%, 200%), and compacts the Summary Metrics table in the widened 420px Compare sidebar with single-line cells (`white-space: nowrap`, 6px 8px padding, 12px font). All 20 Compare DOM IDs (plus `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), and all 70 browser unit tests remain functional [CONFIRMED: git status, git log].
+All core engine development and bug fix tasks are completed and verified (111 C++ tests, 70 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Latest finished task is T-023b-1 (Compare DPR CSS px fix & compact sidebar table). The next task is T-023b-2 (side-by-side charts: Latency, Distances, Recall in ~140px canvas). T-019 (One-screen Phase 1 shell + Ask pilot), T-020 (One-screen Phase 2 Explore + HNSW canvas sizing), T-021 (Ask answer box & sources height tuning), and T-023a (Compare fixed-height layout) are completed and human-verified. Task T-023b-1 fixes the canvas drawing coordinate bounds to use CSS pixels via `resolveChartSize(cssW, cssH, bufW, bufH, dpr)` so bar charts render accurately across all DPR values (100%, 125%, 150%, 200%), and compacts the Summary Metrics table in the widened 420px Compare sidebar with single-line cells (`white-space: nowrap`, 6px 8px padding, 12px font). All 20 Compare DOM IDs (plus `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), and all 70 browser unit tests remain functional [CONFIRMED: git status, git log].
 
 ---
 
@@ -28,7 +28,7 @@ All core engine development and bug fix tasks are completed and verified (111 C+
 | **Interactive Offline Browser UI** (5 tabs: Ask, Explore, HNSW, Compare, Settings) | `web/index.html`, `web/css/app.css`, `web/js/*.js` | [CONFIRMED] | TESTED |
 | **Automated Web Safety Scanner** (Zero innerHTML, strict CSP verified) | `scripts/check_web_safety.ps1` | [CONFIRMED] | TESTED |
 | **Hermetic C++ Unit & Integration Test Suite** (111 registered tests) | `tests/*.cpp`, `tests/fake_ollama.hpp` | [CONFIRMED] | TESTED |
-| **Browser Pure-Logic Unit Test Suite** (66 registered unit tests) | `web/tests.html`, `web/js/tests/*.js` | [CONFIRMED] | TESTED |
+| **Browser Pure-Logic Unit Test Suite** (70 registered unit tests) | `web/tests.html`, `web/js/tests/*.js` | [CONFIRMED] | TESTED |
 
 *(Note: For real browser verification results and human-tested status as of 2026-11-12, see the [Verification status (as of 2026-11-12)](PROJECT_CONTEXT.md#verification-status-as-of-2026-11-12) section in docs/PROJECT_CONTEXT.md).*
 

@@ -1,6 +1,6 @@
 # Known Issues, Limitations & Risk Tracker
 
-Last updated: 2026-11-12 by T-006
+Last updated: 2026-11-13 by SYNC
 
 | ID | Type | Description | Where (File/Function) | Severity | Evidence | Status | Date |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -26,4 +26,5 @@ Last updated: 2026-11-12 by T-006
 | ISS-020 | Bug | Ask tab Title field does not clear after a document is successfully ingested. Document ingested, chunks created, but the Title box keeps its text. | `web/js/ask.js` | Low | [CONFIRMED: human manual browser test] | FIXED | 2026-11-12 |
 | ISS-021 | Bug | Ask tab answered an irrelevant question ("pizza banane ki recipe kya hai?") with RAG pipeline text before saying no recipe exists (mild ISS-001 prompt leakage). Also replied in English when question was in Hinglish, and repeated the question text in line 1. | `src/rag.cpp` | Low | [CONFIRMED: human manual browser test] | FIXED (prompt tuned; human-tested pass on 2026-11-12; small-model behavior may still vary) | 2026-11-12 |
 | ISS-022 | Enhancement | Settings tab shows only an Ollama badge (green dot / version), but not the list of installed models. | `web/js/settings.js`, `src/api.cpp` | Low | [CONFIRMED: human manual browser test] | FIXED | 2026-11-12 |
-| ISS-023 | Bug | Compare bars chart (drawComparisonBars) used canvas.width/height (buffer px) while setupCanvasDpr applied ctx.scale(dpr,dpr), so at DPR != 1 (browser zoom 125%) the chart was drawn too large and cut off | `web/js/compare_helpers.js:101-102` | Medium | [CONFIRMED: human screenshot 125% zoom 2026-11-13] | FIXED in T-023b-1 (pending human re-test) | 2026-11-13 |
+| ISS-023 | Bug | Compare bars chart (drawComparisonBars) used canvas.width/height instead of CSS px, causing charts to overflow or clip at browser zoom != 100% (DPR != 1) | `web/js/compare_helpers.js:101-102` | Medium | [CONFIRMED: human screenshot 125% zoom 2026-11-13] | FIXED in T-023b-1 via resolveChartSize (pending human re-test) | 2026-11-13 |
+| ISS-024 | Layout | Summary Metrics table in Compare sidebar (380px) wrapped cells to 3 lines, rows ~100px tall, ~400px empty space under it at 1920x1080 | `web/css/app.css`, `web/index.html` | Low | [CONFIRMED: human screenshot 2026-11-13] | FIXED in T-023b-1 (sidebar 420px, nowrap cells, compact padding, pending human re-test) | 2026-11-13 |
