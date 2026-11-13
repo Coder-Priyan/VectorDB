@@ -12,6 +12,7 @@ import {
   ALGORITHM_LABELS,
   ALGORITHM_COLORS
 } from "./compare_helpers.js";
+import { isCanvasDrawable } from "./hnsw_helpers.js";
 
 export function initCompareTab() {
   const byId = (id) => document.getElementById(id);
@@ -196,6 +197,9 @@ export function initCompareTab() {
 
   function renderChart() {
     if (!canvas || !lastReportData) return;
+    const rect = canvas.getBoundingClientRect();
+    if (!isCanvasDrawable(rect.width, rect.height)) return;
+
     const ctx = canvas.getContext("2d");
     setupCanvasDpr(canvas, ctx);
 
@@ -291,14 +295,29 @@ export function initCompareTab() {
     });
   });
 
+  let resizeRaf = null;
+  function scheduleResize() {
+    if (resizeRaf) return;
+    resizeRaf = requestAnimationFrame(() => {
+      resizeRaf = null;
+      if (lastReportData) renderChart();
+    });
+  }
+
+  const canvasWrapper = canvas?.parentElement;
+  if (canvasWrapper && typeof ResizeObserver !== "undefined") {
+    const ro = new ResizeObserver(scheduleResize);
+    ro.observe(canvasWrapper);
+  }
+
   byId("tab-btn-compare")?.addEventListener("click", () => {
     checkCollectionStats();
-    if (lastReportData) renderChart();
+    if (lastReportData) {
+      requestAnimationFrame(() => renderChart());
+    }
   });
 
-  window.addEventListener("resize", () => {
-    if (lastReportData) renderChart();
-  });
+  window.addEventListener("resize", scheduleResize);
 
   updateCollectionVisibility();
   checkCollectionStats();
