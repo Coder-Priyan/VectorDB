@@ -1,11 +1,16 @@
 # Project Handoff
 
-Last updated: 2026-11-13 by SYNC
+Last updated: 2026-11-13 by T-028
 
 ## 1. Current Status
-VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. UI redesign T-011 to T-027 complete and human-verified. All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs (including `panel-settings`, `settings-health-box`, `settings-reset-demo-form`, `demo-dim-input`, `demo-metric-select`, `demo-m-input`, `demo-efc-input`, `settings-random-demo-form`, `demo-random-count`, `demo-insert-random-btn`, `settings-random-status`, `settings-reset-status`, `demo-reset-cancel-btn`, `demo-reset-btn`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), 74 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
+VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. UI redesign T-011 to T-028 complete. Latest finished task is T-028 (Settings tab aligned with other tabs: toolbar row with hairline, left main = Server status hairline table with 8px green status dot, right 460px sidebar = Demo collection 2x2 grid, Insert random with solid amber button, Danger zone with red-outline button; no bordered cards; top-aligned). All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs (including `panel-settings`, `settings-health-box`, `settings-reset-demo-form`, `demo-dim-input`, `demo-metric-select`, `demo-m-input`, `demo-efc-input`, `settings-random-demo-form`, `demo-random-count`, `demo-insert-random-btn`, `settings-random-status`, `settings-reset-status`, `demo-reset-cancel-btn`, `demo-reset-btn`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), 74 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
 
 ## 2. Last Work Done (From Git)
+- **Task T-028** (branch `ui-redesign`): Settings tab - align with other tabs (toolbar + main/sidebar layout, no cards).
+  1. *Toolbar & Layout Language*: Rebuilt Settings tab using `.tab-toolbar` (left title "Settings" 14px medium + muted subtitle "Server status and demo collection configuration.") and `.viz-layout` with `.viz-main` and `.viz-sidebar` (width 460px), exactly matching Compare/Explore/HNSW tabs. Removed all bordered cards, vertical centering, and equal-height panel logic (ADR-025 superseding ADR-023/ADR-024). Top-aligned directly under toolbar hairline.
+  2. *Server Status Hairline Table*: Restyled `#settings-health-box .info-table` with 44px row height (padding 12px 0), 1px hairlines between rows, 200px muted label column, mono tabular-nums value column with `overflow-wrap: anywhere;` (stays on one line at 1920 width), and 8px green status dot (`::before` with `--success-color`) before "ok". Zero JS changes.
+  3. *Right 460px Sidebar*: Structured into 3 sections separated by 1px hairlines: (a) "Demo collection" with 2x2 field grid (Dimension, Metric / M, efConstruction) matching Compare styling; (b) "Insert random vectors" with count input + solid amber Insert button on one row (`btn btn-primary w-100`) and `#settings-random-status` below; (c) "Danger zone" with muted description and red-outline Reset Demo Collection button (`btn btn-sm btn-danger`) matching Ask tab Reset Docs button. Two-step confirm and all 14 DOM IDs preserved.
+  4. *Responsive Stacking Fallback*: Integrated into shared `@media (max-height: 520px), (max-width: 1100px)` with `.viz-sidebar { width: 100%; height: auto; overflow-y: visible; }` for seamless stacking without clipping.
 - **Task T-027** (commit `5588462`, branch `ui-redesign`): Settings tab - remove awkward empty space (balanced bordered panels, vertically centered).
   1. *Balanced Equal-Height Panels*: Configured `#panel-settings .settings-col` as flat bordered panels (`background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 24px; gap: 28px;`). In `.settings-layout`, set `align-items: stretch` so both panels stretch to equal height.
   2. *Safe Vertical & Horizontal Centering*: Set `.settings-layout` to `margin: auto; height: auto; max-height: 100%; gap: 24px;` inside flex container `#panel-settings` (`display: flex; flex-direction: column;`). This cleanly centers the two-column block in remaining viewport space without clipping the top during short viewports.
@@ -71,7 +76,7 @@ VectorDB engine is in a stable, verified, and frozen state. Active development i
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
 ## 4. Recommended Next Step
-Human decides: merge ui-redesign to main (Brain will first ask for a backup branch and checks, because merge is hard to undo), or optional polish. Roadmap features stay ON HOLD.
+Human browser verification of T-028 (Settings layout at 1920x1080 and 1366x768, toolbar alignment, table hairline rows, 460px sidebar, two-step reset confirm, random insert, fallback stacking). Then decide merge of ui-redesign to main or optional polish.
 
 ## 5. UI Redesign Phase Plan
 UI redesign phases (branch `ui-redesign`):
@@ -89,17 +94,19 @@ UI redesign phases (branch `ui-redesign`):
 *Dark only. Human verifies in browser after each phase.*
 
 ## 6. Pending Human Actions
-- (1) Decide merge of ui-redesign into main (Brain will ask for backup branch and safety checks first).
-- (2) Optional polish of Compare sidebar empty space below Summary Metrics at 1920x1080.
-- (3) Roadmap features (hybrid search, reranking, disk persistence, delete) stay ON HOLD.
+- (1) Verify T-028 in real browser (Settings layout at 1920x1080, 1366x768, zoom, reset, insert, fallback).
+- (2) Decide merge of ui-redesign into main (Brain will ask for backup branch and safety checks first).
+- (3) Optional polish of Compare sidebar empty space below Summary Metrics at 1920x1080.
+- (4) Roadmap features (hybrid search, reranking, disk persistence, delete) stay ON HOLD.
 
 ## 7. Open Decisions / Known Gaps
 - **Compare layout choice**: RESOLVED: Option A chosen (form + metrics in sidebar, bars + diff table on right). Cited in ADR-021.
-- **T-023b-2 (completed)**: bars as 3 side-by-side charts (Latency, Distances, Recall) in a 140px canvas, drawn in CSS px. Summary Metrics sidebar widened to 460px with 4px 6px padding to ensure Recall column is fully visible without horizontal scrollbar. Verified by human screenshots.
-- **T-024 (completed)**: Settings tab and fallback media query feasibility study complete. Option A 2-column layout recommended for zero-scroll on 1366x768 and 1920x1080. ISS-025 identified as fixed 48px header height clipping zoomed content.
-- **T-025 (completed)**: Settings tab 2-column layout implemented (left = Server status, right = Demo collection + Danger zone) with stacked fallback below 1100px width or 520px height. Verified by human in real browser.
-- **T-026 (completed)**: Header flexible min-height: 48px + badge line-height: 1.2 (ISS-025 fix) + Settings column tabindex removal. Verified by human in real browser (screenshot at 200% zoom).
+- **T-028 (completed)**: Settings tab aligned with other tabs (toolbar + main/sidebar layout, no cards, 460px right sidebar, 8-row hairline server status table with 8px green dot, solid amber insert button, red outline reset button). Pending human browser verification.
 - **T-027 (completed)**: Settings tab balanced bordered panels (`--bg-surface`, 1px `--border-color`, `--radius-md`, 24px padding), vertically centered with `margin: auto`, Danger zone pinned to bottom of right panel (`margin-top: auto; border-top: 1px solid var(--border-color)`), Server table row padding 13px 0. Human-verified by screenshot at 1920x1080 on 2026-11-13.
+- **T-026 (completed)**: Header flexible min-height: 48px + badge line-height: 1.2 (ISS-025 fix) + Settings column tabindex removal. Verified by human in real browser (screenshot at 200% zoom).
+- **T-025 (completed)**: Settings tab 2-column layout implemented (left = Server status, right = Demo collection + Danger zone) with stacked fallback below 1100px width or 520px height. Verified by human in real browser.
+- **T-024 (completed)**: Settings tab and fallback media query feasibility study complete. Option A 2-column layout recommended for zero-scroll on 1366x768 and 1920x1080. ISS-025 identified as fixed 48px header height clipping zoomed content.
+- **T-023b-2 (completed)**: bars as 3 side-by-side charts (Latency, Distances, Recall) in a 140px canvas, drawn in CSS px. Summary Metrics sidebar widened to 460px with 4px 6px padding to ensure Recall column is fully visible without horizontal scrollbar. Verified by human screenshots.
 - **Known from review**: .answer-box max-height uses 50vh (viewport based); revisit only if sources look too small at 1366x768.
 - **Fallback media query** (max-height 520px / max-width 1100px) is a guess, human-tested OK on desktop windows only.
 - Total DOM ID counts: Ask 25 (including `panel-ask`), Explore 19, HNSW 26, Settings 14, Compare 20.

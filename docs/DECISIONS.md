@@ -1,6 +1,6 @@
 # Architectural Decision Records (ADR)
 
-Last updated: 2026-11-13 by SYNC
+Last updated: 2026-11-13 by T-028
 
 | ID | Date | Decision | Reason | Alternatives Rejected | Evidence Tag |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -28,4 +28,5 @@ Last updated: 2026-11-13 by SYNC
 | ADR-022 | 2026-11-13 | One-screen phases: T-019 = Phase 1 (shell + Ask), T-020 = Phase 2 (Explore + HNSW), T-021 = Ask height fix, T-022/T-023a = Phase 3a Compare layout, T-023b-1 = Compare DPR fix + Summary Metrics compact, T-023b-2 = side-by-side charts, then Phase 4 = Settings + small-screen check, then human decides merge to main | Phased delivery of instrument-panel one-screen layout with human verification after each phase | Big-bang single commit redesign across all tabs | [CONFIRMED: human instruction in chat] |
 | ADR-023 | 2026-11-13 | Settings tab uses 2-column layout (left = Server status table, right = Demo collection + Danger zone) with stacked fallback below 1100px width or 520px height | Human delegated choice to Brain; fits 1366x768 with zero scroll (T-024 estimate: columns about 350px and about 324px) | Alternative rejected: single column with compact spacing (about 638px, scrolls at 1366x768) | [CONFIRMED: human instruction in chat] |
 | ADR-024 | 2026-11-13 | Settings tab polish: two equal-height bordered panels, block vertically centered with margin auto, Danger zone pinned to bottom of right panel | Human found empty space below Settings content unprofessional and delegated the fix to Brain | Alternatives rejected: adding filler content (engine frozen, no new data), single full-width stretched layout | [CONFIRMED: human instruction in chat] |
+| ADR-025 | 2026-11-13 | Settings tab rebuilt to match Compare/Explore/HNSW layout language: toolbar row with hairline, left main = Server status hairline table, right 460px sidebar = Demo collection, Insert random, Danger zone; no bordered cards; top-aligned. Supersedes ADR-023 two-column cards and ADR-024 equal-height panels. | Human found floating bordered cards with dead space unprofessional; Settings was the only tab not following the shared layout language; design choice delegated to Brain. | Keep two equal-height cards; centered 960px config page with 240px label column (inconsistent with other tabs); outline Insert button (inconsistent with primary buttons elsewhere). | [CONFIRMED: human instruction in chat] |
 

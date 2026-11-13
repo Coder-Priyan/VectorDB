@@ -978,35 +978,16 @@ html {
   font-size: 13px;
 }
 
-/* Settings Tab Layout */
-#panel-settings .settings-layout {
-  max-width: 1080px;
-  width: 100%;
-  margin: auto;
-  height: auto;
-  max-height: 100%;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 24px;
-  align-items: stretch;
+/* Settings Tab Layout (Toolbar + Main/Sidebar Pattern) */
+#panel-settings .settings-toolbar-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
-#panel-settings .settings-col {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-  min-width: 0;
-  max-height: 100%;
-  overflow-y: auto;
-}
-
-#panel-settings .settings-col:focus-visible {
-  outline: 1px solid var(--accent-color);
-  outline-offset: 1px;
+#panel-settings .settings-toolbar-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
 #panel-settings .settings-section {
@@ -1014,23 +995,21 @@ html {
   flex-direction: column;
 }
 
-#panel-settings .settings-section-danger {
-  margin-top: auto;
+#panel-settings .settings-section + .settings-section {
   border-top: 1px solid var(--border-color);
   padding-top: 20px;
+  margin-top: 20px;
 }
 
 #panel-settings .section-title {
-  margin: 0 0 16px 0;
+  margin: 0 0 12px 0;
   font-size: 14px;
   font-weight: 500;
   color: var(--text-secondary);
 }
 
-#panel-settings .settings-divider {
-  border: none;
-  border-top: 1px solid var(--border-color);
-  margin: 0;
+#panel-settings .info-table-container {
+  margin-top: 0;
 }
 
 #panel-settings .info-table {
@@ -1038,23 +1017,22 @@ html {
   border-collapse: collapse;
 }
 
-#panel-settings .info-table tr {
-  border-bottom: 1px solid var(--border-color);
-}
-
-#panel-settings .info-table tr:last-child {
-  border-bottom: none;
-}
-
 #panel-settings .info-table td {
-  padding: 13px 0;
+  padding: 12px 0;
   border: none;
-  font-size: 14px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+#panel-settings .info-table tr:last-child td {
+  border-bottom: none;
 }
 
 #panel-settings .info-table td:first-child {
   color: var(--text-muted);
-  width: 160px;
+  width: 200px;
+  font-weight: 400;
 }
 
 #panel-settings .info-table td:last-child {
@@ -1065,26 +1043,26 @@ html {
   overflow-wrap: anywhere;
 }
 
-#panel-settings .settings-random-group {
-  margin-top: 24px;
+#panel-settings #settings-health-box tr:first-child td:last-child::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--success-color);
+  margin-right: 8px;
+  vertical-align: middle;
 }
 
-#panel-settings .settings-danger-card {
+#panel-settings #settings-random-demo-form {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
+  gap: 12px;
+  align-items: stretch;
 }
 
-#panel-settings .settings-danger-info p {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin: 0;
-}
-
-#panel-settings .settings-danger-card .btn-danger {
-  white-space: nowrap;
+#panel-settings #demo-insert-random-btn {
+  height: 100%;
+  min-height: 38px;
 }
 
 .settings-inline-msg {
@@ -1388,8 +1366,9 @@ html {
   overflow-y: auto;
 }
 
-/* Compare Tab Fixed Layout (One-Screen Phase 3a) */
-#panel-compare .viz-sidebar {
+/* Compare & Settings Tabs Fixed Layout (One-Screen) */
+#panel-compare .viz-sidebar,
+#panel-settings .viz-sidebar {
   width: 460px;
   max-width: 100%;
   flex-shrink: 0;
@@ -1400,7 +1379,8 @@ html {
   flex-direction: column;
 }
 
-#panel-compare .viz-main {
+#panel-compare .viz-main,
+#panel-settings .viz-main {
   flex: 1;
   min-width: 0;
   min-height: 0;
@@ -1564,7 +1544,8 @@ html {
     overflow-y: visible;
   }
 
-  #panel-compare .viz-sidebar {
+  #panel-compare .viz-sidebar,
+  #panel-settings .viz-sidebar {
     width: 100%;
     height: auto;
     overflow-y: visible;
@@ -1606,21 +1587,6 @@ html {
     overflow-y: visible;
   }
 
-  #panel-settings .settings-layout {
-    grid-template-columns: 1fr;
-    height: auto;
-    margin: 0 auto;
-    gap: 24px;
-  }
-
-  #panel-settings .settings-col {
-    max-height: none;
-    overflow: visible;
-  }
-
-  #panel-settings .settings-section-danger {
-    margin-top: 0;
-  }
 }
 
 /* Test Suite Styles */

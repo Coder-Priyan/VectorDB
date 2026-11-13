@@ -424,29 +424,35 @@
 
     <!-- TAB 5: SETTINGS -->
     <section id="panel-settings" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-settings">
-      <div class="settings-layout">
-        <!-- Left Column: Server Status -->
-        <div class="settings-col">
-          <section class="settings-section">
-            <h2 class="section-title">Server</h2>
-            <div id="settings-health-box" class="settings-status-box">
+      <div class="tab-toolbar">
+        <div class="toolbar-left">
+          <span class="settings-toolbar-title">Settings</span>
+          <span class="settings-toolbar-subtitle">Server status and demo collection configuration.</span>
+        </div>
+      </div>
+      <div class="viz-layout">
+        <!-- Left Main: Server Status -->
+        <div class="viz-main">
+          <div class="viz-results-section">
+            <h3 class="section-title">Server status</h3>
+            <div id="settings-health-box" class="info-table-container">
               <p class="text-muted empty-state">Loading metrics...</p>
             </div>
-          </section>
+          </div>
         </div>
 
-        <!-- Right Column: Demo Collection Configuration & Danger Zone -->
-        <div class="settings-col">
-          <!-- Demo Collection Configuration & Random Vectors -->
-          <section class="settings-section">
-            <h2 class="section-title">Demo collection</h2>
+        <!-- Right Sidebar: Demo Collection Configuration & Danger Zone -->
+        <aside class="viz-sidebar">
+          <!-- Demo Collection Configuration -->
+          <div class="settings-section">
+            <h3 class="section-title">Demo collection</h3>
             <form id="settings-reset-demo-form" class="form-stack">
-              <div class="two-col-grid">
-                <div class="form-group">
+              <div class="form-row">
+                <div class="form-group flex-1">
                   <label for="demo-dim-input">Dimension</label>
                   <input type="number" id="demo-dim-input" class="input-text" value="128" min="1" max="4096" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group flex-1">
                   <label for="demo-metric-select">Metric</label>
                   <select id="demo-metric-select" class="input-select">
                     <option value="cosine" selected>Cosine</option>
@@ -454,46 +460,45 @@
                     <option value="manhattan">Manhattan</option>
                   </select>
                 </div>
-                <div class="form-group">
+              </div>
+              <div class="form-row">
+                <div class="form-group flex-1">
                   <label for="demo-m-input">M</label>
                   <input type="number" id="demo-m-input" class="input-text" value="16" min="2" max="128">
                 </div>
-                <div class="form-group">
+                <div class="form-group flex-1">
                   <label for="demo-efc-input">efConstruction</label>
                   <input type="number" id="demo-efc-input" class="input-text" value="200" min="4" max="1000">
                 </div>
               </div>
             </form>
+          </div>
 
-            <div class="settings-random-group">
-              <form id="settings-random-demo-form" class="form-row">
-                <div class="form-group flex-2">
-                  <label for="demo-random-count">Insert random vectors</label>
-                  <input type="number" id="demo-random-count" class="input-text" value="100" min="1" max="20000">
-                </div>
-                <div class="form-group flex-1 align-end">
-                  <button type="submit" id="demo-insert-random-btn" class="btn btn-primary w-100">Insert</button>
-                </div>
-              </form>
-              <div id="settings-random-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
-            </div>
-          </section>
+          <!-- Insert Random Vectors -->
+          <div class="settings-section">
+            <h3 class="section-title">Insert random vectors</h3>
+            <form id="settings-random-demo-form" class="form-row">
+              <div class="form-group flex-2">
+                <input type="number" id="demo-random-count" class="input-text" value="100" min="1" max="20000" aria-label="Insert random vectors count">
+              </div>
+              <div class="form-group flex-1">
+                <button type="submit" id="demo-insert-random-btn" class="btn btn-primary w-100">Insert</button>
+              </div>
+            </form>
+            <div id="settings-random-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
+          </div>
 
           <!-- Danger Zone -->
-          <section class="settings-section settings-section-danger">
-            <h2 class="section-title">Danger zone</h2>
-            <div class="settings-danger-card">
-              <div class="settings-danger-info">
-                <p class="text-muted">Clears all demo vectors and rebuilds index with the configuration above.</p>
-                <div id="settings-reset-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
-              </div>
-              <div class="settings-confirm-actions">
-                <button type="button" id="demo-reset-cancel-btn" class="btn btn-outline hidden">Cancel</button>
-                <button type="button" id="demo-reset-btn" class="btn btn-danger">Reset Demo Collection</button>
-              </div>
+          <div class="settings-section settings-section-danger">
+            <h3 class="section-title">Danger zone</h3>
+            <p class="text-muted text-xs">Clears all demo vectors and rebuilds the index with the configuration above.</p>
+            <div class="settings-confirm-actions mt-3">
+              <button type="button" id="demo-reset-cancel-btn" class="btn btn-sm btn-outline hidden">Cancel</button>
+              <button type="button" id="demo-reset-btn" class="btn btn-sm btn-danger">Reset Demo Collection</button>
             </div>
-          </section>
-        </div>
+            <div id="settings-reset-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
+          </div>
+        </aside>
       </div>
     </section>
   </main>

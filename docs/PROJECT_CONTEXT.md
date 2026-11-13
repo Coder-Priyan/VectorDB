@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-13 by SYNC
+Last updated: 2026-11-13 by T-028
 
 ## 1. Operating Model
 
@@ -137,6 +137,7 @@ Tasks verified and completed on branch `ui-redesign` (T-017 through T-023b-2):
 - **T-025** (2026-11-13, commits `6b45f89`, `64dd849`): One-screen UI Phase 4 - Settings tab 2-column layout (Option A: left = Server status, right = Demo collection + Danger zone) with stacked fallback below 1100px width or 520px height. Verified by human in real browser [CONFIRMED: human screenshot/report].
 - **T-026** (2026-11-13, commits `a41b134`, `b369c6e`, `f593147`): Header Ollama badge clipping at high zoom (ISS-025) fix (`min-height: 48px; height: auto` on `.app-header` and `.tab-nav`, `line-height: 1.2` on `.badge`) + Settings column tabindex cleanup. Verified by human in real browser [CONFIRMED: human screenshot/report].
 - **T-027** (2026-11-13, commits `5588462`, `966f86c`): Settings tab - remove awkward empty space (balanced bordered panels, vertically centered with `margin: auto`, Danger zone pinned to bottom of right panel with `margin-top: auto` and 1px border-top, row padding 13px 0). Verified by human in real browser [CONFIRMED: human screenshot/report].
+- **T-028** (2026-11-13): Settings tab - align with other tabs (toolbar + main/sidebar layout, no cards, 460px right sidebar, 8-row hairline server status table with 8px green dot, solid amber insert button, red outline reset button). Implemented, pending human browser verification.
 
 Features verified in a real browser by the human (with screenshots saved in results/screenshots/):
 - T-027 Settings balanced panels verified by human on 2026-11-13: 1920x1080 screenshot shows two equal-height bordered panels, block vertically centered, Danger zone pinned to bottom of right panel, Ollama models value on one line [CONFIRMED: human screenshot]; 1366x768, fallback stacking, Insert Random, Reset two-step confirm, zoom, console, other tabs, /tests.html 74/74 [CONFIRMED: human-reported, no screenshots].

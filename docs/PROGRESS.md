@@ -1,10 +1,10 @@
 # Project Progress
 
-Last updated: 2026-11-13 by SYNC
+Last updated: 2026-11-13 by T-028
 
-## 1. Current Phase: UI Redesign Complete (Tasks T-011 through T-027, Branch ui-redesign); Next Step: Human Decides Merge to Main or Optional Polish
+## 1. Current Phase: Settings Tab Layout Aligned with Other Tabs (Task T-028, Branch `ui-redesign`); Next Step: Human Browser Verification
 
-All core engine development, bug fix tasks, and UI redesign tasks (T-011 through T-027) are completed and human-verified (111 C++ tests, 74 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. T-027 (Settings tab balanced equal-height bordered panels, vertically centered, Danger zone pinned to bottom) has been verified by the human. Next step: human decides whether to merge `ui-redesign` to `main` (Brain will first ask for a backup branch and safety checks) or proceed with optional polish (such as Compare sidebar empty space below Summary Metrics at 1920x1080). All 20 Compare DOM IDs (plus `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs, 25 Ask DOM IDs, and all 74 browser unit tests remain functional [CONFIRMED: git status, git log].
+All core engine development, bug fix tasks, and UI redesign tasks (T-011 through T-028) are completed (111 C++ tests, 74 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Latest finished task is T-028 (Settings tab rebuilt to match Compare/Explore/HNSW layout language: toolbar row with hairline, left main = Server status hairline table with 8px green status dot, right 460px sidebar = Demo collection 2x2 grid, Insert random with solid amber button, Danger zone with red-outline button; no bordered cards; top-aligned). Next step: human browser verification of T-028 (Settings layout at 1920x1080 and 1366x768, toolbar alignment, table hairline rows, 460px sidebar, two-step reset confirm, random insert, fallback stacking). All 20 Compare DOM IDs (plus `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs, 25 Ask DOM IDs, and all 74 browser unit tests remain functional [CONFIRMED: git status, git log].
 
 ---
 
