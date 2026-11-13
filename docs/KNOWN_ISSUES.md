@@ -1,6 +1,6 @@
 # Known Issues, Limitations & Risk Tracker
 
-Last updated: 2026-11-13 by T-024
+Last updated: 2026-11-13 by T-025
 
 | ID | Type | Description | Where (File/Function) | Severity | Evidence | Status | Date |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -28,4 +28,4 @@ Last updated: 2026-11-13 by T-024
 | ISS-022 | Enhancement | Settings tab shows only an Ollama badge (green dot / version), but not the list of installed models. | `web/js/settings.js`, `src/api.cpp` | Low | [CONFIRMED: human manual browser test] | FIXED | 2026-11-12 |
 | ISS-023 | Bug | Compare bars chart (drawComparisonBars) used canvas.width/height instead of CSS px, causing charts to overflow or clip at browser zoom != 100% (DPR != 1) | `web/js/compare_helpers.js:101-102` | Medium | [CONFIRMED: human screenshot 125% zoom 2026-11-13] | FIXED (human-verified by screenshots at 100/125/200% on 2026-11-13) | 2026-11-13 |
 | ISS-024 | Layout | Summary Metrics table in Compare sidebar (380px) wrapped cells to 3 lines, rows ~100px tall, ~400px empty space under it at 1920x1080 | `web/css/app.css`, `web/index.html` | Low | [CONFIRMED: human screenshot 2026-11-13] | FIXED (human-verified by screenshots at 100% and 125% on 2026-11-13: Recall@K column visible, no horizontal scrollbar, sidebar 460px) | 2026-11-13 |
-| ISS-025 | Layout | Header Ollama status badge text is vertically clipped at 200% browser zoom | `web/css/app.css` (.app-header, status badge) | Low | [CONFIRMED: human screenshot 200% zoom 2026-11-13] | OPEN (not fixed, header height not flexible at high zoom) | 2026-11-13 |
+| ISS-025 | Layout | Header Ollama status badge text is vertically clipped at 200% browser zoom | `web/css/app.css` (.app-header, status badge) | Low | [CONFIRMED: human screenshot 200% zoom 2026-11-13] | OPEN (deferred to T-026; root cause unconfirmed: fixed header height 48px at app.css:140 vs badge line-height) | 2026-11-13 |

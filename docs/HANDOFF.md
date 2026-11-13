@@ -1,12 +1,18 @@
 # Project Handoff
 
-Last updated: 2026-11-13 by T-024
+Last updated: 2026-11-13 by T-025
 
 ## 1. Current Status
-VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. Phase 1 (foundation), Phase 2 (Ask tab), Phase 3 (Settings tab), Phase 4a (Explore + HNSW tabs), Phase 4b (Compare tab redesign, flat progress bar, table wrapping prevention, taupe/moss/amber palette with zero blue), T-016 (browser test fallback color fix), T-017 (one-screen UI feasibility study), T-018 (cleanup before one-screen UI: mockup removed, alert/confirm replaced with inline UI and two-step confirm, docs cleanup), T-019 (One-screen UI Phase 1: fixed 100dvh app shell, Ask tab one-screen pilot with inner scroll areas, smart auto-scroll, temporary panel scroll for other tabs), T-020 (One-screen UI Phase 2: Explore + HNSW tabs fit panel with .canvas-frame and ResizeObserver), T-021 (Ask answer box sizes to content, sources take remaining height), T-022 (Compare tab one-screen feasibility study), T-023a (Compare one-screen Phase 3a fixed layout), T-023b-1 (Compare DPR CSS px fix & compact sidebar table), T-023b-2 (Compare 3 side-by-side charts in 140px canvas frame + Summary Metrics Recall column visible in 460px sidebar; human-verified in real browser), and T-024 (Settings tab + fallback media query feasibility study) are complete. All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), 74 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
+VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. Phase 1 (foundation), Phase 2 (Ask tab), Phase 3 (Settings tab), Phase 4a (Explore + HNSW tabs), Phase 4b (Compare tab redesign, flat progress bar, table wrapping prevention, taupe/moss/amber palette with zero blue), T-016 (browser test fallback color fix), T-017 (one-screen UI feasibility study), T-018 (cleanup before one-screen UI: mockup removed, alert/confirm replaced with inline UI and two-step confirm, docs cleanup), T-019 (One-screen UI Phase 1: fixed 100dvh app shell, Ask tab one-screen pilot with inner scroll areas, smart auto-scroll, temporary panel scroll for other tabs), T-020 (One-screen UI Phase 2: Explore + HNSW tabs fit panel with .canvas-frame and ResizeObserver), T-021 (Ask answer box sizes to content, sources take remaining height), T-022 (Compare tab one-screen feasibility study), T-023a (Compare one-screen Phase 3a fixed layout), T-023b-1 (Compare DPR CSS px fix & compact sidebar table), T-023b-2 (Compare 3 side-by-side charts in 140px canvas frame + Summary Metrics Recall column visible in 460px sidebar; human-verified in real browser), T-024 (Settings tab + fallback media query feasibility study), and T-025 (Settings tab 2-column one-screen layout + stacked fallback) are complete. All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs (including `panel-settings`, `settings-health-box`, `settings-reset-demo-form`, `demo-dim-input`, `demo-metric-select`, `demo-m-input`, `demo-efc-input`, `settings-random-demo-form`, `demo-random-count`, `demo-insert-random-btn`, `settings-random-status`, `settings-reset-status`, `demo-reset-cancel-btn`, `demo-reset-btn`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), 74 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
 
 ## 2. Last Work Done (From Git)
-- **Task T-024** (branch `ui-redesign`): One-screen UI Phase 4 - Settings tab + small-screen fallback feasibility study (read-only architectural analysis + docs sync). Evaluated DOM blocks, CSS rules, content height (~754px vs 965px at 1080p and 653px at 768p), proposed Option A 2-column layout vs Option B single column compact, audited fallback media queries across all 5 tabs, and isolated ISS-025 header badge clipping to fixed 48px header height.
+- **Task T-025** (commit `6b45f89`, branch `ui-redesign`): One-screen UI Phase 4 - Settings tab 2-column layout (Option A) + Settings fallback.
+  1. *Two-Column Layout*: Regrouped `#panel-settings .settings-layout` into 2 equal columns using CSS grid (`grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px;`). Left column contains Server status table (`#settings-health-box`). Right column contains Demo collection (config form + random vectors) and Danger zone reset card. Removed `<hr class="settings-divider">` separators.
+  2. *Fixed-Height Panel & Inner Column Scroll*: Replaced temporary panel-level scroll on `#panel-settings` with `height: 100%; min-height: 0; overflow: hidden;`. Configured `.settings-col` with `display: flex; flex-direction: column; gap: 32px; min-width: 0; max-height: 100%; overflow-y: auto;` with 1px amber `:focus-visible` outline.
+  3. *Table Column Width & Wrap*: Reduced Server status table first column from 220px to 160px; added `overflow-wrap: anywhere;` to value column so long Ollama model lists wrap without horizontal overflow.
+  4. *Responsive Fallback*: In `@media (max-height: 520px), (max-width: 1100px)`, configured `.settings-layout` to stack in a single column (`grid-template-columns: 1fr; height: auto; gap: 24px;`) with `.settings-col { max-height: none; overflow: visible; }`.
+  5. *Zero JS Changes & All 14 IDs Preserved*: No JS files modified. All 14 Settings DOM IDs intact and verified.
+- **Task T-024** (commit `46e1991`, branch `ui-redesign`): One-screen UI Phase 4 - Settings tab + small-screen fallback feasibility study (read-only architectural analysis + docs sync). Evaluated DOM blocks, CSS rules, content height (~754px vs 965px at 1080p and 653px at 768p), proposed Option A 2-column layout vs Option B single column compact, audited fallback media queries across all 5 tabs, and isolated ISS-025 header badge clipping to fixed 48px header height.
 - **Task T-023b-2** (commits `f0eded4`, `cfb2f2a`, branch `ui-redesign`): Compare bars as 3 side-by-side charts (Latency, Distances, Recall) + Summary Metrics Recall column visible.
   1. *Side-by-Side Canvas Layout*: Replaced 3 stacked vertical sections with a single row of 3 side-by-side metric charts (Latency, Distance Computations, Recall @ k) in a 140px canvas wrapper. Added single left algorithm label gutter (80px), responsive metric titles with multi-stage fallback shortening, non-overflowing bars and mono value labels, and baseline grid rules. Pure helper `computeChartLayout(w, h)` exports geometry with 4 unit tests (total browser tests now 74).
   2. *Summary Metrics Width & Padding*: Widened `#panel-compare .viz-sidebar` to 460px and reduced cell padding to `4px 6px` so all 5 columns including Recall@k are fully visible with no horizontal scrollbar at 100% and 125% zoom. Diff table in `.viz-main` gains ~100px freed vertical space.
@@ -54,7 +60,7 @@ VectorDB engine is in a stable, verified, and frozen state. Active development i
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
 ## 4. Recommended Next Step
-Brain reviews T-024 report, then writes T-025 (Settings one-screen Phase 4 implementation).
+Human verifies T-025 in browser, then Brain writes T-026 (ISS-025 header badge investigation + fix), then human decides merge ui-redesign to main.
 
 ## 5. UI Redesign Phase Plan
 UI redesign phases (branch `ui-redesign`):
@@ -68,20 +74,21 @@ UI redesign phases (branch `ui-redesign`):
 8. **Phase 8: One-Screen UI Phase 2 (Explore + HNSW Canvas Sizing - T-020)**: Replaced temporary panel scroll with fixed-height flex layout, wrapped canvases in `.canvas-frame` with absolute inset, ResizeObserver sizing with rAF throttle and `isCanvasDrawable` guard, sidebar inner scroll. [COMPLETED]
 9. **Phase 9: Ask Answer Box & Sources Height Tuning (T-021)**: Answer box sizes to content with `flex: 0 1 auto` and `max-height: 50vh`, sources list takes remaining height with `flex: 1`, responsive fallback updated. Verified in real browser by human on 2026-11-13. [COMPLETED]
 10. **Phase 10: One-Screen UI Phase 3 (Compare Option A - T-022 feasibility, T-023a layout complete, T-023b-1 DPR & table fix complete, T-023b-2 side-by-side canvas)**: T-023a fixed layout + T-023b-1 DPR CSS px fix & compact sidebar table + T-023b-2 side-by-side 3-panel canvas & full-width Summary Metrics. [COMPLETED and human-verified]
-11. **Phase 11: One-Screen UI Phase 4 (Settings - T-024 feasibility complete, T-025 implementation pending)**: [FEASIBILITY COMPLETED]
+11. **Phase 11: One-Screen UI Phase 4 (Settings - T-024 feasibility complete, T-025 implementation complete)**: [IMPLEMENTED, pending human verification]
 *Dark only. Human verifies in browser after each phase.*
 
 ## 6. Pending Human Actions
-- Await T-025 specification from Brain for Settings one-screen implementation.
+- Verify T-025 in browser, then await T-026 specification from Brain for ISS-025 header badge investigation + fix.
 - Roadmap features (hybrid search, reranking, disk persistence, delete): ON HOLD by human decision; do not start unless explicitly requested by the human.
 
 ## 7. Open Decisions / Known Gaps
 - **Compare layout choice**: RESOLVED: Option A chosen (form + metrics in sidebar, bars + diff table on right). Cited in ADR-021.
 - **T-023b-2 (completed)**: bars as 3 side-by-side charts (Latency, Distances, Recall) in a 140px canvas, drawn in CSS px. Summary Metrics sidebar widened to 460px with 4px 6px padding to ensure Recall column is fully visible without horizontal scrollbar. Verified by human screenshots.
 - **T-024 (completed)**: Settings tab and fallback media query feasibility study complete. Option A 2-column layout recommended for zero-scroll on 1366x768 and 1920x1080. ISS-025 identified as fixed 48px header height clipping zoomed content.
+- **T-025 (completed)**: Settings tab 2-column layout implemented (left = Server status, right = Demo collection + Danger zone) with stacked fallback below 1100px width or 520px height. Fits 1366x768 and 1920x1080 with zero page scroll.
 - **Known from review**: .answer-box max-height uses 50vh (viewport based); revisit only if sources look too small at 1366x768.
 - **Fallback media query** (max-height 520px / max-width 1100px) is a guess, human-tested OK on desktop windows only.
-- Total DOM ID counts: Ask 25 (including `panel-ask`), Explore 19, HNSW 26, Settings 11, Compare 20.
+- Total DOM ID counts: Ask 25 (including `panel-ask`), Explore 19, HNSW 26, Settings 14, Compare 20.
 - Known UI gaps to address:
   - `DEMO_SCRIPT.md` refers to "red star" marker: query star is now off-white `#f0ede6` with black outline. (Human handles viva/presentation docs independently).
 - Roadmap features (hybrid search, reranking, disk persistence, delete) remain ON HOLD until the human confirms they are required.
