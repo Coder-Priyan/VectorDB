@@ -137,7 +137,8 @@ html {
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border-color);
   padding: 0 28px;
-  height: 48px;
+  min-height: 48px;
+  height: auto;
   flex-shrink: 0;
   display: flex;
   justify-content: space-between;
@@ -180,7 +181,8 @@ html {
   display: flex;
   align-items: stretch;
   overflow-x: auto;
-  height: 48px;
+  min-height: 48px;
+  height: auto;
   gap: 6px;
   margin-bottom: -1px;
 }
@@ -526,6 +528,7 @@ html {
   border-radius: var(--radius-md);
   font-size: 12px;
   font-weight: 500;
+  line-height: 1.2;
   border: 1px solid transparent;
 }
 
