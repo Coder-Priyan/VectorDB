@@ -1,11 +1,15 @@
 # Project Handoff
 
-Last updated: 2026-11-13 by T-030
+Last updated: 2026-11-13 by T-031
 
 ## 1. Current Status
-VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. UI redesign T-011 to T-030 complete. Latest finished task is T-030 (Settings tab strip layout fix: 3-row layout for Server status metric strip, HNSW parameters spans 2 columns, Ollama models full width in 14px mono with break-word wrapping, balanced description text with no orphan lines, Column 2 Insert random count input aligned to exact pixel Y with Column 1 Dimension input, and 2-column 5-row fallback @media). All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs (including `panel-settings`, `settings-health-box`, `settings-reset-demo-form`, `demo-dim-input`, `demo-metric-select`, `demo-m-input`, `demo-efc-input`, `settings-random-demo-form`, `demo-random-count`, `demo-insert-random-btn`, `settings-random-status`, `settings-reset-status`, `demo-reset-cancel-btn`, `demo-reset-btn`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), 74 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
+VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. UI redesign T-011 to T-031 complete. Latest finished task is T-031 (read-only comprehensive UI consistency audit across design tokens, typography, spacing, buttons, form controls, tables, empty states, layouts, canvas colors, and Top 10 inconsistencies documented in `docs/UI_AUDIT.md`; ADR-027 recorded). All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs, 25 Ask DOM IDs, 74 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
 
 ## 2. Last Work Done (From Git)
+- **Task T-031** (branch `ui-redesign`): UI consistency audit (read-only) before full-app polish.
+  1. *Comprehensive Audit in `docs/UI_AUDIT.md`*: Conducted full inventory of `web/css/app.css`, `web/index.html`, and `web/js/*.js` covering: (1) Design tokens and 15 hardcoded colors / 289 px occurrences; (2) Typography scale and heading hierarchy breakdown; (3) Spacing inventory (136 declarations, 47 arbitrary expressions, zero spacing tokens); (4) Buttons, button classes, and solid-amber primary count per tab (2 in Ask, 2-3 in Explore, 2 in HNSW, 2 in Compare, 1 in Settings); (5) Unreset native browser form controls (file input, number spinners, select dropdowns, range sliders); (6) Table styles and density differences; (7) Disparate empty-state patterns; (8) Layout container frames and toolbar alignment flaws (HNSW slider wrapping flaw); (9) Canvas drawing color tables; (10) Top 10 inconsistencies ranked by visual impact with exact selectors.
+  2. *ADR-027 Recorded*: Documented strategic architectural decision to execute full-app UI polish in structured phases (Foundation, Ask, Explore, HNSW, Compare, Settings final pass, consistency sweep). Settings docs verification task paused until polish is complete.
+  3. *Zero Code Changes*: Strictly read-only audit; no HTML, CSS, or JS modified.
 - **Task T-030** (branch `ui-redesign`): Settings - strip layout fix (Ollama models full width) + small polish.
   1. *Metric Strip 3-Row Layout*: Converted Server status `#settings-health-box` metric strip from 4x2 into 3 rows using CSS grid on `tbody`: Row 1 (Server status, Server version, Dimension, Metric), Row 2 (HNSW parameters spanning 2 columns, Vectors count, Memory approx), Row 3 (Ollama models spanning full width `grid-column: 1 / -1`). 1px vertical hairlines between items in a row (none after last item of each row), 1px horizontal hairlines between rows 1/2 and 2/3 (none after row 3), zero outer box. First item in each row has 0 left padding, last item in each row has 0 right padding.
   2. *Ollama Models Text Polish*: Formatted Ollama models value (`tr:nth-child(8) td:last-child`) with `font-size: 14px; font-weight: 400; font-family: var(--font-mono); line-height: 1.4; white-space: normal; overflow-wrap: break-word;` (avoids awkward mid-word breaks like `nomic-embed-` / `text:latest`).
@@ -87,7 +91,7 @@ VectorDB engine is in a stable, verified, and frozen state. Active development i
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
 ## 4. Recommended Next Step
-Human browser verification of T-030 (Settings layout at 1920x1080 and 1366x768, page header, 3-row metric strip with Ollama models full width, 3-column config row with aligned count input, balanced descriptions, two-step reset confirm, random insert, fallback stacking). Then decide merge of ui-redesign to main or optional polish.
+Brain reviews UI_AUDIT.md and plans Phase 1 foundation.
 
 ## 5. UI Redesign Phase Plan
 UI redesign phases (branch `ui-redesign`):
@@ -101,18 +105,21 @@ UI redesign phases (branch `ui-redesign`):
 8. **Phase 8: One-Screen UI Phase 2 (Explore + HNSW Canvas Sizing - T-020)**: Replaced temporary panel scroll with fixed-height flex layout, wrapped canvases in `.canvas-frame` with absolute inset, ResizeObserver sizing with rAF throttle and `isCanvasDrawable` guard, sidebar inner scroll. [COMPLETED]
 9. **Phase 9: Ask Answer Box & Sources Height Tuning (T-021)**: Answer box sizes to content with `flex: 0 1 auto` and `max-height: 50vh`, sources list takes remaining height with `flex: 1`, responsive fallback updated. Verified in real browser by human on 2026-11-13. [COMPLETED]
 10. **Phase 10: One-Screen UI Phase 3 (Compare Option A - T-022 feasibility, T-023a layout complete, T-023b-1 DPR & table fix complete, T-023b-2 side-by-side canvas)**: T-023a fixed layout + T-023b-1 DPR CSS px fix & compact sidebar table + T-023b-2 side-by-side 3-panel canvas & full-width Summary Metrics. [COMPLETED and human-verified]
-11. **Phase 11: One-Screen UI Phase 4 (Settings - T-024 feasibility complete, T-025 implementation complete, human-verified; T-028/T-029/T-030 polish complete)**: [COMPLETED, pending human verification of T-030]
+11. **Phase 11: One-Screen UI Phase 4 (Settings - T-024 feasibility complete, T-025 implementation complete, human-verified; T-028/T-029/T-030 polish complete)**: [COMPLETED]
+12. **Phase 12: Full-App UI Polish (ADR-027)**: (a) Audit complete (T-031); (b) Shared foundation (tokens, spacing scale, custom controls, button rules); (c) Ask; (d) Explore; (e) HNSW; (f) Compare; (g) Settings final pass; (h) Consistency sweep. [IN PROGRESS]
 *Dark only. Human verifies in browser after each phase.*
 
 ## 6. Pending Human Actions
-- (1) Verify T-030 in real browser (Settings layout at 1920x1080, 1366x768, zoom, reset, insert, fallback).
-- (2) Decide merge of ui-redesign into main (Brain will ask for backup branch and safety checks first).
-- (3) Optional polish of Compare sidebar empty space below Summary Metrics at 1920x1080.
+- (1) Brain reviews `docs/UI_AUDIT.md` and generates task for Phase 1 Foundation.
+- (2) Settings docs verification task is paused until full-app polish is complete (ADR-027).
+- (3) Merge of ui-redesign into main paused until full polish is complete.
 - (4) Roadmap features (hybrid search, reranking, disk persistence, delete) stay ON HOLD.
 
 ## 7. Open Decisions / Known Gaps
+- **ADR-027 (established)**: Full-app UI polish order: audit (T-031), shared foundation, Ask, Explore, HNSW, Compare, Settings final pass, consistency sweep.
+- **T-031 (completed)**: UI consistency audit documented in `docs/UI_AUDIT.md` with Top 10 inconsistencies identified.
 - **Compare layout choice**: RESOLVED: Option A chosen (form + metrics in sidebar, bars + diff table on right). Cited in ADR-021.
-- **T-030 (completed)**: Settings tab strip layout fix: Server status metric strip 3 rows (Row 2 HNSW parameters span 2, Row 3 Ollama models full width in 14px mono with break-word), `.settings-col-desc` text-wrap: balance, Column 2 Insert random vectors count input aligned to Dimension input, 5-row fallback @media. Pending human browser verification.
+- **T-030 (completed)**: Settings tab strip layout fix: Server status metric strip 3 rows (Row 2 HNSW parameters span 2, Row 3 Ollama models full width in 14px mono with break-word), `.settings-col-desc` text-wrap: balance, Column 2 Insert random vectors count input aligned to Dimension input, 5-row fallback @media.
 - **T-029 (completed)**: Settings tab page header + 4x2 Server status metric strip + full-width 3-column config row (Demo collection, Insert random, Danger zone); no bordered cards; content ends calmly at ~60% panel height.
 - **T-028 (completed)**: Settings tab aligned with other tabs (toolbar + main/sidebar layout, no cards, 460px right sidebar, 8-row hairline server status table with 8px green dot, solid amber insert button, red outline reset button).
 - **T-027 (completed)**: Settings tab balanced bordered panels (`--bg-surface`, 1px `--border-color`, `--radius-md`, 24px padding), vertically centered with `margin: auto`, Danger zone pinned to bottom of right panel (`margin-top: auto; border-top: 1px solid var(--border-color)`), Server table row padding 13px 0. Human-verified by screenshot at 1920x1080 on 2026-11-13.
