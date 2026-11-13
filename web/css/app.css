@@ -244,14 +244,16 @@ html {
 
 #panel-explore,
 #panel-hnsw,
-#panel-compare {
+#panel-compare,
+#panel-settings {
   display: flex;
   flex-direction: column;
 }
 
 #panel-explore.hidden,
 #panel-hnsw.hidden,
-#panel-compare.hidden {
+#panel-compare.hidden,
+#panel-settings.hidden {
   display: none !important;
 }
 
@@ -980,19 +982,23 @@ html {
 #panel-settings .settings-layout {
   max-width: 1080px;
   width: 100%;
-  margin: 0 auto;
-  height: 100%;
-  min-height: 0;
+  margin: auto;
+  height: auto;
+  max-height: 100%;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 40px;
-  align-items: start;
+  gap: 24px;
+  align-items: stretch;
 }
 
 #panel-settings .settings-col {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 28px;
   min-width: 0;
   max-height: 100%;
   overflow-y: auto;
@@ -1006,6 +1012,12 @@ html {
 #panel-settings .settings-section {
   display: flex;
   flex-direction: column;
+}
+
+#panel-settings .settings-section-danger {
+  margin-top: auto;
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
 }
 
 #panel-settings .section-title {
@@ -1035,7 +1047,7 @@ html {
 }
 
 #panel-settings .info-table td {
-  padding: 10px 0;
+  padding: 13px 0;
   border: none;
   font-size: 14px;
 }
@@ -1597,12 +1609,17 @@ html {
   #panel-settings .settings-layout {
     grid-template-columns: 1fr;
     height: auto;
+    margin: 0 auto;
     gap: 24px;
   }
 
   #panel-settings .settings-col {
     max-height: none;
     overflow: visible;
+  }
+
+  #panel-settings .settings-section-danger {
+    margin-top: 0;
   }
 }
 
