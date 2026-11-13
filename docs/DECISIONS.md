@@ -1,6 +1,6 @@
 # Architectural Decision Records (ADR)
 
-Last updated: 2026-11-13 by T-027
+Last updated: 2026-11-13 by SYNC
 
 | ID | Date | Decision | Reason | Alternatives Rejected | Evidence Tag |
 | :--- | :--- | :--- | :--- | :--- | :--- |

@@ -1,10 +1,10 @@
 # Project Progress
 
-Last updated: 2026-11-13 by T-027
+Last updated: 2026-11-13 by SYNC
 
-## 1. Current Phase: Settings Tab Balanced Bordered Panels Complete (Task T-027, Branch `ui-redesign`); Next Step: Human Browser Verification & SYNC
+## 1. Current Phase: UI Redesign Complete (Tasks T-011 through T-027, Branch ui-redesign); Next Step: Human Decides Merge to Main or Optional Polish
 
-All core engine development and bug fix tasks are completed and verified (111 C++ tests, 74 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Latest finished task is T-027 (Settings tab balanced equal-height bordered panels, vertically centered with `margin: auto`, Danger zone pinned to bottom of right panel). Next step is human browser verification of T-027 (Settings at 1920x1080, 1366x768, zoom, fallback), followed by SYNC preparation. All 20 Compare DOM IDs (plus `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs (including `panel-settings`, `settings-health-box`, `settings-reset-demo-form`, `demo-dim-input`, `demo-metric-select`, `demo-m-input`, `demo-efc-input`, `settings-random-demo-form`, `demo-random-count`, `demo-insert-random-btn`, `settings-random-status`, `settings-reset-status`, `demo-reset-cancel-btn`, `demo-reset-btn`), 25 Ask DOM IDs, and all 74 browser unit tests remain functional [CONFIRMED: git status, git log].
+All core engine development, bug fix tasks, and UI redesign tasks (T-011 through T-027) are completed and human-verified (111 C++ tests, 74 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. T-027 (Settings tab balanced equal-height bordered panels, vertically centered, Danger zone pinned to bottom) has been verified by the human. Next step: human decides whether to merge `ui-redesign` to `main` (Brain will first ask for a backup branch and safety checks) or proceed with optional polish (such as Compare sidebar empty space below Summary Metrics at 1920x1080). All 20 Compare DOM IDs (plus `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs, 25 Ask DOM IDs, and all 74 browser unit tests remain functional [CONFIRMED: git status, git log].
 
 ---
 

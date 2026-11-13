@@ -1,6 +1,6 @@
 # Known Issues, Limitations & Risk Tracker
 
-Last updated: 2026-11-13 by T-027
+Last updated: 2026-11-13 by SYNC
 
 | ID | Type | Description | Where (File/Function) | Severity | Evidence | Status | Date |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -29,3 +29,5 @@ Last updated: 2026-11-13 by T-027
 | ISS-023 | Bug | Compare bars chart (drawComparisonBars) used canvas.width/height instead of CSS px, causing charts to overflow or clip at browser zoom != 100% (DPR != 1) | `web/js/compare_helpers.js:101-102` | Medium | [CONFIRMED: human screenshot 125% zoom 2026-11-13] | FIXED (human-verified by screenshots at 100/125/200% on 2026-11-13) | 2026-11-13 |
 | ISS-024 | Layout | Summary Metrics table in Compare sidebar (380px) wrapped cells to 3 lines, rows ~100px tall, ~400px empty space under it at 1920x1080 | `web/css/app.css`, `web/index.html` | Low | [CONFIRMED: human screenshot 2026-11-13] | FIXED (human-verified by screenshots at 100% and 125% on 2026-11-13: Recall@K column visible, no horizontal scrollbar, sidebar 460px) | 2026-11-13 |
 | ISS-025 | Layout | Header Ollama status badge text is vertically clipped at 200% browser zoom | `web/css/app.css` (.app-header, status badge) | Low | [CONFIRMED: human screenshot 200% zoom 2026-11-13] | FIXED (human-verified by screenshot at 200% zoom on 2026-11-13) | 2026-11-13 |
+
+*(Optional polish, not an issue: Compare sidebar has empty space below Summary Metrics at 1920x1080.)*

@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-13 by T-027
+Last updated: 2026-11-13 by SYNC
 
 ## 1. Operating Model
 
@@ -114,6 +114,10 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 10. **Browser Test Execution by Agent**: Antigravity cannot run browser tests; only the human can. Never tick browser checks.
 11. **git diff --stat Typo**: Human twice typed `git diff --sta` (invalid); always give full flag `--stat`.
 12. **Browser Zoom / DPR Canvas Scaling**: Browser zoom (DPR != 1) can reveal canvas bugs that DPR 1 hides: after `setupCanvasDpr`, `ctx.scale(dpr,dpr)` is active, so drawing code must use CSS px, never `canvas.width`/`canvas.height` (ISS-023).
+13. **Git Status Discrepancies**: Antigravity reports sometimes show "git status -sb" as clean while the human's terminal shows 15 untracked results/logs/ files. Trust the human's terminal output.
+14. **Viewport vs Screen Dimensions**: Brain's height estimates for 1366x768 are estimates only; the real browser viewport is smaller than the screen (about 530px for .app-content). Human verifies in the browser.
+15. **Global CSS Badge Rule**: Global CSS rule .badge { line-height: 1.2 } was added in T-026 (applies to every .badge). If any badge looks different on another tab, check this rule first.
+16. **Delegated Decisions**: When the human says "choose best on my behalf", Brain decides and states the reason in 2-3 lines.
 
 ---
 
@@ -132,9 +136,10 @@ Tasks verified and completed on branch `ui-redesign` (T-017 through T-023b-2):
 - **T-024** (2026-11-13, commit `46e1991`): One-screen UI Phase 4 - Settings tab + small-screen fallback feasibility study (read-only architectural analysis + docs sync completed) [CONFIRMED: git log by human].
 - **T-025** (2026-11-13, commits `6b45f89`, `64dd849`): One-screen UI Phase 4 - Settings tab 2-column layout (Option A: left = Server status, right = Demo collection + Danger zone) with stacked fallback below 1100px width or 520px height. Verified by human in real browser [CONFIRMED: human screenshot/report].
 - **T-026** (2026-11-13, commits `a41b134`, `b369c6e`, `f593147`): Header Ollama badge clipping at high zoom (ISS-025) fix (`min-height: 48px; height: auto` on `.app-header` and `.tab-nav`, `line-height: 1.2` on `.badge`) + Settings column tabindex cleanup. Verified by human in real browser [CONFIRMED: human screenshot/report].
-- **T-027** (2026-11-13): Settings tab - remove awkward empty space (balanced bordered panels, vertically centered with `margin: auto`, Danger zone pinned to bottom of right panel with `margin-top: auto` and 1px border-top, row padding 13px 0). Implemented, pending human verification.
+- **T-027** (2026-11-13, commits `5588462`, `966f86c`): Settings tab - remove awkward empty space (balanced bordered panels, vertically centered with `margin: auto`, Danger zone pinned to bottom of right panel with `margin-top: auto` and 1px border-top, row padding 13px 0). Verified by human in real browser [CONFIRMED: human screenshot/report].
 
 Features verified in a real browser by the human (with screenshots saved in results/screenshots/):
+- T-027 Settings balanced panels verified by human on 2026-11-13: 1920x1080 screenshot shows two equal-height bordered panels, block vertically centered, Danger zone pinned to bottom of right panel, Ollama models value on one line [CONFIRMED: human screenshot]; 1366x768, fallback stacking, Insert Random, Reset two-step confirm, zoom, console, other tabs, /tests.html 74/74 [CONFIRMED: human-reported, no screenshots].
 - T-026 verified by human on 2026-11-13: /tests.html 74/74, header Ollama badge fully visible at 200% zoom [CONFIRMED: human screenshot]; 100/125/150% zoom, all 5 tabs header, Settings Tab order, console, 1366x768 [CONFIRMED: human-reported, no screenshots].
 - T-025 Settings 2-column layout verified by human on 2026-11-13: /tests.html 74/74, Settings 1920x1080 two columns with no page scroll [CONFIRMED: human screenshots]; 1366x768, stacked fallback, Insert Random, Reset two-step confirm, zoom, console, other tabs regression [CONFIRMED: human-reported, no screenshots].
 - Settings tab: Insert Random Vectors (Demo Vectors Count = 100) [CONFIRMED: human screenshot]
