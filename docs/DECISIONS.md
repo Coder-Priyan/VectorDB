@@ -1,6 +1,6 @@
 # Architectural Decision Records (ADR)
 
-Last updated: 2026-11-13 by T-025
+Last updated: 2026-11-13 by T-027
 
 | ID | Date | Decision | Reason | Alternatives Rejected | Evidence Tag |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -27,6 +27,5 @@ Last updated: 2026-11-13 by T-025
 | ADR-021 | 2026-11-13 | Compare tab uses Option A (left column = benchmark form + progress + Summary Metrics; right column = bars canvas + Top-k diff table scrolling inside) | Human chose WOW feel on 2026-11-13: Phase 3b (T-023b-2) = bars as 3 side-by-side charts (Latency, Distances, Recall) in a ~140px canvas drawn in CSS px | Alternative rejected for now: keep vertical stacked bars (lower risk, less wow) | [CONFIRMED: human instruction in chat] |
 | ADR-022 | 2026-11-13 | One-screen phases: T-019 = Phase 1 (shell + Ask), T-020 = Phase 2 (Explore + HNSW), T-021 = Ask height fix, T-022/T-023a = Phase 3a Compare layout, T-023b-1 = Compare DPR fix + Summary Metrics compact, T-023b-2 = side-by-side charts, then Phase 4 = Settings + small-screen check, then human decides merge to main | Phased delivery of instrument-panel one-screen layout with human verification after each phase | Big-bang single commit redesign across all tabs | [CONFIRMED: human instruction in chat] |
 | ADR-023 | 2026-11-13 | Settings tab uses 2-column layout (left = Server status table, right = Demo collection + Danger zone) with stacked fallback below 1100px width or 520px height | Human delegated choice to Brain; fits 1366x768 with zero scroll (T-024 estimate: columns about 350px and about 324px) | Alternative rejected: single column with compact spacing (about 638px, scrolls at 1366x768) | [CONFIRMED: human instruction in chat] |
-
-ISS-025 (header badge clipping at 200% zoom) is deferred to its own task T-026 with root-cause investigation first, because the header is shared by all tabs.
+| ADR-024 | 2026-11-13 | Settings tab polish: two equal-height bordered panels, block vertically centered with margin auto, Danger zone pinned to bottom of right panel | Human found empty space below Settings content unprofessional and delegated the fix to Brain | Alternatives rejected: adding filler content (engine frozen, no new data), single full-width stretched layout | [CONFIRMED: human instruction in chat] |
 

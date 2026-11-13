@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-13 by T-026
+Last updated: 2026-11-13 by T-027
 
 ## 1. Operating Model
 
@@ -131,9 +131,11 @@ Tasks verified and completed on branch `ui-redesign` (T-017 through T-023b-2):
 - **T-023b-2** (2026-11-13, commits `f0eded4`, `cfb2f2a`): Compare bars as 3 side-by-side charts (Latency, Distances, Recall) in 140px canvas frame + pure layout helper `computeChartLayout` with 4 unit tests (bringing count to 74) + Summary Metrics Recall column fully visible in 460px sidebar with 4px 6px padding. T-023b-2 verified by human on 2026-11-13: /tests.html 74/74, Compare 3 side-by-side charts, Summary Metrics Recall@K fully visible with no horizontal scrollbar, Top-k diff table shows all 10 rows at 100% [CONFIRMED: human screenshots at 100% and 125%]; 150% and 200% zoom, 1366x768, console clean, Ask/Explore/HNSW/Settings regression [CONFIRMED: human-reported, no screenshots].
 - **T-024** (2026-11-13, commit `46e1991`): One-screen UI Phase 4 - Settings tab + small-screen fallback feasibility study (read-only architectural analysis + docs sync completed) [CONFIRMED: git log by human].
 - **T-025** (2026-11-13, commits `6b45f89`, `64dd849`): One-screen UI Phase 4 - Settings tab 2-column layout (Option A: left = Server status, right = Demo collection + Danger zone) with stacked fallback below 1100px width or 520px height. Verified by human in real browser [CONFIRMED: human screenshot/report].
-- **T-026** (2026-11-13): Header Ollama badge clipping at high zoom (ISS-025) fix (`min-height: 48px; height: auto` on `.app-header` and `.tab-nav`, `line-height: 1.2` on `.badge`) + Settings column tabindex cleanup. Implemented, pending human verification.
+- **T-026** (2026-11-13, commits `a41b134`, `b369c6e`, `f593147`): Header Ollama badge clipping at high zoom (ISS-025) fix (`min-height: 48px; height: auto` on `.app-header` and `.tab-nav`, `line-height: 1.2` on `.badge`) + Settings column tabindex cleanup. Verified by human in real browser [CONFIRMED: human screenshot/report].
+- **T-027** (2026-11-13): Settings tab - remove awkward empty space (balanced bordered panels, vertically centered with `margin: auto`, Danger zone pinned to bottom of right panel with `margin-top: auto` and 1px border-top, row padding 13px 0). Implemented, pending human verification.
 
 Features verified in a real browser by the human (with screenshots saved in results/screenshots/):
+- T-026 verified by human on 2026-11-13: /tests.html 74/74, header Ollama badge fully visible at 200% zoom [CONFIRMED: human screenshot]; 100/125/150% zoom, all 5 tabs header, Settings Tab order, console, 1366x768 [CONFIRMED: human-reported, no screenshots].
 - T-025 Settings 2-column layout verified by human on 2026-11-13: /tests.html 74/74, Settings 1920x1080 two columns with no page scroll [CONFIRMED: human screenshots]; 1366x768, stacked fallback, Insert Random, Reset two-step confirm, zoom, console, other tabs regression [CONFIRMED: human-reported, no screenshots].
 - Settings tab: Insert Random Vectors (Demo Vectors Count = 100) [CONFIRMED: human screenshot]
 - Explore tab: Empty-state Insert 1000 Vectors button (1000 points shown on canvas) [CONFIRMED: human screenshot]
