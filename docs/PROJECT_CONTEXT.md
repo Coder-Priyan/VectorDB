@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-13 by T-025
+Last updated: 2026-11-13 by T-026
 
 ## 1. Operating Model
 
@@ -130,9 +130,11 @@ Tasks verified and completed on branch `ui-redesign` (T-017 through T-023b-2):
 - **T-023b-1** (2026-11-13, commits `e120905`, `207130f`, `b62e577`): Compare DPR zoom fix (`resolveChartSize` CSS px drawing helper + 4 unit tests bringing count to 70) and compact Summary Metrics table in widened 420px sidebar (`white-space: nowrap`, 6px 8px padding, 12px font). Pure tests pass 70/70. T-023b-1 verified by human on 2026-11-13: /tests.html 70/70 [CONFIRMED: human screenshot]; Compare chart fits at 100%, 125% and 200% zoom, Summary Metrics rows on one line [CONFIRMED: human screenshots]; 150% zoom, console clean, Ask/Explore/HNSW/Settings regression OK [CONFIRMED: human-reported, no screenshots]. Remaining gap: Summary Metrics Recall column clipped at 420px (ISS-024), addressed in T-023b-2.
 - **T-023b-2** (2026-11-13, commits `f0eded4`, `cfb2f2a`): Compare bars as 3 side-by-side charts (Latency, Distances, Recall) in 140px canvas frame + pure layout helper `computeChartLayout` with 4 unit tests (bringing count to 74) + Summary Metrics Recall column fully visible in 460px sidebar with 4px 6px padding. T-023b-2 verified by human on 2026-11-13: /tests.html 74/74, Compare 3 side-by-side charts, Summary Metrics Recall@K fully visible with no horizontal scrollbar, Top-k diff table shows all 10 rows at 100% [CONFIRMED: human screenshots at 100% and 125%]; 150% and 200% zoom, 1366x768, console clean, Ask/Explore/HNSW/Settings regression [CONFIRMED: human-reported, no screenshots].
 - **T-024** (2026-11-13, commit `46e1991`): One-screen UI Phase 4 - Settings tab + small-screen fallback feasibility study (read-only architectural analysis + docs sync completed) [CONFIRMED: git log by human].
-- **T-025** (2026-11-13): One-screen UI Phase 4 - Settings tab 2-column layout (Option A: left = Server status, right = Demo collection + Danger zone) with stacked fallback below 1100px width or 520px height. Implemented, pending human verification in real browser.
+- **T-025** (2026-11-13, commits `6b45f89`, `64dd849`): One-screen UI Phase 4 - Settings tab 2-column layout (Option A: left = Server status, right = Demo collection + Danger zone) with stacked fallback below 1100px width or 520px height. Verified by human in real browser [CONFIRMED: human screenshot/report].
+- **T-026** (2026-11-13): Header Ollama badge clipping at high zoom (ISS-025) fix (`min-height: 48px; height: auto` on `.app-header` and `.tab-nav`, `line-height: 1.2` on `.badge`) + Settings column tabindex cleanup. Implemented, pending human verification.
 
 Features verified in a real browser by the human (with screenshots saved in results/screenshots/):
+- T-025 Settings 2-column layout verified by human on 2026-11-13: /tests.html 74/74, Settings 1920x1080 two columns with no page scroll [CONFIRMED: human screenshots]; 1366x768, stacked fallback, Insert Random, Reset two-step confirm, zoom, console, other tabs regression [CONFIRMED: human-reported, no screenshots].
 - Settings tab: Insert Random Vectors (Demo Vectors Count = 100) [CONFIRMED: human screenshot]
 - Explore tab: Empty-state Insert 1000 Vectors button (1000 points shown on canvas) [CONFIRMED: human screenshot]
 - Phase 1 to 4b UI (Settings, Compare, Explore, HNSW, Ask, resize, console) and /tests.html 62/62 verified in real browser by human on 2026-11-12 [CONFIRMED: human screenshot/approval]

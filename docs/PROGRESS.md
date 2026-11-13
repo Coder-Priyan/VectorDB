@@ -1,10 +1,10 @@
 # Project Progress
 
-Last updated: 2026-11-13 by T-025
+Last updated: 2026-11-13 by T-026
 
-## 1. Current Phase: Settings Tab 2-Column One-Screen Layout Complete (Task T-025, Branch `ui-redesign`); Next Task: T-026 (ISS-025 Header Badge Zoom Investigation & Fix)
+## 1. Current Phase: Header Flexible Height (ISS-025 Fix) & Settings Tabindex Cleanup Complete (Task T-026, Branch `ui-redesign`); Next Step: Human Browser Verification
 
-All core engine development and bug fix tasks are completed and verified (111 C++ tests, 74 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Latest finished task is T-025 (Settings tab 2-column one-screen layout + stacked fallback, pending human browser verification). Next task is T-026 (ISS-025 header badge investigation and fix). All 20 Compare DOM IDs (plus `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs (including `panel-settings`, `settings-health-box`, `settings-reset-demo-form`, `demo-dim-input`, `demo-metric-select`, `demo-m-input`, `demo-efc-input`, `settings-random-demo-form`, `demo-random-count`, `demo-insert-random-btn`, `settings-random-status`, `settings-reset-status`, `demo-reset-cancel-btn`, `demo-reset-btn`), 25 Ask DOM IDs, and all 74 browser unit tests remain functional [CONFIRMED: git status, git log].
+All core engine development and bug fix tasks are completed and verified (111 C++ tests, 74 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. Latest finished task is T-026 (header flexible min-height: 48px + badge line-height: 1.2 for ISS-025, and Settings column tabindex cleanup). Next step is human browser verification of T-026 (header at 100/125/150/200% on all tabs, Settings Tab order), then human decides whether to merge `ui-redesign` to `main` or polish further. All 20 Compare DOM IDs (plus `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs (including `panel-settings`, `settings-health-box`, `settings-reset-demo-form`, `demo-dim-input`, `demo-metric-select`, `demo-m-input`, `demo-efc-input`, `settings-random-demo-form`, `demo-random-count`, `demo-insert-random-btn`, `settings-random-status`, `settings-reset-status`, `demo-reset-cancel-btn`, `demo-reset-btn`), 25 Ask DOM IDs, and all 74 browser unit tests remain functional [CONFIRMED: git status, git log].
 
 ---
 
