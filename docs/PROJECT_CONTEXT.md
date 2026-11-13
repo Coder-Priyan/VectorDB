@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-13 by T-029
+Last updated: 2026-11-13 by T-030
 
 ## 1. Operating Model
 
@@ -139,6 +139,7 @@ Tasks verified and completed on branch `ui-redesign` (T-017 through T-023b-2):
 - **T-027** (2026-11-13, commits `5588462`, `966f86c`): Settings tab - remove awkward empty space (balanced bordered panels, vertically centered with `margin: auto`, Danger zone pinned to bottom of right panel with `margin-top: auto` and 1px border-top, row padding 13px 0). Verified by human in real browser [CONFIRMED: human screenshot/report].
 - **T-028** (2026-11-13): Settings tab - align with other tabs (toolbar + main/sidebar layout, no cards, 460px right sidebar, 8-row hairline server status table with 8px green dot, solid amber insert button, red outline reset button). Implemented, pending human browser verification.
 - **T-029** (2026-11-13): Settings tab - page header + metric strip + 3-column config row (22px h1 header, 4x2 Server status metric strip via CSS grid, full-width 3-column hairline config row for Demo collection, Insert random, Danger zone; no bordered cards; content ends at ~60% height). Implemented, pending human browser verification.
+- **T-030** (2026-11-13): Settings tab - strip layout fix (Ollama models full width) + small polish (3-row Server status metric strip via CSS grid, HNSW parameters span 2 cols, Ollama models full width in 14px mono with break-word wrapping, `.settings-col-desc` text-wrap: balance, Column 2 count input aligned with Dimension input, 5-row fallback @media). Implemented, pending human browser verification.
 
 Features verified in a real browser by the human (with screenshots saved in results/screenshots/):
 - T-027 Settings balanced panels verified by human on 2026-11-13: 1920x1080 screenshot shows two equal-height bordered panels, block vertically centered, Danger zone pinned to bottom of right panel, Ollama models value on one line [CONFIRMED: human screenshot]; 1366x768, fallback stacking, Insert Random, Reset two-step confirm, zoom, console, other tabs, /tests.html 74/74 [CONFIRMED: human-reported, no screenshots].

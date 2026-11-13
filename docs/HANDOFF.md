@@ -1,11 +1,17 @@
 # Project Handoff
 
-Last updated: 2026-11-13 by T-029
+Last updated: 2026-11-13 by T-030
 
 ## 1. Current Status
-VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. UI redesign T-011 to T-029 complete. Latest finished task is T-029 (Settings tab reworked into page header + 4x2 Server status metric strip + full-width 3-column hairline config row; no bordered cards, calm breathing room ending at ~60% height at 1920x1080). All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs (including `panel-settings`, `settings-health-box`, `settings-reset-demo-form`, `demo-dim-input`, `demo-metric-select`, `demo-m-input`, `demo-efc-input`, `settings-random-demo-form`, `demo-random-count`, `demo-insert-random-btn`, `settings-random-status`, `settings-reset-status`, `demo-reset-cancel-btn`, `demo-reset-btn`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), 74 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
+VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. UI redesign T-011 to T-030 complete. Latest finished task is T-030 (Settings tab strip layout fix: 3-row layout for Server status metric strip, HNSW parameters spans 2 columns, Ollama models full width in 14px mono with break-word wrapping, balanced description text with no orphan lines, Column 2 Insert random count input aligned to exact pixel Y with Column 1 Dimension input, and 2-column 5-row fallback @media). All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs (including `panel-settings`, `settings-health-box`, `settings-reset-demo-form`, `demo-dim-input`, `demo-metric-select`, `demo-m-input`, `demo-efc-input`, `settings-random-demo-form`, `demo-random-count`, `demo-insert-random-btn`, `settings-random-status`, `settings-reset-status`, `demo-reset-cancel-btn`, `demo-reset-btn`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), 74 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
 
 ## 2. Last Work Done (From Git)
+- **Task T-030** (branch `ui-redesign`): Settings - strip layout fix (Ollama models full width) + small polish.
+  1. *Metric Strip 3-Row Layout*: Converted Server status `#settings-health-box` metric strip from 4x2 into 3 rows using CSS grid on `tbody`: Row 1 (Server status, Server version, Dimension, Metric), Row 2 (HNSW parameters spanning 2 columns, Vectors count, Memory approx), Row 3 (Ollama models spanning full width `grid-column: 1 / -1`). 1px vertical hairlines between items in a row (none after last item of each row), 1px horizontal hairlines between rows 1/2 and 2/3 (none after row 3), zero outer box. First item in each row has 0 left padding, last item in each row has 0 right padding.
+  2. *Ollama Models Text Polish*: Formatted Ollama models value (`tr:nth-child(8) td:last-child`) with `font-size: 14px; font-weight: 400; font-family: var(--font-mono); line-height: 1.4; white-space: normal; overflow-wrap: break-word;` (avoids awkward mid-word breaks like `nomic-embed-` / `text:latest`).
+  3. *Balanced Description (Orphan Prevention)*: Added `text-wrap: balance;` to `.settings-col-desc` so Column 2 and Column 3 descriptions do not wrap to a single orphan word on the last line.
+  4. *Input Alignment (Column 1 vs Column 2)*: Aligned the count input in Column 2 ("Insert random vectors") to sit at the exact same Y position as the Dimension input in Column 1 ("Demo collection") by matching label/description font metrics (`font-size: 13px; line-height: 1.5;`) and setting `margin-top: 6px;` on `#settings-random-demo-form` (matching the 6px gap in `.form-group`).
+  5. *Responsive Fallback*: Updated `@media (max-height: 520px), (max-width: 1100px)` for the 3-row strip into a 5-row 2-column layout with Row 3 (HNSW parameters) and Row 5 (Ollama models) spanning `1 / -1`, correct left/right paddings and borders, and item 8 having no bottom border.
 - **Task T-029** (branch `ui-redesign`): Settings tab - page header + metric strip + 3-column config row.
   1. *Page Header*: Added clean page header with h1 "Settings" (22px, weight 500, primary text) and muted subtitle "Server status and demo collection configuration." (13px) with 24px top / 20px bottom padding and 1px hairline border-bottom.
   2. *Metric Strip (4x2)*: Restyled Server status `#settings-health-box` table using CSS grid on `tbody` (`grid-template-columns: repeat(4, minmax(0, 1fr))`) into a full-width 4x2 metric strip with 18px mono values, 12px muted top labels, 8px green status dot before "ok", smaller 14px mono for wrapping Ollama models, and vertical/horizontal 1px hairlines without outer boxes. Zero JS changes.
@@ -81,7 +87,7 @@ VectorDB engine is in a stable, verified, and frozen state. Active development i
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
 ## 4. Recommended Next Step
-Human browser verification of T-029 (Settings layout at 1920x1080 and 1366x768, page header, 4x2 metric strip, 3-column config row, two-step reset confirm, random insert, fallback stacking). Then decide merge of ui-redesign to main or optional polish.
+Human browser verification of T-030 (Settings layout at 1920x1080 and 1366x768, page header, 3-row metric strip with Ollama models full width, 3-column config row with aligned count input, balanced descriptions, two-step reset confirm, random insert, fallback stacking). Then decide merge of ui-redesign to main or optional polish.
 
 ## 5. UI Redesign Phase Plan
 UI redesign phases (branch `ui-redesign`):
@@ -95,18 +101,19 @@ UI redesign phases (branch `ui-redesign`):
 8. **Phase 8: One-Screen UI Phase 2 (Explore + HNSW Canvas Sizing - T-020)**: Replaced temporary panel scroll with fixed-height flex layout, wrapped canvases in `.canvas-frame` with absolute inset, ResizeObserver sizing with rAF throttle and `isCanvasDrawable` guard, sidebar inner scroll. [COMPLETED]
 9. **Phase 9: Ask Answer Box & Sources Height Tuning (T-021)**: Answer box sizes to content with `flex: 0 1 auto` and `max-height: 50vh`, sources list takes remaining height with `flex: 1`, responsive fallback updated. Verified in real browser by human on 2026-11-13. [COMPLETED]
 10. **Phase 10: One-Screen UI Phase 3 (Compare Option A - T-022 feasibility, T-023a layout complete, T-023b-1 DPR & table fix complete, T-023b-2 side-by-side canvas)**: T-023a fixed layout + T-023b-1 DPR CSS px fix & compact sidebar table + T-023b-2 side-by-side 3-panel canvas & full-width Summary Metrics. [COMPLETED and human-verified]
-11. **Phase 11: One-Screen UI Phase 4 (Settings - T-024 feasibility complete, T-025 implementation complete, human-verified)**: [COMPLETED and human-verified]
+11. **Phase 11: One-Screen UI Phase 4 (Settings - T-024 feasibility complete, T-025 implementation complete, human-verified; T-028/T-029/T-030 polish complete)**: [COMPLETED, pending human verification of T-030]
 *Dark only. Human verifies in browser after each phase.*
 
 ## 6. Pending Human Actions
-- (1) Verify T-029 in real browser (Settings layout at 1920x1080, 1366x768, zoom, reset, insert, fallback).
+- (1) Verify T-030 in real browser (Settings layout at 1920x1080, 1366x768, zoom, reset, insert, fallback).
 - (2) Decide merge of ui-redesign into main (Brain will ask for backup branch and safety checks first).
 - (3) Optional polish of Compare sidebar empty space below Summary Metrics at 1920x1080.
 - (4) Roadmap features (hybrid search, reranking, disk persistence, delete) stay ON HOLD.
 
 ## 7. Open Decisions / Known Gaps
 - **Compare layout choice**: RESOLVED: Option A chosen (form + metrics in sidebar, bars + diff table on right). Cited in ADR-021.
-- **T-029 (completed)**: Settings tab page header + 4x2 Server status metric strip + full-width 3-column config row (Demo collection, Insert random, Danger zone); no bordered cards; content ends calmly at ~60% panel height. Pending human browser verification.
+- **T-030 (completed)**: Settings tab strip layout fix: Server status metric strip 3 rows (Row 2 HNSW parameters span 2, Row 3 Ollama models full width in 14px mono with break-word), `.settings-col-desc` text-wrap: balance, Column 2 Insert random vectors count input aligned to Dimension input, 5-row fallback @media. Pending human browser verification.
+- **T-029 (completed)**: Settings tab page header + 4x2 Server status metric strip + full-width 3-column config row (Demo collection, Insert random, Danger zone); no bordered cards; content ends calmly at ~60% panel height.
 - **T-028 (completed)**: Settings tab aligned with other tabs (toolbar + main/sidebar layout, no cards, 460px right sidebar, 8-row hairline server status table with 8px green dot, solid amber insert button, red outline reset button).
 - **T-027 (completed)**: Settings tab balanced bordered panels (`--bg-surface`, 1px `--border-color`, `--radius-md`, 24px padding), vertically centered with `margin: auto`, Danger zone pinned to bottom of right panel (`margin-top: auto; border-top: 1px solid var(--border-color)`), Server table row padding 13px 0. Human-verified by screenshot at 1920x1080 on 2026-11-13.
 - **T-026 (completed)**: Header flexible min-height: 48px + badge line-height: 1.2 (ISS-025 fix) + Settings column tabindex removal. Verified by human in real browser (screenshot at 200% zoom).
