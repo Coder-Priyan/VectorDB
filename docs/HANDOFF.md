@@ -1,12 +1,13 @@
 # Project Handoff
 
-Last updated: 2026-11-13 by T-021
+Last updated: 2026-11-13 by T-022
 
 ## 1. Current Status
-VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. Phase 1 (foundation), Phase 2 (Ask tab), Phase 3 (Settings tab), Phase 4a (Explore + HNSW tabs), Phase 4b (Compare tab redesign, flat progress bar, table wrapping prevention, taupe/moss/amber palette with zero blue), T-016 (browser test fallback color fix), T-017 (one-screen UI feasibility study), T-018 (cleanup before one-screen UI: mockup removed, alert/confirm replaced with inline UI and two-step confirm, docs cleanup), T-019 (One-screen UI Phase 1: fixed 100dvh app shell, Ask tab one-screen pilot with inner scroll areas, smart auto-scroll, temporary panel scroll for other tabs), T-020 (One-screen UI Phase 2: Explore + HNSW tabs fit panel with .canvas-frame and ResizeObserver), and T-021 (Ask answer box sizes to content, sources take remaining height) are complete. All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), 66 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
+VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. Phase 1 (foundation), Phase 2 (Ask tab), Phase 3 (Settings tab), Phase 4a (Explore + HNSW tabs), Phase 4b (Compare tab redesign, flat progress bar, table wrapping prevention, taupe/moss/amber palette with zero blue), T-016 (browser test fallback color fix), T-017 (one-screen UI feasibility study), T-018 (cleanup before one-screen UI: mockup removed, alert/confirm replaced with inline UI and two-step confirm, docs cleanup), T-019 (One-screen UI Phase 1: fixed 100dvh app shell, Ask tab one-screen pilot with inner scroll areas, smart auto-scroll, temporary panel scroll for other tabs), T-020 (One-screen UI Phase 2: Explore + HNSW tabs fit panel with .canvas-frame and ResizeObserver), and T-021 (Ask answer box sizes to content, sources take remaining height) are complete and human-verified. All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), 66 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
 
 ## 2. Last Work Done (From Git)
-- **Task T-021** (branch `ui-redesign`): Ask tab - answer box sizes to content, sources take remaining height.
+- **Task T-022** (branch `ui-redesign`): Compare tab one-screen feasibility study (read-only architectural analysis and proposal for Option A).
+- **Task T-021** (branch `ui-redesign`): Ask tab - answer box sizes to content, sources take remaining height (verified in real browser by human on 2026-11-13).
   1. *Flex Distribution*: Changed `.answer-section` from `flex: 1` to `flex: 0 1 auto; min-height: 0;` and `.sources-section` from `flex-shrink: 0` to `flex: 1; min-height: 0;`.
   2. *Answer Box & Sources Sizing*: Changed `.answer-box` from `flex: 1; min-height: 120px;` to `flex: 0 1 auto; min-height: 60px; max-height: 50vh; overflow-y: auto;`. Preserved empty state behavior (`border-left: none; min-height: auto; flex: 0 0 auto`). Changed `.sources-list` from `max-height: 180px; flex-shrink: 0;` to `flex: 1; min-height: 120px; overflow-y: auto;`.
   3. *Responsive Fallback*: Updated `@media (max-height: 520px), (max-width: 1100px)` with `.answer-section { flex: none; }`, `.sources-section { flex: none; }`, and `.sources-list { flex: none; min-height: 0; max-height: 360px; }`.
@@ -42,7 +43,7 @@ VectorDB engine is in a stable, verified, and frozen state. Active development i
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
 ## 4. Recommended Next Step
-- Human verifies T-021 in browser (Ask with a short answer, a long answer, empty state, small-window fallback). Then Phase 3 = Compare (Option A), Phase 4 = Settings + small-screen check, then human decides merge.
+- T-022 Compare feasibility report, then Brain reviews and writes T-023 (Compare implementation). Then Phase 4 = Settings + small-screen check, then human decides merge.
 
 ## 5. UI Redesign Phase Plan
 UI redesign phases (branch `ui-redesign`):
@@ -54,8 +55,8 @@ UI redesign phases (branch `ui-redesign`):
 6. **Phase 5 (Polish & Cleanup - T-018)**: Removed temporary mockup folder, replaced native alert/confirm with inline UI, docs cleanup. [COMPLETED]
 7. **Phase 7: One-Screen UI Phase 1 (Shell + Ask Pilot - T-019)**: Fixed 100dvh app shell, Ask tab one-screen layout with inner scroll areas, smart auto-scroll, 4 unit tests (66 total), temporary panel-level scroll on non-Ask tabs, responsive fallback media query. [COMPLETED]
 8. **Phase 8: One-Screen UI Phase 2 (Explore + HNSW Canvas Sizing - T-020)**: Replaced temporary panel scroll with fixed-height flex layout, wrapped canvases in `.canvas-frame` with absolute inset, ResizeObserver sizing with rAF throttle and `isCanvasDrawable` guard, sidebar inner scroll. [COMPLETED]
-9. **Phase 9: Ask Answer Box & Sources Height Tuning (T-021)**: Answer box sizes to content with `flex: 0 1 auto` and `max-height: 50vh`, sources list takes remaining height with `flex: 1`, responsive fallback updated. [COMPLETED]
-10. **Phase 10: One-Screen UI Phase 3 (Compare Option A)**: Table and canvas chart inner scrolling. [PENDING]
+9. **Phase 9: Ask Answer Box & Sources Height Tuning (T-021)**: Answer box sizes to content with `flex: 0 1 auto` and `max-height: 50vh`, sources list takes remaining height with `flex: 1`, responsive fallback updated. Verified in real browser by human on 2026-11-13. [COMPLETED]
+10. **Phase 10: One-Screen UI Phase 3 (Compare Option A - T-022 feasibility, T-023 implementation)**: Table and canvas chart inner scrolling. [PENDING]
 11. **Phase 11: One-Screen UI Phase 4 (Settings)**: Settings 2-column grid inner scroll and compact tuning. [PENDING]
 *Dark only. Human verifies in browser after each phase.*
 
@@ -66,8 +67,8 @@ UI redesign phases (branch `ui-redesign`):
   - Verification task T-007 (docs vs git audit): SKIPPED by human decision.
 
 ## 7. Open Decisions / Known Gaps
-- **T-021 (resolved)**: Ask tab answer box now sizes to content (`flex: 0 1 auto; max-height: 50vh;`), leaving leftover reading column height for the sources list (`flex: 1; min-height: 120px;`). Verified in code and styles; ready for human browser verification.
-- **Next Phase**: Phase 3 = Compare (Option A), Phase 4 = Settings + small-screen check, then human decides merge T-0xx.
+- **T-021 (verified)**: Ask tab answer box sizes to content (`flex: 0 1 auto; max-height: 50vh;`), leaving leftover reading column height for the sources list (`flex: 1; min-height: 120px;`). Verified by human in real browser on 2026-11-13. Known from T-021 review: `.answer-box` max-height uses `50vh` (viewport based, not column based); revisit only if human sees sources too small at 1366x768.
+- **Next Step**: T-022 Compare feasibility report, then Brain reviews and writes T-023 (Compare implementation). Then Phase 4 = Settings + small-screen check, then human decides merge.
 - Total DOM ID counts: Ask 25 (including `panel-ask`), Explore 19, HNSW 26, Settings 11, Compare 20.
 - Fallback threshold (`max-height: 520px` / `max-width: 1100px`) restores document-style scroll for small viewports; `.canvas-frame` assigned `height: 60vh; min-height: 320px; flex: none;`. Human tests threshold on a 1280x720 laptop window.
 - Known UI gaps to address:

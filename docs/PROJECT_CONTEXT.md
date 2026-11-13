@@ -123,6 +123,7 @@ Features verified in a real browser by the human (with screenshots saved in resu
 - Phase 1 to 4b UI (Settings, Compare, Explore, HNSW, Ask, resize, console) and /tests.html 62/62 verified in real browser by human on 2026-11-12 [CONFIRMED: human screenshot/approval]
 - T-019 one-screen Phase 1 (shell + Ask pilot) verified by human in real browser on 2026-11-13: /tests.html 66/66 [CONFIRMED: human screenshot]; Ask layout, Settings, Compare, HNSW at 1920x1080 [CONFIRMED: human screenshots]; smart auto-scroll, console clean, small-window fallback, focus outline [CONFIRMED: human-reported, no screenshots]
 - T-020 one-screen Phase 2 (Explore + HNSW fit panel, canvas sized from wrapper via ResizeObserver, fallback for Ask/Explore/HNSW, Compare regression check, 1366x768, /tests.html, console) verified by human in real browser on 2026-11-13 [CONFIRMED: human-reported, no screenshots]
+- T-021 Ask height fix (short answer, long answer, empty state, 1366x768, small-window fallback, /tests.html 66/66, console) verified by human in real browser on 2026-11-13 [CONFIRMED: human-reported, no screenshots]
 
 Features verified in a real browser by the human (2026-11-12, T-004):
 - Settings tab: Demo Memory shows 50.8 KB with 100 vectors, efConstruction form default 200, Ollama Models row shows llama3.2:latest and nomic-embed-text:latest [CONFIRMED: screenshot saved by human in chat, not in results/screenshots/]
