@@ -1,11 +1,14 @@
 # Project Handoff
 
-Last updated: 2026-11-13 by SYNC
+Last updated: 2026-11-13 by T-023b-2
 
 ## 1. Current Status
-VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. Phase 1 (foundation), Phase 2 (Ask tab), Phase 3 (Settings tab), Phase 4a (Explore + HNSW tabs), Phase 4b (Compare tab redesign, flat progress bar, table wrapping prevention, taupe/moss/amber palette with zero blue), T-016 (browser test fallback color fix), T-017 (one-screen UI feasibility study), T-018 (cleanup before one-screen UI: mockup removed, alert/confirm replaced with inline UI and two-step confirm, docs cleanup), T-019 (One-screen UI Phase 1: fixed 100dvh app shell, Ask tab one-screen pilot with inner scroll areas, smart auto-scroll, temporary panel scroll for other tabs), T-020 (One-screen UI Phase 2: Explore + HNSW tabs fit panel with .canvas-frame and ResizeObserver), T-021 (Ask answer box sizes to content, sources take remaining height), T-022 (Compare tab one-screen feasibility study), T-023a (Compare one-screen Phase 3a fixed layout), and T-023b-1 (Compare DPR CSS px fix & compact sidebar table) are complete. All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), 70 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
+VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. Phase 1 (foundation), Phase 2 (Ask tab), Phase 3 (Settings tab), Phase 4a (Explore + HNSW tabs), Phase 4b (Compare tab redesign, flat progress bar, table wrapping prevention, taupe/moss/amber palette with zero blue), T-016 (browser test fallback color fix), T-017 (one-screen UI feasibility study), T-018 (cleanup before one-screen UI: mockup removed, alert/confirm replaced with inline UI and two-step confirm, docs cleanup), T-019 (One-screen UI Phase 1: fixed 100dvh app shell, Ask tab one-screen pilot with inner scroll areas, smart auto-scroll, temporary panel scroll for other tabs), T-020 (One-screen UI Phase 2: Explore + HNSW tabs fit panel with .canvas-frame and ResizeObserver), T-021 (Ask answer box sizes to content, sources take remaining height), T-022 (Compare tab one-screen feasibility study), T-023a (Compare one-screen Phase 3a fixed layout), T-023b-1 (Compare DPR CSS px fix & compact sidebar table), and T-023b-2 (Compare 3 side-by-side charts in 140px canvas frame + Summary Metrics Recall column visible in 460px sidebar) are complete. All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), 74 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
 
 ## 2. Last Work Done (From Git)
+- **Task T-023b-2** (commits `f0eded4`, `cfb2f2a`, branch `ui-redesign`): Compare bars as 3 side-by-side charts (Latency, Distances, Recall) + Summary Metrics Recall column visible.
+  1. *Side-by-Side Canvas Layout*: Replaced 3 stacked vertical sections with a single row of 3 side-by-side metric charts (Latency, Distance Computations, Recall @ k) in a 140px canvas wrapper. Added single left algorithm label gutter (80px), responsive metric titles with multi-stage fallback shortening, non-overflowing bars and mono value labels, and baseline grid rules. Pure helper `computeChartLayout(w, h)` exports geometry with 4 unit tests (total browser tests now 74).
+  2. *Summary Metrics Width & Padding*: Widened `#panel-compare .viz-sidebar` to 460px and reduced cell padding to `4px 6px` so all 5 columns including Recall@k are fully visible with no horizontal scrollbar at 100% and 125% zoom. Diff table in `.viz-main` gains ~100px freed vertical space.
 - **Task T-023b-1** (commits `e120905`, `207130f`, `b62e577`, branch `ui-redesign`): Compare - fix chart size at DPR != 1 and fix cramped Summary Metrics table.
   1. *DPR CSS Sizing Fix*: Added pure helper `resolveChartSize(cssW, cssH, bufW, bufH, dpr)` in `web/js/compare_helpers.js` and wired into `drawComparisonBars(canvas, data, isDark)` so drawing bounds use CSS pixels rather than buffer pixels. Added 4 unit tests in `web/js/tests/test_compare.js` bringing browser test count to 70.
   2. *Compact Summary Metrics Table*: Widened `#panel-compare .viz-sidebar` to 420px; applied `white-space: nowrap`, 6px 8px padding, and 12px font size to Summary Metrics table cells; removed container max-height and inner vertical scroll (`max-height: none; overflow-y: visible; overflow-x: auto;`) so all 3 rows render cleanly on one line each.
@@ -50,7 +53,7 @@ VectorDB engine is in a stable, verified, and frozen state. Active development i
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
 ## 4. Recommended Next Step
-Resume in a new Brain chat with MODE: RESUME. Brain reviews the T-023b-1 report, then writes T-023b-2 (side-by-side charts).
+Human verifies T-023b-2 in browser (Compare at 100/125/150/200% zoom, 1366x768, Summary Metrics with no horizontal scrollbar, /tests.html with the new count 74/74, console, regression), then Phase 4 (Settings + small-screen check).
 
 ## 5. UI Redesign Phase Plan
 UI redesign phases (branch `ui-redesign`):
@@ -63,17 +66,17 @@ UI redesign phases (branch `ui-redesign`):
 7. **Phase 7: One-Screen UI Phase 1 (Shell + Ask Pilot - T-019)**: Fixed 100dvh app shell, Ask tab one-screen layout with inner scroll areas, smart auto-scroll, 4 unit tests (66 total), temporary panel-level scroll on non-Ask tabs, responsive fallback media query. [COMPLETED]
 8. **Phase 8: One-Screen UI Phase 2 (Explore + HNSW Canvas Sizing - T-020)**: Replaced temporary panel scroll with fixed-height flex layout, wrapped canvases in `.canvas-frame` with absolute inset, ResizeObserver sizing with rAF throttle and `isCanvasDrawable` guard, sidebar inner scroll. [COMPLETED]
 9. **Phase 9: Ask Answer Box & Sources Height Tuning (T-021)**: Answer box sizes to content with `flex: 0 1 auto` and `max-height: 50vh`, sources list takes remaining height with `flex: 1`, responsive fallback updated. Verified in real browser by human on 2026-11-13. [COMPLETED]
-10. **Phase 10: One-Screen UI Phase 3 (Compare Option A - T-022 feasibility, T-023a layout complete, T-023b-1 DPR & table fix complete, T-023b-2 side-by-side canvas)**: T-023a fixed layout + T-023b-1 DPR CSS px fix & compact sidebar table. [T-023b-1 COMPLETED, T-023b-2 PENDING]
+10. **Phase 10: One-Screen UI Phase 3 (Compare Option A - T-022 feasibility, T-023a layout complete, T-023b-1 DPR & table fix complete, T-023b-2 side-by-side canvas)**: T-023a fixed layout + T-023b-1 DPR CSS px fix & compact sidebar table + T-023b-2 side-by-side 3-panel canvas & full-width Summary Metrics. [COMPLETED]
 11. **Phase 11: One-Screen UI Phase 4 (Settings)**: Settings 2-column grid inner scroll and compact tuning. [PENDING]
 *Dark only. Human verifies in browser after each phase.*
 
 ## 6. Pending Human Actions
-- Confirm T-023b-1 in browser at 100/125/150/200% zoom, plus console clean, /tests.html 66/66 (or new count), Explore/HNSW/Ask/Settings regression.
+- Human verifies T-023b-2 in browser (Compare at 100/125/150/200% zoom, 1366x768, Summary Metrics with no horizontal scrollbar, /tests.html with the new count 74/74, console, regression), then Phase 4 (Settings + small-screen check).
 - Roadmap features (hybrid search, reranking, disk persistence, delete): ON HOLD by human decision; do not start unless explicitly requested by the human.
 
 ## 7. Open Decisions / Known Gaps
 - **Compare layout choice**: RESOLVED: Option A chosen (form + metrics in sidebar, bars + diff table on right). Cited in ADR-021.
-- **T-023b-2 (next, WOW)**: bars as 3 side-by-side charts (Latency, Distances, Recall) in a ~140px canvas, drawn in CSS px. Summary Metrics sidebar had ~400px empty space under it at 1920x1080.
+- **T-023b-2 (completed)**: bars as 3 side-by-side charts (Latency, Distances, Recall) in a 140px canvas, drawn in CSS px. Summary Metrics sidebar widened to 460px with 4px 6px padding to ensure Recall column is fully visible without horizontal scrollbar.
 - **Known from review**: .answer-box max-height uses 50vh (viewport based); revisit only if sources look too small at 1366x768.
 - **Fallback media query** (max-height 520px / max-width 1100px) is a guess, human-tested OK on desktop windows only.
 - Total DOM ID counts: Ask 25 (including `panel-ask`), Explore 19, HNSW 26, Settings 11, Compare 20.

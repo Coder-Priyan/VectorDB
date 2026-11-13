@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-13 by T-020
+Last updated: 2026-11-13 by T-023b-2
 
 ## 1. Operating Model
 
@@ -127,7 +127,8 @@ Tasks verified and completed on branch `ui-redesign` (T-017 through T-023b-1):
 - **T-021** (2026-11-13, commits `4db1567`, `4c736e7`): Ask answer box & sources height tuning (short answers size to content with `flex: 0 1 auto; max-height: 50vh`, sources list takes remaining height with `flex: 1; min-height: 120px`). Verified by human in real browser. [CONFIRMED: human-reported]
 - **T-022** (2026-11-13, commit `88d63d2`): Compare tab one-screen feasibility study (read-only proposal for Option A: form + metrics on left, bars + diff table on right).
 - **T-023a** (2026-11-13, commits `448f563`, `309addb`, `210557a`): Compare one-screen Phase 3a (fixed-height panel, Summary Metrics moved to sidebar below progress block, diff table inner scroll with sticky `th`, 240px canvas wrapper, ResizeObserver). Layout verified by human screenshots at 100% and 125% zoom. [CONFIRMED: human screenshot]
-- **T-023b-1** (2026-11-13, commits `e120905`, `207130f`, `b62e577`): Compare DPR zoom fix (`resolveChartSize` CSS px drawing helper + 4 unit tests bringing count to 70) and compact Summary Metrics table in widened 420px sidebar (`white-space: nowrap`, 6px 8px padding, 12px font). Pure tests pass 70/70. Status: pending human browser verification at 100/125/150/200% zoom.
+- **T-023b-1** (2026-11-13, commits `e120905`, `207130f`, `b62e577`): Compare DPR zoom fix (`resolveChartSize` CSS px drawing helper + 4 unit tests bringing count to 70) and compact Summary Metrics table in widened 420px sidebar (`white-space: nowrap`, 6px 8px padding, 12px font). Pure tests pass 70/70. T-023b-1 verified by human on 2026-11-13: /tests.html 70/70 [CONFIRMED: human screenshot]; Compare chart fits at 100%, 125% and 200% zoom, Summary Metrics rows on one line [CONFIRMED: human screenshots]; 150% zoom, console clean, Ask/Explore/HNSW/Settings regression OK [CONFIRMED: human-reported, no screenshots]. Remaining gap: Summary Metrics Recall column clipped at 420px (ISS-024), addressed in T-023b-2.
+- **T-023b-2** (2026-11-13, commits `f0eded4`, `cfb2f2a`): Compare bars as 3 side-by-side charts (Latency, Distances, Recall) in 140px canvas frame + pure layout helper `computeChartLayout` with 4 unit tests (bringing count to 74) + Summary Metrics Recall column fully visible in 460px sidebar with 4px 6px padding. Status: pending human browser verification.
 
 Features verified in a real browser by the human (with screenshots saved in results/screenshots/):
 - Settings tab: Insert Random Vectors (Demo Vectors Count = 100) [CONFIRMED: human screenshot]
@@ -136,7 +137,7 @@ Features verified in a real browser by the human (with screenshots saved in resu
 - T-019 one-screen Phase 1 (shell + Ask pilot) verified by human in real browser on 2026-11-13: /tests.html 66/66 [CONFIRMED: human screenshot]; Ask layout, Settings, Compare, HNSW at 1920x1080 [CONFIRMED: human screenshots]; smart auto-scroll, console clean, small-window fallback, focus outline [CONFIRMED: human-reported, no screenshots]
 - T-020 one-screen Phase 2 (Explore + HNSW fit panel, canvas sized from wrapper via ResizeObserver, fallback for Ask/Explore/HNSW, Compare regression check, 1366x768, /tests.html, console) verified by human in real browser on 2026-11-13 [CONFIRMED: human-reported, no screenshots]
 - T-021 Ask height fix (short answer, long answer, empty state, 1366x768, small-window fallback, /tests.html 66/66, console) verified by human in real browser on 2026-11-13 [CONFIRMED: human-reported, no screenshots]
-- T-023a Compare Phase 3a (fixed-height layout, Summary Metrics in sidebar) at 100% zoom 1920x1080 and 125% zoom verified by human screenshots on 2026-11-13 [CONFIRMED: human screenshots]. Pending human confirmation: console clean, /tests.html 66/66, Explore/HNSW/Ask/Settings regression, 1366x768, small-window fallback.
+- T-023a Compare Phase 3a (fixed-height layout, Summary Metrics in sidebar) at 100% zoom 1920x1080 and 125% zoom verified by human screenshots on 2026-11-13 [CONFIRMED: human screenshots]. Pending human confirmation: console clean, /tests.html 74/74, Explore/HNSW/Ask/Settings regression, 1366x768, small-window fallback.
 
 Features verified in a real browser by the human (2026-11-12, T-004):
 - Settings tab: Demo Memory shows 50.8 KB with 100 vectors, efConstruction form default 200, Ollama Models row shows llama3.2:latest and nomic-embed-text:latest [CONFIRMED: screenshot saved by human in chat, not in results/screenshots/]
