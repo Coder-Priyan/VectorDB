@@ -87,6 +87,38 @@ export function computeBarWidths(values, customMax) {
 }
 
 /**
+ * Resolves drawing dimensions in CSS pixels for canvas rendering under DPR scaling.
+ * Returns CSS dimensions when finite and > 0, otherwise falls back to buffer dimensions
+ * divided by dpr (defaulting to 1). Returns { w: 0, h: 0 } for invalid or non-positive input.
+ *
+ * @param {number} cssW - Client or bounding rect width in CSS px
+ * @param {number} cssH - Client or bounding rect height in CSS px
+ * @param {number} bufW - Internal canvas buffer width in device px
+ * @param {number} bufH - Internal canvas buffer height in device px
+ * @param {number} [dpr=1] - Device pixel ratio
+ * @returns {{ w: number, h: number }}
+ */
+export function resolveChartSize(cssW, cssH, bufW, bufH, dpr = 1) {
+  const safeDpr = (typeof dpr === "number" && Number.isFinite(dpr) && dpr > 0) ? dpr : 1;
+
+  let w = 0;
+  if (typeof cssW === "number" && Number.isFinite(cssW) && cssW > 0) {
+    w = cssW;
+  } else if (typeof bufW === "number" && Number.isFinite(bufW) && bufW > 0) {
+    w = bufW / safeDpr;
+  }
+
+  let h = 0;
+  if (typeof cssH === "number" && Number.isFinite(cssH) && cssH > 0) {
+    h = cssH;
+  } else if (typeof bufH === "number" && Number.isFinite(bufH) && bufH > 0) {
+    h = bufH / safeDpr;
+  }
+
+  return { w, h };
+}
+
+/**
  * Draws comparison bar charts on an HTML5 canvas without any inline CSS styles.
  *
  * @param {HTMLCanvasElement} canvas
@@ -98,8 +130,18 @@ export function drawComparisonBars(canvas, data, isDark = false) {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
-  const w = canvas.width;
-  const h = canvas.height;
+  const rect = canvas.getBoundingClientRect ? canvas.getBoundingClientRect() : null;
+  const dpr = (typeof window !== "undefined" && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+  const { w, h } = resolveChartSize(
+    rect?.width || canvas.clientWidth || 0,
+    rect?.height || canvas.clientHeight || 0,
+    canvas.width,
+    canvas.height,
+    dpr
+  );
+
+  if (w <= 0 || h <= 0) return;
+
   ctx.fillStyle = "#0a0a0a";
   ctx.fillRect(0, 0, w, h);
 

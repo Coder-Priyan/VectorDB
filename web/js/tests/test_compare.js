@@ -3,7 +3,7 @@
  */
 
 import { describe, assert, assertEqual, assertNear } from "./framework.js";
-import { computeTimingStats, diffAgainstGroundTruth, computeBarWidths } from "../compare_helpers.js";
+import { computeTimingStats, diffAgainstGroundTruth, computeBarWidths, resolveChartSize } from "../compare_helpers.js";
 
 export function registerCompareTests() {
   describe("Compare Timing Stats (compare_helpers.js)", (it) => {
@@ -113,6 +113,44 @@ export function registerCompareTests() {
       assertEqual(widths[0], 0);
       assertEqual(widths[1], 0);
       assertEqual(widths[2], 0);
+    });
+  });
+
+  describe("Compare Chart Size Resolution (compare_helpers.js)", (it) => {
+    it("DPR 1 returns CSS size", () => {
+      const size = resolveChartSize(680, 240, 680, 240, 1);
+      assertEqual(size.w, 680);
+      assertEqual(size.h, 240);
+    });
+
+    it("DPR 1.25 and 2 return CSS size not buffer size", () => {
+      const size125 = resolveChartSize(680, 240, 850, 300, 1.25);
+      assertEqual(size125.w, 680);
+      assertEqual(size125.h, 240);
+
+      const size2 = resolveChartSize(680, 240, 1360, 480, 2);
+      assertEqual(size2.w, 680);
+      assertEqual(size2.h, 240);
+    });
+
+    it("CSS 0 falls back to buffer size divided by dpr", () => {
+      const size = resolveChartSize(0, 0, 1000, 500, 2);
+      assertEqual(size.w, 500);
+      assertEqual(size.h, 250);
+
+      const sizeDpr1 = resolveChartSize(0, 0, 680, 260, 1);
+      assertEqual(sizeDpr1.w, 680);
+      assertEqual(sizeDpr1.h, 260);
+    });
+
+    it("NaN, negative, or invalid input returns 0x0 safely", () => {
+      const sizeNaN = resolveChartSize(NaN, -50, undefined, null, 1);
+      assertEqual(sizeNaN.w, 0);
+      assertEqual(sizeNaN.h, 0);
+
+      const sizeNegative = resolveChartSize(-10, -20, -100, -200, 1.5);
+      assertEqual(sizeNegative.w, 0);
+      assertEqual(sizeNegative.h, 0);
     });
   });
 }
