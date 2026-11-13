@@ -661,14 +661,15 @@ html {
 }
 
 .answer-section {
-  flex: 1;
+  flex: 0 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
 .sources-section {
-  flex-shrink: 0;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
@@ -814,8 +815,9 @@ html {
   border-left: 2px solid var(--accent-color);
   border-radius: 0;
   padding: 4px 0 4px 20px;
-  flex: 1;
-  min-height: 120px;
+  flex: 0 1 auto;
+  min-height: 60px;
+  max-height: 50vh;
   overflow-y: auto;
   font-size: 16px;
   line-height: 1.65;
@@ -890,9 +892,9 @@ html {
   display: flex;
   flex-direction: column;
   gap: 0;
-  max-height: 180px;
+  flex: 1;
+  min-height: 120px;
   overflow-y: auto;
-  flex-shrink: 0;
   margin-top: 4px;
   border-top: 1px solid var(--border-color);
 }
@@ -1399,7 +1401,21 @@ html {
     height: auto;
   }
 
+  .answer-section {
+    flex: none;
+  }
+
   .answer-box {
+    max-height: 360px;
+  }
+
+  .sources-section {
+    flex: none;
+  }
+
+  .sources-list {
+    flex: none;
+    min-height: 0;
     max-height: 360px;
   }
 
