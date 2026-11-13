@@ -5,10 +5,12 @@ import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js
 import { Viewport2D, setupCanvasDpr } from "./canvas.js";
 import { el, formatSimilarity } from "./ui.js";
 import { getDocColor, computeBounds, findHitPoint, drawStar } from "./explore_helpers.js";
+import { isCanvasDrawable } from "./hnsw_helpers.js";
 
 export function initExploreTab() {
   const canvas = document.getElementById("explore-canvas");
   if (!canvas) return;
+  const canvasFrame = canvas.parentElement;
   const ctx = canvas.getContext("2d");
   const byId = (id) => document.getElementById(id);
 
@@ -102,7 +104,12 @@ export function initExploreTab() {
   }
 
   function render() {
+    const rect = canvas.getBoundingClientRect();
+    if (!isCanvasDrawable(rect.width, rect.height)) return;
+
     const { width, height } = setupCanvasDpr(canvas, ctx);
+    if (!isCanvasDrawable(width, height)) return;
+
     viewport.width = width; viewport.height = height;
     ctx.clearRect(0, 0, width, height);
 
@@ -235,9 +242,26 @@ export function initExploreTab() {
     });
   });
 
+  let resizeRaf = null;
+  function scheduleResize() {
+    if (resizeRaf) return;
+    resizeRaf = requestAnimationFrame(() => {
+      resizeRaf = null;
+      render();
+    });
+  }
+
+  const ro = new ResizeObserver(scheduleResize);
+  if (canvasFrame) ro.observe(canvasFrame);
+
   collSelect?.addEventListener("change", loadData);
   refreshBtn?.addEventListener("click", loadData);
-  byId("tab-btn-explore")?.addEventListener("click", loadData);
-  window.addEventListener("resize", render);
+  byId("tab-btn-explore")?.addEventListener("click", () => {
+    requestAnimationFrame(() => {
+      render();
+      loadData();
+    });
+  });
+  window.addEventListener("resize", scheduleResize);
   loadData();
 }

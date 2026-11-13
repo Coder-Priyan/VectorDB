@@ -10,6 +10,7 @@ import { getLayerColor, formatEdgeSummary, formatHnswTopologySummary, mapTraceTo
 export function initHnswTab() {
   const canvas = document.getElementById("hnsw-canvas");
   if (!canvas) return;
+  const canvasFrame = canvas.parentElement;
   const ctx = canvas.getContext("2d");
   const byId = (id) => document.getElementById(id);
 
@@ -318,12 +319,20 @@ export function initHnswTab() {
     });
   }
 
-  byId("tab-btn-hnsw")?.addEventListener("click", onTabVisible);
-  window.addEventListener("resize", () => {
-    requestAnimationFrame(() => {
+  let resizeRaf = null;
+  function scheduleResize() {
+    if (resizeRaf) return;
+    resizeRaf = requestAnimationFrame(() => {
+      resizeRaf = null;
       edgesDirty = true;
       render();
     });
-  });
+  }
+
+  const ro = new ResizeObserver(scheduleResize);
+  if (canvasFrame) ro.observe(canvasFrame);
+
+  byId("tab-btn-hnsw")?.addEventListener("click", onTabVisible);
+  window.addEventListener("resize", scheduleResize);
   loadGraphData(); loadHnswInfo();
 }
