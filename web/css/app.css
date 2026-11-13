@@ -1356,7 +1356,7 @@ html {
 
 /* Compare Tab Fixed Layout (One-Screen Phase 3a) */
 #panel-compare .viz-sidebar {
-  width: 420px;
+  width: 460px;
   max-width: 100%;
   flex-shrink: 0;
   height: 100%;
@@ -1411,7 +1411,7 @@ html {
 #panel-compare .viz-sidebar .info-table th,
 #panel-compare .viz-sidebar .info-table td {
   white-space: nowrap;
-  padding: 6px 8px;
+  padding: 4px 6px;
   font-size: 12px;
 }
 
