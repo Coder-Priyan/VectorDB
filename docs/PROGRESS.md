@@ -1,10 +1,10 @@
 # Project Progress
 
-Last updated: 2026-11-13 by T-022
+Last updated: 2026-11-13 by T-023a
 
-## 1. Current Phase: Compare Tab One-Screen Feasibility Study Complete (Task T-022, Branch `ui-redesign`); Ready for Implementation (T-023)
+## 1. Current Phase: Compare One-Screen Phase 3a Complete (Task T-023a, Branch `ui-redesign`); Ready for Human Verification
 
-All core engine development and bug fix tasks are completed and verified (111 C++ tests, 66 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. T-019 (One-screen Phase 1 shell + Ask pilot), T-020 (One-screen Phase 2 Explore + HNSW canvas sizing), and T-021 (Ask answer box & sources height tuning) are completed and human-verified in real browsers. Task T-022 delivers a comprehensive, read-only architectural feasibility study and concrete proposal for the Compare tab (Option A: left control/summary column with form and Summary Metrics table, right visualization/deep-dive column with comparative performance bars canvas and scrollable top-k ground truth diff table), dense-screen analysis for 1366x768, and risk mitigation strategies. All 20 Compare DOM IDs (plus `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), and all 66 browser unit tests remain functional [CONFIRMED: git status, git log].
+All core engine development and bug fix tasks are completed and verified (111 C++ tests, 66 browser tests). Engine code is frozen. Active development is on branch `ui-redesign` in the Editor/Terminal aesthetic. T-019 (One-screen Phase 1 shell + Ask pilot), T-020 (One-screen Phase 2 Explore + HNSW canvas sizing), and T-021 (Ask answer box & sources height tuning) are completed and human-verified in real browsers. Task T-023a implements Compare tab fixed-height layout: Summary Metrics moved to the left sidebar, Top-k Ground Truth Diff table scrolls internally with sticky header, canvas wrapper constrained to 240px, ResizeObserver attached with rAF throttling and `isCanvasDrawable` guard, and responsive fallback maintained. All 20 Compare DOM IDs (plus `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), and all 66 browser unit tests remain functional [CONFIRMED: git status, git log].
 
 ---
 

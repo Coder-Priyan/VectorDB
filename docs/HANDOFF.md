@@ -1,11 +1,15 @@
 # Project Handoff
 
-Last updated: 2026-11-13 by T-022
+Last updated: 2026-11-13 by T-023a
 
 ## 1. Current Status
-VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. Phase 1 (foundation), Phase 2 (Ask tab), Phase 3 (Settings tab), Phase 4a (Explore + HNSW tabs), Phase 4b (Compare tab redesign, flat progress bar, table wrapping prevention, taupe/moss/amber palette with zero blue), T-016 (browser test fallback color fix), T-017 (one-screen UI feasibility study), T-018 (cleanup before one-screen UI: mockup removed, alert/confirm replaced with inline UI and two-step confirm, docs cleanup), T-019 (One-screen UI Phase 1: fixed 100dvh app shell, Ask tab one-screen pilot with inner scroll areas, smart auto-scroll, temporary panel scroll for other tabs), T-020 (One-screen UI Phase 2: Explore + HNSW tabs fit panel with .canvas-frame and ResizeObserver), and T-021 (Ask answer box sizes to content, sources take remaining height) are complete and human-verified. All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), 66 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
+VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. Phase 1 (foundation), Phase 2 (Ask tab), Phase 3 (Settings tab), Phase 4a (Explore + HNSW tabs), Phase 4b (Compare tab redesign, flat progress bar, table wrapping prevention, taupe/moss/amber palette with zero blue), T-016 (browser test fallback color fix), T-017 (one-screen UI feasibility study), T-018 (cleanup before one-screen UI: mockup removed, alert/confirm replaced with inline UI and two-step confirm, docs cleanup), T-019 (One-screen UI Phase 1: fixed 100dvh app shell, Ask tab one-screen pilot with inner scroll areas, smart auto-scroll, temporary panel scroll for other tabs), T-020 (One-screen UI Phase 2: Explore + HNSW tabs fit panel with .canvas-frame and ResizeObserver), T-021 (Ask answer box sizes to content, sources take remaining height), T-022 (Compare tab one-screen feasibility study), and T-023a (Compare one-screen Phase 3a fixed layout) are complete. All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 11 Settings DOM IDs (plus new `demo-reset-cancel-btn`, `settings-reset-status`, `settings-random-status`), 25 Ask DOM IDs (including `panel-ask` and `doc-reset-cancel-btn`), 66 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
 
 ## 2. Last Work Done (From Git)
+- **Task T-023a** (branch `ui-redesign`): Compare tab one-screen Phase 3a - fixed-height layout (Summary Metrics to left column, Diff table scrolls inside).
+  1. *Fixed-Height Panel & Column Redistribution*: Replaced temporary panel scroll on `#panel-compare` with `display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden;`. Sized `.viz-sidebar` to 380px with `height: 100%; overflow-y: auto;` and moved Summary Metrics table inside it below progress block. Configured `.viz-main` with `flex: 1; min-height: 0; display: flex; flex-direction: column;`.
+  2. *Diff Table Inner Scroll & Header Fix*: Configured `#compare-results-card` with `flex: 1; min-height: 0; display: flex; flex-direction: column;`. Sized Top-k Ground Truth Diff `.table-container` with `flex: 1; min-height: 140px; max-height: none; overflow-y: auto; overflow-x: auto;`. Assigned sticky `th` with `background: var(--bg-primary); z-index: 2;`. Overrode global 40% column rule on Compare tables, fixing diff `#` column width to 48px. Added `tabindex="0"`, `aria-label`, and 1px amber `:focus-visible` to both table containers.
+  3. *Canvas Wrapper & ResizeObserver*: Fixed `#panel-compare .canvas-wrapper` height to 240px (`flex-shrink: 0`) and `#compare-bars-canvas` to `width: 100%; height: 100%;`. Wired `ResizeObserver` on `canvasWrapper` with rAF throttling and `isCanvasDrawable` guard. Maintained fallback `@media (max-height: 520px), (max-width: 1100px)`.
 - **Task T-022** (branch `ui-redesign`): Compare tab one-screen feasibility study (read-only architectural analysis and proposal for Option A).
 - **Task T-021** (branch `ui-redesign`): Ask tab - answer box sizes to content, sources take remaining height (verified in real browser by human on 2026-11-13).
   1. *Flex Distribution*: Changed `.answer-section` from `flex: 1` to `flex: 0 1 auto; min-height: 0;` and `.sources-section` from `flex-shrink: 0` to `flex: 1; min-height: 0;`.
@@ -43,7 +47,7 @@ VectorDB engine is in a stable, verified, and frozen state. Active development i
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
 ## 4. Recommended Next Step
-- T-022 Compare feasibility report, then Brain reviews and writes T-023 (Compare implementation). Then Phase 4 = Settings + small-screen check, then human decides merge.
+- Human verifies T-023a (Compare at 1920x1080 and 1366x768, benchmark run, table scroll, resize, small-window fallback, /tests.html, console); then T-023b.
 
 ## 5. UI Redesign Phase Plan
 UI redesign phases (branch `ui-redesign`):
@@ -56,7 +60,7 @@ UI redesign phases (branch `ui-redesign`):
 7. **Phase 7: One-Screen UI Phase 1 (Shell + Ask Pilot - T-019)**: Fixed 100dvh app shell, Ask tab one-screen layout with inner scroll areas, smart auto-scroll, 4 unit tests (66 total), temporary panel-level scroll on non-Ask tabs, responsive fallback media query. [COMPLETED]
 8. **Phase 8: One-Screen UI Phase 2 (Explore + HNSW Canvas Sizing - T-020)**: Replaced temporary panel scroll with fixed-height flex layout, wrapped canvases in `.canvas-frame` with absolute inset, ResizeObserver sizing with rAF throttle and `isCanvasDrawable` guard, sidebar inner scroll. [COMPLETED]
 9. **Phase 9: Ask Answer Box & Sources Height Tuning (T-021)**: Answer box sizes to content with `flex: 0 1 auto` and `max-height: 50vh`, sources list takes remaining height with `flex: 1`, responsive fallback updated. Verified in real browser by human on 2026-11-13. [COMPLETED]
-10. **Phase 10: One-Screen UI Phase 3 (Compare Option A - T-022 feasibility, T-023 implementation)**: Table and canvas chart inner scrolling. [PENDING]
+10. **Phase 10: One-Screen UI Phase 3 (Compare Option A - T-022 feasibility, T-023a layout complete, T-023b side-by-side canvas)**: T-023a fixed layout, sidebar summary metrics, diff table scroll, 240px canvas wrapper, ResizeObserver. [T-023a COMPLETED, T-023b PENDING]
 11. **Phase 11: One-Screen UI Phase 4 (Settings)**: Settings 2-column grid inner scroll and compact tuning. [PENDING]
 *Dark only. Human verifies in browser after each phase.*
 
@@ -67,8 +71,9 @@ UI redesign phases (branch `ui-redesign`):
   - Verification task T-007 (docs vs git audit): SKIPPED by human decision.
 
 ## 7. Open Decisions / Known Gaps
+- **Human chose WOW feel (2026-11-13)**: Compare Phase 3b (T-023b) = bars as 3 side-by-side charts (Latency, Distances, Recall) in a ~140px canvas, after a DPR/buffer-size check of drawComparisonBars (compare_helpers.js:101-102). T-023a = layout only.
 - **T-021 (verified)**: Ask tab answer box sizes to content (`flex: 0 1 auto; max-height: 50vh;`), leaving leftover reading column height for the sources list (`flex: 1; min-height: 120px;`). Verified by human in real browser on 2026-11-13. Known from T-021 review: `.answer-box` max-height uses `50vh` (viewport based, not column based); revisit only if human sees sources too small at 1366x768.
-- **Next Step**: T-022 Compare feasibility report, then Brain reviews and writes T-023 (Compare implementation). Then Phase 4 = Settings + small-screen check, then human decides merge.
+- **Next Step**: Human verifies T-023a (Compare at 1920x1080 and 1366x768, benchmark run, table scroll, resize, small-window fallback, /tests.html, console); then T-023b.
 - Total DOM ID counts: Ask 25 (including `panel-ask`), Explore 19, HNSW 26, Settings 11, Compare 20.
 - Fallback threshold (`max-height: 520px` / `max-width: 1100px`) restores document-style scroll for small viewports; `.canvas-frame` assigned `height: 60vh; min-height: 320px; flex: none;`. Human tests threshold on a 1280x720 laptop window.
 - Known UI gaps to address:
