@@ -425,74 +425,75 @@
     <!-- TAB 5: SETTINGS -->
     <section id="panel-settings" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-settings">
       <div class="settings-layout">
-        <!-- Section 1: Server Status -->
-        <section class="settings-section">
-          <h2 class="section-title">Server</h2>
-          <div id="settings-health-box" class="settings-status-box">
-            <p class="text-muted empty-state">Loading metrics...</p>
-          </div>
-        </section>
-
-        <hr class="settings-divider">
-
-        <!-- Section 2: Demo Collection Configuration & Random Vectors -->
-        <section class="settings-section">
-          <h2 class="section-title">Demo collection</h2>
-          <form id="settings-reset-demo-form" class="form-stack">
-            <div class="two-col-grid">
-              <div class="form-group">
-                <label for="demo-dim-input">Dimension</label>
-                <input type="number" id="demo-dim-input" class="input-text" value="128" min="1" max="4096" required>
-              </div>
-              <div class="form-group">
-                <label for="demo-metric-select">Metric</label>
-                <select id="demo-metric-select" class="input-select">
-                  <option value="cosine" selected>Cosine</option>
-                  <option value="euclidean">Euclidean</option>
-                  <option value="manhattan">Manhattan</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="demo-m-input">M</label>
-                <input type="number" id="demo-m-input" class="input-text" value="16" min="2" max="128">
-              </div>
-              <div class="form-group">
-                <label for="demo-efc-input">efConstruction</label>
-                <input type="number" id="demo-efc-input" class="input-text" value="200" min="4" max="1000">
-              </div>
+        <!-- Left Column: Server Status -->
+        <div class="settings-col" tabindex="0" aria-label="Server status">
+          <section class="settings-section">
+            <h2 class="section-title">Server</h2>
+            <div id="settings-health-box" class="settings-status-box">
+              <p class="text-muted empty-state">Loading metrics...</p>
             </div>
-          </form>
+          </section>
+        </div>
 
-          <div class="settings-random-group">
-            <form id="settings-random-demo-form" class="form-row">
-              <div class="form-group flex-2">
-                <label for="demo-random-count">Insert random vectors</label>
-                <input type="number" id="demo-random-count" class="input-text" value="100" min="1" max="20000">
-              </div>
-              <div class="form-group flex-1 align-end">
-                <button type="submit" id="demo-insert-random-btn" class="btn btn-primary w-100">Insert</button>
+        <!-- Right Column: Demo Collection Configuration & Danger Zone -->
+        <div class="settings-col" tabindex="0" aria-label="Demo collection and maintenance">
+          <!-- Demo Collection Configuration & Random Vectors -->
+          <section class="settings-section">
+            <h2 class="section-title">Demo collection</h2>
+            <form id="settings-reset-demo-form" class="form-stack">
+              <div class="two-col-grid">
+                <div class="form-group">
+                  <label for="demo-dim-input">Dimension</label>
+                  <input type="number" id="demo-dim-input" class="input-text" value="128" min="1" max="4096" required>
+                </div>
+                <div class="form-group">
+                  <label for="demo-metric-select">Metric</label>
+                  <select id="demo-metric-select" class="input-select">
+                    <option value="cosine" selected>Cosine</option>
+                    <option value="euclidean">Euclidean</option>
+                    <option value="manhattan">Manhattan</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="demo-m-input">M</label>
+                  <input type="number" id="demo-m-input" class="input-text" value="16" min="2" max="128">
+                </div>
+                <div class="form-group">
+                  <label for="demo-efc-input">efConstruction</label>
+                  <input type="number" id="demo-efc-input" class="input-text" value="200" min="4" max="1000">
+                </div>
               </div>
             </form>
-            <div id="settings-random-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
-          </div>
-        </section>
 
-        <hr class="settings-divider">
+            <div class="settings-random-group">
+              <form id="settings-random-demo-form" class="form-row">
+                <div class="form-group flex-2">
+                  <label for="demo-random-count">Insert random vectors</label>
+                  <input type="number" id="demo-random-count" class="input-text" value="100" min="1" max="20000">
+                </div>
+                <div class="form-group flex-1 align-end">
+                  <button type="submit" id="demo-insert-random-btn" class="btn btn-primary w-100">Insert</button>
+                </div>
+              </form>
+              <div id="settings-random-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
+            </div>
+          </section>
 
-        <!-- Section 3: Danger Zone -->
-        <section class="settings-section">
-          <h2 class="section-title">Danger zone</h2>
-          <div class="settings-danger-card">
-            <div class="settings-danger-info">
-              <p class="text-muted">Clears all demo vectors and rebuilds index with the configuration above.</p>
-              <div id="settings-reset-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
+          <!-- Danger Zone -->
+          <section class="settings-section">
+            <h2 class="section-title">Danger zone</h2>
+            <div class="settings-danger-card">
+              <div class="settings-danger-info">
+                <p class="text-muted">Clears all demo vectors and rebuilds index with the configuration above.</p>
+                <div id="settings-reset-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
+              </div>
+              <div class="settings-confirm-actions">
+                <button type="button" id="demo-reset-cancel-btn" class="btn btn-outline hidden">Cancel</button>
+                <button type="button" id="demo-reset-btn" class="btn btn-danger">Reset Demo Collection</button>
+              </div>
             </div>
-            <div class="settings-confirm-actions">
-              <button type="button" id="demo-reset-cancel-btn" class="btn btn-outline hidden">Cancel</button>
-              <button type="button" id="demo-reset-btn" class="btn btn-danger">Reset Demo Collection</button>
-            </div>
-          </div>
-        </section>
+          </section>
+        </div>
       </div>
     </section>
   </main>

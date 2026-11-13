@@ -253,10 +253,10 @@ html {
   display: none !important;
 }
 
-/* Temporary panel-level scroll for tabs pending redesign */
 #panel-settings {
-  overflow-y: auto;
   height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .hidden {
@@ -975,11 +975,29 @@ html {
 
 /* Settings Tab Layout */
 #panel-settings .settings-layout {
-  max-width: 720px;
+  max-width: 1080px;
+  width: 100%;
   margin: 0 auto;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+
+#panel-settings .settings-col {
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 32px;
+  min-width: 0;
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+#panel-settings .settings-col:focus-visible {
+  outline: 1px solid var(--accent-color);
+  outline-offset: 1px;
 }
 
 #panel-settings .settings-section {
@@ -1021,7 +1039,7 @@ html {
 
 #panel-settings .info-table td:first-child {
   color: var(--text-muted);
-  width: 220px;
+  width: 160px;
 }
 
 #panel-settings .info-table td:last-child {
@@ -1029,6 +1047,7 @@ html {
   font-family: var(--font-mono);
   font-size: 13px;
   font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
 }
 
 #panel-settings .settings-random-group {
@@ -1570,6 +1589,17 @@ html {
   #panel-hnsw #hnsw-info-box {
     max-height: none;
     overflow-y: visible;
+  }
+
+  #panel-settings .settings-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+    gap: 24px;
+  }
+
+  #panel-settings .settings-col {
+    max-height: none;
+    overflow: visible;
   }
 }
 
