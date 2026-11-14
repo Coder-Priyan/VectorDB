@@ -1,10 +1,19 @@
 # VectorDB UI Consistency Audit
 
-Date: 2026-11-13  
-Task: T-031  
+Date: 2026-11-13 (Updated 2026-11-14 following T-033 implementation)
+Task: T-031 (Informed T-032 & T-033 Phases P4-P7)
 Author: Antigravity (The Builder)  
 Branch: `ui-redesign`  
-Status: [CONFIRMED: web/css/app.css, web/index.html, web/js/*.js]
+Status: [CONFIRMED: Successfully implemented and resolved in T-033 P4-P7]
+
+> **Post-Implementation Note (T-033)**:  
+> The findings of this audit directly informed the architectural execution of VectorDB v2:  
+> 1. A 4px spacing scale (`--space-1` to `--space-8`) was formalized in `:root` and used across all tabs.  
+> 2. An explicit type scale (`--text-xs` 11px to `--text-2xl` 28px) was defined and applied.  
+> 3. Standardized shared components were introduced: `.card`, `.page-header`, `.empty-state`, `.skeleton`, `.toast`, `.kbd`.  
+> 4. Native form controls (file input, number spinners, select chevrons, range sliders) were completely restyled with zero external libraries.  
+> 5. Button hierarchy was strictly enforced: at most ONE `.btn-primary` per visible view across all tabs.  
+> 6. All 14 line icons were unified into a zero-dependency SVG registry (`web/js/icons.js`).
 
 ---
 

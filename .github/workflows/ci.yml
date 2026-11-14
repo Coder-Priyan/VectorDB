@@ -1,0 +1,73 @@
+name: VectorDB CI
+
+on:
+  push:
+    branches: [ main, ui-redesign ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  windows-build:
+    name: Windows Build & Test (UCRT64)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup MSYS2 UCRT64
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-cmake
+
+      - name: Configure CMake
+        run: |
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build VectorDB
+        run: |
+          cmake --build build
+
+      - name: Run Test Suite
+        run: |
+          ./build/vectordb_tests.exe
+
+      - name: Run Web Safety Scanner
+        shell: powershell
+        run: |
+          powershell -ExecutionPolicy Bypass -File ./scripts/check_web_safety.ps1
+
+  linux-build:
+    name: Ubuntu Build & Test (Linux)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build g++
+
+      - name: Configure CMake
+        run: |
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build VectorDB
+        run: |
+          cmake --build build
+
+      - name: Run Test Suite
+        run: |
+          ./build/vectordb_tests
+

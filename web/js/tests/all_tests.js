@@ -8,12 +8,14 @@ import { suites } from "./framework.js";
 import { registerCoreTests } from "./test_core.js";
 import { registerExploreHnswTests } from "./test_explore_hnsw.js";
 import { registerCompareTests } from "./test_compare.js";
+import { registerV2Tests } from "./test_v2.js";
 import { el } from "../ui.js";
 
 // Register modular test suites
 registerCoreTests();
 registerExploreHnswTests();
 registerCompareTests();
+registerV2Tests();
 
 export function runAll() {
   const container = document.getElementById("test-results-container");

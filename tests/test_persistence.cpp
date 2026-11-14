@@ -187,3 +187,4 @@ TEST(PersistenceTest, DeleteDocumentAndSearch) {
     auto del404 = handleDeleteDoc(pipeline, resB.docId, nullptr);
     CHECK(del404.status == 404);
 }
+

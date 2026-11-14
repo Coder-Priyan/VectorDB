@@ -95,12 +95,20 @@ Each step indicates the target tab and URL hash, the user action, what the audie
 
 ---
 
-### Step 11: Viva Defense Discussion & Known Limitations
+### Step 11: Command Palette & Keyboard Productivity
+- **Tab & URL**: Any tab (`Ctrl+K` or `Cmd+K`)
+- **Action**: Press `Ctrl+K` to open the Command Palette modal; type "tour" or "benchmark" and press Enter.
+- **Audience Sees**: A keyboard-first command launcher with instant fuzzy filtering across navigation, actions, and administrative commands.
+- **Explanation**: The client-side command palette provides accessible, keyboard-driven navigation across all database features without page reloads.
+
+---
+
+### Step 12: Viva Defense Discussion & Architectural Trade-offs
 - **Audience / Examiners Ask**: *"What are the primary architectural trade-offs and limitations of this system?"*
 - **Speaker Defense Response**:
   1. **High-Dimensional Partitioning**: The KD-Tree index provides exact nearest neighbor search, but at dimensions $>16$ its branch pruning degenerates toward brute-force linear scanning.
   2. **Memory Overhead**: HNSW maintains multi-layer adjacency lists in RAM, requiring higher memory overhead per vector compared to flat brute-force arrays.
-  3. **In-Memory Volatility**: The current implementation stores vectors in memory without write-ahead logging (WAL) or disk persistence across restarts.
+  3. **Atomic Binary Persistence**: VectorDB v2 implements atomic binary serialization via `--data-dir`, snapshotting collections atomically via `.tmp` write and rename upon mutations.
   4. **Plain-Text Parsing**: The document ingestion engine accepts `.txt` and `.md` files; enterprise PDF/DOCX binary parsing and OCR are out of scope for this core engine.
   5. **Indicative Browser Timings**: In-browser benchmarks include HTTP JSON serialization and network overhead; rigorous academic paper benchmarks are executed via the pinned C++ benchmark suite (`scripts/run_benchmarks_pinned.ps1`).
 

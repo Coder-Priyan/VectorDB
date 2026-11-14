@@ -251,3 +251,4 @@ export function startGuidedTour(force = false) {
 window.addEventListener("vectordb:start-tour", () => {
   startGuidedTour(true);
 });
+

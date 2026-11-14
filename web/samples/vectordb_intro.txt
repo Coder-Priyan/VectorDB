@@ -13,3 +13,4 @@ VectorDB includes a transparent RAG pipeline connected to local Ollama models su
 Documents are parsed and split into sentence or fixed-window chunks.
 Retrieved chunks are formatted with strict citation markers [1], [2] to prevent hallucination.
 When the user asks a question, only grounded facts from the retrieved sources are cited.
+

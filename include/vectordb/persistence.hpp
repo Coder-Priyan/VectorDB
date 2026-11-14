@@ -35,3 +35,4 @@ bool saveRagPipelineToFile(const RagPipeline& rag, const std::string& filePath, 
 bool loadRagPipelineFromFile(RagPipeline& rag, const std::string& filePath, std::string* errorOut = nullptr);
 
 } // namespace vectordb
+

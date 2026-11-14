@@ -115,3 +115,4 @@ export function createIcon(name, size = 16, className = "") {
 if (typeof window !== "undefined") {
   window.Icons = { createIcon };
 }
+

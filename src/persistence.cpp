@@ -357,3 +357,4 @@ bool loadRagPipelineFromFile(RagPipeline& rag, const std::string& filePath, std:
 }
 
 } // namespace vectordb
+

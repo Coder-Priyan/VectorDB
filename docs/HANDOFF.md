@@ -1,9 +1,84 @@
 # Project Handoff
 
-Last updated: 2026-11-13 by T-032
+Last updated: 2026-11-14 by T-033 (VectorDB v2)
 
 ## 1. Current Status
-VectorDB engine is in a stable, verified, and frozen state. Active development is UI/UX redesign on branch `ui-redesign`. UI redesign T-011 to T-032 complete. Latest finished task is T-032 (UI foundation 1: button hierarchy establishing at most one primary solid-amber button per view, styled native controls without browser defaults—custom select with inline SVG chevron, hidden number spinners, styled file input button, custom 2px range slider track with 12px thumb—and calm interaction states with 150ms transitions, focus-visible outlines, and prefers-reduced-motion support; ADR-028 recorded). All 20 Compare DOM IDs (plus new `compare-progress-fill`), 19 Explore DOM IDs, 26 HNSW DOM IDs, 14 Settings DOM IDs, 25 Ask DOM IDs, 74 browser logic tests, and 111 C++ tests (529,746 assertions) are verified.
+VectorDB v2 has been successfully built across 9 phases (P0 to P8) on branch `ui-redesign`. VectorDB is now an open-source, fully offline, transparent "glass-box" vector database and RAG learning platform. All 118 C++ unit and integration tests pass (529,813 assertions). All 84 browser unit tests pass. Automated web safety scan passes with zero forbidden patterns and strict CSP enforcement. Total 30 REST/SSE endpoints registered.
+
+## 2. Last Work Done (Task T-033: VectorDB v2 Master Build)
+- **Phase P0 (Commit `b26212c`)**: Pre-flight unfreezing and fixes.
+  - Cancelled engine freeze (ADR-017 superseded by ADR-029).
+  - Fixed `.btn:disabled` CSS bug.
+  - Stabilized HNSW slider layout (`width: 220px; flex-shrink: 0;`).
+  - Recorded ADR-029, ADR-030 (sidebar shell), and ADR-031 (localStorage multi-turn chat persistence).
+- **Phase P1 (Commit `4586a07`)**: Multi-turn history support.
+  - Added multi-turn `history` support in `/api/ask` and `/api/ask/stream`.
+  - Capped to last 6 messages and 3,000 characters.
+  - Added hermetic tests in `tests/test_api_rag.cpp` (`MultiTurnHistoryPresentAndCapped`, `MultiTurnHistoryValidationErrors`).
+- **Phase P2 (Commit `b857406`)**: Unified HNSW search path trace.
+  - Extended `POST /api/hnsw/trace` with `"collection": "demo" | "docs"` support.
+  - Allowed query text embedding without holding internal collection mutexes.
+  - Attached chunk metadata (`doc_id`, `chunk_index`, `title`) to visited nodes. Marked ISS-009 as FIXED.
+- **Phase P3 (Commit `afc420c`)**: Atomic persistence format and document deletions.
+  - Implemented versioned binary persistence format (`include/vectordb/persistence.hpp`, `src/persistence.cpp`) with atomic write via `.tmp` file and rename (ADR-032).
+  - Added `DELETE /api/docs/:id` endpoint and `RagPipeline::deleteDocument` with stable vector ID rebuilding (ADR-033).
+  - Added `--data-dir` flag to `vectordb_server` with automatic startup recovery and autosave on mutations.
+  - Added `tests/test_persistence.cpp` with 4 tests.
+- **Phase P4 (Commit `9e95ac8`)**: Design foundation.
+  - Added 4px spacing scale (`--space-1` to `--space-8`) and explicit type scale (`--text-xs` to `--text-2xl`).
+  - Added shared component styles: `.card`, `.page-header`, `.empty-state`, `.skeleton`, `.toast`, `.kbd`.
+  - Created `web/js/icons.js`: zero-dependency SVG icon registry using `document.createElementNS` supporting 14 line icons.
+- **Phase P5 (Commit `c25d8a6`)**: New app shell & Command Palette.
+  - Built collapsible left sidebar (~260px expanded, ~56px icon rail) with wordmark, "New chat" button, nav items with icons, recent chats listing, Ollama status, and keyboard shortcut hint.
+  - Built Command Palette (`Ctrl+K` / `Cmd+K`) with search filtering, keyboard arrow navigation, and shortcuts.
+  - Built Toast notifications container with accessible polite live region.
+  - All existing DOM IDs across all tabs strictly preserved.
+- **Phase P6 (Commit `cbc57a9`)**: Ask tab glass-box chat.
+  - Rebuilt Ask tab into modern chat layout: message list (user bubble on right, assistant bubble on left).
+  - Implemented multi-turn chat persistence in `localStorage` (`vectordb:chats:<id>` and index, capped at 50).
+  - Added auto-growing composer textarea with Enter to send and Shift+Enter for newline.
+  - Added collapsible Documents drawer on right side with sample document loader (`web/samples/vectordb_intro.txt`) and per-document delete button.
+  - Added copy-answer and regenerate buttons on assistant messages.
+- **Phase P7 (Commit `72cbde3`)**: Glass-box panels & learning layer.
+  - Under each assistant answer, added the expandable "How this was answered" accordion with 5 panels: (a) Retrieval chunk list with similarity meters, (b) Latency breakdown badges, (c) Mini 2D PCA canvas, (d) On-demand algorithm benchmark button, (e) HNSW search path trace button.
+  - Created `web/js/learn_content.js` with 7 plain-language explainers and interactive guided tour.
+  - Added "What is this?" info popovers across all tabs.
+  - Restyled Explore, HNSW, Compare, Settings to use `.page-header` and `.card`.
+  - Verified button hierarchy: at most ONE `.btn-primary` per visible view.
+- **Phase P8 (Commit `b0e1b...`)**: Release readiness.
+  - Created MIT `LICENSE`, rewritten `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `docs/LEARNING_GUIDE.md`, and `.github/workflows/ci.yml`.
+  - Added browser unit tests in `web/js/tests/test_v2.js` (total browser unit tests expanded from 74 to 84).
+  - Updated all documentation.
+
+## 3. Inventory of New Files
+- `include/vectordb/persistence.hpp` - Versioned binary serialization header
+- `src/persistence.cpp` - Atomic binary persistence implementation
+- `tests/test_persistence.cpp` - Persistence and deletion tests
+- `web/js/icons.js` - Zero-dependency SVG icon registry
+- `web/js/sidebar.js` - Collapsible sidebar and recent chats controller
+- `web/js/palette.js` - Keyboard-first Command Palette (`Ctrl+K`)
+- `web/js/learn_content.js` - Plain-language learning explainers and guided tour
+- `web/js/tests/test_v2.js` - Browser unit tests for v2 features
+- `web/samples/vectordb_intro.txt` - Sample document for zero-friction testing
+- `LICENSE` - MIT License with `<YOUR NAME>` placeholder
+- `CONTRIBUTING.md` - Open source contributor guidelines
+- `CODE_OF_CONDUCT.md` - Community standards pledge
+- `docs/LEARNING_GUIDE.md` - 6-module vector search & RAG curriculum
+- `.github/workflows/ci.yml` - Continuous integration workflow for Windows and Linux
+
+## 4. Running VectorDB v2
+```bash
+# Build
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+
+# Run C++ tests
+./build/vectordb_tests
+
+# Run server with persistence
+./build/vectordb_server --port 8080 --data-dir ./data
+```
+Open `http://127.0.0.1:8080` in any browser. Pure logic unit tests can be run at `http://127.0.0.1:8080/tests.html`.
 
 ## 2. Last Work Done (From Git)
 - **Task T-032** (branch `ui-redesign`): UI foundation 1 - button hierarchy, styled native controls, calm interaction states (all tabs).
