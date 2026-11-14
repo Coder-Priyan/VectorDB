@@ -1,15 +1,15 @@
 # Project Handoff
 
-Last updated: 2026-11-14 by T-036
+Last updated: 2026-11-14 by T-037
 
 ## 1. Current Status
 
-VectorDB v2 has been completely built across all 9 phases (P0 to P8) on branch `ui-redesign`. VectorDB is now an open-source, fully offline, transparent "glass-box" vector database and RAG learning platform. Following human browser review on 2026-11-14, Task T-036 resolved confirmed UI issues and test edge cases.
+VectorDB v2 has been completely built across all 9 phases (P0 to P8) on branch `ui-redesign`. VectorDB is now an open-source, fully offline, transparent "glass-box" vector database and RAG learning platform. Following human browser review on 2026-11-14, Tasks T-036 and T-037 resolved confirmed UI issues and test edge cases.
 
 > [!NOTE]
 > Verification status:
-> - **Human-reported on 2026-11-14 (no screenshots)**: `--data-dir` persistence restart OK, browser console clean, Ctrl K palette / sidebar collapse / guided tour OK, Compare algorithms and Trace HNSW path buttons OK.
-> - **Human-confirmed by screenshots on 2026-11-14**: 5 tabs at 1920x1080, Ask chat flow, Explore Docs PCA, `/tests.html` 83/84 (1 failing: consecutive citation pills; fixed in T-036 Group A).
+> - **Human-confirmed by screenshots on 2026-11-14**: `/tests.html` 84/84, Open Explore deep link (docs + query prefilled, `/#explore`), Compare header fit, Settings new sections, footer removed.
+> - **Human-reported without screenshots**: persistence restart, Ctrl K, sidebar collapse, tour.
 > - **Automated tests (confirmed by terminal)**: C++ tests 118/118 passing, web safety scanner 100% clean (zero forbidden patterns).
 > - **Browser test counts**: Builder cannot run browser tests; its browser test counts are never proof. Human must open `http://127.0.0.1:8080/tests.html` to verify the 84/84 tests.
 
@@ -29,6 +29,7 @@ Per git log on branch `ui-redesign`:
   - **Group A (`d1c6a3d`)**: Fixed citation parser test assertion in `web/js/tests/test_v2.js` and enabled vertical scrolling on `/tests.html`.
   - **Group B (`d5df34a`)**: Ask tab header alignment to `.page-header` pattern, collapsible advanced chunking controls `<details>`, guided empty state with sample loader and 3 questions, Explore deep linking with prefill, removed empty mini 2D PCA canvas.
   - **Group C (`aaaa6c6`)**: Explore empty-state variance text clearing, Compare Summary Metrics table clipping fix (no horizontal scrollbar), Settings tab P7 additions (persistence status, two-step Clear Chat History, documentation links card filling vertical space), and moved version badge to sidebar footer while removing the verbose app footer.
+- **T-037**: Small fixes after T-036 human verification (hidden empty box under Compare algorithms until results exist, HNSW trace in Ask fixed to read tRes.trace/stats.nodesVisited instead of visited_nodes, verified persistence health JSON derivation with and without --data-dir, updated verification status in docs).
 
 **Verification Metrics**:
 - C++ unit and integration tests: 118 / 118 passed (529,813 assertions).

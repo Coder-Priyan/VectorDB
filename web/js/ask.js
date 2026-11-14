@@ -735,9 +735,15 @@ export function initAskTab() {
           );
         });
         benchResults.classList.remove("hidden");
+        if (!compareSection.contains(benchResults)) {
+          compareSection.appendChild(benchResults);
+        }
       } catch (err) {
         benchResults.textContent = `Benchmark error: ${err.message}`;
         benchResults.classList.remove("hidden");
+        if (!compareSection.contains(benchResults)) {
+          compareSection.appendChild(benchResults);
+        }
       } finally {
         runBenchBtn.disabled = false;
         runBenchBtn.textContent = "Compare algorithms on this query";
@@ -745,7 +751,6 @@ export function initAskTab() {
     });
 
     compareSection.appendChild(runBenchBtn);
-    compareSection.appendChild(benchResults);
     body.appendChild(compareSection);
 
     // Panel E: HNSW Search Path Trace
@@ -765,16 +770,31 @@ export function initAskTab() {
         while (traceResults.firstChild) {
           traceResults.removeChild(traceResults.firstChild);
         }
-        const hops = tRes.visited_nodes || [];
+        const trace = tRes.trace || [];
+        const nodesVisited = tRes.stats?.nodesVisited ?? trace.length;
+        const layersCount = tRes.stats?.visitedPerLayer
+          ? (Array.isArray(tRes.stats.visitedPerLayer)
+              ? tRes.stats.visitedPerLayer.length
+              : Object.keys(tRes.stats.visitedPerLayer).length)
+          : (trace.length > 0 ? Math.max(...trace.map(s => s.layer ?? 0)) + 1 : 1);
+        const distComps = tRes.stats?.distanceComputations ?? nodesVisited;
+        const topKCount = Math.min(3, (tRes.results || []).length || 3);
+
         traceResults.appendChild(
           el("div", { className: "trace-summary-text" },
-            `HNSW visited ${hops.length} nodes across ${tRes.max_layer_visited ?? 0 + 1} layers to locate top 3 chunks.`
+            `HNSW visited ${nodesVisited} node${nodesVisited === 1 ? "" : "s"} across ${layersCount} layer${layersCount === 1 ? "" : "s"} (${distComps} distance computations) to locate top ${topKCount} chunks.`
           )
         );
         traceResults.classList.remove("hidden");
+        if (!traceSection.contains(traceResults)) {
+          traceSection.appendChild(traceResults);
+        }
       } catch (err) {
         traceResults.textContent = `Trace error: ${err.message}`;
         traceResults.classList.remove("hidden");
+        if (!traceSection.contains(traceResults)) {
+          traceSection.appendChild(traceResults);
+        }
       } finally {
         runTraceBtn.disabled = false;
         runTraceBtn.textContent = "Trace HNSW search path";
@@ -782,7 +802,6 @@ export function initAskTab() {
     });
 
     traceSection.appendChild(runTraceBtn);
-    traceSection.appendChild(traceResults);
     body.appendChild(traceSection);
 
     details.appendChild(body);

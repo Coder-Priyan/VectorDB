@@ -67,7 +67,11 @@ export function initSettingsTab() {
       const persisHintEl = document.getElementById("settings-persistence-hint");
 
       if (health.persistence && health.persistence.enabled) {
-        if (persisStatusEl) persisStatusEl.textContent = "Active (on-disk persistence)";
+        if (health.persistence.error) {
+          if (persisStatusEl) persisStatusEl.textContent = `Active with error: ${health.persistence.error}`;
+        } else {
+          if (persisStatusEl) persisStatusEl.textContent = "Active (on-disk persistence)";
+        }
         if (persisDirEl) persisDirEl.textContent = health.persistence.data_dir || "--";
         if (persisHintEl) persisHintEl.textContent = "Auto-saving collections on change. Snapshots loaded on startup.";
       } else {

@@ -18,6 +18,7 @@ Last updated: 2026-11-14 by T-035
   - Group A (`d1c6a3d`): Citation parser test assertion fix, `/tests.html` scroll fix.
   - Group B (`d5df34a`): Ask tab `.page-header` alignment, `<details>` advanced chunking options, guided empty state with sample loader and 3 questions, Explore deep link with prefill, removed empty mini 2D PCA canvas.
   - Group C (`aaaa6c6`): Explore empty-state variance text clearing, Compare Summary Metrics table clipping fix (no horizontal scrollbar), Settings tab P7 additions (persistence status, two-step Clear Chat History, documentation links card filling vertical space), and moved version badge to sidebar footer while removing the verbose app footer.
+- **T-037**: Small fixes after T-036 human verification (hidden empty box under Compare algorithms until results exist, HNSW trace in Ask fixed to read tRes.trace/stats.nodesVisited instead of visited_nodes, verified persistence health JSON derivation with and without --data-dir, updated verification status in docs).
 
 All 118 C++ tests pass. 84 browser unit tests registered (pending human confirmation in browser). 100% clean web safety scan.
 
