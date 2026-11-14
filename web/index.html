@@ -85,12 +85,13 @@
       <div class="ask-layout">
         <!-- Main Chat Viewport -->
         <div class="ask-chat-viewport">
-          <div class="ask-header-row">
-            <div class="ask-header-titles">
-              <h2 class="ask-header-title">Ask (RAG)</h2>
-              <span class="ask-header-subtitle">Transparent semantic chat with grounded citations</span>
+          <!-- Page Header -->
+          <div class="page-header">
+            <div>
+              <h2 class="page-header-title">Ask (RAG)</h2>
+              <p class="page-header-description">Transparent semantic chat with grounded citations</p>
             </div>
-            <div class="ask-header-actions">
+            <div class="page-header-actions">
               <span id="ask-info-slot"></span>
               <button type="button" id="toggle-docs-drawer-btn" class="btn btn-sm btn-secondary" title="Toggle Documents Drawer">
                 Documents
@@ -169,23 +170,26 @@
                 <label for="doc-text-input">Content</label>
                 <textarea id="doc-text-input" class="textarea-field" rows="6" placeholder="Paste document text..." required></textarea>
               </div>
-              <div class="form-group">
-                <label for="doc-strategy-select">Chunking strategy</label>
-                <select id="doc-strategy-select" class="input-select">
-                  <option value="sentence" selected>Sentence boundary</option>
-                  <option value="fixed">Fixed character window</option>
-                </select>
-              </div>
-              <div class="two-col-grid">
-                <div class="form-group">
-                  <label for="doc-max-chars">Max chars</label>
-                  <input type="number" id="doc-max-chars" class="input-text" value="800">
+              <details class="advanced-disclosure">
+                <summary class="advanced-summary">Advanced chunking options</summary>
+                <div class="form-group mt-2">
+                  <label for="doc-strategy-select">Chunking strategy</label>
+                  <select id="doc-strategy-select" class="input-select">
+                    <option value="sentence" selected>Sentence boundary</option>
+                    <option value="fixed">Fixed character window</option>
+                  </select>
                 </div>
-                <div class="form-group">
-                  <label for="doc-overlap-chars">Overlap</label>
-                  <input type="number" id="doc-overlap-chars" class="input-text" value="100">
+                <div class="two-col-grid">
+                  <div class="form-group">
+                    <label for="doc-max-chars">Max chars</label>
+                    <input type="number" id="doc-max-chars" class="input-text" value="800">
+                  </div>
+                  <div class="form-group">
+                    <label for="doc-overlap-chars">Overlap</label>
+                    <input type="number" id="doc-overlap-chars" class="input-text" value="100">
+                  </div>
                 </div>
-              </div>
+              </details>
               <button type="submit" id="doc-ingest-btn" class="btn btn-secondary w-100">Ingest Document</button>
             </form>
 

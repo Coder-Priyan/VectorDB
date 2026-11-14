@@ -1392,31 +1392,100 @@ input[type="number"] {
   min-height: 0;
 }
 
-.ask-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--border-color);
+.ask-chat-viewport > .page-header {
+  padding: var(--space-3) 0 var(--space-4);
   margin-bottom: var(--space-3);
   flex-shrink: 0;
 }
 
-.ask-header-titles {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-3);
+/* Ask Tab Empty State Guided Card */
+.ask-guide-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  max-width: 640px;
+  width: 100%;
+  margin: var(--space-4) auto;
+  text-align: left;
 }
 
-.ask-header-title {
-  font-size: var(--text-lg);
+.ask-guide-steps {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
   font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-3);
+}
+
+.ask-guide-desc {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: var(--space-4);
+}
+
+.ask-guide-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.ask-guide-examples-title {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: var(--space-2);
+}
+
+.ask-guide-questions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ask-example-q-btn {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.ask-example-q-btn:hover {
+  background: var(--bg-elevated);
+  border-color: var(--accent-border);
   color: var(--text-primary);
 }
 
-.ask-header-subtitle {
+/* Documents Drawer Advanced Disclosure */
+.advanced-disclosure {
+  margin: var(--space-3) 0;
+  border-top: 1px solid var(--border-color);
+  padding-top: var(--space-2);
+}
+
+.advanced-summary {
   font-size: var(--text-xs);
   color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+  font-weight: 500;
+  padding: 4px 0;
+}
+
+.advanced-summary:hover {
+  color: var(--text-primary);
 }
 
 .chat-thread {

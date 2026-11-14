@@ -55,6 +55,7 @@ export function initAskTab() {
   let currentAbortController = null;
   let thinkTimer = null;
   let activeChatId = null;
+  let cachedDocsCount = 0;
 
   // ---------------------------------------------------------------------------
   // 1. Documents Drawer: Collapse / Expand & Sample Loading
@@ -335,7 +336,11 @@ export function initAskTab() {
     try {
       const res = await api.getDocs();
       const docs = res.documents || [];
+      cachedDocsCount = docs.length;
       if (docsCountLabel) docsCountLabel.textContent = String(docs.length);
+      if (askAnswerBox?.classList.contains("empty")) {
+        renderEmptyState();
+      }
 
       while (docsListContainer.firstChild) {
         docsListContainer.removeChild(docsListContainer.firstChild);
@@ -427,6 +432,95 @@ export function initAskTab() {
   // ---------------------------------------------------------------------------
   // 8. Message Thread Rendering & Glass-Box Component
   // ---------------------------------------------------------------------------
+  function createExampleQuestionBtn(qText) {
+    const btn = el("button", {
+      type: "button",
+      className: "ask-example-q-btn"
+    }, qText);
+    btn.addEventListener("click", () => {
+      if (askQuestionInput) {
+        askQuestionInput.value = qText;
+        autoResizeComposer();
+        askQuestionInput.focus();
+      }
+    });
+    return btn;
+  }
+
+  function renderEmptyState() {
+    if (!askAnswerBox) return;
+    while (askAnswerBox.firstChild) {
+      askAnswerBox.removeChild(askAnswerBox.firstChild);
+    }
+    askAnswerBox.className = "answer-box empty";
+
+    if (cachedDocsCount === 0) {
+      // 1. Add a document -> 2. Ask a question guided card
+      const guideCard = el("div", { className: "ask-guide-card card" },
+        el("div", { className: "ask-guide-steps" },
+          el("span", { className: "badge badge-neutral" }, "1. Add a document"),
+          el("span", { className: "text-muted" }, "\u2192"),
+          el("span", { className: "badge badge-neutral" }, "2. Ask a question")
+        ),
+        el("p", { className: "ask-guide-desc" },
+          "VectorDB runs 100% offline. Load the built-in introductory document to test semantic search with grounded citations, or open the Documents drawer to ingest your own files."
+        ),
+        el("div", { className: "ask-guide-actions" },
+          el("button", {
+            type: "button",
+            id: "ask-empty-load-sample-btn",
+            className: "btn btn-sm btn-secondary",
+            title: "Load sample document (vectordb_intro.txt)"
+          }, "Load sample document"),
+          el("button", {
+            type: "button",
+            className: "btn btn-sm btn-ghost",
+            title: "Open Documents drawer"
+          }, "Open Documents")
+        ),
+        el("div", { className: "ask-guide-examples-title" }, "Example questions once loaded:"),
+        el("div", { className: "ask-guide-questions" },
+          createExampleQuestionBtn("What is VectorDB and what makes it transparent?"),
+          createExampleQuestionBtn("How does HNSW compare to flat brute-force search?"),
+          createExampleQuestionBtn("Why does VectorDB avoid cloud dependencies?")
+        )
+      );
+
+      const sampleBtn = guideCard.querySelector("#ask-empty-load-sample-btn");
+      sampleBtn?.addEventListener("click", () => {
+        docLoadSampleBtn?.click();
+      });
+
+      const openDocsBtn = guideCard.querySelector(".btn-ghost");
+      openDocsBtn?.addEventListener("click", () => {
+        if (docDrawer?.classList.contains("collapsed")) {
+          docDrawer.classList.remove("collapsed");
+          localStorage.setItem(DOCS_DRAWER_KEY, "true");
+        }
+      });
+
+      askAnswerBox.appendChild(guideCard);
+    } else {
+      // Documents exist: show 3 suggested questions
+      const suggestCard = el("div", { className: "ask-guide-card card" },
+        el("div", { className: "ask-guide-steps" },
+          el("span", { className: "badge badge-neutral" }, "Ready"),
+          el("span", {}, `${cachedDocsCount} document${cachedDocsCount > 1 ? "s" : ""} indexed`)
+        ),
+        el("p", { className: "ask-guide-desc" },
+          "Ask any question about your documents, or select a suggested question below:"
+        ),
+        el("div", { className: "ask-guide-examples-title" }, "Suggested questions:"),
+        el("div", { className: "ask-guide-questions" },
+          createExampleQuestionBtn("Summarize the key ideas in the indexed documents."),
+          createExampleQuestionBtn("What search algorithms does VectorDB implement?"),
+          createExampleQuestionBtn("Explain how vector similarity scores are computed.")
+        )
+      );
+      askAnswerBox.appendChild(suggestCard);
+    }
+  }
+
   function renderMessages(messages) {
     if (!askAnswerBox) return;
 
@@ -435,13 +529,7 @@ export function initAskTab() {
     }
 
     if (!messages || messages.length === 0) {
-      askAnswerBox.className = "answer-box empty";
-      askAnswerBox.appendChild(
-        el("div", { className: "empty-state" },
-          el("div", { className: "empty-state-title" }, "Ask a question about your documents"),
-          el("div", { className: "empty-state-description" }, "Upload text files or click \"Documents\" on the right to load sample documents, then ask questions to see transparent semantic search in action.")
-        )
-      );
+      renderEmptyState();
       return;
     }
 
@@ -589,89 +677,35 @@ export function initAskTab() {
       body.appendChild(timingsSection);
     }
 
-    // Panel C: 2D PCA Map (canvas preview)
+    // Panel C: 2D PCA Map link (mini canvas removed per T-036)
     const mapSection = el("div", { className: "glass-box-section" },
       el("div", { className: "glass-box-section-header" },
         el("span", { className: "glass-box-section-title" }, "2D PCA Projection"),
-        el("button", {
-          type: "button",
+        el("a", {
+          href: "/#explore",
           className: "btn btn-sm btn-ghost",
-          title: "Open full view in Explore tab"
+          title: "Open Explore tab with Document Chunks and query prefilled"
         }, "Open Explore")
+      ),
+      el("p", { className: "text-muted text-xs mt-1" },
+        "Inspect high-dimensional document chunk embeddings and your query star projected onto a 2D PCA plane."
       )
     );
-    const exploreBtn = mapSection.querySelector("button");
-    exploreBtn?.addEventListener("click", () => {
+    const exploreLink = mapSection.querySelector("a");
+    exploreLink?.addEventListener("click", () => {
+      const collSelect = document.getElementById("explore-coll-select");
+      if (collSelect && collSelect.value !== "docs") {
+        collSelect.value = "docs";
+        collSelect.dispatchEvent(new Event("change"));
+      }
+      const queryInput = document.getElementById("explore-query-docs-input");
+      if (queryInput && question) {
+        queryInput.value = question;
+      }
       const tab = document.getElementById("tab-btn-explore");
       if (tab) tab.click();
     });
-
-    const canvasContainer = el("div", { className: "glass-box-canvas-wrap" });
-    const miniCanvas = el("canvas", { width: 320, height: 160, className: "glass-box-canvas" });
-    canvasContainer.appendChild(miniCanvas);
-    mapSection.appendChild(canvasContainer);
     body.appendChild(mapSection);
-
-    // Render mini PCA if canvas has 2D context
-    const ctx = miniCanvas.getContext("2d");
-    if (ctx && question) {
-      api.queryDocsPca({ query: question, limit: 100 }).then(res => {
-        const w = miniCanvas.width;
-        const h = miniCanvas.height;
-        ctx.fillStyle = "#131313";
-        ctx.fillRect(0, 0, w, h);
-
-        const pts = res.points || [];
-        if (pts.length > 0) {
-          // Find bounds
-          let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-          for (const p of pts) {
-            if (p.x < minX) minX = p.x;
-            if (p.x > maxX) maxX = p.x;
-            if (p.y < minY) minY = p.y;
-            if (p.y > maxY) maxY = p.y;
-          }
-          if (res.query_point) {
-            minX = Math.min(minX, res.query_point.x);
-            maxX = Math.max(maxX, res.query_point.x);
-            minY = Math.min(minY, res.query_point.y);
-            maxY = Math.max(maxY, res.query_point.y);
-          }
-          const spanX = (maxX - minX) || 1;
-          const spanY = (maxY - minY) || 1;
-          const pad = 16;
-
-          // Draw document points
-          ctx.fillStyle = "#666";
-          for (const p of pts) {
-            const cx = pad + ((p.x - minX) / spanX) * (w - pad * 2);
-            const cy = pad + ((p.y - minY) / spanY) * (h - pad * 2);
-            ctx.beginPath();
-            ctx.arc(cx, cy, 3, 0, Math.PI * 2);
-            ctx.fill();
-          }
-
-          // Draw query point
-          if (res.query_point) {
-            const qx = pad + ((res.query_point.x - minX) / spanX) * (w - pad * 2);
-            const qy = pad + ((res.query_point.y - minY) / spanY) * (h - pad * 2);
-            ctx.fillStyle = "#d9a441";
-            ctx.beginPath();
-            ctx.arc(qx, qy, 6, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = "#fff";
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-          }
-        }
-      }).catch(() => {
-        ctx.fillStyle = "#131313";
-        ctx.fillRect(0, 0, miniCanvas.width, miniCanvas.height);
-        ctx.fillStyle = "#888";
-        ctx.font = "11px sans-serif";
-        ctx.fillText("PCA preview unavailable", 20, 80);
-      });
-    }
 
     // Panel D: Benchmark Algorithms on this Query
     const compareSection = el("div", { className: "glass-box-section" });
