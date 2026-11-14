@@ -295,13 +295,15 @@ export function initCompareTab() {
       const distStr = item.distance !== undefined ? ` (d=${Number(item.distance).toFixed(4)})` : "";
       const idSpan = el("span", { className: "font-mono" }, `#${item.id}${distStr}`);
 
-      if (isGt) return idSpan;
+      if (isGt) {
+        return el("div", { className: "compare-diff-cell" }, idSpan);
+      }
 
       const badge = el("span", {
-        className: item.isMatch ? "badge badge-success ml-1 text-xs" : "badge badge-warning ml-1 text-xs"
+        className: item.isMatch ? "badge badge-success text-xs" : "badge badge-warning text-xs"
       }, item.isMatch ? "✓" : "diff");
 
-      return el("div", { className: "flex-cell" }, idSpan, badge);
+      return el("div", { className: "compare-diff-cell" }, idSpan, badge);
     };
 
     for (const row of diffRows) {

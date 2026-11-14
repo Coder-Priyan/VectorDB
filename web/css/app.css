@@ -2493,16 +2493,19 @@ input[type="number"] {
   flex-direction: column;
 }
 
-.compare-summary-section .table-container {
-  flex: 1;
-  min-height: 120px;
-  overflow-y: auto;
+.compare-summary-table-wrap {
+  width: 100%;
+  background: transparent;
+  border-radius: 0;
   overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .compare-summary-table {
   width: 100%;
   table-layout: auto;
+  border-collapse: collapse;
+  background: transparent;
 }
 
 .compare-summary-table th,
@@ -2510,6 +2513,7 @@ input[type="number"] {
   padding: 6px 8px;
   font-size: var(--text-xs);
   white-space: nowrap;
+  background: transparent;
 }
 
 .compare-summary-table td {
@@ -2587,15 +2591,36 @@ input[type="number"] {
 }
 
 .compare-diff-scroll {
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
+  max-height: none;
+  background: transparent;
+  border-radius: 0;
   overflow-y: auto;
   overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-line) transparent;
+}
+
+.compare-diff-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.compare-diff-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.compare-diff-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-line);
+  border-radius: var(--radius-full);
 }
 
 .compare-diff-table {
   width: 100%;
-  table-layout: auto;
+  table-layout: fixed;
+  border-collapse: collapse;
+  background: transparent;
 }
 
 .compare-diff-table th {
@@ -2604,19 +2629,41 @@ input[type="number"] {
   background: var(--bg-panel);
   z-index: 2;
   font-size: var(--text-xs);
-  padding: 8px 10px;
-}
-
-.compare-diff-table td {
-  padding: 7px 10px;
-  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: left;
+  padding: 8px 8px;
   white-space: nowrap;
 }
 
-.compare-diff-table td:first-child,
-.compare-diff-table th:first-child {
-  width: 44px;
-  text-align: center;
+.compare-diff-table td {
+  padding: 6px 8px;
+  font-size: var(--text-sm);
+  text-align: left;
+  white-space: nowrap;
+  background: transparent;
+}
+
+.compare-diff-table th:first-child,
+.compare-diff-table td:first-child {
+  width: 36px;
+  text-align: left;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.compare-diff-table th:not(:first-child),
+.compare-diff-table td:not(:first-child) {
+  width: calc((100% - 36px) / 3);
+  text-align: left;
+}
+
+.compare-diff-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  white-space: nowrap;
 }
 
 @media (max-width: 1100px) {
