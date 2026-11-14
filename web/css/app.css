@@ -46,24 +46,33 @@
   --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* Strict Flat Dark Palette */
-  --bg-primary: #0e0e0e;
-  --bg-surface: #131313;
-  --bg-secondary: #181818;
-  --bg-active: #1f1f1f;
+  /* Quiet Luxury Dark Palette */
+  --bg-primary: #09090b;
+  --bg-surface: #121215;
+  --bg-secondary: #18181c;
+  --bg-elevated: #18181c;
+  --bg-active: #202026;
+  --bg-canvas: #0a0a0c;
 
   --text-primary: #f0ede6;
   --text-secondary: #c4c1ba;
   --text-muted: #949087;
+  --text-inverse: #09090b;
 
-  --border-color: #242424;
-  --border-active: #3a3a3a;
+  --border-color: #1f1f24;
+  --border-active: #2e2e36;
+  --border-subtle: #19191e;
 
   /* Single Amber Accent */
   --accent-color: #d9a441;
   --accent-hover: #e5b14e;
   --accent-light: #241d11;
   --accent-border: #4a3819;
+
+  /* Algorithm Colors */
+  --color-brute: #9c8269;
+  --color-kdtree: #708a78;
+  --color-hnsw: #d9a441;
 
   /* Status Colors */
   --danger-color: #ef4444;
@@ -78,9 +87,13 @@
   --success-bg: #132218;
   --success-border: #1e402b;
 
-  --radius-sm: 0px;
-  --radius-md: 2px;
-  --radius-lg: 2px;
+  /* Soft Radii for Calm, Modern Feel */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-full: 9999px;
 
   /* 4px Spacing Scale */
   --space-1: 4px;
@@ -1183,7 +1196,7 @@ input[type="number"] {
 
 .btn-primary {
   background: var(--accent-color);
-  color: #0b0b0b;
+  color: var(--text-inverse);
   font-weight: 600;
   border-color: var(--accent-color);
 }
@@ -1256,7 +1269,7 @@ input[type="number"] {
 
 .btn-warning:not(:disabled):hover {
   background: var(--accent-hover);
-  color: #0b0b0b;
+  color: var(--text-inverse);
 }
 
 .btn-sm {
@@ -2026,7 +2039,7 @@ input[type="number"] {
 
 .citation-pill:hover {
   background: var(--accent-color);
-  color: #0b0b0b;
+  color: var(--text-inverse);
 }
 
 .timings-bar {
@@ -2491,7 +2504,7 @@ input[type="number"] {
   min-width: 0;
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: #0a0a0a;
+  background: var(--bg-canvas);
   border: 1px solid var(--border-color);
 }
 
@@ -2508,7 +2521,7 @@ input[type="number"] {
   width: 100%;
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: #0a0a0a;
+  background: var(--bg-canvas);
   border: 1px solid var(--border-color);
 }
 
@@ -2570,7 +2583,7 @@ input[type="number"] {
 .progress-track {
   width: 100%;
   height: 2px;
-  background-color: #2a2a2a;
+  background-color: var(--border-color);
   overflow: hidden;
 }
 
@@ -2630,20 +2643,20 @@ input[type="number"] {
 .flex-cell { display: inline-flex; align-items: center; justify-content: space-between; width: 100%; gap: 8px; white-space: nowrap; }
 
 #panel-compare .badge-success {
-  background: #132218;
-  border-color: #1e402b;
-  color: #529b67;
+  background: var(--success-bg);
+  border-color: var(--success-border);
+  color: var(--success-color);
 }
 
 #panel-compare .badge-warning {
-  background: #241d11;
-  border-color: #4a3819;
-  color: #d9a441;
+  background: var(--warning-bg);
+  border-color: var(--warning-border);
+  color: var(--warning-color);
 }
 
-.swatch-brute { background-color: #9c8269; }
-.swatch-kdtree { background-color: #708a78; }
-.swatch-hnsw { background-color: #d9a441; }
+.swatch-brute { background-color: var(--color-brute); }
+.swatch-kdtree { background-color: var(--color-kdtree); }
+.swatch-hnsw { background-color: var(--color-hnsw); }
 
 #panel-hnsw .viz-main .viz-results-section {
   flex-shrink: 0;
@@ -3151,7 +3164,7 @@ body:has(#test-results-container) .app-content {
 }
 
 .glass-box-canvas-wrap {
-  background: #131313;
+  background: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   display: flex;
@@ -3230,9 +3243,9 @@ body:has(#test-results-container) .app-content {
   transition: width 0.3s ease;
 }
 
-.bench-bar-fill.swatch-brute { background-color: #9c8269; }
-.bench-bar-fill.swatch-kdtree { background-color: #708a78; }
-.bench-bar-fill.swatch-hnsw { background-color: #d9a441; }
+.bench-bar-fill.swatch-brute { background-color: var(--color-brute); }
+.bench-bar-fill.swatch-kdtree { background-color: var(--color-kdtree); }
+.bench-bar-fill.swatch-hnsw { background-color: var(--color-hnsw); }
 
 .trace-summary-text {
   font-size: var(--text-xs);

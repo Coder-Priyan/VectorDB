@@ -6,6 +6,7 @@ import { Viewport2D, setupCanvasDpr } from "./canvas.js";
 import { el, formatSimilarity } from "./ui.js";
 import { computeBounds, drawStar } from "./explore_helpers.js";
 import { getLayerColor, formatEdgeSummary, formatHnswTopologySummary, mapTraceToCoordinates, PlaybackController, isCanvasDrawable } from "./hnsw_helpers.js";
+import { THEME } from "./colors.js";
 
 export function initHnswTab() {
   const canvas = document.getElementById("hnsw-canvas");
@@ -147,9 +148,9 @@ export function initHnswTab() {
       const isEntry = n.id === entryId;
       ctx.beginPath();
       ctx.arc(scr.x, scr.y, isEntry ? 6.5 : 3.5, 0, Math.PI * 2);
-      ctx.fillStyle = isEntry ? "#f0ede6" : getLayerColor(currentGraph.layer);
+      ctx.fillStyle = isEntry ? THEME.textPrimary : getLayerColor(currentGraph.layer);
       ctx.fill();
-      if (isEntry) { ctx.strokeStyle = "#d9a441"; ctx.lineWidth = 1.5; ctx.stroke(); }
+      if (isEntry) { ctx.strokeStyle = THEME.accent; ctx.lineWidth = 1.5; ctx.stroke(); }
     }
 
     // Render Search Path
@@ -161,15 +162,15 @@ export function initHnswTab() {
         if (!step.onMap) continue;
         const curScr = viewport.toScreen(step.x, step.y);
         if (prevScr) {
-          ctx.strokeStyle = "#d9a441";
+          ctx.strokeStyle = THEME.accent;
           ctx.lineWidth = 2;
           ctx.beginPath(); ctx.moveTo(prevScr.x, prevScr.y); ctx.lineTo(curScr.x, curScr.y); ctx.stroke();
         }
         const isCurrent = i === state.currentIndex;
-        ctx.fillStyle = isCurrent ? "#d9a441" : "#e2ded6";
+        ctx.fillStyle = isCurrent ? THEME.accent : THEME.textSecondary;
         ctx.beginPath(); ctx.arc(curScr.x, curScr.y, isCurrent ? 6.5 : 4.5, 0, Math.PI * 2); ctx.fill();
         if (isCurrent) {
-          ctx.strokeStyle = "#ffffff";
+          ctx.strokeStyle = THEME.white;
           ctx.lineWidth = 1.5;
           ctx.stroke();
         }
@@ -177,7 +178,7 @@ export function initHnswTab() {
       }
       if (traceQueryStar) {
         const qScr = viewport.toScreen(traceQueryStar.x, traceQueryStar.y);
-        ctx.fillStyle = "#f0ede6"; ctx.strokeStyle = "#0b0b0b"; ctx.lineWidth = 1.5;
+        ctx.fillStyle = THEME.textPrimary; ctx.strokeStyle = THEME.textInverse; ctx.lineWidth = 1.5;
         drawStar(ctx, qScr.x, qScr.y, 5, 9, 4.5); ctx.fill(); ctx.stroke();
       }
     }

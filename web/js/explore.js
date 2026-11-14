@@ -6,6 +6,7 @@ import { Viewport2D, setupCanvasDpr } from "./canvas.js";
 import { el, formatSimilarity } from "./ui.js";
 import { getDocColor, computeBounds, findHitPoint, drawStar } from "./explore_helpers.js";
 import { isCanvasDrawable } from "./hnsw_helpers.js";
+import { THEME } from "./colors.js";
 
 export function initExploreTab() {
   const canvas = document.getElementById("explore-canvas");
@@ -118,7 +119,7 @@ export function initExploreTab() {
 
     // Axes
     const orig = viewport.toScreen(0, 0);
-    ctx.strokeStyle = "#2a2a2a";
+    ctx.strokeStyle = THEME.gridLine;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, orig.y); ctx.lineTo(width, orig.y);
@@ -126,7 +127,7 @@ export function initExploreTab() {
     ctx.stroke();
 
     // Axis Labels
-    ctx.fillStyle = "#949087";
+    ctx.fillStyle = THEME.textMuted;
     ctx.font = "12px 'IBM Plex Sans', -apple-system, sans-serif";
     ctx.fillText(`PC1 (${((explainedRatios[0] || 0) * 100).toFixed(1)}%)`, width - 95, Math.min(Math.max(20, orig.y - 6), height - 10));
     ctx.fillText(`PC2 (${((explainedRatios[1] || 0) * 100).toFixed(1)}%)`, Math.min(Math.max(10, orig.x + 6), width - 90), 20);
@@ -138,7 +139,7 @@ export function initExploreTab() {
       if (scr.x < -10 || scr.x > width + 10 || scr.y < -10 || scr.y > height + 10) continue;
       ctx.beginPath();
       ctx.arc(scr.x, scr.y, 3.5, 0, Math.PI * 2);
-      ctx.fillStyle = isDocs ? getDocColor(pt.doc_id) : "#d9a441";
+      ctx.fillStyle = isDocs ? getDocColor(pt.doc_id) : THEME.accent;
       ctx.fill();
     }
 
@@ -149,17 +150,17 @@ export function initExploreTab() {
         const rScr = viewport.toScreen(res.x, res.y);
         ctx.strokeStyle = "rgba(217, 164, 65, 0.45)"; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(qScr.x, qScr.y); ctx.lineTo(rScr.x, rScr.y); ctx.stroke();
-        ctx.strokeStyle = "#d9a441"; ctx.lineWidth = 1.5;
+        ctx.strokeStyle = THEME.accent; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.arc(rScr.x, rScr.y, 6.5, 0, Math.PI * 2); ctx.stroke();
       }
-      ctx.fillStyle = "#f0ede6"; ctx.strokeStyle = "#0b0b0b"; ctx.lineWidth = 1.5;
+      ctx.fillStyle = THEME.textPrimary; ctx.strokeStyle = THEME.textInverse; ctx.lineWidth = 1.5;
       drawStar(ctx, qScr.x, qScr.y, 5, 9, 4.5);
       ctx.fill(); ctx.stroke();
     }
 
     if (hoveredPoint) {
       const hScr = viewport.toScreen(hoveredPoint.x, hoveredPoint.y);
-      ctx.strokeStyle = "#f0ede6"; ctx.lineWidth = 1.5;
+      ctx.strokeStyle = THEME.textPrimary; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.arc(hScr.x, hScr.y, 6.5, 0, Math.PI * 2); ctx.stroke();
     }
   }

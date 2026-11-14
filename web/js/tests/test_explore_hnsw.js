@@ -4,6 +4,7 @@
 import { describe, assert, assertEqual, assertNear } from "./framework.js";
 import { Viewport2D } from "../canvas.js";
 import { findHitPoint, getDocColor, computeBounds, DOC_COLOR_PALETTE } from "../explore_helpers.js";
+import { DOC_FALLBACK_COLOR } from "../colors.js";
 import { getLayerColor, formatEdgeSummary, formatHnswTopologySummary, mapTraceToCoordinates, PlaybackController, LAYER_COLORS, isCanvasDrawable } from "../hnsw_helpers.js";
 
 export function registerExploreHnswTests() {
@@ -52,8 +53,8 @@ export function registerExploreHnswTests() {
     });
 
     it("getDocColor handles invalid input with fallback", () => {
-      assertEqual(getDocColor(null), "#807c74");
-      assertEqual(getDocColor(undefined), "#807c74");
+      assertEqual(getDocColor(null), DOC_FALLBACK_COLOR);
+      assertEqual(getDocColor(undefined), DOC_FALLBACK_COLOR);
     });
 
     it("computeBounds calculates min and max coordinates", () => {

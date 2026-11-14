@@ -5,24 +5,16 @@
  * coordinate bounding, and star marker geometry.
  */
 
-// Visually distinct warm/earth palette for document clusters (no blue/indigo/violet)
-export const DOC_COLOR_PALETTE = [
-  "#d9a441", // Warm amber
-  "#529b67", // Muted sage green
-  "#c47043", // Terracotta
-  "#9c8269", // Warm taupe
-  "#a0616a", // Dusty rose
-  "#849646", // Olive bronze
-  "#c89f65", // Ochre sand
-  "#708a78"  // Muted moss
-];
+import { DOC_COLOR_PALETTE, DOC_FALLBACK_COLOR } from "./colors.js";
+
+export { DOC_COLOR_PALETTE };
 
 /**
  * Deterministically maps an integer document ID to a color palette hex code.
  */
 export function getDocColor(docId) {
   if (docId === null || docId === undefined || isNaN(docId)) {
-    return "#807c74"; // Warm neutral fallback
+    return DOC_FALLBACK_COLOR;
   }
   const idNum = Math.abs(parseInt(docId, 10));
   return DOC_COLOR_PALETTE[idNum % DOC_COLOR_PALETTE.length];

@@ -5,15 +5,12 @@
  * layer color mapping, edge truncation formatters, and a pure playback state machine.
  */
 
-export const LAYER_COLORS = [
-  "#6e6a63", // Layer 0: Muted gray
-  "#a67c2e", // Layer 1: Dim amber
-  "#d9a441", // Layer 2: Bright amber
-  "#f0ede6"  // Layer 3+: Off-white
-];
+import { LAYER_COLORS } from "./colors.js";
+
+export { LAYER_COLORS };
 
 export function getLayerColor(layer) {
-  if (layer < 0) return "#6e6a63";
+  if (layer < 0) return LAYER_COLORS[0];
   return LAYER_COLORS[Math.min(layer, LAYER_COLORS.length - 1)];
 }
 

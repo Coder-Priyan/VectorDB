@@ -2,11 +2,9 @@
  * Pure Logic & Math Helpers for Multi-Algorithm Benchmark Comparison
  */
 
-export const ALGORITHM_COLORS = {
-  brute: "#9c8269",   // Taupe
-  kdtree: "#708a78",  // Moss
-  hnsw: "#d9a441"     // Amber
-};
+import { ALGORITHM_COLORS, THEME, DOC_FALLBACK_COLOR } from "./colors.js";
+
+export { ALGORITHM_COLORS };
 
 export const ALGORITHM_LABELS = {
   brute: "Brute Force",
@@ -245,15 +243,15 @@ export function drawComparisonBars(canvas, data, isDark = false) {
 
   if (w <= 0 || h <= 0) return;
 
-  ctx.fillStyle = "#0a0a0a";
+  ctx.fillStyle = THEME.bgCanvas;
   ctx.fillRect(0, 0, w, h);
 
   const layout = computeChartLayout(w, h, { gutterWidth: 80, gap: 16 });
 
   const algorithms = ["brute", "kdtree", "hnsw"];
-  const textColor = "#f0ede6";
-  const mutedColor = "#949087";
-  const gridColor = "#2a2a2a";
+  const textColor = THEME.textPrimary;
+  const mutedColor = THEME.textMuted;
+  const gridColor = THEME.gridLine;
 
   // 1. Draw left label gutter (once for the 3 algorithms)
   if (layout.gutter.w > 0 && layout.rowHeight > 0) {
@@ -350,7 +348,7 @@ export function drawComparisonBars(canvas, data, isDark = false) {
 
       // Draw horizontal bar
       if (barW > 0) {
-        ctx.fillStyle = ALGORITHM_COLORS[alg] || "#807c74";
+        ctx.fillStyle = ALGORITHM_COLORS[alg] || DOC_FALLBACK_COLOR;
         ctx.fillRect(panel.x, barY, barW, barHeight);
       }
 
