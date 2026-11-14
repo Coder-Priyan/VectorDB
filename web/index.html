@@ -401,13 +401,14 @@
     <section id="panel-compare" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-compare">
       <div class="page-header">
         <div>
-          <h1 class="page-header-title">Algorithm Benchmark</h1>
+          <h1 class="page-header-title">Compare</h1>
           <p class="page-header-description">Head-to-head empirical comparison: Brute Force, KD-Tree, and HNSW</p>
         </div>
         <div class="page-header-actions">
           <span id="compare-info-slot"></span>
         </div>
       </div>
+
       <div class="tab-toolbar">
         <div class="toolbar-left">
           <label for="compare-coll-select" class="toolbar-label">Collection</label>
@@ -424,99 +425,183 @@
           </select>
         </div>
         <div class="toolbar-right">
-          <span class="text-muted font-mono text-xs">Timings indicative; official benchmarks from C++ tool</span>
+          <span class="text-muted text-xs">Timings indicative; official benchmarks from C++ tool</span>
         </div>
       </div>
-      <div class="viz-layout">
-        <div class="viz-main">
-          <div id="compare-empty-state" class="empty-state-box">
+
+      <!-- Controls Bar (One filled surface panel, horizontal) -->
+      <div class="compare-controls-bar">
+        <!-- Demo Controls (Horizontal) -->
+        <div id="compare-demo-controls" class="compare-controls-row">
+          <div class="form-group-inline">
+            <label for="compare-k-input" class="control-label">k</label>
+            <input type="number" id="compare-k-input" class="input-text input-sm" value="10" min="1" max="100">
+          </div>
+          <div class="form-group-inline">
+            <label for="compare-ef-input" class="control-label">efSearch</label>
+            <input type="number" id="compare-ef-input" class="input-text input-sm" value="50" min="1" max="500">
+          </div>
+          <button type="button" id="compare-demo-random-btn" class="btn btn-sm btn-primary">Benchmark Random Query</button>
+          <div class="controls-separator" aria-hidden="true"></div>
+          <div class="form-group-inline">
+            <label for="compare-demo-id-input" class="control-label">Stored Vector ID</label>
+            <input type="number" id="compare-demo-id-input" class="input-text input-sm" placeholder="e.g. 1" min="1">
+          </div>
+          <button type="button" id="compare-demo-id-btn" class="btn btn-sm btn-secondary">Benchmark ID</button>
+        </div>
+
+        <!-- Docs Controls (Horizontal, hidden by default) -->
+        <div id="compare-docs-controls" class="compare-controls-row hidden">
+          <div class="form-group-inline flex-1">
+            <label for="compare-docs-query-input" class="control-label">Query Text</label>
+            <input type="text" id="compare-docs-query-input" class="input-text input-sm" value="What is vector search?" placeholder="Enter semantic query...">
+          </div>
+          <div class="form-group-inline">
+            <label for="compare-docs-k-input" class="control-label">k</label>
+            <input type="number" id="compare-docs-k-input" class="input-text input-sm" value="5" min="1" max="20">
+          </div>
+          <div class="form-group-inline">
+            <label for="compare-docs-ef-input" class="control-label">efSearch</label>
+            <input type="number" id="compare-docs-ef-input" class="input-text input-sm" value="50" min="1" max="500">
+          </div>
+          <button type="button" id="compare-docs-run-btn" class="btn btn-sm btn-primary">Run Benchmark</button>
+        </div>
+
+        <!-- Progress line inside controls bar -->
+        <div class="compare-progress-bar-wrap">
+          <div id="compare-progress-status" class="compare-progress-status text-muted text-xs" aria-live="polite">Ready to benchmark.</div>
+          <div class="progress-track"><div id="compare-progress-fill" class="progress-fill"></div></div>
+        </div>
+      </div>
+
+      <!-- Main Compare Area -->
+      <div id="compare-main-area" class="compare-main-area">
+        <!-- Empty State (before first benchmark) -->
+        <div id="compare-empty-state" class="compare-empty-container">
+          <!-- Placeholder skeleton shapes mirroring the 3 panels -->
+          <div class="compare-skeleton-grid" aria-hidden="true">
+            <div class="compare-metrics-row">
+              <div class="compare-panel compare-panel-summary compare-skeleton-panel">
+                <div class="skeleton-line skeleton-title"></div>
+                <div class="skeleton-table">
+                  <div class="skeleton-line skeleton-header"></div>
+                  <div class="skeleton-line skeleton-row"></div>
+                  <div class="skeleton-line skeleton-row"></div>
+                  <div class="skeleton-line skeleton-row"></div>
+                </div>
+              </div>
+              <div class="compare-panel compare-panel-charts compare-skeleton-panel">
+                <div class="skeleton-line skeleton-title"></div>
+                <div class="skeleton-charts-row">
+                  <div class="skeleton-chart-box">
+                    <div class="skeleton-line skeleton-chart-title"></div>
+                    <div class="skeleton-bar-group">
+                      <div class="skeleton-bar w-80"></div>
+                      <div class="skeleton-bar w-60"></div>
+                      <div class="skeleton-bar w-40"></div>
+                    </div>
+                  </div>
+                  <div class="skeleton-chart-box">
+                    <div class="skeleton-line skeleton-chart-title"></div>
+                    <div class="skeleton-bar-group">
+                      <div class="skeleton-bar w-100"></div>
+                      <div class="skeleton-bar w-50"></div>
+                      <div class="skeleton-bar w-30"></div>
+                    </div>
+                  </div>
+                  <div class="skeleton-chart-box">
+                    <div class="skeleton-line skeleton-chart-title"></div>
+                    <div class="skeleton-bar-group">
+                      <div class="skeleton-bar w-90"></div>
+                      <div class="skeleton-bar w-90"></div>
+                      <div class="skeleton-bar w-85"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="compare-panel compare-panel-diff compare-skeleton-panel">
+              <div class="skeleton-line skeleton-title"></div>
+              <div class="skeleton-table">
+                <div class="skeleton-line skeleton-header"></div>
+                <div class="skeleton-line skeleton-row"></div>
+                <div class="skeleton-line skeleton-row"></div>
+                <div class="skeleton-line skeleton-row"></div>
+                <div class="skeleton-line skeleton-row"></div>
+                <div class="skeleton-line skeleton-row"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Centered Empty State Card Overlay -->
+          <div id="compare-empty-card" class="compare-empty-card-overlay">
             <div class="empty-state">
               <div class="empty-state-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M18 20V10"/>
-                  <path d="M12 20V4"/>
-                  <path d="M6 20v-6"/>
+                <svg width="32" height="32" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="3 5.5 5.5 3 8 5.5"></polyline>
+                  <line x1="5.5" y1="3" x2="5.5" y2="13"></line>
+                  <polyline points="13 10.5 10.5 13 8 10.5"></polyline>
+                  <line x1="10.5" y1="13" x2="10.5" y2="3"></line>
                 </svg>
               </div>
               <h3 class="empty-state-title">No benchmark results yet</h3>
-              <p class="empty-state-description">Choose parameters on the right and run a benchmark to compare Brute Force, KD-Tree, and HNSW head-to-head.</p>
+              <p class="empty-state-description">Run a benchmark to compare Brute Force, KD-Tree, and HNSW head-to-head.</p>
               <button type="button" id="compare-initial-run-btn" class="btn btn-secondary mt-3">Benchmark Demo Vectors</button>
             </div>
           </div>
-          <div id="compare-results-card" class="viz-results-section hidden">
-            <h3 class="section-title">Comparative Performance Bars</h3>
-            <div class="canvas-wrapper"><canvas id="compare-bars-canvas" width="680" height="260"></canvas></div>
-            <h3 class="section-title mt-4">Top-k Results Ground Truth Diff</h3>
+        </div>
+
+        <!-- Results State (hidden until first benchmark) -->
+        <div id="compare-results-card" class="compare-results-container hidden">
+          <div class="compare-metrics-row">
+            <!-- Summary Metrics Panel -->
+            <div class="compare-panel compare-panel-summary">
+              <h3 class="section-title">Summary Metrics</h3>
+              <div class="table-container" tabindex="0" aria-label="Summary Metrics">
+                <table class="info-table compare-summary-table">
+                  <thead>
+                    <tr>
+                      <th>Algorithm</th>
+                      <th>Median</th>
+                      <th>Min - Max</th>
+                      <th>Distances</th>
+                      <th>Recall@k</th>
+                    </tr>
+                  </thead>
+                  <tbody id="compare-summary-tbody">
+                    <tr><td colspan="5" class="text-muted empty-state">Run a benchmark to compare algorithms.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Comparative Performance Bars Panel -->
+            <div class="compare-panel compare-panel-charts">
+              <h3 class="section-title">Comparative Performance Bars</h3>
+              <div class="canvas-wrapper">
+                <canvas id="compare-bars-canvas" width="680" height="260"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top-k Results Ground Truth Diff Panel -->
+          <div class="compare-panel compare-panel-diff">
+            <h3 class="section-title">Top-k Results Ground Truth Diff</h3>
             <div class="table-container" tabindex="0" aria-label="Top-k Ground Truth Diff">
               <table class="info-table">
-                <thead><tr><th>#</th><th>Brute Force (GT)</th><th>KD-Tree</th><th>HNSW</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Brute Force (GT)</th>
+                    <th>KD-Tree</th>
+                    <th>HNSW</th>
+                  </tr>
+                </thead>
                 <tbody id="compare-topk-tbody"></tbody>
               </table>
             </div>
           </div>
         </div>
-        <aside class="viz-sidebar">
-          <div id="compare-demo-controls">
-            <h3 class="section-title">Benchmark Demo Vectors</h3>
-            <div class="form-stack mt-2">
-              <div class="form-row">
-                <div class="form-group flex-1">
-                  <label for="compare-k-input">k (Neighbors)</label>
-                  <input type="number" id="compare-k-input" class="input-text" value="10" min="1" max="100">
-                </div>
-                <div class="form-group flex-1">
-                  <label for="compare-ef-input">efSearch (HNSW)</label>
-                  <input type="number" id="compare-ef-input" class="input-text" value="50" min="1" max="500">
-                </div>
-              </div>
-              <div class="form-row mt-2">
-                <button type="button" id="compare-demo-random-btn" class="btn btn-primary w-100">Benchmark Random Query</button>
-              </div>
-              <div class="form-row mt-2">
-                <div class="form-group flex-2">
-                  <label for="compare-demo-id-input">Stored Vector ID</label>
-                  <input type="number" id="compare-demo-id-input" class="input-text" placeholder="e.g. 1" min="1">
-                </div>
-                <div class="form-group flex-1 align-end">
-                  <button type="button" id="compare-demo-id-btn" class="btn btn-secondary w-100">Benchmark ID</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div id="compare-docs-controls" class="form-stack mt-2 hidden">
-            <h3 class="section-title">Benchmark Document Chunks</h3>
-            <div class="form-group">
-              <label for="compare-docs-query-input">Search Query Text</label>
-              <input type="text" id="compare-docs-query-input" class="input-text" value="What is vector search?" placeholder="Enter semantic query...">
-            </div>
-            <div class="form-row mt-2">
-              <div class="form-group flex-1">
-                <label for="compare-docs-k-input">k (Chunks)</label>
-                <input type="number" id="compare-docs-k-input" class="input-text" value="5" min="1" max="20">
-              </div>
-              <div class="form-group flex-1">
-                <label for="compare-docs-ef-input">efSearch (HNSW)</label>
-                <input type="number" id="compare-docs-ef-input" class="input-text" value="50" min="1" max="500">
-              </div>
-            </div>
-            <div class="form-row mt-2">
-              <button type="button" id="compare-docs-run-btn" class="btn btn-primary w-100">Run Benchmark</button>
-            </div>
-          </div>
-          <div class="mt-4">
-            <div id="compare-progress-status" class="text-muted font-mono text-xs" aria-live="polite">Ready to benchmark.</div>
-            <div class="progress-track mt-1"><div id="compare-progress-fill" class="progress-fill"></div></div>
-          </div>
-          <div class="compare-summary-section mt-4">
-            <h3 class="section-title">Summary Metrics</h3>
-            <div class="table-container" tabindex="0" aria-label="Summary Metrics">
-              <table class="info-table">
-                <thead><tr><th>Algorithm</th><th>Median</th><th>Min - Max</th><th>Distances</th><th>Recall@k</th></tr></thead>
-                <tbody id="compare-summary-tbody"><tr><td colspan="5" class="text-muted empty-state">Run a benchmark to compare algorithms.</td></tr></tbody>
-              </table>
-            </div>
-          </div>
-        </aside>
       </div>
     </section>
 

@@ -5,6 +5,7 @@
 import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js";
 import { el, formatDuration, formatSimilarity } from "./ui.js";
 import { setupCanvasDpr } from "./canvas.js";
+import { createIcon } from "./icons.js";
 import {
   computeTimingStats,
   diffAgainstGroundTruth,
@@ -64,27 +65,17 @@ export function initCompareTab() {
     const isDocs = collSelect?.value === "docs";
     const title = "No benchmark results yet";
     const desc = isDocs
-      ? "Enter a semantic query on the right and click Run Benchmark to compare retrieval algorithms."
-      : "Choose parameters on the right and run a benchmark to compare Brute Force, KD-Tree, and HNSW head-to-head.";
+      ? "Enter a semantic query above and click Run Benchmark to compare retrieval algorithms."
+      : "Choose parameters above and run a benchmark to compare Brute Force, KD-Tree, and HNSW head-to-head.";
     const btnText = isDocs ? "Benchmark Document Chunks" : "Benchmark Demo Vectors";
 
-    emptyStateBox.replaceChildren(
+    const emptyCard = byId("compare-empty-card");
+    const target = emptyCard || emptyStateBox;
+
+    target.replaceChildren(
       el("div", { className: "empty-state" },
         el("div", { className: "empty-state-icon" },
-          el("svg", {
-            width: "32",
-            height: "32",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            "stroke-width": "1.5",
-            "stroke-linecap": "round",
-            "stroke-linejoin": "round"
-          },
-            el("path", { d: "M18 20V10" }),
-            el("path", { d: "M12 20V4" }),
-            el("path", { d: "M6 20v-6" })
-          )
+          createIcon("compare", 32)
         ),
         el("h3", { className: "empty-state-title" }, title),
         el("p", { className: "empty-state-description" }, desc),
@@ -142,7 +133,10 @@ export function initCompareTab() {
 
   function showEmptyNotice(msg) {
     if (emptyStateBox) {
-      emptyStateBox.replaceChildren(
+      const emptyCard = byId("compare-empty-card");
+      const target = emptyCard || emptyStateBox;
+
+      target.replaceChildren(
         el("div", { className: "empty-state" },
           el("div", { className: "empty-state-icon" },
             el("svg", {
@@ -256,10 +250,10 @@ export function initCompareTab() {
           el("span", { className: `legend-swatch swatch-${alg} mr-1` }),
           ALGORITHM_LABELS[alg]
         ),
-        el("td", { className: "font-mono" }, `${Math.round(medianUs)} μs (${formatDuration(medianUs / 1000)})`),
-        el("td", { className: "font-mono text-xs text-muted" }, minMaxStr),
-        el("td", { className: "font-mono" }, String(aData.distance_computations ?? "-")),
-        el("td", { className: "font-mono" }, formatSimilarity(aData.recall_at_k ?? 1.0))
+        el("td", {}, `${Math.round(medianUs)} μs (${formatDuration(medianUs / 1000)})`),
+        el("td", { className: "text-xs text-muted" }, minMaxStr),
+        el("td", {}, String(aData.distance_computations ?? "-")),
+        el("td", {}, formatSimilarity(aData.recall_at_k ?? 1.0))
       );
       summaryTbody?.appendChild(tr);
     });
@@ -329,7 +323,7 @@ export function initCompareTab() {
       };
 
       const tr = el("tr", {},
-        el("td", { className: "font-mono text-muted" }, String(i + 1)),
+        el("td", { className: "text-muted" }, String(i + 1)),
         el("td", {}, formatCell(b, true)),
         el("td", {}, formatCell(kd, false)),
         el("td", {}, formatCell(hn, false))
