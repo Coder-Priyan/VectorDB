@@ -9,6 +9,7 @@ import { api } from "./api.js";
 import { initTabs, updateOllamaBadge } from "./ui.js";
 import { initSidebar } from "./sidebar.js";
 import { initCommandPalette } from "./palette.js";
+import { createInfoButton, startGuidedTour } from "./learn_content.js";
 import { initAskTab } from "./ask.js";
 import { initSettingsTab } from "./settings.js";
 import { initExploreTab } from "./explore.js";
@@ -45,4 +46,14 @@ document.addEventListener("DOMContentLoaded", () => {
   initExploreTab();
   initHnswTab();
   initCompareTab();
+
+  // 4. Mount Educational Info Buttons
+  document.getElementById("ask-info-slot")?.appendChild(createInfoButton("rag"));
+  document.getElementById("explore-info-slot")?.appendChild(createInfoButton("pca"));
+  document.getElementById("hnsw-info-slot")?.appendChild(createInfoButton("hnsw"));
+  document.getElementById("compare-info-slot")?.appendChild(createInfoButton("bruteforce"));
+  document.getElementById("settings-info-slot")?.appendChild(createInfoButton("embeddings"));
+
+  // 5. Check first-run guided tour
+  startGuidedTour(false);
 });

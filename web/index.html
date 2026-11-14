@@ -91,6 +91,7 @@
               <span class="ask-header-subtitle">Transparent semantic chat with grounded citations</span>
             </div>
             <div class="ask-header-actions">
+              <span id="ask-info-slot"></span>
               <button type="button" id="toggle-docs-drawer-btn" class="btn btn-sm btn-secondary" title="Toggle Documents Drawer">
                 Documents
               </button>
@@ -201,6 +202,15 @@
 
     <!-- TAB 2: EXPLORE (PCA) -->
     <section id="panel-explore" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-explore">
+      <div class="page-header">
+        <div>
+          <h2 class="page-header-title">Explore (PCA)</h2>
+          <p class="page-header-description">Interactive 2D Principal Component Analysis projections of high-dimensional vectors</p>
+        </div>
+        <div class="page-header-actions">
+          <span id="explore-info-slot"></span>
+        </div>
+      </div>
       <div class="tab-toolbar">
         <div class="toolbar-left">
           <label for="explore-coll-select" class="toolbar-label">Collection</label>
@@ -282,6 +292,15 @@
 
     <!-- TAB 3: HNSW GRAPH -->
     <section id="panel-hnsw" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-hnsw">
+      <div class="page-header">
+        <div>
+          <h2 class="page-header-title">HNSW Graph</h2>
+          <p class="page-header-description">Multi-layer proximity graph topology and interactive search path tracing</p>
+        </div>
+        <div class="page-header-actions">
+          <span id="hnsw-info-slot"></span>
+        </div>
+      </div>
       <div class="tab-toolbar">
         <div class="toolbar-left">
           <label for="hnsw-coll-select" class="toolbar-label">Collection</label>
@@ -371,6 +390,15 @@
 
     <!-- TAB 4: COMPARE -->
     <section id="panel-compare" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-compare">
+      <div class="page-header">
+        <div>
+          <h2 class="page-header-title">Algorithm Benchmark</h2>
+          <p class="page-header-description">Head-to-head empirical comparison: Brute Force, KD-Tree, and HNSW</p>
+        </div>
+        <div class="page-header-actions">
+          <span id="compare-info-slot"></span>
+        </div>
+      </div>
       <div class="tab-toolbar">
         <div class="toolbar-left">
           <label for="compare-coll-select" class="toolbar-label">Collection</label>
@@ -473,9 +501,14 @@
     <!-- TAB 5: SETTINGS -->
     <section id="panel-settings" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-settings">
       <!-- Settings Page Header -->
-      <header class="settings-page-header">
-        <h1 class="settings-title">Settings</h1>
-        <p class="settings-subtitle">Server status and demo collection configuration.</p>
+      <header class="page-header settings-page-header">
+        <div>
+          <h1 class="page-header-title settings-title">Settings</h1>
+          <p class="page-header-description settings-subtitle">Server status and demo collection configuration.</p>
+        </div>
+        <div class="page-header-actions">
+          <span id="settings-info-slot"></span>
+        </div>
       </header>
 
       <!-- Server Status Metric Strip -->

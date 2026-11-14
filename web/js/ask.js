@@ -487,7 +487,7 @@ export function initAskTab() {
 
         // Glass-box explainability accordion
         if (msg.sources && msg.sources.length > 0) {
-          const glassBox = buildGlassBoxDetails(msg.sources, msg.timings);
+          const glassBox = buildGlassBoxDetails(msg.sources, msg.timings, msg.question || "");
           bubble.appendChild(glassBox);
         }
 
@@ -533,7 +533,7 @@ export function initAskTab() {
     });
   }
 
-  function buildGlassBoxDetails(sources, timings) {
+  function buildGlassBoxDetails(sources, timings, question = "") {
     const details = el("details", { className: "glass-box-details" });
     const summary = el(
       "summary",
@@ -545,21 +545,10 @@ export function initAskTab() {
 
     const body = el("div", { className: "glass-box-body" });
 
-    // 1. Timings badges
-    if (timings && typeof timings === "object") {
-      const timingsRow = el("div", { className: "glass-box-timings" });
-      const parts = [
-        `embed ${formatDuration(timings.embed_ms)}`,
-        `search ${formatDuration(timings.search_ms)}`,
-        `first token ${formatDuration(timings.first_token_ms)}`,
-        `generate ${formatDuration(timings.generate_ms)}`,
-        `total ${formatDuration(timings.total_ms)}`
-      ];
-      timingsRow.appendChild(el("span", { className: "timing-chip" }, parts.join(" \u00B7 ")));
-      body.appendChild(timingsRow);
-    }
-
-    // 2. Sources cards
+    // Panel A: Retrieval - Sources with similarity meter
+    const sourcesSection = el("div", { className: "glass-box-section" },
+      el("div", { className: "glass-box-section-title" }, "Retrieved Sources")
+    );
     const sourcesList = el("div", { className: "glass-box-sources-list" });
     sources.forEach(src => {
       const meterFill = el("div", { className: "meter-fill" });
@@ -579,7 +568,188 @@ export function initAskTab() {
       );
       sourcesList.appendChild(card);
     });
-    body.appendChild(sourcesList);
+    sourcesSection.appendChild(sourcesList);
+    body.appendChild(sourcesSection);
+
+    // Panel B: Timings breakdown
+    if (timings && typeof timings === "object") {
+      const timingsSection = el("div", { className: "glass-box-section" },
+        el("div", { className: "glass-box-section-title" }, "Latency Breakdown")
+      );
+      const timingsRow = el("div", { className: "glass-box-timings" });
+      const parts = [
+        `embed ${formatDuration(timings.embed_ms)}`,
+        `search ${formatDuration(timings.search_ms)}`,
+        `first token ${formatDuration(timings.first_token_ms)}`,
+        `generate ${formatDuration(timings.generate_ms)}`,
+        `total ${formatDuration(timings.total_ms)}`
+      ];
+      timingsRow.appendChild(el("span", { className: "timing-chip" }, parts.join(" \u00B7 ")));
+      timingsSection.appendChild(timingsRow);
+      body.appendChild(timingsSection);
+    }
+
+    // Panel C: 2D PCA Map (canvas preview)
+    const mapSection = el("div", { className: "glass-box-section" },
+      el("div", { className: "glass-box-section-header" },
+        el("span", { className: "glass-box-section-title" }, "2D PCA Projection"),
+        el("button", {
+          type: "button",
+          className: "btn btn-sm btn-ghost",
+          title: "Open full view in Explore tab"
+        }, "Open Explore")
+      )
+    );
+    const exploreBtn = mapSection.querySelector("button");
+    exploreBtn?.addEventListener("click", () => {
+      const tab = document.getElementById("tab-btn-explore");
+      if (tab) tab.click();
+    });
+
+    const canvasContainer = el("div", { className: "glass-box-canvas-wrap" });
+    const miniCanvas = el("canvas", { width: 320, height: 160, className: "glass-box-canvas" });
+    canvasContainer.appendChild(miniCanvas);
+    mapSection.appendChild(canvasContainer);
+    body.appendChild(mapSection);
+
+    // Render mini PCA if canvas has 2D context
+    const ctx = miniCanvas.getContext("2d");
+    if (ctx && question) {
+      api.queryDocsPca({ query: question, limit: 100 }).then(res => {
+        const w = miniCanvas.width;
+        const h = miniCanvas.height;
+        ctx.fillStyle = "#131313";
+        ctx.fillRect(0, 0, w, h);
+
+        const pts = res.points || [];
+        if (pts.length > 0) {
+          // Find bounds
+          let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+          for (const p of pts) {
+            if (p.x < minX) minX = p.x;
+            if (p.x > maxX) maxX = p.x;
+            if (p.y < minY) minY = p.y;
+            if (p.y > maxY) maxY = p.y;
+          }
+          if (res.query_point) {
+            minX = Math.min(minX, res.query_point.x);
+            maxX = Math.max(maxX, res.query_point.x);
+            minY = Math.min(minY, res.query_point.y);
+            maxY = Math.max(maxY, res.query_point.y);
+          }
+          const spanX = (maxX - minX) || 1;
+          const spanY = (maxY - minY) || 1;
+          const pad = 16;
+
+          // Draw document points
+          ctx.fillStyle = "#666";
+          for (const p of pts) {
+            const cx = pad + ((p.x - minX) / spanX) * (w - pad * 2);
+            const cy = pad + ((p.y - minY) / spanY) * (h - pad * 2);
+            ctx.beginPath();
+            ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Draw query point
+          if (res.query_point) {
+            const qx = pad + ((res.query_point.x - minX) / spanX) * (w - pad * 2);
+            const qy = pad + ((res.query_point.y - minY) / spanY) * (h - pad * 2);
+            ctx.fillStyle = "#d9a441";
+            ctx.beginPath();
+            ctx.arc(qx, qy, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          }
+        }
+      }).catch(() => {
+        ctx.fillStyle = "#131313";
+        ctx.fillRect(0, 0, miniCanvas.width, miniCanvas.height);
+        ctx.fillStyle = "#888";
+        ctx.font = "11px sans-serif";
+        ctx.fillText("PCA preview unavailable", 20, 80);
+      });
+    }
+
+    // Panel D: Benchmark Algorithms on this Query
+    const compareSection = el("div", { className: "glass-box-section" });
+    const runBenchBtn = el("button", {
+      type: "button",
+      className: "btn btn-sm btn-secondary",
+      title: "Benchmark Brute Force vs KD-Tree vs HNSW on this question"
+    }, "Compare algorithms on this query");
+
+    const benchResults = el("div", { className: "glass-box-bench-results hidden" });
+    runBenchBtn.addEventListener("click", async () => {
+      runBenchBtn.disabled = true;
+      runBenchBtn.textContent = "Benchmarking...";
+      try {
+        const bRes = await api.benchmarkDocs({ query: question, k: 5, runs: 3 });
+        while (benchResults.firstChild) {
+          benchResults.removeChild(benchResults.firstChild);
+        }
+        const reports = bRes.reports || [];
+        reports.forEach(r => {
+          benchResults.appendChild(
+            el("div", { className: "bench-row" },
+              el("span", { className: "bench-name" }, r.algorithm.toUpperCase()),
+              el("span", { className: "bench-stat" }, `${(r.mean_latency_us / 1000).toFixed(2)} ms`),
+              el("span", { className: "bench-stat text-muted" }, `Recall: ${((r.recall_at_k ?? 1.0) * 100).toFixed(0)}%`)
+            )
+          );
+        });
+        benchResults.classList.remove("hidden");
+      } catch (err) {
+        benchResults.textContent = `Benchmark error: ${err.message}`;
+        benchResults.classList.remove("hidden");
+      } finally {
+        runBenchBtn.disabled = false;
+        runBenchBtn.textContent = "Compare algorithms on this query";
+      }
+    });
+
+    compareSection.appendChild(runBenchBtn);
+    compareSection.appendChild(benchResults);
+    body.appendChild(compareSection);
+
+    // Panel E: HNSW Search Path Trace
+    const traceSection = el("div", { className: "glass-box-section" });
+    const runTraceBtn = el("button", {
+      type: "button",
+      className: "btn btn-sm btn-secondary",
+      title: "Trace HNSW navigation hops on this question"
+    }, "Trace HNSW search path");
+
+    const traceResults = el("div", { className: "glass-box-trace-results hidden" });
+    runTraceBtn.addEventListener("click", async () => {
+      runTraceBtn.disabled = true;
+      runTraceBtn.textContent = "Tracing...";
+      try {
+        const tRes = await api.traceHnsw({ collection: "docs", query: question, k: 3 });
+        while (traceResults.firstChild) {
+          traceResults.removeChild(traceResults.firstChild);
+        }
+        const hops = tRes.visited_nodes || [];
+        traceResults.appendChild(
+          el("div", { className: "trace-summary-text" },
+            `HNSW visited ${hops.length} nodes across ${tRes.max_layer_visited ?? 0 + 1} layers to locate top 3 chunks.`
+          )
+        );
+        traceResults.classList.remove("hidden");
+      } catch (err) {
+        traceResults.textContent = `Trace error: ${err.message}`;
+        traceResults.classList.remove("hidden");
+      } finally {
+        runTraceBtn.disabled = false;
+        runTraceBtn.textContent = "Trace HNSW search path";
+      }
+    });
+
+    traceSection.appendChild(runTraceBtn);
+    traceSection.appendChild(traceResults);
+    body.appendChild(traceSection);
 
     details.appendChild(body);
     return details;
@@ -739,7 +909,8 @@ export function initAskTab() {
             content: finalAnswer,
             timestamp: Date.now(),
             sources: retrievedSources,
-            timings: timingStats
+            timings: timingStats,
+            question: question
           });
           saveChatData(currentChat);
 
