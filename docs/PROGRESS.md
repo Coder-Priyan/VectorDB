@@ -1,6 +1,6 @@
 # Project Progress
 
-Last updated: 2026-11-14 by T-034
+Last updated: 2026-11-14 by T-035
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform (Task T-033 Complete across all 9 Phases P0-P8, Branch `ui-redesign`)
 
@@ -44,7 +44,7 @@ All 118 C++ tests pass. All 84 browser unit tests pass. 100% clean web safety sc
 | **Automated Web Safety Scanner** (Zero innerHTML, strict CSP verified) | `scripts/check_web_safety.ps1` | [CONFIRMED] | TESTED |
 | **Hermetic C++ Unit & Integration Test Suite** (118 registered tests) | `tests/*.cpp`, `tests/fake_ollama.hpp` | [CONFIRMED] | TESTED |
 | **Browser Pure-Logic Unit Test Suite** (84 registered unit tests) | `web/tests.html`, `web/js/tests/*.js` | [CONFIRMED] | TESTED |
-| **Atomic Multi-Chunk Rollback** (Transactional vector rollback on mid-ingest failure) | `include/vectordb/rag.hpp`, `src/rag.cpp` | [CONFIRMED: src/rag.cpp:155] | TESTED |
+| **Atomic Multi-Chunk Rollback** (Transactional vector rollback on mid-ingest failure, not covered by automated test) | `include/vectordb/rag.hpp`, `src/rag.cpp` | [CONFIRMED: src/rag.cpp:155-160] | IMPLEMENTED |
 
 ---
 

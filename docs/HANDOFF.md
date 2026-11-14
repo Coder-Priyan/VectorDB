@@ -1,6 +1,6 @@
 # Project Handoff
 
-Last updated: 2026-11-14 by T-034
+Last updated: 2026-11-14 by T-035
 
 ## 1. Current Status
 
@@ -102,6 +102,7 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 - **Follow-up question condensation strategy**: Currently passes the raw conversation history window (last 6 messages / 3,000 characters) directly into the RAG context; evaluate based on human manual testing whether query condensation/rephrasing is necessary.
 - **Merge of `ui-redesign` into `main`**: Branch `ui-redesign` contains all v2 commits; human authority decides when and whether to merge into `main`.
 - **GitHub repository publication timing**: Timing of public repository release or GitHub sync is decided by the human.
+- **ISS-006 (Document Ingestion Rollback)**: Mid-loop vector insertion failures trigger `collection_->removeBatch` rollback in `src/rag.cpp:155-160`, but the rollback path is implemented in code and not yet covered by an automated test.
 - **[UNCLEAR] ADR numbering alignment**: Brain chat prompt drafted Product Positioning as ADR-032 and Project Name as ADR-033, while T-033 Phase P3 had already recorded Binary Persistence as ADR-032 and Document Deletion as ADR-033 in git. To prevent conflicts or breaking existing commits, Persistence and Deletion remain ADR-032 & ADR-033, and Product Positioning and Project Name are recorded as ADR-034 & ADR-035 in `docs/DECISIONS.md`.
 
 ---

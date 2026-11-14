@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-14 by SYNC-001
+Last updated: 2026-11-14 by T-035
 
 ## 1. Operating Model
 
@@ -109,7 +109,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 2. **Mandatory POST Headers**: Any client (frontend, curl, test scripts) issuing a `POST` request must supply `-H "Content-Type: application/json"` and body `-d "{}"` even if the route expects no JSON payload. Omitting it results in HTTP 415 `unsupported_media_type` [CONFIRMED: src/server_main.cpp:218].
 3. **Canvas Zero-Dimension Layout Guard**: Browsers reporting hidden tabs can pass `0x0` dimensions to HTML5 canvas render routines, triggering `DOMException: INVALID_STATE_ERR` on `drawImage`. Always verify `width > 0 && height > 0` before drawing [CONFIRMED: web/js/hnsw_helpers.js:15].
 4. **HNSW Graph Edge Cap**: Rendering huge proximity graphs in the browser hangs the UI thread. The backend strictly truncates edge export at 60,000 edges and sets `"truncated": true`, while computing the true total edge count beforehand [CONFIRMED: src/collection.cpp:227].
-5. **Document Ingestion Multi-Chunk Rollback**: Document ingestion embeddings are validated before committing. If vector insertion throws mid-loop (e.g. out of memory), `src/rag.cpp` catches the exception and executes `removeBatch` on inserted vector IDs, rolling back partial chunks and preventing orphaned vectors without a DocumentRecord (ISS-006 fixed) [CONFIRMED: src/rag.cpp:155-160].
+5. **Document Ingestion Multi-Chunk Rollback**: Document ingestion embeddings are validated before committing. If vector insertion throws mid-loop (e.g. out of memory), `src/rag.cpp` catches the exception and executes `removeBatch` on inserted vector IDs, rolling back partial chunks and preventing orphaned vectors without a DocumentRecord (ISS-006 fixed in code, not covered by an automated test) [CONFIRMED: src/rag.cpp:155-160].
 6. **Audit Claims Verification Status**: Claims from Antigravity's audit were verified by the human in their own terminal on 2026-11-12: 110/110 tests, zero warnings on clean rebuild, 4 executables, web safety scan pass, 72 commits with 6 ahead of origin, 29 API routes, 17 server flags. Not yet verified by the human: HNSW recall numbers (ISS-003, ISS-004), 74 browser tests, live Ollama RAG run.
 7. **Demo Random Endpoint Contract**: Demo random insert uses field 'n', not 'count'. Docs claiming TESTED for the web UI meant pure-logic tests only; real browser testing by the human found a bug on 2026-11-12.
 8. **Browser Test Count History**: Browser test count was 57 after T-002; older docs said 55; reached 62 after T-004; reached 66 after T-019; reached 70 after T-023b-1; reached 74 after T-023b-2.
