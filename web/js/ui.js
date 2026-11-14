@@ -214,9 +214,9 @@ export function initTabs(tablistSelector = ".tab-nav") {
 
     tab.addEventListener("keydown", (e) => {
       let nextIndex = null;
-      if (e.key === "ArrowRight") {
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
         nextIndex = (index + 1) % tabs.length;
-      } else if (e.key === "ArrowLeft") {
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
         nextIndex = (index - 1 + tabs.length) % tabs.length;
       } else if (e.key === "Home") {
         nextIndex = 0;
@@ -241,5 +241,32 @@ export function initTabs(tablistSelector = ".tab-nav") {
  */
 export function shouldAutoScroll(scrollTop, scrollHeight, clientHeight, threshold = 40) {
   return (scrollHeight - scrollTop - clientHeight) <= threshold;
+}
+
+/**
+ * Displays a lightweight toast notification.
+ * Safe DOM creation, zero-innerHTML, accessible polite live region.
+ */
+export function showToast(message, type = "info", duration = 3000) {
+  const container = document.getElementById("toast-container");
+  if (!container) return;
+
+  const toast = el(
+    "div",
+    { className: `toast toast-${type}` },
+    el("span", { className: "toast-message" }, message)
+  );
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    toast.style.transform = "translateY(4px)";
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 200);
+  }, duration);
 }
 

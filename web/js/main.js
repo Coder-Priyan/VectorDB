@@ -7,6 +7,8 @@
 
 import { api } from "./api.js";
 import { initTabs, updateOllamaBadge } from "./ui.js";
+import { initSidebar } from "./sidebar.js";
+import { initCommandPalette } from "./palette.js";
 import { initAskTab } from "./ask.js";
 import { initSettingsTab } from "./settings.js";
 import { initExploreTab } from "./explore.js";
@@ -25,7 +27,11 @@ async function checkOllamaStatus() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Initialize Tab Navigation
+  // 1. Initialize Sidebar & App Shell
+  initSidebar();
+  initCommandPalette();
+
+  // 2. Initialize Tab Navigation
   initTabs(".tab-nav");
 
   // 2. Ollama Status Check and Refresh Button

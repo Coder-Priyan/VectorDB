@@ -8,33 +8,78 @@
   <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-  <header class="app-header">
-    <div class="header-brand">
-      <h1 class="app-title">VectorDB</h1>
-    </div>
-
-    <nav class="tab-nav" role="tablist" aria-label="Main Navigation">
-      <button id="tab-btn-ask" class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-ask" tabindex="0">Ask (RAG)</button>
-      <button id="tab-btn-explore" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-explore" tabindex="-1">Explore (PCA)</button>
-      <button id="tab-btn-hnsw" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-hnsw" tabindex="-1">HNSW Graph</button>
-      <button id="tab-btn-compare" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-compare" tabindex="-1">Compare</button>
-      <button id="tab-btn-settings" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-settings" tabindex="-1">Settings</button>
-    </nav>
-
-    <div class="header-controls">
-      <div id="ollama-status-container" class="status-indicator">
-        <span id="ollama-status-badge" class="badge badge-neutral" aria-live="polite">Checking Ollama...</span>
-        <button id="ollama-check-btn" class="btn btn-sm btn-ghost" title="Check Ollama" aria-label="Refresh Ollama">Refresh</button>
+  <div class="app-layout">
+    <!-- Left Collapsible Sidebar -->
+    <aside id="app-sidebar" class="app-sidebar" aria-label="Application Sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <span class="sidebar-brand-mark"></span>
+          <span class="sidebar-brand-text">VectorDB</span>
+        </div>
+        <button type="button" id="sidebar-toggle-btn" class="sidebar-icon-btn" title="Toggle sidebar" aria-label="Toggle sidebar"></button>
       </div>
-    </div>
-  </header>
 
-  <aside id="global-error-banner" class="alert alert-danger hidden" role="alert" aria-live="assertive">
-    <span id="global-error-text" class="alert-message"></span>
-    <button id="global-error-dismiss" class="btn-close" aria-label="Dismiss error">Dismiss</button>
-  </aside>
+      <div class="sidebar-action-row">
+        <button type="button" id="sidebar-new-chat-btn" class="btn btn-secondary sidebar-new-chat-btn" title="New chat (N)">
+          <span class="sidebar-btn-icon"></span>
+          <span class="sidebar-btn-text">New chat</span>
+          <span class="kbd">N</span>
+        </button>
+      </div>
 
-  <main class="app-content">
+      <nav class="sidebar-nav tab-nav" role="tablist" aria-label="Main Navigation">
+        <button id="tab-btn-ask" class="tab-btn sidebar-nav-item active" role="tab" aria-selected="true" aria-controls="panel-ask" tabindex="0">
+          <span class="nav-icon" data-icon="chat"></span>
+          <span class="nav-label">Ask (RAG)</span>
+        </button>
+        <button id="tab-btn-explore" class="tab-btn sidebar-nav-item" role="tab" aria-selected="false" aria-controls="panel-explore" tabindex="-1">
+          <span class="nav-icon" data-icon="explore"></span>
+          <span class="nav-label">Explore (PCA)</span>
+        </button>
+        <button id="tab-btn-hnsw" class="tab-btn sidebar-nav-item" role="tab" aria-selected="false" aria-controls="panel-hnsw" tabindex="-1">
+          <span class="nav-icon" data-icon="graph"></span>
+          <span class="nav-label">HNSW Graph</span>
+        </button>
+        <button id="tab-btn-compare" class="tab-btn sidebar-nav-item" role="tab" aria-selected="false" aria-controls="panel-compare" tabindex="-1">
+          <span class="nav-icon" data-icon="compare"></span>
+          <span class="nav-label">Compare</span>
+        </button>
+        <button id="tab-btn-settings" class="tab-btn sidebar-nav-item" role="tab" aria-selected="false" aria-controls="panel-settings" tabindex="-1">
+          <span class="nav-icon" data-icon="settings"></span>
+          <span class="nav-label">Settings</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-recent-section">
+        <div class="sidebar-section-header">
+          <span class="sidebar-section-title">Recent chats</span>
+        </div>
+        <div id="recent-chats-list" class="recent-chats-list" role="list"></div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div id="ollama-status-container" class="sidebar-status-indicator status-indicator">
+          <span class="status-dot"></span>
+          <span id="ollama-status-badge" class="badge badge-neutral" aria-live="polite">Checking Ollama...</span>
+          <button type="button" id="ollama-check-btn" class="sidebar-icon-btn btn-ghost" title="Check Ollama" aria-label="Refresh Ollama">Refresh</button>
+        </div>
+        <div class="sidebar-footer-hint">
+          <button type="button" id="open-palette-btn" class="sidebar-hint-btn" title="Command Palette (Ctrl+K)">
+            <span class="hint-label">Commands</span>
+            <span class="kbd">Ctrl K</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="app-main-area">
+      <aside id="global-error-banner" class="alert alert-danger hidden" role="alert" aria-live="assertive">
+        <span id="global-error-text" class="alert-message"></span>
+        <button id="global-error-dismiss" class="btn-close" aria-label="Dismiss error">Dismiss</button>
+      </aside>
+
+      <main class="app-content">
     <!-- TAB 1: ASK (RAG) -->
     <section id="panel-ask" class="tab-panel active" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-ask">
       <div class="ask-layout">
@@ -499,8 +544,24 @@
       </div>
     </section>
   </main>
+      <footer class="app-footer"><span>VectorDB &bull; C++17 core engine - runs fully offline - no cloud, no external vector DB</span><span id="footer-version" class="text-muted">v0.4.0</span></footer>
+    </div>
+  </div>
 
-  <footer class="app-footer"><span>VectorDB &bull; C++17 core engine - runs fully offline - no cloud, no external vector DB</span><span id="footer-version" class="text-muted">v0.4.0</span></footer>
+  <!-- Command Palette Modal -->
+  <div id="command-palette-modal" class="palette-backdrop hidden" role="dialog" aria-modal="true" aria-label="Command Palette">
+    <div class="palette-card">
+      <div class="palette-input-row">
+        <input id="command-palette-input" type="text" class="palette-input" placeholder="Type a command or search..." autocomplete="off">
+        <span class="kbd">ESC</span>
+      </div>
+      <div id="command-palette-list" class="palette-list" role="listbox"></div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
