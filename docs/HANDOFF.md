@@ -22,7 +22,56 @@ Following human approval of the full set of 7 AI mockups (ADR-047, superseding Q
 
 Task T-055b investigated the 2 failing tests reported by human on `/tests.html` (111/113 passed). Found `realBenchmarkFixture` had been defined inside the T-050 `describe` closure, making it `undefined` in the T-054 `describe` suite added on `ui-quiet-studio`. Moved `realBenchmarkFixture` to module scope in `web/js/tests/test_compare.js`. Scoping fix uncovered a secondary bug in `mapChartRows` (`web/js/compare_helpers.js:552` passes `latencies = null` into `extractChartMetrics` which does `latencies[alg]` throwing `TypeError: Cannot read properties of null (reading 'brute')`). Documented as ISS-049; stopped without touching production code per instructions.
 
-Task T-055c resolved the secondary bug in `extractChartMetrics` (`web/js/compare_helpers.js:414` now normalizes null/undefined `latencies` to an empty object, allowing fallback to `latency_us`), replaced the hex literal `#ffffff` at line 701 with `THEME.white` from `web/js/colors.js` (achieving zero hex literals outside `:root` and `colors.js`), and added a pure-logic test for null latencies bringing registered tests to 114. Top-k control (`#ask-k-input`) was restored as a compact quiet control next to algorithm select in the Ask composer, and the Command Palette button (`#open-palette-btn`) was restored as a visible ghost search-icon button in the sidebar footer (functioning in both expanded and 56px collapsed rail) (decisions by Brain, delegated design). Note: canvas colors in `colors.js` (`#f0ede6`, `#c4c1ba`, `#827e77`) differ from CSS text tokens (`#f4f4f5`, `#a1a1aa`, `#71717a`) and must be synced in T-056.
+Task T-055c resolved the secondary bug in `extractChartMetrics` (`web/js/compare_helpers.js:414` now normalizes null/undefined `latencies` to an empty object, allowing fallback to `latency_us`), replaced the hex literal `#ffffff` at line 701 with `THEME.white` from `web/js/colors.js` (achieving zero hex literals outside `:root` and `colors.js`), and added a pure-logic test for null latencies bringing registered tests to 114. Top-k control (`#ask-k-input`) was restored as a compact quiet control next to algorithm select in the Ask composer, and the Command Palette button (`#open-palette-btn`) was restored as a visible ghost search-icon button in the sidebar footer (functioning in both expanded and 56px collapsed rail) (decisions by Brain, delegated design).
+
+Task T-056 executed the complete master build of Redesign v3 across 6 sequential phases on branch `ui-redesign-v3`:
+- **Phase 0 (Commit `515ff77`)**: Ask polish & canvas color sync. Synchronized `web/js/colors.js` text tokens (`#f4f4f5`, `#a1a1aa`, `#71717a`) to match `:root` CSS tokens; updated test assertions in `test_colors.js`.
+- **Phase 1 (Commit `7b2be62`)**: Explore tab rebuild from `03-explore.png`. Large rounded 2D PCA panel with PC1/PC2 axis ticks and titles, document cluster legend with counts and Demo neutral swatch, star query with line links and neighbor ID labels, right query sidebar with Project & Search amber primary button and Nearest neighbours list cards displaying distance and similarity, and shared empty-state component.
+- **Phase 2 (Commit `8abdef3`)**: HNSW tab rebuild from `04-hnsw.png`. Fixed-width compact layer slider (`L0..Ln`), "HNSW Graph — Layer Ln" header, entry point ring with `Entry (Ln)` badge, query star with `Query` badge, right search path trace panel with Random amber primary button, step playback controls with step counter, stat tiles for current node/dist/layer and search statistics, and bottom topology summary metric strip (Nodes, Max level, Entry point).
+- **Phase 3 (Commit `d9a4097`)**: Compare tab rebuild from `05-compare-results.png` & `06-compare-empty.png`. Panel headers with subtitles ("Benchmark Setup", "Summary Metrics", "Top-k ground truth diff"), preserved 3-column equal-height layout (T-052), 3 stacked bar charts with ADR-045 axis design, 10 unclipped diff rows with inline match badges, and calm mutually exclusive empty state with secondary button.
+- **Phase 4 (Commit `f45e51b`)**: Settings tab rebuild from `07-settings.png`. One-screen 3-column grid of content-sized filled surface panels with calm padding (eliminating hollow stretching): Col 1 Server status (live status dot, version, dimension/metric, HNSW params, models list, demo memory), Col 2 Demo collection form + Insert random (single primary amber button `+ Insert`), Col 3 Chat history, Documentation links, and quiet soft-red Danger zone.
+- **Phase 5**: Consistency sweep across all 5 tabs. Verified strictly <= 1 primary amber button per view across all states, zero dead styles, `!important` count = 2 (<= 3), `box-shadow` count = 0, zero hex literals outside `:root` and `colors.js`, docs synchronized (ADR-048, ISS-049 fixed).
+
+### T-056 decisions:
+- P0: Synced canvas text colors in `colors.js` to `:root` tokens `#f4f4f5`, `#a1a1aa`, `#71717a` because canvas rendered slightly warmer beige than HTML text.
+- P1: Mapped Explore query input to textarea placeholder matching mockup 03 query text while retaining full form submit and k parameter.
+- P1: Explore neighbor list rendered as individual rounded cards with file icon, title, chunk subtitle, distance, and similarity matching mockup 03 while keeping table semantics.
+- P1: Displayed axis ticks and titles (PC1, PC2) on the 2D PCA canvas matching mockup 03.
+- P2: Restyled HNSW layer label to `Layer L<n>` with compact fixed-width slider to avoid toolbar wrapping.
+- P2: Rendered entry point ring with `Entry (L<n>)` badge and query star with `Query` badge on HNSW canvas matching mockup 04.
+- P2: Restyled HNSW trace sidebar into step counter, stat tiles (current node, distance, layer), and search statistics tiles (distance comps, nodes visited, visited per layer) matching mockup 04.
+- P2: Placed topology summary at the bottom of the HNSW tab as a metric strip with hairline dividers (Nodes, Max level, Entry point) matching mockup 04.
+- P3: Added bold titles and muted subtitles ("Benchmark Setup", "Summary Metrics", "Top-k ground truth diff") matching mockup 05 while retaining T-052 full-height 3-column equal grid.
+- P4: Sized Settings panels to content with calm padding in a 3-column grid (`align-items: start`, `height: auto`), eliminating T-047 hollow vertical stretching.
+- P4: Excluded fake mockup controls (Auto-save toggle, Export/Import collection, System max context/chunk size) while retaining all real engine controls.
+- P5: Strictly enforced at most 1 primary button (`.btn-primary`) per view in every state across all tabs.
+
+### Primary Button Count Audit:
+| Tab | State | Primary Amber Buttons (`.btn-primary`) | Target Button |
+| :--- | :--- | :---: | :--- |
+| Ask | Empty | 1 | `#ask-submit-btn` (Composer send) |
+| Ask | Results | 1 | `#ask-submit-btn` (Composer send) |
+| Explore | Demo Collection | 1 | `#explore-demo-random-btn` (Random Query) |
+| Explore | Docs Collection | 1 | `#explore-query-docs-btn` (Project & Search) |
+| Explore | Empty | 0 | None (Insert Demo Vectors is `.btn-secondary`) |
+| HNSW | Demo | 1 | `#hnsw-trace-random-btn` (Random) |
+| HNSW | Docs | 0 | None (Step trace unavailable for Docs; notice shown) |
+| Compare | Demo (Results) | 1 | `#compare-demo-random-btn` (Benchmark Random Query) |
+| Compare | Docs (Results) | 1 | `#compare-docs-run-btn` (Run Benchmark) |
+| Compare | Empty | 0 | None (Initial run button is `.btn-secondary`) |
+| Settings | Default | 1 | `#demo-insert-random-btn` (+ Insert) |
+
+### Deviations from Mockup:
+| Tab | Mockup Feature | Real Implementation & Reason |
+| :--- | :--- | :--- |
+| Explore | Mockup showed kb-computer-networks | Real collection select has "Demo Vectors" and "Document Chunks" |
+| Explore | Mockup showed 4 hardcoded cluster legends | Real Docs legend dynamically lists ingested document titles with chunk counts; Demo shows neutral amber swatch |
+| HNSW | Mockup showed kb-computer-networks | Real collection select has "Demo" and "Docs" |
+| Compare | Mockup showed Query Count & algorithm checkboxes | Real Compare uses Repetitions (1/3/5/10/20) and benchmarks all 3 algorithms simultaneously |
+| Compare | Mockup diff table showed query sentences and checkmarks | Real diff table shows ground truth Brute Force vs KD-Tree vs HNSW ID matches at ranks 1-10 with inline badges |
+| Settings | Mockup showed System panel (max context, chunk size/overlap) | Real RAG chunk settings belong in document ingest drawer; not global server settings |
+| Settings | Mockup showed Auto-save toggle & Export/Import | Real persistence is `--data-dir <path>` on server startup; no runtime toggle exists |
+| Settings | Mockup showed llama3.1:8b | Real server reports actual installed Ollama models via API (e.g. llama3.2:latest) |
 
 - **Key Collaboration & Process Lessons**:
   - **Full Product-Level Redesign (ADR-047)**: Human approved 7 AI mockups saved in `docs/mockups/` representing one coherent design direction for the entire app. T-048 (Settings content-sized panels) is CANCELLED (superseded by ADR-047). Redesign v3 proceeds tab-by-tab with human screenshots after each task.
