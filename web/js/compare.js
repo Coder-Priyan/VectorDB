@@ -44,14 +44,34 @@ export function initCompareTab() {
   const canvas = byId("compare-bars-canvas");
   const summaryTbody = byId("compare-summary-tbody");
   const topkResultsTable = byId("compare-topk-tbody");
+  const emptyTitle = byId("compare-empty-title");
+  const emptyDesc = byId("compare-empty-desc");
+  const initialRunBtn = byId("compare-initial-run-btn");
+  const controlsTitle = byId("compare-controls-title");
 
   let currentDim = 128;
   let lastReportData = null;
+
+  function showResultsView() {
+    emptyStateBox?.classList.add("hidden");
+    resultsCard?.classList.remove("hidden");
+  }
+
+  function showEmptyView() {
+    emptyStateBox?.classList.remove("hidden");
+    resultsCard?.classList.add("hidden");
+  }
 
   function updateCollectionVisibility() {
     const isDocs = collSelect.value === "docs";
     demoControls?.classList.toggle("hidden", isDocs);
     docsControls?.classList.toggle("hidden", !isDocs);
+    if (controlsTitle) {
+      controlsTitle.textContent = isDocs ? "Benchmark Document Chunks" : "Benchmark Demo Vectors";
+    }
+    if (initialRunBtn) {
+      initialRunBtn.textContent = isDocs ? "Benchmark Document Chunks" : "Benchmark Demo Vectors";
+    }
   }
 
   collSelect.addEventListener("change", () => {
@@ -63,40 +83,16 @@ export function initCompareTab() {
   function showDefaultEmptyState() {
     if (!emptyStateBox) return;
     const isDocs = collSelect?.value === "docs";
-    const title = "No benchmark results yet";
-    const desc = isDocs
-      ? "Enter a semantic query above and click Run Benchmark to compare retrieval algorithms."
-      : "Choose parameters above and run a benchmark to compare Brute Force, KD-Tree, and HNSW head-to-head.";
-    const btnText = isDocs ? "Benchmark Document Chunks" : "Benchmark Demo Vectors";
-
-    const emptyCard = byId("compare-empty-card");
-    const target = emptyCard || emptyStateBox;
-
-    target.replaceChildren(
-      el("div", { className: "empty-state" },
-        el("div", { className: "empty-state-icon" },
-          createIcon("compare", 32)
-        ),
-        el("h3", { className: "empty-state-title" }, title),
-        el("p", { className: "empty-state-description" }, desc),
-        el("button", {
-          type: "button",
-          id: "compare-initial-run-btn",
-          className: "btn btn-secondary mt-3"
-        }, btnText)
-      )
-    );
-
-    emptyStateBox.querySelector("#compare-initial-run-btn")?.addEventListener("click", () => {
-      if (isDocs) {
-        docsRunBtn?.click();
-      } else {
-        demoRandomBtn?.click();
-      }
-    });
-
-    emptyStateBox.classList.remove("hidden");
-    resultsCard?.classList.add("hidden");
+    if (emptyTitle) emptyTitle.textContent = "No benchmark yet";
+    if (emptyDesc) emptyDesc.textContent = "Run a benchmark to see latency, distance computations, recall and the top-k diff.";
+    if (initialRunBtn) {
+      initialRunBtn.textContent = isDocs ? "Benchmark Document Chunks" : "Benchmark Demo Vectors";
+      initialRunBtn.classList.remove("hidden");
+    }
+    demoRandomBtn?.removeAttribute("disabled");
+    demoIdBtn?.removeAttribute("disabled");
+    docsRunBtn?.removeAttribute("disabled");
+    showEmptyView();
   }
 
   async function checkCollectionStats() {
@@ -107,22 +103,21 @@ export function initCompareTab() {
         const docsRes = await api.getDocs();
         const totalDocs = docsRes.documents?.length || 0;
         if (totalDocs === 0) {
-          showEmptyNotice("No documents ingested yet. Add documents in the Ask tab first.");
+          showEmptyNotice("No documents ingested yet. Add documents in the Ask tab, or switch to the Demo collection.");
           return false;
         }
       } else {
         const stats = await api.getStats();
         currentDim = stats.dimension || 128;
         if (!stats.count || stats.count === 0) {
-          showEmptyNotice("Demo collection is empty. Insert vectors in the Settings tab first.");
+          showEmptyNotice("Demo collection is empty. Insert vectors in Settings, or run benchmarks on Document Chunks.");
           return false;
         }
       }
       if (!lastReportData) {
         showDefaultEmptyState();
       } else {
-        emptyStateBox?.classList.add("hidden");
-        resultsCard?.classList.remove("hidden");
+        showResultsView();
       }
       return true;
     } catch (err) {
@@ -132,36 +127,14 @@ export function initCompareTab() {
   }
 
   function showEmptyNotice(msg) {
-    if (emptyStateBox) {
-      const emptyCard = byId("compare-empty-card");
-      const target = emptyCard || emptyStateBox;
-
-      target.replaceChildren(
-        el("div", { className: "empty-state" },
-          el("div", { className: "empty-state-icon" },
-            el("svg", {
-              width: "32",
-              height: "32",
-              viewBox: "0 0 24 24",
-              fill: "none",
-              stroke: "currentColor",
-              "stroke-width": "1.5",
-              "stroke-linecap": "round",
-              "stroke-linejoin": "round"
-            },
-              el("circle", { cx: "12", cy: "12", r: "10" }),
-              el("line", { x1: "12", y1: "8", x2: "12", y2: "12" }),
-              el("line", { x1: "12", y1: "16", x2: "12.01", y2: "16" })
-            )
-          ),
-          el("h3", { className: "empty-state-title" }, "Notice"),
-          el("p", { className: "empty-state-description" }, msg)
-        )
-      );
-      emptyStateBox.classList.remove("hidden");
-    }
+    if (emptyTitle) emptyTitle.textContent = "Notice";
+    if (emptyDesc) emptyDesc.textContent = msg;
+    if (initialRunBtn) initialRunBtn.classList.add("hidden");
+    demoRandomBtn?.setAttribute("disabled", "true");
+    demoIdBtn?.setAttribute("disabled", "true");
+    docsRunBtn?.setAttribute("disabled", "true");
     if (progressBar) progressBar.style.setProperty("width", "0%");
-    resultsCard?.classList.add("hidden");
+    showEmptyView();
   }
 
   function generateRandomVector() {
@@ -228,7 +201,7 @@ export function initCompareTab() {
   function renderReport(report, latencies) {
     if (!report || !report.algorithms) return;
     lastReportData = { report, latencies };
-    resultsCard?.classList.remove("hidden");
+    showResultsView();
 
     const algs = report.algorithms;
     const stats = {
@@ -390,7 +363,12 @@ export function initCompareTab() {
   window.addEventListener("resize", scheduleResize);
 
   byId("compare-initial-run-btn")?.addEventListener("click", () => {
-    demoRandomBtn?.click();
+    const isDocs = collSelect?.value === "docs";
+    if (isDocs) {
+      docsRunBtn?.click();
+    } else {
+      demoRandomBtn?.click();
+    }
   });
 
   updateCollectionVisibility();
