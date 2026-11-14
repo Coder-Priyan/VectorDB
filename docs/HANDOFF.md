@@ -1,6 +1,6 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by T-055b
+Last updated: 2026-11-15 by T-055c
 
 ## 1. Current Status
 
@@ -21,6 +21,8 @@ Task T-054 replaced the 3 middle-column Compare bar charts with the human-approv
 Following human approval of the full set of 7 AI mockups (ADR-047, superseding Quiet Studio), Task T-055 initiated the Redesign v3 on branch `ui-redesign-v3`. T-055 established the unified design foundation (3 dark surfaces `#09090b`, `#121215`, `#18181c`, amber accent `#d9a441`, radii 6/10/14px, hairlines restricted to tables/metric strips/sidebar dividers, zero box-shadows), app shell (brand header, timestamped Recent Chats with `+` action, footer with `Ollama online` / `v0.4.0` status pills), and completely rebuilt the Ask tab (centered 860px viewport, empty state with chips matching `01-ask-empty.png`, results view with user avatar timestamps, assistant layers logo, citation pills, glass-box accordion with 3-part chunk cards, 5-column latency metric tiles with amber Total tile, 3 action buttons matching `02-ask-results.png`, and slide-over `.ask-docs-drawer`).
 
 Task T-055b investigated the 2 failing tests reported by human on `/tests.html` (111/113 passed). Found `realBenchmarkFixture` had been defined inside the T-050 `describe` closure, making it `undefined` in the T-054 `describe` suite added on `ui-quiet-studio`. Moved `realBenchmarkFixture` to module scope in `web/js/tests/test_compare.js`. Scoping fix uncovered a secondary bug in `mapChartRows` (`web/js/compare_helpers.js:552` passes `latencies = null` into `extractChartMetrics` which does `latencies[alg]` throwing `TypeError: Cannot read properties of null (reading 'brute')`). Documented as ISS-049; stopped without touching production code per instructions.
+
+Task T-055c resolved the secondary bug in `extractChartMetrics` (`web/js/compare_helpers.js:414` now normalizes null/undefined `latencies` to an empty object, allowing fallback to `latency_us`), replaced the hex literal `#ffffff` at line 701 with `THEME.white` from `web/js/colors.js` (achieving zero hex literals outside `:root` and `colors.js`), and added a pure-logic test for null latencies bringing registered tests to 114. Top-k control (`#ask-k-input`) was restored as a compact quiet control next to algorithm select in the Ask composer, and the Command Palette button (`#open-palette-btn`) was restored as a visible ghost search-icon button in the sidebar footer (functioning in both expanded and 56px collapsed rail) (decisions by Brain, delegated design). Note: canvas colors in `colors.js` (`#f0ede6`, `#c4c1ba`, `#827e77`) differ from CSS text tokens (`#f4f4f5`, `#a1a1aa`, `#71717a`) and must be synced in T-056.
 
 - **Key Collaboration & Process Lessons**:
   - **Full Product-Level Redesign (ADR-047)**: Human approved 7 AI mockups saved in `docs/mockups/` representing one coherent design direction for the entire app. T-048 (Settings content-sized panels) is CANCELLED (superseded by ADR-047). Redesign v3 proceeds tab-by-tab with human screenshots after each task.

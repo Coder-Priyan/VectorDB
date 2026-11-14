@@ -1,6 +1,6 @@
 # Known Issues, Limitations & Risk Tracker
 
-Last updated: 2026-11-15 by T-055b
+Last updated: 2026-11-15 by T-055c
 
 | ID | Type | Description | Where (File/Function) | Severity | Evidence | Status | Date |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -52,6 +52,6 @@ Last updated: 2026-11-15 by T-055b
 | ISS-046 | Layout | T-051 made Compare panels content-sized (Brain instruction error); human screenshot showed large empty area below panels and squeezed charts; human preferred the T-050 full-height layout. | `web/css/app.css`, `web/js/compare_helpers.js` | Low | [CONFIRMED: human screenshot 2026-11-14] | FIXED in T-052 (visual screenshot pending) | 2026-11-14 |
 | ISS-047 | Bug | Compare left panel kept stale Summary Metrics and "Completed 5 benchmark runs." after the Demo collection became empty or changed; empty panel title was generic "Notice". Fixed in T-053: resetCompareView clears metrics, status, canvases, and diff table on collection change, count === 0, or tab activation; empty title updated dynamically ("Collection is empty", "No documents yet", "No benchmark yet"). | `web/js/compare.js`, `web/js/compare_helpers.js` | Medium | [CONFIRMED: human screenshot 2026-11-14] | FIXED in T-053 (visual screenshot pending) | 2026-11-14 |
 | ISS-048 | UX | Human feedback: product works but lacks product-level UI/feel; whole-UI redesign planned (ADR-046) | `web/` | Medium | [CONFIRMED: human instruction in chat] | IN PROGRESS (ADR-047, T-055) | 2026-11-14 |
-| ISS-049 | Unverified Area | T-055 human check on 2026-11-15: /tests.html showed 111/113; 2 mapChartRows tests failed with 'realBenchmarkFixture is not defined' (T-054 tests, never human-run before). Lesson: builder-reported test counts are claims; the human's /tests.html is the proof. Cause: fixture was scoped inside T-050 describe block in commit 17986e9, making it undefined in T-054 describe block added in commit 846c5a1 on ui-quiet-studio. Fixture moved to module scope in T-055b; uncovered secondary production bug in mapChartRows (compare_helpers.js:427 throws on null latencies). | `web/js/tests/test_compare.js`, `web/js/compare_helpers.js` | Low | [CONFIRMED: human real-browser test 2026-11-15] | OPEN (fixture defined in T-055b; blocked by mapChartRows null-latencies bug) | 2026-11-15 |
+| ISS-049 | Unverified Area | T-055 human check on 2026-11-15: /tests.html showed 111/113; 2 mapChartRows tests failed with 'realBenchmarkFixture is not defined' (T-054 tests, never human-run before). Lesson: builder-reported test counts are claims; the human's /tests.html is the proof. Cause: realBenchmarkFixture was local to the T-050 suite (since T-054), plus null latencies in extractChartMetrics. Fixed in T-055b (fixture moved to module scope) and T-055c (extractChartMetrics normalizes null/undefined latencies to empty object, white from colors.js, 114 registered tests). | `web/js/tests/test_compare.js`, `web/js/compare_helpers.js` | Low | [CONFIRMED: human real-browser test 2026-11-15] | FIXED (human re-run of /tests.html pending) | 2026-11-15 |
 
 *(Optional polish, not an issue: Compare sidebar has empty space below Summary Metrics at 1920x1080.)*
