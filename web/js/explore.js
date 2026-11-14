@@ -37,6 +37,7 @@ export function initExploreTab() {
     emptyStateBox?.classList.add("hidden");
     hoveredPoint = null; queryStar = null; topKResults = [];
     resultsTableBody?.replaceChildren();
+    if (varianceNote) varianceNote.textContent = "";
 
     const isDocs = collSelect.value === "docs";
     byId("explore-docs-controls")?.classList.toggle("hidden", !isDocs);
@@ -63,6 +64,8 @@ export function initExploreTab() {
   }
 
   function showEmptyState(isDocs) {
+    if (varianceNote) varianceNote.textContent = "";
+    if (legendContainer) legendContainer.replaceChildren();
     if (!emptyStateBox) return;
     emptyStateBox.classList.remove("hidden");
     if (isDocs) {

@@ -463,7 +463,8 @@ html {
 }
 
 .app-sidebar.collapsed .badge,
-.app-sidebar.collapsed .sidebar-footer-hint {
+.app-sidebar.collapsed .sidebar-footer-hint,
+.app-sidebar.collapsed .sidebar-version-row {
   display: none;
 }
 
@@ -484,6 +485,18 @@ html {
 .sidebar-hint-btn:hover {
   color: var(--text-primary);
   border-color: var(--border-active);
+}
+
+.sidebar-version-row {
+  display: flex;
+  justify-content: center;
+  padding-top: 2px;
+}
+
+.sidebar-version-badge {
+  font-size: 11px;
+  color: var(--text-muted);
+  opacity: 0.65;
 }
 
 /* Command Palette Overlay */
@@ -2280,6 +2293,44 @@ input[type="number"] {
   text-wrap: balance;
 }
 
+.settings-config-row + .settings-config-row {
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border-color);
+}
+
+.settings-docs-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-doc-link,
+.settings-doc-link-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  width: 100%;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.settings-doc-link:hover,
+.settings-doc-link-btn:hover {
+  border-color: var(--border-active);
+  background: var(--bg-card);
+  color: var(--accent-color);
+}
+
 #panel-settings .form-group label {
   font-size: 13px;
   line-height: 1.5;
@@ -2606,7 +2657,7 @@ input[type="number"] {
 
 /* Compare Tab Fixed Layout (One-Screen Phase 3a) */
 #panel-compare .viz-sidebar {
-  width: 460px;
+  width: 480px;
   max-width: 100%;
   flex-shrink: 0;
   height: 100%;
@@ -2654,23 +2705,31 @@ input[type="number"] {
 #panel-compare .viz-sidebar .table-container {
   max-height: none;
   overflow-y: visible;
-  overflow-x: auto;
+  overflow-x: hidden;
+  width: 100%;
   margin-top: 8px;
+}
+
+#panel-compare .viz-sidebar .info-table td.empty-state {
+  white-space: normal;
+  text-align: center;
+  padding: 12px 6px;
 }
 
 #panel-compare .viz-sidebar .info-table th,
 #panel-compare .viz-sidebar .info-table td {
   white-space: nowrap;
-  padding: 4px 6px;
-  font-size: 12px;
-}
-
-#panel-compare .viz-sidebar .info-table th {
+  padding: 4px 5px;
   font-size: 11px;
 }
 
+#panel-compare .viz-sidebar .info-table th {
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+}
+
 #panel-compare .viz-sidebar .info-table td.font-mono {
-  font-size: 12px;
+  font-size: 11.5px;
 }
 
 #panel-compare .info-table td:first-child,

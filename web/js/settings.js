@@ -61,6 +61,21 @@ export function initSettingsTab() {
         footerVersionEl.textContent = `v${health.version}`;
       }
 
+      // Update Persistence Status
+      const persisStatusEl = document.getElementById("settings-persistence-status");
+      const persisDirEl = document.getElementById("settings-persistence-dir");
+      const persisHintEl = document.getElementById("settings-persistence-hint");
+
+      if (health.persistence && health.persistence.enabled) {
+        if (persisStatusEl) persisStatusEl.textContent = "Active (on-disk persistence)";
+        if (persisDirEl) persisDirEl.textContent = health.persistence.data_dir || "--";
+        if (persisHintEl) persisHintEl.textContent = "Auto-saving collections on change. Snapshots loaded on startup.";
+      } else {
+        if (persisStatusEl) persisStatusEl.textContent = "Disabled (in-memory only)";
+        if (persisDirEl) persisDirEl.textContent = "None (ephemeral)";
+        if (persisHintEl) persisHintEl.textContent = "Pass --data-dir <path> on startup to persist collections across restarts.";
+      }
+
       healthBox.replaceChildren(
         el("table", { className: "info-table" },
           el("tbody", {},
@@ -157,6 +172,67 @@ export function initSettingsTab() {
           showGlobalError(err.code, `Insert failed: ${err.message}`);
         }
       });
+    });
+  }
+
+  // Handle Clear Chat History (two-step confirm)
+  const clearChatsBtn = document.getElementById("settings-clear-chats-btn");
+  const clearChatsCancelBtn = document.getElementById("settings-clear-chats-cancel-btn");
+  const clearChatsStatus = document.getElementById("settings-clear-chats-status");
+  let clearChatsTimer = null;
+  let isClearChatsPending = false;
+
+  function cancelClearChatsPrompt() {
+    if (clearChatsTimer) {
+      clearTimeout(clearChatsTimer);
+      clearChatsTimer = null;
+    }
+    isClearChatsPending = false;
+    if (clearChatsBtn) clearChatsBtn.textContent = "Clear Chat History";
+    if (clearChatsCancelBtn) clearChatsCancelBtn.classList.add("hidden");
+  }
+
+  clearChatsCancelBtn?.addEventListener("click", cancelClearChatsPrompt);
+
+  if (clearChatsBtn) {
+    clearChatsBtn.addEventListener("click", () => {
+      if (!isClearChatsPending) {
+        isClearChatsPending = true;
+        clearChatsBtn.textContent = "Confirm clear";
+        clearChatsCancelBtn?.classList.remove("hidden");
+        clearChatsTimer = setTimeout(cancelClearChatsPrompt, 5000);
+        return;
+      }
+      cancelClearChatsPrompt();
+
+      try {
+        localStorage.removeItem("vectordb:chats");
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith("vectordb:chats:")) {
+            keysToRemove.push(k);
+          }
+        }
+        keysToRemove.forEach(k => localStorage.removeItem(k));
+        window.dispatchEvent(new CustomEvent("vectordb:chats-updated", { detail: { activeChatId: null } }));
+        window.dispatchEvent(new CustomEvent("vectordb:clear-all-chats"));
+        if (clearChatsStatus) {
+          clearChatsStatus.textContent = "Chat history cleared successfully.";
+          clearChatsStatus.classList.remove("hidden");
+          setTimeout(() => clearChatsStatus?.classList.add("hidden"), 5000);
+        }
+      } catch (err) {
+        showGlobalError("storage_error", `Failed to clear chat history: ${err.message}`);
+      }
+    });
+  }
+
+  // Handle Guided Tour Trigger
+  const startTourBtn = document.getElementById("settings-start-tour-btn");
+  if (startTourBtn) {
+    startTourBtn.addEventListener("click", () => {
+      window.dispatchEvent(new CustomEvent("vectordb:start-tour"));
     });
   }
 

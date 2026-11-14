@@ -1016,6 +1016,10 @@ export function initAskTab() {
     }
   });
 
+  window.addEventListener("vectordb:clear-all-chats", () => {
+    startNewChat();
+  });
+
   // ---------------------------------------------------------------------------
   // 11. Initial Boot
   // ---------------------------------------------------------------------------

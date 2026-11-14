@@ -69,6 +69,9 @@
             <span class="kbd">Ctrl K</span>
           </button>
         </div>
+        <div class="sidebar-version-row">
+          <span id="footer-version" class="sidebar-version-badge font-mono text-xs text-muted">v0.4.0</span>
+        </div>
       </div>
     </aside>
 
@@ -582,9 +585,58 @@
           <div id="settings-reset-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
         </section>
       </div>
+
+      <!-- Secondary 3-Column Row: Storage, Chat Maintenance & Docs -->
+      <div class="settings-config-row mt-4">
+        <!-- Column 1: Persistence & Storage -->
+        <section class="settings-config-col">
+          <h2 class="section-title">Persistence & storage</h2>
+          <p class="settings-col-desc">Engine snapshot and disk persistence status.</p>
+          <div class="form-stack mt-3">
+            <div class="form-group">
+              <label>Persistence status</label>
+              <div id="settings-persistence-status" class="font-mono text-sm text-primary">Checking...</div>
+            </div>
+            <div class="form-group mt-2">
+              <label>Data directory</label>
+              <div id="settings-persistence-dir" class="font-mono text-xs text-muted">--</div>
+            </div>
+            <p id="settings-persistence-hint" class="settings-col-desc text-xs text-muted mt-2">Pass --data-dir &lt;path&gt; on server start to persist collections and RAG documents across restarts.</p>
+          </div>
+        </section>
+
+        <!-- Column 2: Chat History Maintenance -->
+        <section class="settings-config-col">
+          <h2 class="section-title">Chat history</h2>
+          <p class="settings-col-desc">Clear local conversation threads and reset the active Ask chat.</p>
+          <div class="settings-confirm-actions mt-3">
+            <button type="button" id="settings-clear-chats-cancel-btn" class="btn btn-sm btn-secondary hidden">Cancel</button>
+            <button type="button" id="settings-clear-chats-btn" class="btn btn-sm btn-secondary">Clear Chat History</button>
+          </div>
+          <div id="settings-clear-chats-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
+        </section>
+
+        <!-- Column 3: Documentation & Guides -->
+        <section class="settings-config-col">
+          <h2 class="section-title">Documentation & guides</h2>
+          <p class="settings-col-desc">Offline educational guides and browser test verification.</p>
+          <div class="settings-docs-links mt-3">
+            <a href="/tests.html" target="_blank" class="settings-doc-link">
+              <span>Interactive Test Suite</span>
+              <span class="text-xs text-muted font-mono">/tests.html</span>
+            </a>
+            <button type="button" id="settings-start-tour-btn" class="settings-doc-link-btn">
+              <span>Start Guided Tour</span>
+              <span class="text-xs text-muted">7-step interactive walkthrough</span>
+            </button>
+            <div class="settings-doc-hint mt-2">
+              <span class="text-xs text-muted">Offline learning tool for vector search & RAG.</span>
+            </div>
+          </div>
+        </section>
+      </div>
     </section>
   </main>
-      <footer class="app-footer"><span>VectorDB &bull; C++17 core engine - runs fully offline - no cloud, no external vector DB</span><span id="footer-version" class="text-muted">v0.4.0</span></footer>
     </div>
   </div>
 
