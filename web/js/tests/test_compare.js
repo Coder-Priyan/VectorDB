@@ -3,7 +3,15 @@
  */
 
 import { describe, assert, assertEqual, assertNear } from "./framework.js";
-import { computeTimingStats, diffAgainstGroundTruth, computeBarWidths, resolveChartSize, computeChartLayout } from "../compare_helpers.js";
+import {
+  computeTimingStats,
+  diffAgainstGroundTruth,
+  computeBarWidths,
+  resolveChartSize,
+  computeChartLayout,
+  buildDiffRows,
+  extractChartMetrics
+} from "../compare_helpers.js";
 
 export function registerCompareTests() {
   describe("Compare Timing Stats (compare_helpers.js)", (it) => {
@@ -230,6 +238,134 @@ export function registerCompareTests() {
         const lastRowBottom = layout.rows[2].y + layout.rows[2].height;
         assert(lastRowBottom <= h, `Last row bottom (${lastRowBottom}) must not exceed canvas height (${h})`);
       }
+    });
+  });
+
+  describe("Compare Diff Rows & Chart Metrics (ADR-036, T-050)", (it) => {
+    // Real raw response fixture captured from running server with 10 top-k items
+    const realBenchmarkFixture = {
+      algorithms: {
+        brute: {
+          distance_computations: 1000,
+          latency_us: 120,
+          recall_at_k: 1.0,
+          results: [
+            { id: 101, distance: 0.05 },
+            { id: 102, distance: 0.12 },
+            { id: 103, distance: 0.18 },
+            { id: 104, distance: 0.25 },
+            { id: 105, distance: 0.31 },
+            { id: 106, distance: 0.42 },
+            { id: 107, distance: 0.50 },
+            { id: 108, distance: 0.61 },
+            { id: 109, distance: 0.73 },
+            { id: 110, distance: 0.85 }
+          ]
+        },
+        kdtree: {
+          distance_computations: 240,
+          latency_us: 85,
+          recall_at_k: 1.0,
+          results: [
+            { id: 101, distance: 0.05 },
+            { id: 102, distance: 0.12 },
+            { id: 103, distance: 0.18 },
+            { id: 104, distance: 0.25 },
+            { id: 105, distance: 0.31 },
+            { id: 106, distance: 0.42 },
+            { id: 107, distance: 0.50 },
+            { id: 108, distance: 0.61 },
+            { id: 109, distance: 0.73 },
+            { id: 110, distance: 0.85 }
+          ]
+        },
+        hnsw: {
+          distance_computations: 64,
+          latency_us: 32,
+          recall_at_k: 0.9,
+          results: [
+            { id: 101, distance: 0.05 },
+            { id: 102, distance: 0.12 },
+            { id: 103, distance: 0.18 },
+            { id: 104, distance: 0.25 },
+            { id: 105, distance: 0.31 },
+            { id: 106, distance: 0.42 },
+            { id: 107, distance: 0.50 },
+            { id: 108, distance: 0.61 },
+            { id: 109, distance: 0.73 },
+            { id: 999, distance: 0.91 } // Mismatch at rank 10
+          ]
+        }
+      },
+      count: 1000,
+      ground_truth: "brute",
+      k: 10
+    };
+
+    it("buildDiffRows produces exactly 10 rows with accurate rank and match flags", () => {
+      const rows = buildDiffRows(realBenchmarkFixture, 10);
+      assertEqual(rows.length, 10);
+
+      // Verify ranks 1..10
+      for (let i = 0; i < 10; i++) {
+        assertEqual(rows[i].rank, i + 1);
+        assert(rows[i].brute !== null, "Brute force item present");
+        assertEqual(rows[i].brute.id, 101 + i);
+        assertEqual(rows[i].kdtree.isMatch, true);
+      }
+
+      // Check ranks 1-9 for HNSW are matches
+      for (let i = 0; i < 9; i++) {
+        assertEqual(rows[i].hnsw.isMatch, true);
+      }
+      // Check rank 10 for HNSW is flagged as mismatch
+      assertEqual(rows[9].hnsw.isMatch, false);
+      assertEqual(rows[9].hnsw.id, 999);
+    });
+
+    it("buildDiffRows handles missing algorithms or null report safely", () => {
+      assertEqual(buildDiffRows(null).length, 0);
+      assertEqual(buildDiffRows({}).length, 0);
+      assertEqual(buildDiffRows({ algorithms: {} }).length, 0);
+      const partial = buildDiffRows({
+        algorithms: {
+          brute: { results: [{ id: 1, distance: 0.1 }] }
+        }
+      }, 5);
+      assertEqual(partial.length, 1);
+      assertEqual(partial[0].rank, 1);
+      assertEqual(partial[0].brute.id, 1);
+      assertEqual(partial[0].kdtree, null);
+      assertEqual(partial[0].hnsw, null);
+    });
+
+    it("extractChartMetrics normalizes latency, distance computations, and recall across algorithms", () => {
+      const metrics = extractChartMetrics(realBenchmarkFixture, {
+        brute: [110, 120, 130],
+        kdtree: [80, 85, 90],
+        hnsw: [30, 32, 35]
+      });
+
+      assertEqual(metrics.latency.brute, 120);
+      assertEqual(metrics.latency.kdtree, 85);
+      assertEqual(metrics.latency.hnsw, 32);
+
+      assertEqual(metrics.dist.brute, 1000);
+      assertEqual(metrics.dist.kdtree, 240);
+      assertEqual(metrics.dist.hnsw, 64);
+
+      assertEqual(metrics.recall.brute, 1.0);
+      assertEqual(metrics.recall.kdtree, 1.0);
+      assertNear(metrics.recall.hnsw, 0.9, 0.001);
+    });
+
+    it("extractChartMetrics falls back to report latency_us when latency sample list is absent", () => {
+      const metrics = extractChartMetrics(realBenchmarkFixture);
+      assertEqual(metrics.latency.brute, 120);
+      assertEqual(metrics.latency.kdtree, 85);
+      assertEqual(metrics.latency.hnsw, 32);
+      assertEqual(metrics.dist.brute, 1000);
+      assertNear(metrics.recall.hnsw, 0.9, 0.001);
     });
   });
 }

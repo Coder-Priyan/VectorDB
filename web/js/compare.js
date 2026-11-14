@@ -10,6 +10,9 @@ import {
   computeTimingStats,
   diffAgainstGroundTruth,
   drawComparisonBars,
+  buildDiffRows,
+  extractChartMetrics,
+  drawMetricBarChart,
   ALGORITHM_LABELS,
   ALGORITHM_COLORS
 } from "./compare_helpers.js";
@@ -41,13 +44,17 @@ export function initCompareTab() {
   const progressBar = byId("compare-progress-fill");
   const emptyStateBox = byId("compare-empty-state");
   const resultsCard = byId("compare-results-card");
-  const canvas = byId("compare-bars-canvas");
+  const canvasLatency = byId("compare-chart-latency");
+  const canvasDistances = byId("compare-chart-distances");
+  const canvasRecall = byId("compare-chart-recall");
+  const canvasBars = byId("compare-bars-canvas");
   const summaryTbody = byId("compare-summary-tbody");
   const topkResultsTable = byId("compare-topk-tbody");
   const emptyTitle = byId("compare-empty-title");
   const emptyDesc = byId("compare-empty-desc");
   const initialRunBtn = byId("compare-initial-run-btn");
   const controlsTitle = byId("compare-controls-title");
+  const chartsCol = byId("compare-charts-col");
 
   let currentDim = 128;
   let lastReportData = null;
@@ -239,69 +246,71 @@ export function initCompareTab() {
   }
 
   function renderChart() {
-    if (!canvas || !lastReportData) return;
-    const rect = canvas.getBoundingClientRect();
-    if (!isCanvasDrawable(rect.width, rect.height)) return;
-
-    const ctx = canvas.getContext("2d");
-    setupCanvasDpr(canvas, ctx);
-
+    if (!lastReportData) return;
     const isDark = true;
-    const algs = lastReportData.report.algorithms;
-    const stats = {
-      brute: computeTimingStats(lastReportData.latencies.brute),
-      kdtree: computeTimingStats(lastReportData.latencies.kdtree),
-      hnsw: computeTimingStats(lastReportData.latencies.hnsw)
+    const chartMetrics = extractChartMetrics(lastReportData.report, lastReportData.latencies);
+
+    const renderSingleCanvas = (cvs, key) => {
+      if (!cvs) return;
+      const rect = cvs.getBoundingClientRect();
+      if (!isCanvasDrawable(rect.width, rect.height)) return;
+      const ctx = cvs.getContext("2d");
+      setupCanvasDpr(cvs, ctx);
+      drawMetricBarChart(cvs, key, chartMetrics[key], isDark);
     };
 
-    const chartData = {
-      brute: { latency: stats.brute.median, dist: algs.brute?.distance_computations || 0, recall: algs.brute?.recall_at_k ?? 1 },
-      kdtree: { latency: stats.kdtree.median, dist: algs.kdtree?.distance_computations || 0, recall: algs.kdtree?.recall_at_k ?? 1 },
-      hnsw: { latency: stats.hnsw.median, dist: algs.hnsw?.distance_computations || 0, recall: algs.hnsw?.recall_at_k ?? 1 }
-    };
+    renderSingleCanvas(canvasLatency, "latency");
+    renderSingleCanvas(canvasDistances, "dist");
+    renderSingleCanvas(canvasRecall, "recall");
 
-    drawComparisonBars(canvas, chartData, isDark);
+    if (canvasBars) {
+      const rect = canvasBars.getBoundingClientRect();
+      if (isCanvasDrawable(rect.width, rect.height)) {
+        const ctx = canvasBars.getContext("2d");
+        setupCanvasDpr(canvasBars, ctx);
+        const stats = {
+          brute: computeTimingStats(lastReportData.latencies.brute),
+          kdtree: computeTimingStats(lastReportData.latencies.kdtree),
+          hnsw: computeTimingStats(lastReportData.latencies.hnsw)
+        };
+        const algs = lastReportData.report.algorithms;
+        const chartData = {
+          brute: { latency: stats.brute.median, dist: algs.brute?.distance_computations || 0, recall: algs.brute?.recall_at_k ?? 1 },
+          kdtree: { latency: stats.kdtree.median, dist: algs.kdtree?.distance_computations || 0, recall: algs.kdtree?.recall_at_k ?? 1 },
+          hnsw: { latency: stats.hnsw.median, dist: algs.hnsw?.distance_computations || 0, recall: algs.hnsw?.recall_at_k ?? 1 }
+        };
+        drawComparisonBars(canvasBars, chartData, isDark);
+      }
+    }
   }
 
   function renderTopKComparison(report) {
     if (!topkResultsTable) return;
     topkResultsTable.replaceChildren();
 
-    const bruteList = report.algorithms?.brute?.results || [];
-    const kdtreeList = report.algorithms?.kdtree?.results || [];
-    const hnswList = report.algorithms?.hnsw?.results || [];
+    const diffRows = buildDiffRows(report, 100);
 
-    const kdtreeDiff = diffAgainstGroundTruth(kdtreeList, bruteList);
-    const hnswDiff = diffAgainstGroundTruth(hnswList, bruteList);
+    const formatCell = (item, isGt = false) => {
+      if (!item) return el("span", { className: "text-muted" }, "-");
+      const distStr = item.distance !== undefined ? ` (d=${Number(item.distance).toFixed(4)})` : "";
+      const idSpan = el("span", { className: "font-mono" }, `#${item.id}${distStr}`);
 
-    const rowCount = Math.max(bruteList.length, kdtreeList.length, hnswList.length);
+      if (isGt) return idSpan;
 
-    for (let i = 0; i < rowCount; i++) {
-      const b = bruteList[i];
-      const kd = kdtreeDiff[i];
-      const hn = hnswDiff[i];
+      const badge = el("span", {
+        className: item.isMatch ? "badge badge-success ml-1 text-xs" : "badge badge-warning ml-1 text-xs"
+      }, item.isMatch ? "✓" : "diff");
 
-      const formatCell = (item, isGt = false) => {
-        if (!item) return el("span", { className: "text-muted" }, "-");
-        const distStr = item.distance !== undefined ? ` (d=${Number(item.distance).toFixed(4)})` : "";
-        const idSpan = el("span", { className: "font-mono" }, `#${item.id}${distStr}`);
+      return el("div", { className: "flex-cell" }, idSpan, badge);
+    };
 
-        if (isGt) return idSpan;
-
-        const badge = el("span", {
-          className: item.isMatch ? "badge badge-success ml-1 text-xs" : "badge badge-warning ml-1 text-xs"
-        }, item.isMatch ? "✓" : "diff");
-
-        return el("div", { className: "flex-cell" }, idSpan, badge);
-      };
-
+    for (const row of diffRows) {
       const tr = el("tr", {},
-        el("td", { className: "text-muted" }, String(i + 1)),
-        el("td", {}, formatCell(b, true)),
-        el("td", {}, formatCell(kd, false)),
-        el("td", {}, formatCell(hn, false))
+        el("td", { className: "text-muted" }, String(row.rank)),
+        el("td", {}, formatCell(row.brute, true)),
+        el("td", {}, formatCell(row.kdtree, false)),
+        el("td", {}, formatCell(row.hnsw, false))
       );
-
       topkResultsTable.appendChild(tr);
     }
   }
@@ -347,10 +356,10 @@ export function initCompareTab() {
     });
   }
 
-  const canvasWrapper = canvas?.parentElement;
-  if (canvasWrapper && typeof ResizeObserver !== "undefined") {
+  const targetObserver = chartsCol || canvas?.parentElement;
+  if (targetObserver && typeof ResizeObserver !== "undefined") {
     const ro = new ResizeObserver(scheduleResize);
-    ro.observe(canvasWrapper);
+    ro.observe(targetObserver);
   }
 
   byId("tab-btn-compare")?.addEventListener("click", () => {

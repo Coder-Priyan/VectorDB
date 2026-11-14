@@ -357,3 +357,188 @@ export function drawComparisonBars(canvas, data, isDark = false) {
   });
 }
 
+/**
+ * Builds structured diff rows for the Top-k Ground Truth comparison table
+ * using real server benchmark response fixture data.
+ *
+ * @param {object} report - Benchmark report containing algorithms: { brute, kdtree, hnsw }
+ * @param {number} [maxRows=10] - Maximum rows to return (default: 10)
+ * @returns {Array<{
+ *   rank: number,
+ *   brute: { id: number, distance: number } | null,
+ *   kdtree: { id: number, distance: number, isMatch: boolean } | null,
+ *   hnsw: { id: number, distance: number, isMatch: boolean } | null
+ * }>}
+ */
+export function buildDiffRows(report, maxRows = 10) {
+  if (!report || typeof report !== "object" || !report.algorithms) return [];
+
+  const bruteList = Array.isArray(report.algorithms.brute?.results) ? report.algorithms.brute.results : [];
+  const kdtreeList = Array.isArray(report.algorithms.kdtree?.results) ? report.algorithms.kdtree.results : [];
+  const hnswList = Array.isArray(report.algorithms.hnsw?.results) ? report.algorithms.hnsw.results : [];
+
+  const kdtreeDiff = diffAgainstGroundTruth(kdtreeList, bruteList);
+  const hnswDiff = diffAgainstGroundTruth(hnswList, bruteList);
+
+  const total = Math.max(bruteList.length, kdtreeList.length, hnswList.length);
+  const limit = typeof maxRows === "number" && maxRows > 0 ? Math.min(total, maxRows) : total;
+  const rows = [];
+
+  for (let i = 0; i < limit; i++) {
+    const b = bruteList[i] || null;
+    const kd = kdtreeDiff[i] || null;
+    const hn = hnswDiff[i] || null;
+
+    rows.push({
+      rank: i + 1,
+      brute: b ? { id: b.id, distance: b.distance } : null,
+      kdtree: kd ? { id: kd.id, distance: kd.distance, isMatch: Boolean(kd.isMatch) } : null,
+      hnsw: hn ? { id: hn.id, distance: hn.distance, isMatch: Boolean(hn.isMatch) } : null
+    });
+  }
+
+  return rows;
+}
+
+/**
+ * Extracts and normalizes chart metric rows across algorithms from benchmark report.
+ *
+ * @param {object} report - Benchmark report containing algorithms
+ * @param {object} [latencies] - Map of algorithm to latency sample arrays
+ * @returns {{
+ *   latency: Record<string, number>,
+ *   dist: Record<string, number>,
+ *   recall: Record<string, number>
+ * }}
+ */
+export function extractChartMetrics(report, latencies = {}) {
+  const algs = report?.algorithms || {};
+  const algorithms = ["brute", "kdtree", "hnsw"];
+
+  const res = {
+    latency: { brute: 0, kdtree: 0, hnsw: 0 },
+    dist: { brute: 0, kdtree: 0, hnsw: 0 },
+    recall: { brute: 1.0, kdtree: 1.0, hnsw: 1.0 }
+  };
+
+  for (const alg of algorithms) {
+    const aData = algs[alg] || {};
+    const latList = latencies[alg];
+    if (Array.isArray(latList) && latList.length > 0) {
+      res.latency[alg] = computeTimingStats(latList).median;
+    } else {
+      res.latency[alg] = typeof aData.latency_us === "number" ? aData.latency_us : 0;
+    }
+    res.dist[alg] = typeof aData.distance_computations === "number" ? aData.distance_computations : 0;
+    res.recall[alg] = typeof aData.recall_at_k === "number" ? aData.recall_at_k : 1.0;
+  }
+
+  return res;
+}
+
+/**
+ * Metric configurations for individual stacked bar charts.
+ */
+export const METRIC_CONFIGS = {
+  latency: {
+    key: "latency",
+    title: "Latency (μs) — lower is better",
+    format: v => `${Math.round(v)} μs`
+  },
+  dist: {
+    key: "dist",
+    title: "Distance Computations — lower is better",
+    format: v => `${v}`
+  },
+  recall: {
+    key: "recall",
+    title: "Recall@k — higher is better",
+    format: v => `${(v * 100).toFixed(1)}%`
+  }
+};
+
+/**
+ * Draws a single horizontal bar chart with 3 rows (Brute Force, KD-Tree, HNSW)
+ * and the metric value at the end of each bar. Sized strictly in CSS pixels.
+ *
+ * @param {HTMLCanvasElement} canvas
+ * @param {string} metricKey - "latency" | "dist" | "recall"
+ * @param {Record<string, number>} metricValues - Map of algorithm to metric number
+ * @param {boolean} [isDark=true]
+ */
+export function drawMetricBarChart(canvas, metricKey, metricValues, isDark = true) {
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  const rect = canvas.getBoundingClientRect ? canvas.getBoundingClientRect() : null;
+  const dpr = (typeof window !== "undefined" && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+  const { w, h } = resolveChartSize(
+    rect?.width || canvas.clientWidth || 0,
+    rect?.height || canvas.clientHeight || 0,
+    canvas.width,
+    canvas.height,
+    dpr
+  );
+
+  if (w <= 0 || h <= 0) return;
+
+  ctx.fillStyle = THEME.bgCanvas;
+  ctx.fillRect(0, 0, w, h);
+
+  const algorithms = ["brute", "kdtree", "hnsw"];
+  const cfg = METRIC_CONFIGS[metricKey] || METRIC_CONFIGS.latency;
+
+  const maxVal = metricKey === "recall"
+    ? 1.0
+    : Math.max(...algorithms.map(a => metricValues?.[a] || 0), 1);
+
+  const padLeft = 8;
+  const padRight = 8;
+  const labelWidth = 74;
+  const barStartX = padLeft + labelWidth + 8;
+  const rowCount = 3;
+  const rowHeight = Math.max(0, Math.floor(h / rowCount));
+  const barHeight = Math.max(6, Math.min(14, rowHeight - 12));
+
+  algorithms.forEach((alg, idx) => {
+    const rowY = idx * rowHeight;
+    const rowCenterY = rowY + Math.floor(rowHeight / 2);
+    const barY = rowCenterY - Math.floor(barHeight / 2);
+
+    // Algorithm name on left
+    ctx.fillStyle = THEME.textPrimary;
+    ctx.font = '12px "IBM Plex Sans", sans-serif';
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "left";
+    ctx.fillText(ALGORITHM_LABELS[alg] || alg, padLeft, rowCenterY);
+
+    // Value calculation
+    const rawVal = metricValues?.[alg] || 0;
+    const fraction = maxVal > 0 ? Math.min(1.0, Math.max(0, rawVal / maxVal)) : 0;
+    const valStr = cfg.format(rawVal);
+
+    ctx.font = '11px "IBM Plex Mono", monospace';
+    const valWidth = ctx.measureText(valStr).width;
+    const textPad = 8;
+    const maxBarW = Math.max(0, w - barStartX - valWidth - textPad - padRight);
+    const barW = maxBarW > 0 ? Math.max(3, Math.round(fraction * maxBarW)) : 0;
+
+    // Draw horizontal bar
+    if (barW > 0) {
+      ctx.fillStyle = ALGORITHM_COLORS[alg] || DOC_FALLBACK_COLOR;
+      ctx.fillRect(barStartX, barY, barW, barHeight);
+    }
+
+    // Draw value at the end of the bar
+    if (w > barStartX + valWidth) {
+      const valX = barStartX + barW + textPad;
+      const clampedValX = Math.min(valX, w - valWidth - padRight);
+      ctx.fillStyle = THEME.textPrimary;
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "left";
+      ctx.fillText(valStr, clampedValX, rowCenterY);
+    }
+  });
+}
+
