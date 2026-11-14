@@ -73,6 +73,24 @@ export function initAskTab() {
     localStorage.setItem(DOCS_DRAWER_KEY, String(open));
   });
 
+  // Populate static icons for Ask shell & composer
+  if (toggleDocsDrawerBtn) {
+    const iconSlot = toggleDocsDrawerBtn.querySelector(".btn-icon");
+    if (iconSlot && !iconSlot.hasChildNodes()) {
+      iconSlot.appendChild(createIcon("document", 14));
+    }
+  }
+
+  const algoIconSlot = document.querySelector(".composer-algo-icon");
+  if (algoIconSlot && !algoIconSlot.hasChildNodes()) {
+    algoIconSlot.appendChild(createIcon("database", 14));
+  }
+
+  const sendIconSlot = askSubmitBtn?.querySelector(".btn-send-icon");
+  if (sendIconSlot && !sendIconSlot.hasChildNodes()) {
+    sendIconSlot.appendChild(createIcon("send", 14));
+  }
+
   docLoadSampleBtn?.addEventListener("click", async () => {
     clearGlobalError();
     try {
@@ -433,19 +451,30 @@ export function initAskTab() {
   // ---------------------------------------------------------------------------
   // 8. Message Thread Rendering & Glass-Box Component
   // ---------------------------------------------------------------------------
-  function createExampleQuestionBtn(qText) {
-    const btn = el("button", {
+  function formatMessageTime(timestamp) {
+    if (!timestamp) return "";
+    const d = new Date(timestamp);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  }
+
+  function createSuggestionChip(qText) {
+    const chip = el("button", {
       type: "button",
-      className: "chip ask-example-q-btn"
-    }, qText);
-    btn.addEventListener("click", () => {
+      className: "ask-suggestion-chip",
+      title: qText
+    },
+      createIcon("chat", 15, "ask-suggestion-icon"),
+      el("span", {}, qText)
+    );
+    chip.addEventListener("click", () => {
       if (askQuestionInput) {
         askQuestionInput.value = qText;
         autoResizeComposer();
         askQuestionInput.focus();
       }
     });
-    return btn;
+    return chip;
   }
 
   function renderEmptyState() {
@@ -454,92 +483,47 @@ export function initAskTab() {
       askAnswerBox.removeChild(askAnswerBox.firstChild);
     }
     askAnswerBox.className = "answer-box empty";
-
-    if (cachedDocsCount === 0) {
-      // 1. Add a document -> 2. Ask a question guided empty state
-      const emptyStateEl = el("div", { className: "empty-state ask-empty-state" },
-        el("div", { className: "empty-state-icon" },
-          el("svg", {
-            width: "32",
-            height: "32",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            "stroke-width": "1.5",
-            "stroke-linecap": "round",
-            "stroke-linejoin": "round"
-          },
-            el("path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" })
-          )
-        ),
-        el("h3", { className: "empty-state-title" }, "Ask a question about your documents"),
-        el("p", { className: "empty-state-description" },
-          "VectorDB runs 100% offline. Load the built-in introductory document or ingest your own files to see transparent semantic search in action."
-        ),
-        el("div", { className: "ask-guide-actions mt-3" },
-          el("button", {
-            type: "button",
-            id: "ask-empty-load-sample-btn",
-            className: "btn btn-sm btn-secondary",
-            title: "Load sample document (vectordb_intro.txt)"
-          }, "Load sample document"),
-          el("button", {
-            type: "button",
-            className: "btn btn-sm btn-ghost",
-            title: "Open Documents drawer"
-          }, "Open Documents")
-        ),
-        el("div", { className: "ask-guide-examples-title mt-4 text-xs text-muted" }, "Example questions once loaded:"),
-        el("div", { className: "ask-guide-questions mt-2" },
-          createExampleQuestionBtn("What is VectorDB and what makes it transparent?"),
-          createExampleQuestionBtn("How does HNSW compare to flat brute-force search?"),
-          createExampleQuestionBtn("Why does VectorDB avoid cloud dependencies?")
-        )
-      );
-
-      const sampleBtn = emptyStateEl.querySelector("#ask-empty-load-sample-btn");
-      sampleBtn?.addEventListener("click", () => {
-        docLoadSampleBtn?.click();
-      });
-
-      const openDocsBtn = emptyStateEl.querySelector(".btn-ghost");
-      openDocsBtn?.addEventListener("click", () => {
-        if (docDrawer?.classList.contains("collapsed")) {
-          docDrawer.classList.remove("collapsed");
-          localStorage.setItem(DOCS_DRAWER_KEY, "true");
-        }
-      });
-
-      askAnswerBox.appendChild(emptyStateEl);
-    } else {
-      // Documents exist: show ready status and 3 suggested questions
-      const emptyStateEl = el("div", { className: "empty-state ask-empty-state" },
-        el("div", { className: "empty-state-icon" },
-          el("svg", {
-            width: "32",
-            height: "32",
-            viewBox: "0 0 24 24",
-            fill: "none",
-            stroke: "currentColor",
-            "stroke-width": "1.5",
-            "stroke-linecap": "round",
-            "stroke-linejoin": "round"
-          },
-            el("path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" })
-          )
-        ),
-        el("h3", { className: "empty-state-title" }, `${cachedDocsCount} document${cachedDocsCount > 1 ? "s" : ""} indexed and ready`),
-        el("p", { className: "empty-state-description" },
-          "Ask any question about your documents, or pick a suggested question below:"
-        ),
-        el("div", { className: "ask-guide-questions mt-3" },
-          createExampleQuestionBtn("Summarize the key ideas in the indexed documents."),
-          createExampleQuestionBtn("What search algorithms does VectorDB implement?"),
-          createExampleQuestionBtn("Explain how vector similarity scores are computed.")
-        )
-      );
-      askAnswerBox.appendChild(emptyStateEl);
+    if (askQuestionInput) {
+      askQuestionInput.placeholder = "Ask a question about your documents...";
     }
+
+    const titleEl = el("h3", { className: "empty-state-title ask-empty-title" },
+      document.createTextNode("Ask your "),
+      el("span", { className: "text-accent" }, "documents")
+    );
+
+    const emptyContainer = el("div", { className: "empty-state ask-empty-state" },
+      el("div", { className: "empty-state-icon ask-empty-icon" },
+        createIcon("document", 44)
+      ),
+      titleEl,
+      el("p", { className: "empty-state-description ask-empty-desc" },
+        "Answers come only from your documents, and you can see how each one was made."
+      ),
+      el("div", { className: "ask-empty-actions" },
+        el("button", {
+          type: "button",
+          id: "ask-empty-load-sample-btn",
+          className: "btn btn-secondary",
+          title: "Load sample document"
+        },
+          createIcon("plus", 14),
+          el("span", {}, "Load sample document")
+        )
+      ),
+      el("div", { className: "ask-suggestion-chips" },
+        createSuggestionChip("Summarize the key points from this document."),
+        createSuggestionChip("What does the HNSW algorithm do?"),
+        createSuggestionChip("How is vector search different from keyword search?")
+      )
+    );
+
+    const sampleBtn = emptyContainer.querySelector("#ask-empty-load-sample-btn");
+    sampleBtn?.addEventListener("click", () => {
+      docLoadSampleBtn?.click();
+    });
+
+    askAnswerBox.appendChild(emptyContainer);
   }
 
   function renderMessages(messages) {
@@ -555,16 +539,34 @@ export function initAskTab() {
     }
 
     askAnswerBox.className = "answer-box";
+    if (askQuestionInput) {
+      askQuestionInput.placeholder = "Ask a follow-up question...";
+    }
 
     messages.forEach((msg, idx) => {
       const isLastAssistant = (msg.role === "assistant" && idx === messages.length - 1);
       const row = el("div", { className: `chat-bubble-row ${msg.role}` });
 
       if (msg.role === "user") {
-        const bubble = el("div", { className: "chat-bubble-user" }, msg.content);
+        const userIcon = createIcon("user", 16, "chat-msg-user-icon");
+        const userText = el("span", { className: "chat-msg-user-text" }, msg.content);
+        const userTime = el("span", { className: "chat-msg-time" }, formatMessageTime(msg.timestamp));
+        const bubble = el("div", { className: "chat-bubble-user" },
+          el("div", { className: "chat-msg-left" }, userIcon, userText),
+          userTime
+        );
         row.appendChild(bubble);
       } else {
         const bubble = el("div", { className: "chat-bubble-assistant" });
+
+        const assistantLogo = createIcon("layers", 18, "chat-msg-assistant-icon");
+        const assistantTime = el("span", { className: "chat-msg-time" }, formatMessageTime(msg.timestamp));
+        const assistantHeader = el("div", { className: "chat-assistant-header" },
+          assistantLogo,
+          assistantTime
+        );
+        bubble.appendChild(assistantHeader);
+
         const contentEl = el("div", { className: "chat-assistant-content" });
         renderCitationsInElement(msg.content, contentEl);
         bubble.appendChild(contentEl);
@@ -643,21 +645,24 @@ export function initAskTab() {
   }
 
   function buildGlassBoxDetails(sources, timings, question = "") {
-    const details = el("details", { className: "glass-box-details" });
+    const details = el("details", { className: "glass-box-details", open: "true" });
     const summary = el(
       "summary",
       { className: "glass-box-summary" },
-      el("span", {}, `How this was answered (${sources.length} sources retrieved)`),
-      createIcon("chevronDown", 12)
+      createIcon("chevronUp", 14, "glass-box-chevron"),
+      el("span", { className: "glass-box-summary-title" }, "How this was answered")
     );
     details.appendChild(summary);
 
     const body = el("div", { className: "glass-box-body" });
 
-    // Panel A: Retrieval - Sources with similarity meter
-    const sourcesSection = el("div", { className: "glass-box-section" },
-      el("div", { className: "glass-box-section-title" }, "Retrieved Sources")
+    // Panel A: Retrieved source chunks
+    const sourcesHeader = el("div", { className: "glass-sub-header" },
+      createIcon("document", 14),
+      el("span", {}, `Retrieved source chunks (${sources.length})`)
     );
+    body.appendChild(sourcesHeader);
+
     const sourcesList = el("div", { className: "glass-box-sources-list" });
     sources.forEach(src => {
       const meterFill = el("div", { className: "meter-fill" });
@@ -666,60 +671,63 @@ export function initAskTab() {
       const card = el(
         "div",
         { id: `source-card-${src.n}`, className: "source-card" },
-        el("div", { className: "source-card-header" },
-          el("span", { className: "source-title" }, `[${src.n}] ${src.title} (chunk ${src.chunk_index})`),
+        el("div", { className: "source-meta" },
+          createIcon("document", 14, "source-icon"),
+          el("div", { className: "source-title-group" },
+            el("span", { className: "source-doc-name" }, src.title || "document"),
+            el("span", { className: "source-chunk-idx" }, `Chunk #${src.chunk_index ?? src.n}`)
+          )
+        ),
+        el("div", { className: "source-sim-col" },
+          el("span", { className: "source-sim-val" }, formatSimilarity(src.similarity)),
           el("div", { className: "similarity-meter" },
-            el("span", {}, formatSimilarity(src.similarity)),
             el("div", { className: "meter-track" }, meterFill)
           )
         ),
-        el("div", { className: "source-text" }, src.text)
+        el("p", { className: "source-snippet" }, src.text || "")
       );
       sourcesList.appendChild(card);
     });
-    sourcesSection.appendChild(sourcesList);
-    body.appendChild(sourcesSection);
+    body.appendChild(sourcesList);
 
-    // Panel B: Timings breakdown (Tidy grid of label + value pairs in sans, tabular numbers)
+    // Panel B: Latency (RAG pipeline)
     if (timings && typeof timings === "object") {
-      const timingsSection = el("div", { className: "glass-box-section" },
-        el("div", { className: "glass-box-section-title" }, "Latency Breakdown")
+      const latencyHeader = el("div", { className: "glass-sub-header" },
+        createIcon("clock", 14),
+        el("span", {}, "Latency (RAG pipeline)")
       );
+      body.appendChild(latencyHeader);
+
       const items = [
-        { label: "Embed", ms: timings.embed_ms },
-        { label: "Search", ms: timings.search_ms },
-        { label: "First token", ms: timings.first_token_ms },
-        { label: "Generate", ms: timings.generate_ms },
-        { label: "Total", ms: timings.total_ms }
+        { label: "Embed", ms: timings.embed_ms, isTotal: false },
+        { label: "Search", ms: timings.search_ms, isTotal: false },
+        { label: "First token", ms: timings.first_token_ms, isTotal: false },
+        { label: "Generate", ms: timings.generate_ms, isTotal: false },
+        { label: "Total", ms: timings.total_ms, isTotal: true }
       ];
+
       const timingsGrid = el("div", { className: "glass-box-timings-grid" },
         ...items.map(it =>
-          el("div", { className: "glass-timing-item" },
+          el("div", { className: `glass-timing-item${it.isTotal ? " accent" : ""}` },
             el("span", { className: "glass-timing-label" }, it.label),
             el("span", { className: "glass-timing-val" }, formatDuration(it.ms))
           )
         )
       );
-      timingsSection.appendChild(timingsGrid);
-      body.appendChild(timingsSection);
+      body.appendChild(timingsGrid);
     }
 
-    // Panel C: 2D PCA Map link (mini canvas removed per T-036)
-    const mapSection = el("div", { className: "glass-box-section" },
-      el("div", { className: "glass-box-section-header" },
-        el("span", { className: "glass-box-section-title" }, "2D PCA Projection"),
-        el("a", {
-          href: "/#explore",
-          className: "btn btn-sm btn-ghost",
-          title: "Open Explore tab with Document Chunks and query prefilled"
-        }, "Open Explore")
-      ),
-      el("p", { className: "text-muted text-xs mt-1" },
-        "Inspect high-dimensional document chunk embeddings and your query star projected onto a 2D PCA plane."
-      )
-    );
-    const exploreLink = mapSection.querySelector("a");
-    exploreLink?.addEventListener("click", () => {
+    // Panel C: Three action buttons (Open Explore, Compare algorithms, Trace HNSW path)
+    const actionsRow = el("div", { className: "glass-box-actions" });
+
+    // 1. Open Explore
+    const exploreBtn = el("button", {
+      type: "button",
+      className: "btn btn-secondary",
+      title: "Open Explore tab with Document Chunks and query prefilled"
+    }, createIcon("external", 14), el("span", {}, "Open Explore"));
+
+    exploreBtn.addEventListener("click", () => {
       const collSelect = document.getElementById("explore-coll-select");
       if (collSelect && collSelect.value !== "docs") {
         collSelect.value = "docs";
@@ -732,20 +740,20 @@ export function initAskTab() {
       const tab = document.getElementById("tab-btn-explore");
       if (tab) tab.click();
     });
-    body.appendChild(mapSection);
+    actionsRow.appendChild(exploreBtn);
 
-    // Panel D: Benchmark Algorithms on this Query
-    const compareSection = el("div", { className: "glass-box-section" });
-    const runBenchBtn = el("button", {
+    // 2. Compare algorithms
+    const compareBtn = el("button", {
       type: "button",
-      className: "btn btn-sm btn-secondary",
+      className: "btn btn-secondary",
       title: "Benchmark Brute Force vs KD-Tree vs HNSW on this question"
-    }, "Compare algorithms on this query");
+    }, createIcon("chart", 14), el("span", {}, "Compare algorithms"));
 
     const benchResults = el("div", { className: "glass-box-bench-results hidden" });
-    runBenchBtn.addEventListener("click", async () => {
-      runBenchBtn.disabled = true;
-      runBenchBtn.textContent = "Benchmarking...";
+    compareBtn.addEventListener("click", async () => {
+      compareBtn.disabled = true;
+      const span = compareBtn.querySelector("span");
+      if (span) span.textContent = "Benchmarking...";
       try {
         const bRes = await api.benchmarkDocs({ query: question, k: 5 });
         while (benchResults.firstChild) {
@@ -774,9 +782,6 @@ export function initAskTab() {
           });
         }
         benchResults.classList.remove("hidden");
-        if (!compareSection.contains(benchResults)) {
-          compareSection.appendChild(benchResults);
-        }
       } catch (err) {
         showToast(`Benchmark error: ${err.message}`, "error");
         while (benchResults.firstChild) {
@@ -786,30 +791,25 @@ export function initAskTab() {
           el("div", { className: "text-danger text-xs" }, `Benchmark error: ${err.message}`)
         );
         benchResults.classList.remove("hidden");
-        if (!compareSection.contains(benchResults)) {
-          compareSection.appendChild(benchResults);
-        }
       } finally {
-        runBenchBtn.disabled = false;
-        runBenchBtn.textContent = "Compare algorithms on this query";
+        compareBtn.disabled = false;
+        if (span) span.textContent = "Compare algorithms";
       }
     });
+    actionsRow.appendChild(compareBtn);
 
-    compareSection.appendChild(runBenchBtn);
-    body.appendChild(compareSection);
-
-    // Panel E: HNSW Search Path Trace
-    const traceSection = el("div", { className: "glass-box-section" });
-    const runTraceBtn = el("button", {
+    // 3. Trace HNSW path
+    const traceBtn = el("button", {
       type: "button",
-      className: "btn btn-sm btn-secondary",
+      className: "btn btn-secondary",
       title: "Trace HNSW navigation hops on this question"
-    }, "Trace HNSW search path");
+    }, createIcon("graph", 14), el("span", {}, "Trace HNSW path"));
 
     const traceResults = el("div", { className: "glass-box-trace-results hidden" });
-    runTraceBtn.addEventListener("click", async () => {
-      runTraceBtn.disabled = true;
-      runTraceBtn.textContent = "Tracing...";
+    traceBtn.addEventListener("click", async () => {
+      traceBtn.disabled = true;
+      const span = traceBtn.querySelector("span");
+      if (span) span.textContent = "Tracing...";
       try {
         const tRes = await api.traceHnsw({ collection: "docs", query: question, k: 3 });
         while (traceResults.firstChild) {
@@ -820,9 +820,6 @@ export function initAskTab() {
           el("div", { className: "trace-summary-text" }, summary.summaryText)
         );
         traceResults.classList.remove("hidden");
-        if (!traceSection.contains(traceResults)) {
-          traceSection.appendChild(traceResults);
-        }
       } catch (err) {
         showToast(`Trace error: ${err.message}`, "error");
         while (traceResults.firstChild) {
@@ -832,17 +829,16 @@ export function initAskTab() {
           el("div", { className: "text-danger text-xs" }, `Trace error: ${err.message}`)
         );
         traceResults.classList.remove("hidden");
-        if (!traceSection.contains(traceResults)) {
-          traceSection.appendChild(traceResults);
-        }
       } finally {
-        runTraceBtn.disabled = false;
-        runTraceBtn.textContent = "Trace HNSW search path";
+        traceBtn.disabled = false;
+        if (span) span.textContent = "Trace HNSW path";
       }
     });
+    actionsRow.appendChild(traceBtn);
 
-    traceSection.appendChild(runTraceBtn);
-    body.appendChild(traceSection);
+    body.appendChild(actionsRow);
+    body.appendChild(benchResults);
+    body.appendChild(traceResults);
 
     details.appendChild(body);
     return details;

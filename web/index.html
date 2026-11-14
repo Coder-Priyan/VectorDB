@@ -86,13 +86,14 @@
           <!-- Page Header -->
           <div class="page-header">
             <div>
-              <h1 class="page-header-title">Ask (RAG)</h1>
-              <p class="page-header-description">Transparent semantic chat with grounded citations</p>
+              <h1 class="page-header-title">Ask</h1>
+              <p class="page-header-description">Chat with your documents using RAG (local, offline).</p>
             </div>
             <div class="page-header-actions">
               <span id="ask-info-slot"></span>
-              <button type="button" id="toggle-docs-drawer-btn" class="btn btn-sm btn-secondary" title="Toggle Documents Drawer">
-                Documents
+              <button type="button" id="toggle-docs-drawer-btn" class="btn btn-secondary" title="Toggle Documents Drawer">
+                <span class="btn-icon"></span>
+                <span>Documents</span>
               </button>
             </div>
           </div>
@@ -101,13 +102,29 @@
           <div class="chat-thread" id="chat-thread-container">
             <div id="ask-answer-box" class="answer-box empty" aria-live="polite" tabindex="0" aria-label="Grounded answer content">
               <div class="empty-state ask-empty-state">
-                <div class="empty-state-icon">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                  </svg>
+                <div class="empty-state-icon ask-empty-icon"></div>
+                <h3 class="empty-state-title ask-empty-title">Ask your <span class="text-accent">documents</span></h3>
+                <p class="empty-state-description ask-empty-desc">Answers come only from your documents, and you can see how each one was made.</p>
+                <div class="ask-empty-actions">
+                  <button type="button" id="ask-empty-load-sample-btn" class="btn btn-secondary" title="Load sample document">
+                    <span class="btn-sample-icon"></span>
+                    <span>Load sample document</span>
+                  </button>
                 </div>
-                <h3 class="empty-state-title">Ask a question about your documents</h3>
-                <p class="empty-state-description">VectorDB runs 100% offline. Load the built-in introductory document or ingest your own files to see transparent semantic search in action.</p>
+                <div class="ask-suggestion-chips">
+                  <button type="button" class="ask-suggestion-chip" data-q="Summarize the key points from this document.">
+                    <span class="ask-suggestion-icon"></span>
+                    <span>Summarize the key points from this document.</span>
+                  </button>
+                  <button type="button" class="ask-suggestion-chip" data-q="What does the HNSW algorithm do?">
+                    <span class="ask-suggestion-icon"></span>
+                    <span>What does the HNSW algorithm do?</span>
+                  </button>
+                  <button type="button" class="ask-suggestion-chip" data-q="How is vector search different from keyword search?">
+                    <span class="ask-suggestion-icon"></span>
+                    <span>How is vector search different from keyword search?</span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -123,26 +140,26 @@
           <!-- Bottom Composer Form -->
           <form id="ask-form" class="ask-composer-wrap">
             <div class="composer-box">
-              <textarea id="ask-question-input" class="composer-textarea" rows="1" maxlength="2000" placeholder="Ask a question about your documents... (Enter to send, Shift+Enter for newline)" spellcheck="false" required></textarea>
+              <textarea id="ask-question-input" class="composer-textarea" rows="1" maxlength="2000" placeholder="Ask a question about your documents..." spellcheck="false" required></textarea>
               <div class="composer-bar">
                 <div class="composer-controls">
-                  <div class="control-inline-item">
-                    <label for="ask-k-input">Top k</label>
-                    <input type="number" id="ask-k-input" class="input-text control-mini-input" value="3" min="1" max="10">
-                  </div>
-                  <div class="control-inline-item">
-                    <label for="ask-algo-select">Algorithm</label>
-                    <select id="ask-algo-select" class="input-select control-mini-select">
+                  <div class="composer-algo-control">
+                    <span class="composer-algo-icon"></span>
+                    <select id="ask-algo-select" class="composer-algo-select" aria-label="Search algorithm">
                       <option value="hnsw" selected>HNSW</option>
                       <option value="kdtree">KD-Tree</option>
                       <option value="brute">Brute</option>
                     </select>
                   </div>
-                  <span id="ask-char-count" class="char-count text-muted">0 / 2000</span>
+                  <input type="number" id="ask-k-input" class="hidden" value="3" min="1" max="10">
+                  <span id="ask-char-count" class="char-count text-muted hidden">0 / 2000</span>
                 </div>
                 <div class="composer-btns">
-                  <button type="button" id="ask-stop-btn" class="btn btn-sm btn-ghost hidden" disabled>Stop</button>
-                  <button type="submit" id="ask-submit-btn" class="btn btn-sm btn-primary">Send</button>
+                  <button type="button" id="ask-stop-btn" class="btn btn-ghost hidden" disabled>Stop</button>
+                  <button type="submit" id="ask-submit-btn" class="btn btn-primary">
+                    <span class="btn-send-icon"></span>
+                    <span>Send</span>
+                  </button>
                 </div>
               </div>
             </div>
