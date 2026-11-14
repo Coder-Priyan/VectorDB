@@ -12,7 +12,7 @@ VectorDB engine is in a stable, verified, and frozen state. Active development i
      - Select: `appearance: none; -webkit-appearance: none;` with inline SVG data URI amber chevron (`url('data:image/svg+xml...')`), 28px right padding, matching font, background, and border tokens. CSP `img-src 'self' data:;` permits data URI.
      - Number inputs: Spinners removed via `::-webkit-inner-spin-button, ::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }` and `-moz-appearance: textfield;`.
      - File input: `.input-file::file-selector-button` styled identical to `.btn-secondary` (height 36px, padding 0 14px, 13px font, 12px margin-right, pointer cursor).
-     - Range slider: `appearance: none` with 2px height track (`background: var(--border-color); border-radius: 1px;`), 12px round thumb (`background: var(--accent-color); border: none; border-radius: 50%; box-shadow: none;`), and smooth thumb hover (`transform: scale(1.15)`).
+     - Range slider: `appearance: none` with 2px height track (`background: var(--border-color); border-radius: 1px;`), 12px round thumb (`background: var(--accent-color); border: none; border-radius: 50%; box-shadow: none;`), and smooth thumb hover (`background: var(--accent-hover)`).
   3. *Calm Interaction States*:
      - Standardized 150ms transitions (`background-color 150ms ease, border-color 150ms ease, color 150ms ease, outline 150ms ease`).
      - Disabled states: `opacity: 0.45; cursor: not-allowed; pointer-events: none;`.
