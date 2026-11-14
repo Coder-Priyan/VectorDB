@@ -436,7 +436,7 @@ export function initAskTab() {
   function createExampleQuestionBtn(qText) {
     const btn = el("button", {
       type: "button",
-      className: "ask-example-q-btn"
+      className: "chip ask-example-q-btn"
     }, qText);
     btn.addEventListener("click", () => {
       if (askQuestionInput) {
@@ -456,17 +456,27 @@ export function initAskTab() {
     askAnswerBox.className = "answer-box empty";
 
     if (cachedDocsCount === 0) {
-      // 1. Add a document -> 2. Ask a question guided card
-      const guideCard = el("div", { className: "ask-guide-card card" },
-        el("div", { className: "ask-guide-steps" },
-          el("span", { className: "badge badge-neutral" }, "1. Add a document"),
-          el("span", { className: "text-muted" }, "\u2192"),
-          el("span", { className: "badge badge-neutral" }, "2. Ask a question")
+      // 1. Add a document -> 2. Ask a question guided empty state
+      const emptyStateEl = el("div", { className: "empty-state ask-empty-state" },
+        el("div", { className: "empty-state-icon" },
+          el("svg", {
+            width: "32",
+            height: "32",
+            viewBox: "0 0 24 24",
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-width": "1.5",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round"
+          },
+            el("path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" })
+          )
         ),
-        el("p", { className: "ask-guide-desc" },
-          "VectorDB runs 100% offline. Load the built-in introductory document to test semantic search with grounded citations, or open the Documents drawer to ingest your own files."
+        el("h3", { className: "empty-state-title" }, "Ask a question about your documents"),
+        el("p", { className: "empty-state-description" },
+          "VectorDB runs 100% offline. Load the built-in introductory document or ingest your own files to see transparent semantic search in action."
         ),
-        el("div", { className: "ask-guide-actions" },
+        el("div", { className: "ask-guide-actions mt-3" },
           el("button", {
             type: "button",
             id: "ask-empty-load-sample-btn",
@@ -479,20 +489,20 @@ export function initAskTab() {
             title: "Open Documents drawer"
           }, "Open Documents")
         ),
-        el("div", { className: "ask-guide-examples-title" }, "Example questions once loaded:"),
-        el("div", { className: "ask-guide-questions" },
+        el("div", { className: "ask-guide-examples-title mt-4 text-xs text-muted" }, "Example questions once loaded:"),
+        el("div", { className: "ask-guide-questions mt-2" },
           createExampleQuestionBtn("What is VectorDB and what makes it transparent?"),
           createExampleQuestionBtn("How does HNSW compare to flat brute-force search?"),
           createExampleQuestionBtn("Why does VectorDB avoid cloud dependencies?")
         )
       );
 
-      const sampleBtn = guideCard.querySelector("#ask-empty-load-sample-btn");
+      const sampleBtn = emptyStateEl.querySelector("#ask-empty-load-sample-btn");
       sampleBtn?.addEventListener("click", () => {
         docLoadSampleBtn?.click();
       });
 
-      const openDocsBtn = guideCard.querySelector(".btn-ghost");
+      const openDocsBtn = emptyStateEl.querySelector(".btn-ghost");
       openDocsBtn?.addEventListener("click", () => {
         if (docDrawer?.classList.contains("collapsed")) {
           docDrawer.classList.remove("collapsed");
@@ -500,25 +510,35 @@ export function initAskTab() {
         }
       });
 
-      askAnswerBox.appendChild(guideCard);
+      askAnswerBox.appendChild(emptyStateEl);
     } else {
-      // Documents exist: show 3 suggested questions
-      const suggestCard = el("div", { className: "ask-guide-card card" },
-        el("div", { className: "ask-guide-steps" },
-          el("span", { className: "badge badge-neutral" }, "Ready"),
-          el("span", {}, `${cachedDocsCount} document${cachedDocsCount > 1 ? "s" : ""} indexed`)
+      // Documents exist: show ready status and 3 suggested questions
+      const emptyStateEl = el("div", { className: "empty-state ask-empty-state" },
+        el("div", { className: "empty-state-icon" },
+          el("svg", {
+            width: "32",
+            height: "32",
+            viewBox: "0 0 24 24",
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-width": "1.5",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round"
+          },
+            el("path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" })
+          )
         ),
-        el("p", { className: "ask-guide-desc" },
-          "Ask any question about your documents, or select a suggested question below:"
+        el("h3", { className: "empty-state-title" }, `${cachedDocsCount} document${cachedDocsCount > 1 ? "s" : ""} indexed and ready`),
+        el("p", { className: "empty-state-description" },
+          "Ask any question about your documents, or pick a suggested question below:"
         ),
-        el("div", { className: "ask-guide-examples-title" }, "Suggested questions:"),
-        el("div", { className: "ask-guide-questions" },
+        el("div", { className: "ask-guide-questions mt-3" },
           createExampleQuestionBtn("Summarize the key ideas in the indexed documents."),
           createExampleQuestionBtn("What search algorithms does VectorDB implement?"),
           createExampleQuestionBtn("Explain how vector similarity scores are computed.")
         )
       );
-      askAnswerBox.appendChild(suggestCard);
+      askAnswerBox.appendChild(emptyStateEl);
     }
   }
 

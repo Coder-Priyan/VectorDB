@@ -87,7 +87,28 @@ export function initCompareTab() {
 
   function showEmptyNotice(msg) {
     if (emptyStateBox) {
-      emptyStateBox.textContent = msg;
+      emptyStateBox.replaceChildren(
+        el("div", { className: "empty-state" },
+          el("div", { className: "empty-state-icon" },
+            el("svg", {
+              width: "32",
+              height: "32",
+              viewBox: "0 0 24 24",
+              fill: "none",
+              stroke: "currentColor",
+              "stroke-width": "1.5",
+              "stroke-linecap": "round",
+              "stroke-linejoin": "round"
+            },
+              el("circle", { cx: "12", cy: "12", r: "10" }),
+              el("line", { x1: "12", y1: "8", x2: "12", y2: "12" }),
+              el("line", { x1: "12", y1: "16", x2: "12.01", y2: "16" })
+            )
+          ),
+          el("h3", { className: "empty-state-title" }, "Notice"),
+          el("p", { className: "empty-state-description" }, msg)
+        )
+      );
       emptyStateBox.classList.remove("hidden");
     }
     if (progressBar) progressBar.style.setProperty("width", "0%");
@@ -318,6 +339,10 @@ export function initCompareTab() {
   });
 
   window.addEventListener("resize", scheduleResize);
+
+  byId("compare-initial-run-btn")?.addEventListener("click", () => {
+    demoRandomBtn?.click();
+  });
 
   updateCollectionVisibility();
   checkCollectionStats();

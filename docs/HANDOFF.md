@@ -1,46 +1,52 @@
 # Project Handoff
 
-Last updated: 2026-11-14 by T-041
+Last updated: 2026-11-14 by T-042
 
 ## 1. Current Status
 
-VectorDB v2 has been completely built across all 9 phases (P0 to P8). Following human browser review on 2026-11-14, Tasks T-034 through T-038 resolved confirmed UI issues, test edge cases, and glass-box response mappers. Following visual rejection of T-040 ("no fun at all", line noise, patched overrides), Task T-041 executed a complete, clean rebuild of the UI layer under the "Quiet Studio" design system.
+VectorDB v2 has been completely built across all 9 phases (P0 to P8). Following human browser review on 2026-11-14, Tasks T-034 through T-038 resolved confirmed UI issues, test edge cases, and glass-box response mappers. Following visual rejection of T-040 ("no fun at all", line noise, patched overrides), Task T-041 rebuilt the UI layer under "Quiet Studio". Task T-042 addressed batched human review items across toolbars, compare canvas bars, summary table column visibility, HNSW topology viewport budgeting, native control restyling, and shared empty states.
 
-- **Active Branch**: `ui-quiet-studio` (branched from `ui-polish-2026`; safety branches `backup-before-v2`, `ui-redesign`, and `ui-polish-2026` confirmed intact).
-- **T-041 Rebuild Commits**:
+- **Active Branch**: `ui-quiet-studio` (safety branches `backup-before-v2`, `ui-redesign`, and `ui-polish-2026` confirmed intact).
+- **T-041 & T-042 Commits**:
   - `e495d64` ui-quiet-studio: Phase 1 design tokens, base styles, buttons, and shared components
   - `9e4d24e` ui-quiet-studio: Phase 2 app shell, spacious sidebar, and command palette
   - `3c49374` ui-quiet-studio: Phase 3 Ask tab centered chat, slide-over documents, and glass-box
   - `0e08c3a` ui-quiet-studio: Phase 4 Explore, HNSW, and Compare visual tabs with 380px sidebars
   - `e1880fe` ui-quiet-studio: Phase 5 Settings tab centered layout, sans-serif metrics, and cardless sections
-  - (pending) ui-quiet-studio: Phase 6 test suite expansion for colors module, docs sync, and verification
+  - `eeb605e` ui-quiet-studio: T-042 Group 1 toolbar compact layout, custom native controls, and readable type scale
+  - `280c3b2` ui-quiet-studio: T-042 Group 2 compare bars 3-row fit, summary metrics recall column, and unified canvas panel surface
+  - (pending) ui-quiet-studio: T-042 Group 3 shared empty states, HNSW topology fit, test expansion, and docs sync
 - **Automated Tests**:
   - C++ unit and integration tests: 118 / 118 passed (529,813 assertions).
-  - Browser unit tests: 92 registered tests (`http://127.0.0.1:8080/tests.html`), including new `test_colors.js` suite.
+  - Browser unit tests: 93 registered tests (`http://127.0.0.1:8080/tests.html`), including new layout row fitting test.
   - Web security scan: 28 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
 - **Design System ("Quiet Studio") Principles Enforced**:
-  - **Zero Lines**: Allowed lines are strictly the right boundary of the sidebar (`border-right: 1px solid var(--border-line)`) and accessibility focus ring (`outline: 2px solid var(--accent); outline-offset: 2px;`). All card borders, panel outlines, button borders, and table row underlines eliminated.
-  - **3 Dark Surfaces for Depth**: `--bg-page: #09090b`, `--bg-panel: #121215`, `--bg-raised: #18181c` + generous whitespace.
+  - **Zero Lines**: Allowed lines are strictly the right boundary of the sidebar (`border-right: 1px solid var(--border-line)`) and accessibility focus ring (`outline: 2px solid var(--accent); outline-offset: 2px;`). All card borders, panel outlines, button borders, and table row underlines eliminated. Compare chart title divider lines eliminated in T-042.
+  - **3 Dark Surfaces for Depth**: `--bg-page: #09090b`, `--bg-panel: #121215`, `--bg-raised: #18181c` + generous whitespace. All canvas areas wrapped in `--bg-panel` with `--bg-canvas` surfaces.
   - **Zero Box-Shadows**: Grep `box-shadow` in `web/css` returns strictly 0 matches. Zero glow on status dots.
   - **Single Font Family**: IBM Plex Sans everywhere; IBM Plex Mono strictly restricted to code, IDs, numbers inside tables, and small size. Metric values and headings are never mono.
-  - **Shared 5-Tab Header**: Every tab has `<div class="page-header">` with `<h1 class="page-header-title">`.
+  - **Shared 5-Tab Header & Empty States**: Every tab has `<div class="page-header">` with `<h1 class="page-header-title">`. Ask and Compare use shared `.empty-state` component.
   - **Button System**: At most ONE `.btn-primary` (solid amber) per visible view; filled quiet secondary (`var(--bg-raised)`), ghost, and soft red tint danger (`var(--danger-bg)` with no border).
-  - **CSS Size**: Reduced by ~1,000 lines from previous 3,374-line bloat to 2,386 clean lines with zero duplication.
+  - **Compact Single-Row Toolbars**: Selects and inputs sized to content; `.tab-toolbar` does not stretch controls to 800px or wrap across multiple rows on standard desktop screens.
 
 > [!NOTE]
 > Verification status:
 > - **Human-confirmed by terminal on 2026-11-14**: C++ 118/118 passed, scanner ALL CHECKS PASSED, git log commits up to `a57c573` (T-038).
 > - **Human-confirmed by screenshots on 2026-11-14**: `/tests.html` 88/88 (after T-038), 5 tabs at 1920x1080, Ask chat flow, Explore Docs PCA, Open Explore deep link, Compare in Ask (3 rows), Trace (6 nodes), Settings new sections, footer removed.
-> - **Pending Human Screenshots (T-041 Quiet Studio Rebuild)**:
+> - **Pending Human Screenshots (T-042 Quiet Studio Batched Fixes)**:
 >   - 5 tabs at 1920x1080 (Ask, Explore, HNSW, Compare, Settings).
 >   - 5 tabs at 1366x768.
->   - Ask tab: centered 820px chat column, zero-gutter collapsed Documents drawer, slide-over drawer open, whitespace-separated glass-box panels.
->   - Sidebar: spacious bottom footer (Ollama status button with non-glowing dot, commands hint button, version text), collapsed 56px icon rail.
->   - Compare tab: 380px sidebar, 3 side-by-side charts, unclipped Top-k diff table without row underlines.
->   - Settings tab: centered 900px layout, sans-serif metrics grid, cardless sections, single scrollbar with no bottom clipping.
->   - Browser unit tests at `/tests.html` showing 92/92 passed.
->   - 125% browser zoom layout check.
-> - **Still human-reported only (no screenshots)**: `--data-dir` persistence restart, Ctrl K, sidebar collapse, guided tour.
+>   - Toolbars on Explore, HNSW, Compare: single quiet row with content-sized controls.
+>   - Compare bars canvas: all 3 algorithm rows (Brute Force, KD-Tree, HNSW) fully visible across all 3 charts without clipping.
+>   - Compare Summary Metrics: all 5 columns (Algorithm, Median, Min - Max, Distances, Recall@k) visible with zero horizontal scrollbar on 440px sidebar.
+>   - Compare Empty State: shared `.empty-state` component with icon, title, description, and action button.
+>   - HNSW Graph Topology Summary: all rows fit or scroll inside its own panel; page does not scroll.
+>   - Ask Empty State: clean pill chips for example questions without grey selected-text highlights.
+>   - Native controls: custom select arrows, hidden number spinners, styled file input button, custom range slider thumb/track.
+>   - Canvas panels: unified rounded panel surface across Explore, HNSW, and Compare.
+>   - Browser unit tests at `/tests.html` showing 93/93 passed.
+> - **Visual items marked**: All visual rendering items marked "not tested (visual)" until human screenshots confirm.
+
 
 Per git log on branch `ui-redesign` and `ui-polish-2026`:
 - **Phase P0 (Commit `b26212c`)**: Pre-flight unfreezing (ADR-029, ADR-030, ADR-031), CSS disabled-state fix, HNSW toolbar slider stabilization.

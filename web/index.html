@@ -102,9 +102,14 @@
           <!-- Message History & Answer Area -->
           <div class="chat-thread" id="chat-thread-container">
             <div id="ask-answer-box" class="answer-box empty" aria-live="polite" tabindex="0" aria-label="Grounded answer content">
-              <div class="empty-state">
-                <div class="empty-state-title">Ask a question about your documents</div>
-                <div class="empty-state-description">Upload text files or click "Documents" on the right to load sample documents, then ask questions to see transparent semantic search in action.</div>
+              <div class="empty-state ask-empty-state">
+                <div class="empty-state-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </div>
+                <h3 class="empty-state-title">Ask a question about your documents</h3>
+                <p class="empty-state-description">VectorDB runs 100% offline. Load the built-in introductory document or ingest your own files to see transparent semantic search in action.</p>
               </div>
             </div>
 
@@ -424,7 +429,20 @@
       </div>
       <div class="viz-layout">
         <div class="viz-main">
-          <div id="compare-empty-state" class="empty-state-box hidden"></div>
+          <div id="compare-empty-state" class="empty-state-box">
+            <div class="empty-state">
+              <div class="empty-state-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 20V10"/>
+                  <path d="M12 20V4"/>
+                  <path d="M6 20v-6"/>
+                </svg>
+              </div>
+              <h3 class="empty-state-title">No benchmark results yet</h3>
+              <p class="empty-state-description">Choose parameters on the right and run a benchmark to compare Brute Force, KD-Tree, and HNSW head-to-head.</p>
+              <button type="button" id="compare-initial-run-btn" class="btn btn-secondary mt-3">Benchmark Demo Vectors</button>
+            </div>
+          </div>
           <div id="compare-results-card" class="viz-results-section hidden">
             <h3 class="section-title">Comparative Performance Bars</h3>
             <div class="canvas-wrapper"><canvas id="compare-bars-canvas" width="680" height="260"></canvas></div>
