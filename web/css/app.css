@@ -2856,6 +2856,22 @@ input[type="number"] {
   border-radius: var(--radius-md);
 }
 
+/* Unit test runner page scrolling */
+body.tests-body,
+body:has(#test-results-container) {
+  overflow-y: auto !important;
+  height: auto !important;
+  min-height: 100vh;
+}
+
+body.tests-body .app-content,
+.app-content.tests-content,
+body:has(#test-results-container) .app-content {
+  overflow-y: auto !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
 /* Educational Learning Layer & Info Buttons */
 .learn-info-btn {
   background: none;

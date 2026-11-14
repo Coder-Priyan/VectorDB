@@ -59,13 +59,15 @@ export function registerV2Tests() {
   describe("v2: Citation Parser Edge Cases", (test) => {
     test("Consecutive citation pills parse into distinct tokens", () => {
       const tokens = parseCitations("Based on [1][2], we deduce truth.");
-      assertEqual(tokens.length, 5);
+      assertEqual(tokens.length, 4);
       assertEqual(tokens[0].type, "text");
+      assertEqual(tokens[0].text, "Based on ");
       assertEqual(tokens[1].type, "citation");
       assertEqual(tokens[1].n, 1);
       assertEqual(tokens[2].type, "citation");
       assertEqual(tokens[2].n, 2);
       assertEqual(tokens[3].type, "text");
+      assertEqual(tokens[3].text, ", we deduce truth.");
     });
 
     test("Unmatched brackets or non-digit brackets remain plain text", () => {
