@@ -14,31 +14,26 @@
       <div class="sidebar-header">
         <div class="sidebar-brand">
           <span class="sidebar-brand-mark"></span>
-          <span class="sidebar-brand-text">VectorDB</span>
+          <div class="sidebar-brand-info">
+            <span class="sidebar-brand-text">VectorDB</span>
+            <span class="sidebar-brand-tagline">Offline Vector DB + RAG</span>
+          </div>
         </div>
         <button type="button" id="sidebar-toggle-btn" class="sidebar-icon-btn" title="Toggle sidebar" aria-label="Toggle sidebar"></button>
-      </div>
-
-      <div class="sidebar-action-row">
-        <button type="button" id="sidebar-new-chat-btn" class="btn btn-secondary sidebar-new-chat-btn" title="New chat (N)">
-          <span class="sidebar-btn-icon"></span>
-          <span class="sidebar-btn-text">New chat</span>
-          <span class="kbd">N</span>
-        </button>
       </div>
 
       <nav class="sidebar-nav tab-nav" role="tablist" aria-label="Main Navigation">
         <button id="tab-btn-ask" class="tab-btn sidebar-nav-item active" role="tab" aria-selected="true" aria-controls="panel-ask" tabindex="0">
           <span class="nav-icon" data-icon="chat"></span>
-          <span class="nav-label">Ask (RAG)</span>
+          <span class="nav-label">Ask</span>
         </button>
         <button id="tab-btn-explore" class="tab-btn sidebar-nav-item" role="tab" aria-selected="false" aria-controls="panel-explore" tabindex="-1">
           <span class="nav-icon" data-icon="explore"></span>
-          <span class="nav-label">Explore (PCA)</span>
+          <span class="nav-label">Explore</span>
         </button>
         <button id="tab-btn-hnsw" class="tab-btn sidebar-nav-item" role="tab" aria-selected="false" aria-controls="panel-hnsw" tabindex="-1">
           <span class="nav-icon" data-icon="graph"></span>
-          <span class="nav-label">HNSW Graph</span>
+          <span class="nav-label">HNSW</span>
         </button>
         <button id="tab-btn-compare" class="tab-btn sidebar-nav-item" role="tab" aria-selected="false" aria-controls="panel-compare" tabindex="-1">
           <span class="nav-icon" data-icon="compare"></span>
@@ -52,7 +47,10 @@
 
       <div class="sidebar-recent-section">
         <div class="sidebar-section-header">
-          <span class="sidebar-section-title">Recent chats</span>
+          <span class="sidebar-section-title">Recent Chats</span>
+          <button type="button" id="sidebar-new-chat-btn" class="sidebar-new-chat-btn" title="New chat (N)" aria-label="New chat">
+            <span class="sidebar-btn-icon"></span>
+          </button>
         </div>
         <div id="recent-chats-list" class="recent-chats-list" role="list"></div>
       </div>
@@ -60,14 +58,14 @@
       <div class="sidebar-footer">
         <button type="button" id="ollama-check-btn" class="sidebar-footer-btn sidebar-status-btn" title="Check Ollama status (click to refresh)">
           <span class="status-dot"></span>
-          <span id="ollama-status-badge" class="badge badge-neutral" aria-live="polite">Checking Ollama...</span>
+          <span id="ollama-status-badge" class="badge badge-neutral" aria-live="polite">Ollama online</span>
         </button>
-        <button type="button" id="open-palette-btn" class="sidebar-footer-btn sidebar-cmd-btn" title="Command Palette (Ctrl+K)">
+        <button type="button" id="open-palette-btn" class="sidebar-footer-btn sidebar-cmd-btn hidden" title="Command Palette (Ctrl+K)">
           <span class="sidebar-cmd-label">Commands</span>
           <span class="kbd">Ctrl K</span>
         </button>
         <div class="sidebar-version-row">
-          <span id="footer-version" class="sidebar-version-text">v0.4.0</span>
+          <span id="footer-version" class="sidebar-version-pill">v0.4.0</span>
         </div>
       </div>
     </aside>
@@ -213,8 +211,8 @@
     <section id="panel-explore" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-explore">
       <div class="page-header">
         <div>
-          <h1 class="page-header-title">Explore (PCA)</h1>
-          <p class="page-header-description">Interactive 2D Principal Component Analysis projections of high-dimensional vectors</p>
+          <h1 class="page-header-title">Explore</h1>
+          <p class="page-header-description">Visualize your vectors, see clusters, and inspect nearest neighbours.</p>
         </div>
         <div class="page-header-actions">
           <span id="explore-info-slot"></span>
@@ -303,8 +301,8 @@
     <section id="panel-hnsw" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-hnsw">
       <div class="page-header">
         <div>
-          <h1 class="page-header-title">HNSW Graph</h1>
-          <p class="page-header-description">Multi-layer proximity graph topology and interactive search path tracing</p>
+          <h1 class="page-header-title">HNSW</h1>
+          <p class="page-header-description">Visualize the Hierarchical Navigable Small World (HNSW) graph and trace the search path.</p>
         </div>
         <div class="page-header-actions">
           <span id="hnsw-info-slot"></span>
@@ -402,7 +400,7 @@
       <div class="page-header">
         <div>
           <h1 class="page-header-title">Compare</h1>
-          <p class="page-header-description">Algorithm benchmark: head-to-head comparison of Brute Force, KD-Tree and HNSW</p>
+          <p class="page-header-description">Benchmark and compare different search algorithms on the same dataset.</p>
         </div>
         <div class="page-header-actions">
           <span id="compare-info-slot"></span>
@@ -587,7 +585,7 @@
       <header class="page-header settings-page-header">
         <div>
           <h1 class="page-header-title settings-title">Settings</h1>
-          <p class="page-header-description settings-subtitle">Server status and system configuration</p>
+          <p class="page-header-description settings-subtitle">Configure VectorDB, manage data, and control local resources.</p>
         </div>
         <div class="page-header-actions">
           <span id="settings-info-slot"></span>

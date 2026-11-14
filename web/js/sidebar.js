@@ -25,6 +25,12 @@ export function initSidebar() {
     sidebar.classList.add("collapsed");
   }
 
+  // Populate brand logo icon
+  const brandMark = sidebar.querySelector(".sidebar-brand-mark");
+  if (brandMark && !brandMark.hasChildNodes()) {
+    brandMark.appendChild(createIcon("layers", 22, "brand-logo-icon"));
+  }
+
   // Populate toggle button icon
   if (toggleBtn) {
     updateToggleBtnIcon(toggleBtn, sidebar.classList.contains("collapsed"));
@@ -87,9 +93,26 @@ export function initSidebar() {
     // Display up to 10 latest
     const displayChats = chats.slice(0, 10);
 
+    // Helper to format timestamp into e.g. "Today · 8:24 PM" or "Sep 14 · 10:37 PM"
+    function formatChatTime(timestamp) {
+      if (!timestamp) return "";
+      const d = new Date(timestamp);
+      if (isNaN(d.getTime())) return "";
+      const now = new Date();
+      const isToday = d.toDateString() === now.toDateString();
+      const yesterday = new Date(now);
+      yesterday.setDate(now.getDate() - 1);
+      const isYesterday = d.toDateString() === yesterday.toDateString();
+      const timeStr = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      if (isToday) return `Today · ${timeStr}`;
+      if (isYesterday) return `Yesterday · ${timeStr}`;
+      return `${d.toLocaleDateString([], { month: "short", day: "numeric" })} · ${timeStr}`;
+    }
+
     displayChats.forEach(chat => {
       const isActive = chat.id === activeChatId;
       const title = chat.title || "Untitled chat";
+      const timeStr = formatChatTime(chat.updatedAt || chat.createdAt);
 
       const deleteBtn = el("button", {
         className: "recent-chat-delete-btn",
@@ -106,6 +129,12 @@ export function initSidebar() {
         }));
       });
 
+      const titleEl = el("span", { className: "recent-chat-title" }, title);
+      const timeEl = timeStr ? el("span", { className: "recent-chat-time" }, timeStr) : null;
+      const infoEl = timeEl
+        ? el("div", { className: "recent-chat-info" }, titleEl, timeEl)
+        : el("div", { className: "recent-chat-info" }, titleEl);
+
       const item = el(
         "div",
         {
@@ -115,8 +144,8 @@ export function initSidebar() {
           "data-chat-id": chat.id,
           title: title
         },
-        createIcon("chat", 14, "recent-chat-icon"),
-        el("span", { className: "recent-chat-title" }, title),
+        createIcon("chat", 15, "recent-chat-icon"),
+        infoEl,
         deleteBtn
       );
 

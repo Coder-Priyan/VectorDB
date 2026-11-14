@@ -127,7 +127,7 @@ export function updateOllamaBadge(status, badgeEl) {
 
   if (!status || !status.reachable) {
     badgeEl.classList.add("badge-danger");
-    badgeEl.textContent = "Ollama Unreachable (11434)";
+    badgeEl.textContent = "Ollama offline";
     return;
   }
 
@@ -136,7 +136,7 @@ export function updateOllamaBadge(status, badgeEl) {
 
   if (embedOk && chatOk) {
     badgeEl.classList.add("badge-success");
-    badgeEl.textContent = `Ollama Online (${status.version || "ok"})`;
+    badgeEl.textContent = "Ollama online";
   } else {
     badgeEl.classList.add("badge-warning");
     const missing = [];

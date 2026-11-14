@@ -8,7 +8,7 @@
  */
 
 export const THEME = Object.freeze({
-  bgCanvas: "#0a0a0c",
+  bgCanvas: "#09090b",
   bgSurface: "#121215",
   bgElevated: "#18181c",
   gridLine: "#1c1c22",
@@ -20,6 +20,7 @@ export const THEME = Object.freeze({
   accent: "#d9a441",
   accentHover: "#e5b14e",
   accentMuted: "#4a3819",
+  accentTint: "rgba(217, 164, 65, 0.12)",
   danger: "#ef4444",
   success: "#22c55e",
   white: "#ffffff"

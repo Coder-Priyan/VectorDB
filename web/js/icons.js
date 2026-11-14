@@ -89,6 +89,28 @@ const ICON_SPECS = {
     { tag: "circle", attrs: { cx: "8", cy: "8", r: "6" } },
     { tag: "circle", attrs: { cx: "8", cy: "8", r: "3.5" } },
     { tag: "circle", attrs: { cx: "8", cy: "8", r: "1" } }
+  ],
+  database: [
+    { tag: "ellipse", attrs: { cx: "8", cy: "4.5", rx: "6", ry: "2.5" } },
+    { tag: "path", attrs: { d: "M2 4.5v7c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-7" } },
+    { tag: "path", attrs: { d: "M2 8c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5" } }
+  ],
+  user: [
+    { tag: "circle", attrs: { cx: "8", cy: "5", r: "3" } },
+    { tag: "path", attrs: { d: "M2.5 14c0-2.5 2.5-4 5.5-4s5.5 1.5 5.5 4" } }
+  ],
+  chevronUp: [
+    { tag: "polyline", attrs: { points: "4 10 8 6 12 10" } }
+  ],
+  external: [
+    { tag: "path", attrs: { d: "M10 2.5h3.5v3.5" } },
+    { tag: "line", attrs: { x1: "7.5", y1: "8.5", x2: "13.5", y2: "2.5" } },
+    { tag: "path", attrs: { d: "M11.5 8v4.5a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1H8" } }
+  ],
+  chart: [
+    { tag: "line", attrs: { x1: "4", y1: "13.5", x2: "4", y2: "8.5" } },
+    { tag: "line", attrs: { x1: "8", y1: "13.5", x2: "8", y2: "4.5" } },
+    { tag: "line", attrs: { x1: "12", y1: "13.5", x2: "12", y2: "10.5" } }
   ]
 };
 
