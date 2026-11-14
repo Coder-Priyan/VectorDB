@@ -1,6 +1,6 @@
 # Project Progress
 
-Last updated: 2026-11-14 by T-035
+Last updated: 2026-11-14 by SYNC-002
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform (Task T-033 Complete across all 9 Phases P0-P8, Branch `ui-redesign`)
 
@@ -14,12 +14,14 @@ Last updated: 2026-11-14 by T-035
 - **P6**: Ask tab glass-box chat (multi-turn persistent chat with localStorage, auto-growing composer, citation pill interactions, collapsible Documents drawer with sample loader and per-doc delete).
 - **P7**: Glass-box panels & educational layer (retrieval chunks, latency breakdown, mini 2D PCA canvas, compare benchmark button, HNSW search path trace, `web/js/learn_content.js` with 7 plain-language explainers, info popovers on all tabs, guided tour).
 - **P8**: Release readiness (MIT `LICENSE`, `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `docs/LEARNING_GUIDE.md`, `.github/workflows/ci.yml`, browser unit tests expanded to 84/84 passing).
-- **T-036**: Batched UI fixes after human real-browser review:
-  - Group A (`d1c6a3d`): Citation parser test assertion fix, `/tests.html` scroll fix.
-  - Group B (`d5df34a`): Ask tab `.page-header` alignment, `<details>` advanced chunking options, guided empty state with sample loader and 3 questions, Explore deep link with prefill, removed empty mini 2D PCA canvas.
-  - Group C (`aaaa6c6`): Explore empty-state variance text clearing, Compare Summary Metrics table clipping fix (no horizontal scrollbar), Settings tab P7 additions (persistence status, two-step Clear Chat History, documentation links card filling vertical space), and moved version badge to sidebar footer while removing the verbose app footer.
-- **T-037**: Small fixes after T-036 human verification (hidden empty box under Compare algorithms until results exist, HNSW trace in Ask fixed to read tRes.trace/stats.nodesVisited instead of visited_nodes, verified persistence health JSON derivation with and without --data-dir, updated verification status in docs).
-- **T-038**: Fix silent "Compare algorithms on this query" button in Ask glass-box (mapped server response `algorithms` field to display rows via new `web/js/ask_helpers.js`, added compact latency bars with swatches, added toast and inline notifications on error, added 4 pure-logic browser unit tests bringing test suite to 88 tests).
+- **637fd58**: T-034: Fix stale docs (license, test count, persistence magic header)
+- **83c1257**: T-035: Align ISS-006 ingest rollback documentation in `docs/API.md`
+- **d1c6a3d**: T-036 A: Fix citation parser test assertion and `/tests.html` scroll
+- **d5df34a**: T-036 B: Ask tab `.page-header` alignment, `<details>` advanced controls, guided empty state, Explore deep link
+- **aaaa6c6**: T-036 C: Explore empty-state variance text clear, Compare header fit, Settings P7 additions, sidebar version footer
+- **cf79729**: docs: Sync verification and gotchas for T-036
+- **b401029**: T-037: Small fixes after human verification (empty compare box hidden, trace fields fix, persistence health derivation)
+- **a57c573**: T-038: Fix compare button in ask glass-box (`algorithms` mapping, latency bars, toast on error, 4 unit tests)
 
 All 118 C++ tests pass. 88 browser unit tests registered (pending human confirmation in browser). 100% clean web safety scan.
 
@@ -49,7 +51,7 @@ All 118 C++ tests pass. 88 browser unit tests registered (pending human confirma
 | **Educational Learning Layer & Guided Tour** (7 explainers, info popovers, tour) | `web/js/learn_content.js`, `docs/LEARNING_GUIDE.md` | [CONFIRMED] | TESTED |
 | **Automated Web Safety Scanner** (Zero innerHTML, strict CSP verified) | `scripts/check_web_safety.ps1` | [CONFIRMED] | TESTED |
 | **Hermetic C++ Unit & Integration Test Suite** (118 registered tests) | `tests/*.cpp`, `tests/fake_ollama.hpp` | [CONFIRMED] | TESTED |
-| **Browser Pure-Logic Unit Test Suite** (84 registered unit tests) | `web/tests.html`, `web/js/tests/*.js` | [CONFIRMED] | TESTED |
+| **Browser Pure-Logic Unit Test Suite** (88 registered unit tests) | `web/tests.html`, `web/js/tests/*.js` | [CONFIRMED] | TESTED |
 | **Atomic Multi-Chunk Rollback** (Transactional vector rollback on mid-ingest failure, not covered by automated test) | `include/vectordb/rag.hpp`, `src/rag.cpp` | [CONFIRMED: src/rag.cpp:155-160] | IMPLEMENTED |
 
 ---

@@ -1,6 +1,6 @@
 # Known Issues, Limitations & Risk Tracker
 
-Last updated: 2026-11-14 by SYNC-001
+Last updated: 2026-11-14 by SYNC-002
 
 | ID | Type | Description | Where (File/Function) | Severity | Evidence | Status | Date |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -34,5 +34,8 @@ Last updated: 2026-11-14 by SYNC-001
 | ISS-028 | Limitation | Multi-turn follow-up quality depends on small 3B model (llama3.2 3B context comprehension and coreference resolution); complex multi-turn reasoning may degrade | `src/rag.cpp` (`RagPipeline::ask`) | Medium | [CONFIRMED: architecture] | OPEN | 2026-11-14 |
 | ISS-029 | Unverified Area | Linux and macOS platforms are untested: primary development occurs on Windows 11 MSYS2 UCRT64 toolchain; GitHub Actions CI workflow added in P8 but real desktop environment testing pending | `CMakeLists.txt`, `.github/workflows/ci.yml` | Low | [CONFIRMED: project context] | OPEN | 2026-11-14 |
 | ISS-030 | Unverified Area | Builder claimed 84/84 browser tests, real result was 83/84 (human, 2026-11-14). Lesson: builder cannot run browser tests; its browser test counts are never proof. | `web/js/tests/test_v2.js` | Low | [CONFIRMED: human real-browser test 2026-11-14] | FIXED | 2026-11-14 |
+| ISS-031 | Bug | Ask glass-box trace read wrong fields (`visited_nodes`), showed "0 nodes" (fixed T-037, human screenshot) | `web/js/ask.js` | Medium | [CONFIRMED: human screenshot 2026-11-14] | FIXED (human-verified by screenshot) | 2026-11-14 |
+| ISS-032 | Bug | Ask glass-box Compare button silent, read `bRes.reports` instead of `bRes.algorithms` (fixed T-038, human screenshot shows 3 rows) | `web/js/ask.js`, `web/js/ask_helpers.js` | Medium | [CONFIRMED: human screenshot 2026-11-14] | FIXED (human-verified by screenshot) | 2026-11-14 |
+| ISS-033 | Bug | Ask glass-box mini PCA canvas was empty; replaced by "Open Explore" deep link (fixed T-036, human screenshot) | `web/js/ask.js`, `web/index.html` | Low | [CONFIRMED: human screenshot 2026-11-14] | FIXED (human-verified by screenshot) | 2026-11-14 |
 
 *(Optional polish, not an issue: Compare sidebar has empty space below Summary Metrics at 1920x1080.)*

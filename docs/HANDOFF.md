@@ -1,17 +1,27 @@
 # Project Handoff
 
-Last updated: 2026-11-14 by T-038
+Last updated: 2026-11-14 by SYNC-002
 
 ## 1. Current Status
 
-VectorDB v2 has been completely built across all 9 phases (P0 to P8) on branch `ui-redesign`. VectorDB is now an open-source, fully offline, transparent "glass-box" vector database and RAG learning platform. Following human browser review on 2026-11-14, Tasks T-036, T-037, and T-038 resolved confirmed UI issues, test edge cases, and glass-box response mappers.
+VectorDB v2 has been completely built across all 9 phases (P0 to P8) on branch `ui-redesign`. VectorDB is now an open-source, fully offline, transparent "glass-box" vector database and RAG learning platform. Following human browser review on 2026-11-14, Tasks T-034 through T-038 resolved confirmed UI issues, test edge cases, and glass-box response mappers.
+
+- **Active Branch**: `ui-redesign` (safety branch `backup-before-v2` confirmed intact).
+- **Last Commit**: `a57c573` before SYNC-002; nothing pushed to remote.
+- **Automated Tests**:
+  - C++ unit and integration tests: 118 / 118 passed (529,813 assertions).
+  - Browser unit tests: 88 registered tests (`http://127.0.0.1:8080/tests.html`).
+  - Web security scan: 25 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
+- **Server REST/SSE Endpoints**: 30 registered endpoints.
+- **Button Hierarchy**: At most ONE `.btn-primary` per visible view.
+- **DOM ID Preservation**: 100% of all existing tab DOM IDs preserved.
 
 > [!NOTE]
 > Verification status:
-> - **Human-confirmed by screenshots 2026-11-14**: `/tests.html` 84/84, Ask trace shows 6 nodes, empty box removed. Compare button in Ask glass-box was silent (T-038). Open Explore deep link (docs + query prefilled, `/#explore`), Compare header fit, Settings new sections, footer removed.
-> - **Human-reported without screenshots**: persistence restart, Ctrl K, sidebar collapse, tour.
-> - **Automated tests (confirmed by terminal)**: C++ tests 118/118 passing, web safety scanner 100% clean (zero forbidden patterns).
-> - **Browser test counts**: Builder cannot run browser tests; its browser test counts are never proof. Human must open `http://127.0.0.1:8080/tests.html` to verify the 88 registered tests.
+> - **Human-confirmed by terminal on 2026-11-14**: C++ 118/118 passed, scanner ALL CHECKS PASSED, git log commits up to `a57c573` (T-038).
+> - **Human-confirmed by screenshots on 2026-11-14**: `/tests.html` 88/88 (after T-038), 5 tabs at 1920x1080, Ask chat flow, Explore Docs PCA, Open Explore deep link, Compare in Ask (3 rows), Trace (6 nodes), Settings new sections, footer removed.
+> - **Still human-reported only (no screenshots)**: `--data-dir` persistence restart, Ctrl K, sidebar collapse, guided tour.
+> - **Not verified**: 1366x768 layout, Ask New chat empty-state guided card.
 
 Per git log on branch `ui-redesign`:
 - **Phase P0 (Commit `b26212c`)**: Pre-flight unfreezing (ADR-029, ADR-030, ADR-031), CSS disabled-state fix, HNSW toolbar slider stabilization.
@@ -25,20 +35,12 @@ Per git log on branch `ui-redesign`:
 - **Phase P8 (Commit `cae814b`)**: Open-source release readiness (MIT `LICENSE`, rewritten `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `docs/LEARNING_GUIDE.md`, `.github/workflows/ci.yml`, browser unit tests in `web/js/tests/test_v2.js`).
 - **T-034 (Commit `637fd58`)**: Fix stale docs (MIT license reference, 118 C++ test count, VDBC/VDBR persistence header documentation).
 - **T-035 (Commit `83c1257`)**: Align ISS-006 ingest rollback documentation in `docs/API.md`, `docs/PROGRESS.md`, and `docs/KNOWN_ISSUES.md`.
-- **T-036 (Commits `d1c6a3d`, `d5df34a`, `aaaa6c6`)**: Batched UI fixes after human real-browser review:
+- **T-036 (Commits `d1c6a3d`, `d5df34a`, `aaaa6c6`, `cf79729`)**: Batched UI fixes after human real-browser review:
   - **Group A (`d1c6a3d`)**: Fixed citation parser test assertion in `web/js/tests/test_v2.js` and enabled vertical scrolling on `/tests.html`.
   - **Group B (`d5df34a`)**: Ask tab header alignment to `.page-header` pattern, collapsible advanced chunking controls `<details>`, guided empty state with sample loader and 3 questions, Explore deep linking with prefill, removed empty mini 2D PCA canvas.
   - **Group C (`aaaa6c6`)**: Explore empty-state variance text clearing, Compare Summary Metrics table clipping fix (no horizontal scrollbar), Settings tab P7 additions (persistence status, two-step Clear Chat History, documentation links card filling vertical space), and moved version badge to sidebar footer while removing the verbose app footer.
-- **T-037**: Small fixes after T-036 human verification (hidden empty box under Compare algorithms until results exist, HNSW trace in Ask fixed to read tRes.trace/stats.nodesVisited instead of visited_nodes, verified persistence health JSON derivation with and without --data-dir, updated verification status in docs).
-- **T-038**: Fix silent "Compare algorithms on this query" button in Ask glass-box (mapped server response `algorithms` field to display rows via new `web/js/ask_helpers.js`, added compact latency bars with swatches, added toast and inline notifications on error, added 4 pure-logic browser unit tests bringing test suite to 88 tests).
-
-**Verification Metrics**:
-- C++ unit and integration tests: 118 / 118 passed (529,813 assertions).
-- Browser unit tests: 84 registered tests (`http://127.0.0.1:8080/tests.html`) — pending human confirmation in browser.
-- Web security scan: 25 files scanned, zero forbidden patterns, strict CSP verified.
-- Server REST/SSE endpoints: 30 registered endpoints.
-- Button hierarchy: at most ONE `.btn-primary` per visible view.
-- DOM ID preservation: 100% of all existing tab DOM IDs preserved.
+- **T-037 (Commit `b401029`)**: Small fixes after T-036 human verification (hidden empty box under Compare algorithms until results exist, HNSW trace in Ask fixed to read `tRes.trace` and `tRes.stats.nodesVisited` instead of `visited_nodes`, verified persistence health JSON derivation with and without `--data-dir`, updated verification status in docs).
+- **T-038 (Commit `a57c573`)**: Fix silent "Compare algorithms on this query" button in Ask glass-box (mapped server response `algorithms` field to display rows via new `web/js/ask_helpers.js`, added compact latency bars with swatches, added toast and inline notifications on error, added 4 pure-logic browser unit tests bringing test suite to 88 tests).
 
 ---
 
@@ -92,36 +94,42 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ## 5. Pending Human Actions
 
-1. **(a) License copyright name**: Fill the `<YOUR NAME>` copyright holder placeholder in `LICENSE`.
-2. **(b) Decide Linux/macOS support**: Primary development and testing are currently on Windows 11 (MSYS2 UCRT64 toolchain); GitHub Actions CI workflow is configured for Linux and Windows; decide official release support tiers.
-3. **(c) Submission & viva timeline**: Academic report submission, viva defense date, and presentation slides are handled independently by the human; Brain focuses strictly on software development.
-4. **(d) Real-browser verification of the whole new UI**:
-   - Save screenshots at 1920x1080 for all 5 tabs (Ask, Explore, HNSW, Compare, Settings).
-   - Test 1366x768 viewport on Ask tab and observe inner scroll behavior.
-   - Ask tab workflow: ingest sample document (`web/samples/vectordb_intro.txt` or custom text), ask 2 questions, test multi-turn context retention, and expand the "How this was answered" glass-box accordion (verify chunk similarity meters, latency badges, 2D PCA canvas, benchmark compare button, and HNSW search path trace button).
-   - Test `--data-dir ./data` persistence: insert documents and vectors, shut down server, restart with `--data-dir ./data`, and confirm data is restored.
-   - Verify `Ctrl+K` Command Palette navigation, sidebar collapse/expand toggle, and interactive guided tour.
-   - Run `/tests.html` in browser and confirm 84 / 84 tests pass with zero browser console errors.
-5. **(e) Confirm external backup**: Confirm external backup and git branch `backup-before-v2` can be restored if ever needed.
-6. **(f) Possible follow-up decisions**: Hybrid search (BM25 + RRF) and cross-encoder reranking remain strictly NOT in scope of T-033.
+1. **(a) License copyright name**: Fill `<YOUR NAME>` placeholder in `LICENSE`.
+2. **(b) Take screenshots for unverified / reported areas**:
+   - Persistence restart with `--data-dir ./data`.
+   - `Ctrl+K` Command Palette navigation.
+   - Sidebar collapse to ~56px icon rail.
+   - Interactive guided tour.
+   - Ask New chat empty-state guided card with sample loader.
+   - 1366x768 layout on Ask tab.
+3. **(c) Decide merge of `ui-redesign` into `main`**: Branch `ui-redesign` contains all v2 commits; human authority decides when and whether to merge into `main` (not decided).
+4. **(d) Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
 
 ---
 
-## 6. Open Decisions / Known Gaps
+## 6. Open Follow-ups (Planned for T-039) & Roadmap
 
-- **Hybrid search (BM25 + RRF)**: Requires inverted index and rank fusion; on roadmap, but strictly out of scope for T-033.
-- **Cross-encoder reranking**: Second-pass neural reranking requires ONNX or local model execution; out of scope for T-033.
-- **Follow-up question condensation strategy**: Currently passes the raw conversation history window (last 6 messages / 3,000 characters) directly into the RAG context; evaluate based on human manual testing whether query condensation/rephrasing is necessary.
-- **Merge of `ui-redesign` into `main`**: Branch `ui-redesign` contains all v2 commits; human authority decides when and whether to merge into `main`.
-- **GitHub repository publication timing**: Timing of public repository release or GitHub sync is decided by the human.
-- **ISS-006 (Document Ingestion Rollback)**: Mid-loop vector insertion failures trigger `collection_->removeBatch` rollback in `src/rag.cpp:155-160`, but the rollback path is implemented in code and not yet covered by an automated test.
-- **[UNCLEAR] ADR numbering alignment**: Brain chat prompt drafted Product Positioning as ADR-032 and Project Name as ADR-033, while T-033 Phase P3 had already recorded Binary Persistence as ADR-032 and Document Deletion as ADR-033 in git. To prevent conflicts or breaking existing commits, Persistence and Deletion remain ADR-032 & ADR-033, and Product Positioning and Project Name are recorded as ADR-034 & ADR-035 in `docs/DECISIONS.md`.
+### Open Follow-ups (Planned for T-039)
+- Fix stale docs wording about Compare button.
+- Note that `AUDIT_AND_HISTORY.md` is a historical snapshot; avoid rewriting history numbers.
+- Optional C++ unit test for ISS-006 ingest rollback.
+- Compare swatch colors are hardcoded in ask.js / CSS.
+- Note HNSW is slower than brute force on 6 chunks (expected, small $N$); do not claim HNSW is faster in README or LEARNING_GUIDE for small collections.
+
+### Roadmap (Not Started)
+- **Hybrid search (BM25 + RRF)**: Requires inverted index and rank fusion; on roadmap, but strictly out of scope for v2.
+- **Cross-encoder reranking**: Second-pass neural reranker for retrieved candidate chunks.
+- **Automated browser E2E click tests**: Headless browser execution suite (Playwright / Selenium).
+- **Real Linux/macOS desktop environment testing**: Real physical environment validation beyond CI.
 
 ---
 
 ## 7. Recommended Next Step
 
-Brain reviews the T-033 report critically, then writes **ONE batched fix task (T-034)** from the human's screenshots and terminal output.
+1. Human completes pending actions **(a)** (fill `<YOUR NAME>` in `LICENSE`) and **(b)** (take screenshots of persistence restart, `Ctrl+K`, sidebar collapse, guided tour, Ask New chat empty state, 1366x768 Ask).
+2. Brain reviews screenshots.
+3. Execute **T-039** (small docs polish and follow-ups).
+4. Human decides on merging `ui-redesign` into `main`.
 
 ---
 

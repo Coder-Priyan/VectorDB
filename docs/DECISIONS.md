@@ -1,6 +1,6 @@
 # Architectural Decision Records (ADR)
 
-Last updated: 2026-11-14 by SYNC-001
+Last updated: 2026-11-14 by SYNC-002
 
 | ID | Date | Decision | Reason | Alternatives Rejected | Evidence Tag |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -39,4 +39,5 @@ Last updated: 2026-11-14 by SYNC-001
 | ADR-033 | 2026-11-14 | Document deletion strategy (DELETE /api/docs/:id): remove document record and its chunk vectors, then rebuild Brute Force, KD-Tree, and HNSW indexes from remaining vectors. IDs of remaining items remain strictly stable. | Simplest correct algorithm; eliminates complex graph edge re-wiring or tombstone garbage collection for in-memory collections; ensures 100% clean index state. | Tombstone marking without graph repair (degrades HNSW recall over time), full graph edge re-wiring (high algorithmic complexity). | [CONFIRMED: human instruction in chat] |
 | ADR-034 | 2026-11-14 | Product positioning: "Glass-box RAG". Every answer shows how it was produced (retrieved chunks with similarity meters, latency breakdown, 2D PCA projection map, on-demand algorithm benchmark comparison, HNSW search path trace). Goal is an open-source educational product for learning on GitHub, fully offline (internet only once to pull Ollama models). Pitch: not "smarter than ChatGPT" but transparent, private, and educational. | Differentiates VectorDB from opaque AI chat wrappers and commercial closed-source databases; optimal for academic grading and engineering education. | Opaque black-box chat UI; pretending to compete directly with commercial cloud LLM platforms; cloud-tethered telemetry. | [CONFIRMED: human instruction in chat] |
 | ADR-035 | 2026-11-14 | Project name stays "VectorDB: Semantic Search Engine" (college-listed major project title). Official tagline: "a transparent, offline vector database and RAG learning tool". GitHub repository name may be VectorDB. | Preserves formal continuity with university registration, thesis submissions, and viva evaluation while allowing clean GitHub discovery. | Renaming repo or binary to a novel brand; changing official major project title before evaluation. | [CONFIRMED: human instruction in chat] |
+| ADR-036 | 2026-11-14 | Frontend field names read from server responses must be covered by pure-logic browser tests using real server response fixtures | Three field-name bugs were found only by human browser testing (ISS-017 count vs n; Ask trace read visited_nodes instead of stats.nodesVisited; Ask compare read reports instead of algorithms) | Relying on builder reports or manual ad-hoc inspection without fixture tests | [CONFIRMED: web/js/ask_helpers.js:1, web/js/tests/test_v2.js:162] |
 
