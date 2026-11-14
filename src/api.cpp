@@ -528,24 +528,64 @@ ApiResponse handleHnswNode(const Collection& collection, VectorId id) {
     }
 }
 
-ApiResponse handleHnswTrace(Collection& collection, const std::string& body) {
+ApiResponse handleHnswTrace(Collection& collection, const std::string& body, RagPipeline* rag) {
     try {
         json req = json::parse(body, nullptr, false);
         if (req.is_discarded() || !req.is_object()) {
             return makeErrorResponse(400, "invalid_json", "Malformed JSON request body");
         }
 
-        if (!req.contains("vector") || !req["vector"].is_array()) {
-            return makeErrorResponse(400, "invalid_request", "Missing or invalid 'vector' array field");
+        std::string colName = "demo";
+        if (req.contains("collection")) {
+            if (!req["collection"].is_string()) {
+                return makeErrorResponse(400, "validation_error", "'collection' must be a string");
+            }
+            colName = req["collection"].get<std::string>();
+            if (colName != "demo" && colName != "docs") {
+                return makeErrorResponse(400, "validation_error", "'collection' must be 'demo' or 'docs'");
+            }
+        }
+
+        Collection* targetCol = &collection;
+        if (colName == "docs") {
+            if (!rag) {
+                return makeErrorResponse(503, "ollama_unavailable", "Docs collection is not available");
+            }
+            targetCol = &rag->collection();
         }
 
         std::vector<float> vec;
-        vec.reserve(req["vector"].size());
-        for (const auto& item : req["vector"]) {
-            if (!item.is_number()) {
-                return makeErrorResponse(400, "validation_error", "Vector components must be numeric");
+        if (colName == "docs" && req.contains("query")) {
+            if (!req["query"].is_string()) {
+                return makeErrorResponse(400, "validation_error", "'query' must be a string");
             }
-            vec.push_back(item.get<float>());
+            std::string queryText = req["query"].get<std::string>();
+            if (queryText.empty() || queryText.size() > 2000) {
+                return makeErrorResponse(400, "validation_error", "'query' must be between 1 and 2000 characters");
+            }
+            // Embed via Ollama without holding any mutex
+            try {
+                auto embs = rag->ollama().embed({queryText}, EmbedKind::Query);
+                if (embs.empty() || embs[0].size() != targetCol->stats().dimension) {
+                    return makeErrorResponse(502, "ollama_error", "Failed to embed query or dimension mismatch");
+                }
+                vec = std::move(embs[0]);
+            } catch (const OllamaUnavailable& e) {
+                return makeErrorResponse(503, "ollama_unavailable", e.what());
+            } catch (const std::exception& e) {
+                return makeErrorResponse(502, "ollama_error", e.what());
+            }
+        } else {
+            if (!req.contains("vector") || !req["vector"].is_array()) {
+                return makeErrorResponse(400, "invalid_request", "Missing or invalid 'vector' array field");
+            }
+            vec.reserve(req["vector"].size());
+            for (const auto& item : req["vector"]) {
+                if (!item.is_number()) {
+                    return makeErrorResponse(400, "validation_error", "Vector components must be numeric");
+                }
+                vec.push_back(item.get<float>());
+            }
         }
 
         std::size_t k = 10;
@@ -564,7 +604,7 @@ ApiResponse handleHnswTrace(Collection& collection, const std::string& body) {
             efOpt = req["ef"].get<std::size_t>();
         }
 
-        HnswTraceResult res = collection.hnswTrace(vec, k, efOpt);
+        HnswTraceResult res = targetCol->hnswTrace(vec, k, efOpt);
 
         json doc;
         json resArr = json::array();
@@ -572,8 +612,16 @@ ApiResponse handleHnswTrace(Collection& collection, const std::string& body) {
             json item;
             item["id"] = sr.id;
             item["distance"] = sr.distance;
-            std::string meta = collection.contains(sr.id) ? collection.getMetadata(sr.id) : "";
+            std::string meta = targetCol->contains(sr.id) ? targetCol->getMetadata(sr.id) : "";
             item["metadata"] = parseMetadata(meta);
+            if (!meta.empty()) {
+                try {
+                    auto mj = json::parse(meta);
+                    if (mj.contains("doc_id")) item["doc_id"] = mj["doc_id"];
+                    if (mj.contains("chunk_index")) item["chunk_index"] = mj["chunk_index"];
+                    if (mj.contains("title")) item["title"] = mj["title"];
+                } catch (...) {}
+            }
             resArr.push_back(item);
         }
         doc["results"] = resArr;
@@ -588,6 +636,15 @@ ApiResponse handleHnswTrace(Collection& collection, const std::string& body) {
             s["layer"] = step.layer;
             s["id"] = step.id;
             s["distance"] = step.distance;
+            std::string meta = targetCol->contains(step.id) ? targetCol->getMetadata(step.id) : "";
+            if (!meta.empty()) {
+                try {
+                    auto mj = json::parse(meta);
+                    if (mj.contains("doc_id")) s["doc_id"] = mj["doc_id"];
+                    if (mj.contains("chunk_index")) s["chunk_index"] = mj["chunk_index"];
+                    if (mj.contains("title")) s["title"] = mj["title"];
+                } catch (...) {}
+            }
             traceArr.push_back(s);
         }
         doc["trace"] = traceArr;

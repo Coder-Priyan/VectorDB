@@ -285,7 +285,7 @@ int main(int argc, char* argv[]) {
 
     // Route: POST /api/hnsw/trace
     svr.Post("/api/hnsw/trace", [&](const httplib::Request& req, httplib::Response& res) {
-        sendResponse(res, handleHnswTrace(collection, req.body));
+        sendResponse(res, handleHnswTrace(collection, req.body, &ragPipeline));
     });
 
     // Route: POST /api/demo/random

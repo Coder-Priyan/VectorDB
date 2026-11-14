@@ -74,7 +74,7 @@ ApiResponse handleHnswInfo(const Collection& collection);
 
 ApiResponse handleHnswNode(const Collection& collection, VectorId id);
 
-ApiResponse handleHnswTrace(Collection& collection, const std::string& body);
+ApiResponse handleHnswTrace(Collection& collection, const std::string& body, RagPipeline* rag = nullptr);
 
 ApiResponse handleDemoRandom(Collection& collection, const std::string& body);
 

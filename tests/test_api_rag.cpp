@@ -478,3 +478,71 @@ TEST(ApiRagTest, MultiTurnHistoryValidationErrors) {
         CHECK(j["error"]["code"] == "validation_error");
     }
 }
+
+TEST(ApiRagTest, DocsCollectionHnswTrace) {
+    FakeOllamaServer fake;
+
+    OllamaConfig ollamaCfg;
+    ollamaCfg.baseUrl = fake.baseUrl();
+    OllamaClient client(ollamaCfg);
+
+    RagConfig ragCfg;
+    ragCfg.dimension = 768;
+    RagPipeline pipeline(ragCfg, client);
+
+    CollectionConfig demoCfg;
+    demoCfg.dimension = 128;
+    demoCfg.metric = Metric::Cosine;
+    Collection demoCol(demoCfg);
+
+    // Ingest a document with multiple sentences
+    std::string text = "Vector databases provide high performance approximate nearest neighbor search. "
+                       "HNSW graphs use hierarchical skip-list concepts for sub-linear search time. "
+                       "Cosine similarity measures the angle between directional vectors.";
+    pipeline.ingest("Vector Architecture", text);
+
+    // 1. Trace docs collection via "query" text
+    json queryBody;
+    queryBody["collection"] = "docs";
+    queryBody["query"] = "How does HNSW scale?";
+    queryBody["k"] = 2;
+
+    auto res = handleHnswTrace(demoCol, queryBody.dump(), &pipeline);
+    CHECK(res.status == 200);
+
+    auto j = json::parse(res.body);
+    CHECK(j.contains("results"));
+    CHECK(!j["results"].empty());
+    CHECK(j.contains("trace"));
+    CHECK(!j["trace"].empty());
+    CHECK(j.contains("stats"));
+    CHECK(j["stats"]["nodesVisited"].get<int>() >= 1);
+
+    // Verify chunk metadata is attached
+    bool foundMeta = false;
+    for (const auto& step : j["trace"]) {
+        if (step.contains("title") && step["title"] == "Vector Architecture") {
+            foundMeta = true;
+            CHECK(step.contains("doc_id"));
+            CHECK(step.contains("chunk_index"));
+            break;
+        }
+    }
+    CHECK(foundMeta == true);
+
+    // 2. Trace docs collection via raw "vector"
+    json vecBody;
+    vecBody["collection"] = "docs";
+    vecBody["vector"] = std::vector<float>(768, 0.05f);
+    vecBody["k"] = 2;
+
+    auto vecRes = handleHnswTrace(demoCol, vecBody.dump(), &pipeline);
+    CHECK(vecRes.status == 200);
+
+    // 3. Validation: invalid collection name
+    json invalidBody;
+    invalidBody["collection"] = "wrong";
+    invalidBody["vector"] = std::vector<float>(128, 0.1f);
+    auto invRes = handleHnswTrace(demoCol, invalidBody.dump(), &pipeline);
+    CHECK(invRes.status == 400);
+}
