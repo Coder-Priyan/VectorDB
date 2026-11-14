@@ -1,6 +1,6 @@
 # Project Handoff
 
-Last updated: 2026-11-14 by T-044
+Last updated: 2026-11-14 by T-045
 
 ## 1. Current Status
 
@@ -13,7 +13,7 @@ VectorDB v2 has been completely built across all 9 phases (P0 to P8). Following 
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
   - *Nothing pushed to remote origin.*
 - **Human Verification on 2026-11-14**:
-  - **Terminal**: Git log shows T-042 commits `eeb605e`, `280c3b2`, `f466c41` on `ui-quiet-studio`; `box-shadow` grep empty; C++ tests pass 118/118; web safety scanner 100% clean; `src/`, `include/`, `tests/`, and `CMakeLists.txt` untouched.
+  - **Terminal**: C++ 118/118 (529,813 assertions, 117 run + 1 opt-in live-Ollama test skipped) human-confirmed by terminal on 2026-11-14 after T-043; git log shows T-042 commits `eeb605e`, `280c3b2`, `f466c41` and T-043 commits `c84a913`, `34e403a` on `ui-quiet-studio`; `box-shadow` grep empty; web safety scanner 100% clean; `src/`, `include/`, `tests/`, and `CMakeLists.txt` untouched.
   - **Screenshots**: `/tests.html` 94/94 passed (2026-11-14, after T-043); Explore toolbar single row and canvas panel OK; Compare after benchmark shows 3 charts with all 3 algorithms and 5 summary columns (ISS-024 fixed); Settings font larger and persistence status in sans.
 - **T-043 Commits on `ui-quiet-studio`**:
   - `c84a913` ui-quiet-studio: T-043 Commit 1 Settings redesign with live status rail and unboxed stacked settings
@@ -34,7 +34,7 @@ VectorDB v2 has been completely built across all 9 phases (P0 to P8). Following 
 
 > [!NOTE]
 > Verification status:
-> - **Human-confirmed by terminal on 2026-11-14**: C++ 118/118 passed, scanner ALL CHECKS PASSED, git log commits up to `a57c573` (T-038) and T-042 commits `eeb605e`, `280c3b2`, `f466c41`.
+> - **Human-confirmed by terminal on 2026-11-14**: C++ 118/118 (529,813 assertions, 117 run + 1 opt-in live-Ollama test skipped) human-confirmed by terminal on 2026-11-14 after T-043; scanner ALL CHECKS PASSED; git log commits up to `a57c573` (T-038), T-042 commits `eeb605e`, `280c3b2`, `f466c41`, and T-043 commits `c84a913`, `34e403a`.
 > - **Human-confirmed by screenshots on 2026-11-14**: `/tests.html` 94/94 (after T-043), 5 tabs at 1920x1080, Ask chat flow, Explore Docs PCA, Open Explore deep link, Compare in Ask (3 rows), Trace (6 nodes), Settings new sections, footer removed, Explore toolbar 1 row, Compare 3 side-by-side charts, Compare summary table 5 columns unclipped.
 > - **Pending Human Screenshots (T-043 Settings Redesign & Visual Polish)**:
 >   - Settings tab at 1920x1080: unboxed stacked settings on left, sticky "Server status" rail on right with status dot and Ollama model chips.

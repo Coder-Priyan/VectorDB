@@ -1,6 +1,6 @@
 # Project Progress
 
-Last updated: 2026-11-14 by T-044
+Last updated: 2026-11-14 by T-045
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform (Task T-033 Complete across all 9 Phases P0-P8, Branch `ui-quiet-studio`)
 
@@ -28,7 +28,7 @@ Last updated: 2026-11-14 by T-044
 - **T-042**: Quiet Studio fixes after human screenshot review on branch `ui-quiet-studio`. Batched fixes in 3 commits (`eeb605e`, `280c3b2`, `f466c41`) addressing compact single-row toolbars, compare 3-row canvas fitting, summary metrics recall column (ISS-024), unified canvas panels, custom native controls, shared empty states, and expanding test suite to 93 tests. Status: IMPLEMENTED (partially verified by human screenshots on 2026-11-14: `/tests.html` 93/93, Explore toolbar, Compare 3 charts & 5 columns, Settings sans status; remaining items visual verification pending).
 - **T-043**: Settings redesign (reference-guided) + pending Ask/Compare polish on branch `ui-quiet-studio`. Two commits (`c84a913`, `34e403a`) implementing live status rail (Variant E), unboxed stacked settings, compare empty state restoration (ISS-035), Ask latency breakdown grid (ISS-037), slide-over document drawer preserving chat center (ISS-036), widened mini select (ISS-038), reducing CSS `!important` to 3, and expanding test suite to 94 tests. Status: IMPLEMENTED (visual verification pending).
 
-All 118 C++ tests pass. 94 browser unit tests registered (94/94 confirmed passed by human screenshot at `/tests.html`). 100% clean web safety scan.
+All 118 C++ tests pass (529,813 assertions, human-confirmed by terminal after T-043). 94 browser unit tests registered (94/94 confirmed passed by human screenshot at `/tests.html`). 100% clean web safety scan.
 
 ---
 

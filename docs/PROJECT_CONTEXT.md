@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-14 by T-044
+Last updated: 2026-11-14 by T-045
 
 ## 1. Operating Model
 
@@ -136,7 +136,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 
 ## 7. Verification Status (as of 2026-11-14)
 
-- **Human-confirmed by terminal on 2026-11-14**: C++ 118/118 passed, scanner ALL CHECKS PASSED, git log commits up to `a57c573` (T-038) and T-042 commits `eeb605e`, `280c3b2`, `f466c41` on `ui-quiet-studio`. C++ 118/118 after T-043 is builder-reported only until the human runs .\build\vectordb_tests.exe.
+- **Human-confirmed by terminal on 2026-11-14**: C++ 118/118 (529,813 assertions, 117 run + 1 opt-in live-Ollama test skipped) human-confirmed by terminal on 2026-11-14 after T-043; scanner ALL CHECKS PASSED; git log commits up to `a57c573` (T-038), T-042 commits `eeb605e`, `280c3b2`, `f466c41`, and T-043 commits `c84a913`, `34e403a` on `ui-quiet-studio`.
 - **Human-confirmed by screenshots on 2026-11-14**: `/tests.html` 94/94 (after T-043), 5 tabs at 1920x1080, Ask chat flow, Explore Docs PCA, Open Explore deep link, Compare in Ask (3 rows), Trace (6 nodes), Settings new sections, footer removed, Explore toolbar 1 row, Compare 3 side-by-side charts, Compare summary table 5 columns unclipped, Settings font larger and persistence status in sans.
 - **Still human-reported only (no screenshots)**: `--data-dir` persistence restart, Ctrl K, sidebar collapse, guided tour.
 - **Pending Human Screenshot (T-043 Quiet Studio)**: Settings tab at 1920x1080 (unboxed left + boxed status rail right) and 1366x768 (stacked fallback), Compare empty state before benchmark, Ask glass-box latency breakdown grid & drawer toggle without chat shift, HNSW tab at 1366x768.
