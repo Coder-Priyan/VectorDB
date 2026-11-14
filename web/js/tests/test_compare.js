@@ -10,7 +10,8 @@ import {
   resolveChartSize,
   computeChartLayout,
   buildDiffRows,
-  extractChartMetrics
+  extractChartMetrics,
+  drawMetricBarChart
 } from "../compare_helpers.js";
 
 export function registerCompareTests() {
@@ -366,6 +367,34 @@ export function registerCompareTests() {
       assertEqual(metrics.latency.hnsw, 32);
       assertEqual(metrics.dist.brute, 1000);
       assertNear(metrics.recall.hnsw, 0.9, 0.001);
+    });
+
+    it("drawMetricBarChart clears canvas transparently without dark background box", () => {
+      let cleared = false;
+      let filledDarkBg = false;
+      const mockCanvas = {
+        clientWidth: 350,
+        clientHeight: 74,
+        width: 350,
+        height: 74,
+        getContext: () => ({
+          clearRect: (x, y, w, h) => {
+            if (x === 0 && y === 0 && w === 350 && h === 74) {
+              cleared = true;
+            }
+          },
+          fillRect: (x, y, w, h) => {
+            if (x === 0 && y === 0 && w === 350 && h === 74) {
+              filledDarkBg = true;
+            }
+          },
+          measureText: () => ({ width: 30 }),
+          fillText: () => {}
+        })
+      };
+      drawMetricBarChart(mockCanvas, "latency", { brute: 100, kdtree: 50, hnsw: 20 });
+      assertEqual(cleared, true);
+      assertEqual(filledDarkBg, false);
     });
   });
 }

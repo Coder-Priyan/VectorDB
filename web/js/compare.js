@@ -3,7 +3,7 @@
  */
 
 import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js";
-import { el, formatDuration, formatSimilarity } from "./ui.js";
+import { el, formatSimilarity } from "./ui.js";
 import { setupCanvasDpr } from "./canvas.js";
 import { createIcon } from "./icons.js";
 import {
@@ -230,7 +230,7 @@ export function initCompareTab() {
           el("span", { className: `legend-swatch swatch-${alg} mr-1` }),
           ALGORITHM_LABELS[alg]
         ),
-        el("td", {}, `${Math.round(medianUs)} μs (${formatDuration(medianUs / 1000)})`),
+        el("td", {}, `${Math.round(medianUs)} μs`),
         el("td", { className: "text-xs text-muted" }, minMaxStr),
         el("td", {}, String(aData.distance_computations ?? "-")),
         el("td", {}, formatSimilarity(aData.recall_at_k ?? 1.0))

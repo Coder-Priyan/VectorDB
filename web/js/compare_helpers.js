@@ -483,8 +483,7 @@ export function drawMetricBarChart(canvas, metricKey, metricValues, isDark = tru
 
   if (w <= 0 || h <= 0) return;
 
-  ctx.fillStyle = THEME.bgCanvas;
-  ctx.fillRect(0, 0, w, h);
+  ctx.clearRect(0, 0, w, h);
 
   const algorithms = ["brute", "kdtree", "hnsw"];
   const cfg = METRIC_CONFIGS[metricKey] || METRIC_CONFIGS.latency;
@@ -499,7 +498,7 @@ export function drawMetricBarChart(canvas, metricKey, metricValues, isDark = tru
   const barStartX = padLeft + labelWidth + 8;
   const rowCount = 3;
   const rowHeight = Math.max(0, Math.floor(h / rowCount));
-  const barHeight = Math.max(6, Math.min(14, rowHeight - 12));
+  const barHeight = Math.max(5, Math.min(8, rowHeight - 14));
 
   algorithms.forEach((alg, idx) => {
     const rowY = idx * rowHeight;
