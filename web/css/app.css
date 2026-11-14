@@ -3194,7 +3194,45 @@ body:has(#test-results-container) .app-content {
   font-family: var(--font-mono);
   font-weight: 500;
   color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
 }
+
+.bench-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.bench-item:last-child {
+  border-bottom: none;
+}
+
+.bench-stat {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.bench-bar-track {
+  width: 100%;
+  height: 3px;
+  background: var(--bg-secondary);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.bench-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.bench-bar-fill.swatch-brute { background-color: #9c8269; }
+.bench-bar-fill.swatch-kdtree { background-color: #708a78; }
+.bench-bar-fill.swatch-hnsw { background-color: #d9a441; }
 
 .trace-summary-text {
   font-size: var(--text-xs);

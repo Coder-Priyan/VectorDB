@@ -9,6 +9,7 @@ import { describe, assert, assertEqual } from "./framework.js";
 import { createIcon } from "../icons.js";
 import { EXPLAINERS } from "../learn_content.js";
 import { parseCitations } from "../ui.js";
+import { formatBenchmarkRows, formatTraceSummary } from "../ask_helpers.js";
 
 export function registerV2Tests() {
   describe("v2: SVG Icon Registry", (test) => {
@@ -155,6 +156,101 @@ export function registerV2Tests() {
       assertEqual(history[0].content, "Message 3");
       assertEqual(history[5].content, "Message 8");
       assert(!("timestamp" in history[0]), "Extra fields must not be forwarded");
+    });
+  });
+
+  describe("v2: Ask Glass-Box Response Mappers (Benchmark & Trace)", (test) => {
+    // Real raw response shapes captured via curl from running VectorDB server
+    const realBenchmarkResponse = {
+      algorithms: {
+        brute: {
+          distance_computations: 6,
+          latency_us: 13,
+          recall_at_k: 1.0,
+          results: [{ distance: 0.226, id: 1 }, { distance: 0.304, id: 2 }, { distance: 0.396, id: 5 }]
+        },
+        hnsw: {
+          distance_computations: 6,
+          latency_us: 18,
+          recall_at_k: 1.0,
+          results: [{ distance: 0.226, id: 1 }, { distance: 0.304, id: 2 }, { distance: 0.396, id: 5 }]
+        },
+        kdtree: {
+          distance_computations: 6,
+          latency_us: 16,
+          recall_at_k: 1.0,
+          results: [{ distance: 0.226, id: 1 }, { distance: 0.304, id: 2 }, { distance: 0.396, id: 5 }]
+        }
+      },
+      count: 6,
+      ground_truth: "brute",
+      k: 3
+    };
+
+    const realTraceResponse = {
+      results: [
+        { chunk_index: 0, distance: 0.226, doc_id: 1, id: 1, title: "vectordb_intro" },
+        { chunk_index: 1, distance: 0.304, doc_id: 1, id: 2, title: "vectordb_intro" },
+        { chunk_index: 4, distance: 0.396, doc_id: 1, id: 5, title: "vectordb_intro" }
+      ],
+      stats: {
+        distanceComputations: 6,
+        nodesVisited: 6,
+        visitedPerLayer: [6]
+      },
+      trace: [
+        { chunk_index: 0, distance: 0.226, doc_id: 1, id: 1, layer: 0, title: "vectordb_intro" },
+        { chunk_index: 1, distance: 0.304, doc_id: 1, id: 2, layer: 0, title: "vectordb_intro" },
+        { chunk_index: 2, distance: 0.412, doc_id: 1, id: 3, layer: 0, title: "vectordb_intro" },
+        { chunk_index: 3, distance: 0.405, doc_id: 1, id: 4, layer: 0, title: "vectordb_intro" },
+        { chunk_index: 4, distance: 0.396, doc_id: 1, id: 5, layer: 0, title: "vectordb_intro" },
+        { chunk_index: 5, distance: 0.506, doc_id: 1, id: 6, layer: 0, title: "vectordb_intro" }
+      ]
+    };
+
+    test("formatBenchmarkRows maps real server benchmark response to rows correctly", () => {
+      const rows = formatBenchmarkRows(realBenchmarkResponse);
+      assertEqual(rows.length, 3);
+      assertEqual(rows[0].key, "brute");
+      assertEqual(rows[0].name, "Brute Force");
+      assertEqual(rows[0].latencyUs, 13);
+      assertEqual(rows[0].distanceComputations, 6);
+      assertEqual(rows[0].recallFormatted, "100%");
+
+      assertEqual(rows[1].key, "kdtree");
+      assertEqual(rows[1].name, "KD-Tree");
+      assertEqual(rows[1].latencyUs, 16);
+
+      assertEqual(rows[2].key, "hnsw");
+      assertEqual(rows[2].name, "HNSW");
+      assertEqual(rows[2].latencyUs, 18);
+      assertEqual(rows[2].percent, 100);
+    });
+
+    test("formatBenchmarkRows gracefully handles empty or null payloads", () => {
+      assertEqual(formatBenchmarkRows(null).length, 0);
+      assertEqual(formatBenchmarkRows({}).length, 0);
+      assertEqual(formatBenchmarkRows({ algorithms: {} }).length, 0);
+    });
+
+    test("formatTraceSummary maps real server trace response to summary text accurately", () => {
+      const summary = formatTraceSummary(realTraceResponse);
+      assertEqual(summary.nodesVisited, 6);
+      assertEqual(summary.layersCount, 1);
+      assertEqual(summary.distComps, 6);
+      assertEqual(summary.topKCount, 3);
+      assert(summary.summaryText.includes("visited 6 nodes across 1 layer"));
+      assert(summary.summaryText.includes("6 distance computations"));
+    });
+
+    test("formatTraceSummary gracefully handles empty or null trace payloads", () => {
+      const summaryNull = formatTraceSummary(null);
+      assertEqual(summaryNull.nodesVisited, 0);
+      assertEqual(summaryNull.summaryText, "No trace data available.");
+
+      const summaryEmpty = formatTraceSummary({ stats: {}, trace: [] });
+      assertEqual(summaryEmpty.nodesVisited, 0);
+      assertEqual(summaryEmpty.layersCount, 1);
     });
   });
 }

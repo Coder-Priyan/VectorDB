@@ -12,6 +12,7 @@ import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js
 import { readSseStream } from "./sse.js";
 import { el, formatBytes, formatDuration, formatSimilarity, parseCitations, showToast } from "./ui.js";
 import { createIcon } from "./icons.js";
+import { formatBenchmarkRows, formatTraceSummary } from "./ask_helpers.js";
 
 const CHATS_INDEX_KEY = "vectordb:chats";
 const CHAT_PREFIX = "vectordb:chats:";
@@ -720,26 +721,44 @@ export function initAskTab() {
       runBenchBtn.disabled = true;
       runBenchBtn.textContent = "Benchmarking...";
       try {
-        const bRes = await api.benchmarkDocs({ query: question, k: 5, runs: 3 });
+        const bRes = await api.benchmarkDocs({ query: question, k: 5 });
         while (benchResults.firstChild) {
           benchResults.removeChild(benchResults.firstChild);
         }
-        const reports = bRes.reports || [];
-        reports.forEach(r => {
+        const rows = formatBenchmarkRows(bRes);
+        if (rows.length === 0) {
           benchResults.appendChild(
-            el("div", { className: "bench-row" },
-              el("span", { className: "bench-name" }, r.algorithm.toUpperCase()),
-              el("span", { className: "bench-stat" }, `${(r.mean_latency_us / 1000).toFixed(2)} ms`),
-              el("span", { className: "bench-stat text-muted" }, `Recall: ${((r.recall_at_k ?? 1.0) * 100).toFixed(0)}%`)
-            )
+            el("div", { className: "text-muted text-xs" }, "No benchmark metrics returned.")
           );
-        });
+        } else {
+          rows.forEach(r => {
+            const swatch = el("span", { className: `legend-swatch swatch-${r.key} mr-1` });
+            const rowEl = el("div", { className: "bench-row" },
+              el("span", { className: "bench-name" }, swatch, r.name),
+              el("span", { className: "bench-stat font-mono" }, r.latencyFormatted),
+              el("span", { className: "bench-stat text-muted font-mono" }, `${r.distanceComputations} dist`),
+              el("span", { className: "bench-stat text-muted font-mono" }, `Recall: ${r.recallFormatted}`)
+            );
+            const track = el("div", { className: "bench-bar-track" });
+            const fill = el("div", { className: `bench-bar-fill swatch-${r.key}` });
+            fill.style.setProperty("width", `${r.percent}%`);
+            track.appendChild(fill);
+            const item = el("div", { className: "bench-item" }, rowEl, track);
+            benchResults.appendChild(item);
+          });
+        }
         benchResults.classList.remove("hidden");
         if (!compareSection.contains(benchResults)) {
           compareSection.appendChild(benchResults);
         }
       } catch (err) {
-        benchResults.textContent = `Benchmark error: ${err.message}`;
+        showToast(`Benchmark error: ${err.message}`, "error");
+        while (benchResults.firstChild) {
+          benchResults.removeChild(benchResults.firstChild);
+        }
+        benchResults.appendChild(
+          el("div", { className: "text-danger text-xs" }, `Benchmark error: ${err.message}`)
+        );
         benchResults.classList.remove("hidden");
         if (!compareSection.contains(benchResults)) {
           compareSection.appendChild(benchResults);
@@ -770,27 +789,22 @@ export function initAskTab() {
         while (traceResults.firstChild) {
           traceResults.removeChild(traceResults.firstChild);
         }
-        const trace = tRes.trace || [];
-        const nodesVisited = tRes.stats?.nodesVisited ?? trace.length;
-        const layersCount = tRes.stats?.visitedPerLayer
-          ? (Array.isArray(tRes.stats.visitedPerLayer)
-              ? tRes.stats.visitedPerLayer.length
-              : Object.keys(tRes.stats.visitedPerLayer).length)
-          : (trace.length > 0 ? Math.max(...trace.map(s => s.layer ?? 0)) + 1 : 1);
-        const distComps = tRes.stats?.distanceComputations ?? nodesVisited;
-        const topKCount = Math.min(3, (tRes.results || []).length || 3);
-
+        const summary = formatTraceSummary(tRes);
         traceResults.appendChild(
-          el("div", { className: "trace-summary-text" },
-            `HNSW visited ${nodesVisited} node${nodesVisited === 1 ? "" : "s"} across ${layersCount} layer${layersCount === 1 ? "" : "s"} (${distComps} distance computations) to locate top ${topKCount} chunks.`
-          )
+          el("div", { className: "trace-summary-text" }, summary.summaryText)
         );
         traceResults.classList.remove("hidden");
         if (!traceSection.contains(traceResults)) {
           traceSection.appendChild(traceResults);
         }
       } catch (err) {
-        traceResults.textContent = `Trace error: ${err.message}`;
+        showToast(`Trace error: ${err.message}`, "error");
+        while (traceResults.firstChild) {
+          traceResults.removeChild(traceResults.firstChild);
+        }
+        traceResults.appendChild(
+          el("div", { className: "text-danger text-xs" }, `Trace error: ${err.message}`)
+        );
         traceResults.classList.remove("hidden");
         if (!traceSection.contains(traceResults)) {
           traceSection.appendChild(traceResults);
