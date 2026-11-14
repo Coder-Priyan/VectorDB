@@ -1,10 +1,13 @@
 # Project Handoff
 
-Last updated: 2026-11-14 by SYNC-001
+Last updated: 2026-11-14 by T-034
 
 ## 1. Current Status
 
 VectorDB v2 has been completely built across all 9 phases (P0 to P8) on branch `ui-redesign`. VectorDB is now an open-source, fully offline, transparent "glass-box" vector database and RAG learning platform.
+
+> [!NOTE]
+> T-033 numbers 118/118 C++ tests and clean web safety scan are confirmed by the human terminal on 2026-11-14. Browser tests 84/84, UI behavior and persistence restart are still unverified by the human.
 
 Per git log on branch `ui-redesign`, all 9 phases of Task T-033 are completed and committed:
 - **Phase P0 (Commit `b26212c`)**: Pre-flight unfreezing (ADR-029, ADR-030, ADR-031), CSS disabled-state fix, HNSW toolbar slider stabilization.

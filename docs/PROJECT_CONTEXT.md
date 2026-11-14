@@ -17,7 +17,7 @@ This project operates on a strict three-party workflow:
 - **Repository Remote URL**: `https://github.com/Coder-Priyan/VectorDB.git` [CONFIRMED: git remote -v]
 - **Current Active Branch**: `ui-redesign` [CONFIRMED: git branch]
 - **Fork Status**: Direct repository; not recorded as a git fork [CONFIRMED: git remote -v]
-- **License**: Unlicensed in repository root; third-party headers `httplib.h` and `nlohmann/json.hpp` are licensed under the MIT License [CONFIRMED: third_party/README.md:14,26]
+- **License**: MIT (LICENSE file in repo root; copyright holder placeholder <YOUR NAME> still to be filled by human); third-party headers `httplib.h` and `nlohmann/json.hpp` are licensed under the MIT License [CONFIRMED: LICENSE:3, third_party/README.md:14,26]
 - **Last Commit Author**: Coder-Priyan `<230001938+Coder-Priyan@users.noreply.github.com.>` [CONFIRMED: git log -n 1]
 - **What It Does**: VectorDB is a fully offline, zero-cloud C++17 in-memory vector database and retrieval-augmented generation (RAG) engine. It provides exact brute-force search, flat-array KD-Tree spatial indexing, hierarchical navigable small-world (HNSW) graphs, document chunking, matrix-free 2D PCA projection, a multi-threaded REST HTTP API server, and a dependency-free vanilla HTML5/ES6 web UI [CONFIRMED: README.md:1-80, src/].
 - **Target Users**: Academic evaluators, students, and engineers seeking an offline, inspectable semantic search and RAG engine without external cloud or proprietary vector database services [INFERRED from B.Tech Major Project context, zero-cloud architecture, and educational demo tabs].
@@ -75,7 +75,7 @@ cmake --build build
 # 3. Clean full rebuild
 cmake --build build --clean-first
 
-# 4. Run automated C++ test suite (111 registered tests, 110 hermetic + 1 opt-in skipped)
+# 4. Run automated C++ test suite (118 registered tests, 117 hermetic + 1 opt-in skipped)
 .\build\vectordb_tests.exe
 
 # 5. Run test suite including live local Ollama
@@ -95,6 +95,9 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 
 # 10. Run CLI demo and benchmarks with CSV export
 .\build\vectordb_demo.exe
+
+# 11. Start server with persistence enabled across restarts
+.\build\vectordb_server.exe --port 8080 --web-dir web --data-dir ./data
 ```
 [CONFIRMED: all commands executed and verified in build logs].
 
@@ -106,7 +109,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 2. **Mandatory POST Headers**: Any client (frontend, curl, test scripts) issuing a `POST` request must supply `-H "Content-Type: application/json"` and body `-d "{}"` even if the route expects no JSON payload. Omitting it results in HTTP 415 `unsupported_media_type` [CONFIRMED: src/server_main.cpp:218].
 3. **Canvas Zero-Dimension Layout Guard**: Browsers reporting hidden tabs can pass `0x0` dimensions to HTML5 canvas render routines, triggering `DOMException: INVALID_STATE_ERR` on `drawImage`. Always verify `width > 0 && height > 0` before drawing [CONFIRMED: web/js/hnsw_helpers.js:15].
 4. **HNSW Graph Edge Cap**: Rendering huge proximity graphs in the browser hangs the UI thread. The backend strictly truncates edge export at 60,000 edges and sets `"truncated": true`, while computing the true total edge count beforehand [CONFIRMED: src/collection.cpp:227].
-5. **In-Memory Non-Atomic Ingestion**: Document ingestion embeddings are validated before committing, but if vector insertion fails mid-loop, already inserted chunks remain in memory without a DocumentRecord until `POST /api/docs/reset` is called [CONFIRMED: src/rag.cpp:138].
+5. **Document Ingestion Multi-Chunk Rollback**: Document ingestion embeddings are validated before committing. If vector insertion throws mid-loop (e.g. out of memory), `src/rag.cpp` catches the exception and executes `removeBatch` on inserted vector IDs, rolling back partial chunks and preventing orphaned vectors without a DocumentRecord (ISS-006 fixed) [CONFIRMED: src/rag.cpp:155-160].
 6. **Audit Claims Verification Status**: Claims from Antigravity's audit were verified by the human in their own terminal on 2026-11-12: 110/110 tests, zero warnings on clean rebuild, 4 executables, web safety scan pass, 72 commits with 6 ahead of origin, 29 API routes, 17 server flags. Not yet verified by the human: HNSW recall numbers (ISS-003, ISS-004), 74 browser tests, live Ollama RAG run.
 7. **Demo Random Endpoint Contract**: Demo random insert uses field 'n', not 'count'. Docs claiming TESTED for the web UI meant pure-logic tests only; real browser testing by the human found a bug on 2026-11-12.
 8. **Browser Test Count History**: Browser test count was 57 after T-002; older docs said 55; reached 62 after T-004; reached 66 after T-019; reached 70 after T-023b-1; reached 74 after T-023b-2.

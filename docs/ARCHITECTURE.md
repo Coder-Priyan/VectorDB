@@ -141,7 +141,7 @@ vectordb/
 
 ## 5. Storage Schema & Concurrency Model
 
-All storage is **in-memory only**; no database files or WAL logs are written to disk [CONFIRMED: include/vectordb/collection.hpp].
+All storage is **in-memory by default**, with optional versioned binary persistence across restarts via `--data-dir` (`VDBC` for collection, `VDBR` for RAG pipeline) supporting atomic writes via temp-file rename and automatic startup hydration [CONFIRMED: include/vectordb/persistence.hpp, src/persistence.cpp:12-14].
 
 ### Collection Internal State
 - `vectors_`: `std::unordered_map<VectorId, std::vector<float>>` [CONFIRMED: include/vectordb/collection.hpp:172]
