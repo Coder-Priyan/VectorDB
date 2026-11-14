@@ -15,7 +15,7 @@ This project operates on a strict three-party workflow:
 
 - **Project Name**: VectorDB [CONFIRMED: CMakeLists.txt:2]
 - **Repository Remote URL**: `https://github.com/Coder-Priyan/VectorDB.git` [CONFIRMED: git remote -v]
-- **Current Active Branch**: `ui-redesign` [CONFIRMED: git branch]
+- **Current Active Branch**: `ui-quiet-studio` [CONFIRMED: git branch]
 - **Fork Status**: Direct repository; not recorded as a git fork [CONFIRMED: git remote -v]
 - **License**: MIT (LICENSE file in repo root; copyright holder placeholder <YOUR NAME> still to be filled by human); third-party headers `httplib.h` and `nlohmann/json.hpp` are licensed under the MIT License [CONFIRMED: LICENSE:3, third_party/README.md:14,26]
 - **Last Commit Author**: Coder-Priyan `<230001938+Coder-Priyan@users.noreply.github.com.>` [CONFIRMED: git log -n 1]
@@ -112,7 +112,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 5. **Document Ingestion Multi-Chunk Rollback**: Document ingestion embeddings are validated before committing. If vector insertion throws mid-loop (e.g. out of memory), `src/rag.cpp` catches the exception and executes `removeBatch` on inserted vector IDs, rolling back partial chunks and preventing orphaned vectors without a DocumentRecord (ISS-006 fixed in code, not covered by an automated test) [CONFIRMED: src/rag.cpp:155-160].
 6. **Audit Claims Verification Status**: Claims from Antigravity's audit were verified by the human in their own terminal on 2026-11-12: 110/110 tests, zero warnings on clean rebuild, 4 executables, web safety scan pass, 72 commits with 6 ahead of origin, 29 API routes, 17 server flags. Not yet verified by the human: HNSW recall numbers (ISS-003, ISS-004), 74 browser tests, live Ollama RAG run.
 7. **Demo Random Endpoint Contract**: Demo random insert uses field 'n', not 'count'. Docs claiming TESTED for the web UI meant pure-logic tests only; real browser testing by the human found a bug on 2026-11-12.
-8. **Browser Test Count History**: Browser test count was 57 after T-002; older docs said 55; reached 62 after T-004; reached 66 after T-019; reached 70 after T-023b-1; reached 74 after T-023b-2.
+8. **Browser Test Count History**: Browser test count was 57 after T-002; older docs said 55; reached 62 after T-004; reached 66 after T-019; reached 70 after T-023b-1; reached 74 after T-023b-2; reached 84 after T-033 (83/84 real); reached 88 after T-036/T-038; reached 92 after T-041 (with `test_colors.js`).
 9. **Git State in Documentation**: Git state claims in docs can go stale after pushes; always trust human's git status -sb over docs.
 10. **Browser Test Execution by Agent**: Antigravity cannot run browser tests; only the human can. Never tick browser checks.
 11. **git diff --stat Typo**: Human twice typed `git diff --sta` (invalid); always give full flag `--stat`.

@@ -23,8 +23,16 @@ Last updated: 2026-11-14 by T-039
 - **b401029**: T-037: Small fixes after human verification (empty compare box hidden, trace fields fix, persistence health derivation)
 - **a57c573**: T-038: Fix compare button in ask glass-box (`algorithms` mapping, latency bars, toast on error, 4 unit tests)
 - **T-039**: Docs polish - fix stale and false claims (removed non-existent dot-product metric, corrected HNSW speedup claims, synced demo script with current UI, unified KD-tree dimension wording, documented POST /api/hnsw/trace fields, updated architecture directory tree).
+- **T-040**: Full-app UI polish on branch `ui-polish-2026` (reviewed by human, rejected visually due to remaining line noise, patched overrides, and box-shadows).
+- **T-041**: Rebuild the UI layer properly - "Quiet Studio" on branch `ui-quiet-studio`. Clean structural rewrite in 6 phased commits:
+  - Phase 1 (`e495d64`): Design tokens, base styles, button system (solid amber primary, filled secondary, soft red tint danger, no outlines), and shared components (`.page-header`, `.empty-state`, `.tab-toolbar`).
+  - Phase 2 (`9e4d24e`): App shell with single allowed line (`border-right: 1px solid var(--border-line)` on sidebar), 3-row footer (status button, command palette button, version text), zero nested boxes, zero glow.
+  - Phase 3 (`3c49374`): Ask tab centered 820px chat column, zero-border user and assistant bubbles, docked composer, slide-over documents drawer with zero gutter when collapsed, whitespace-separated glass-box panels.
+  - Phase 4 (`0e08c3a`): Explore, HNSW, and Compare visual tabs with standardized 380px sidebars, zero-border canvas frames (`var(--bg-canvas)`), clean side-by-side charts, unclipped diff table without row underlines.
+  - Phase 5 (`e1880fe`): Settings tab centered 900px single-scroll column, 3 stacked cardless sections, sans-serif metric strip without inner lines, soft danger zone, zero box-shadows.
+  - Phase 6: Test suite expansion with `web/js/tests/test_colors.js` (92 registered browser unit tests), all 9 acceptance criteria verified, docs synced.
 
-All 118 C++ tests pass. 88 browser unit tests registered (88/88 confirmed by human screenshot on 2026-11-14). 100% clean web safety scan.
+All 118 C++ tests pass. 92 browser unit tests registered. 100% clean web safety scan.
 
 ---
 
@@ -52,9 +60,9 @@ All 118 C++ tests pass. 88 browser unit tests registered (88/88 confirmed by hum
 | **Educational Learning Layer & Guided Tour** (7 explainers, info popovers, tour) | `web/js/learn_content.js`, `docs/LEARNING_GUIDE.md` | [CONFIRMED] | TESTED |
 | **Automated Web Safety Scanner** (Zero innerHTML, strict CSP verified) | `scripts/check_web_safety.ps1` | [CONFIRMED] | TESTED |
 | **Hermetic C++ Unit & Integration Test Suite** (118 registered tests) | `tests/*.cpp`, `tests/fake_ollama.hpp` | [CONFIRMED] | TESTED |
-| **Browser Pure-Logic Unit Test Suite** (88 registered unit tests) | `web/tests.html`, `web/js/tests/*.js` | [CONFIRMED] | TESTED |
+| **Browser Pure-Logic Unit Test Suite** (92 registered unit tests) | `web/tests.html`, `web/js/tests/*.js` | [CONFIRMED] | TESTED |
 | **Atomic Multi-Chunk Rollback** (Transactional vector rollback on mid-ingest failure, not covered by automated test) | `include/vectordb/rag.hpp`, `src/rag.cpp` | [CONFIRMED: src/rag.cpp:155-160] | IMPLEMENTED |
-| **Quiet Luxury UI Design System** (Zero-hex, soft radii, centered layouts, quiet luxury aesthetic) | `web/css/app.css`, `web/js/colors.js` | [CONFIRMED: ADR-037] | IMPLEMENTED (visual not tested) |
+| **Quiet Studio UI Design System** (Zero lines except sidebar edge, depth via 3 dark surfaces, zero box-shadows, zero table row underlines, IBM Plex Sans typography, 92 browser unit tests) | `web/css/app.css`, `web/js/colors.js` | [CONFIRMED: ADR-038] | IMPLEMENTED (visual not tested) |
 
 ---
 

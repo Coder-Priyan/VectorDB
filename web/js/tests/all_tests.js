@@ -9,6 +9,7 @@ import { registerCoreTests } from "./test_core.js";
 import { registerExploreHnswTests } from "./test_explore_hnsw.js";
 import { registerCompareTests } from "./test_compare.js";
 import { registerV2Tests } from "./test_v2.js";
+import { registerColorsTests } from "./test_colors.js";
 import { el } from "../ui.js";
 
 // Register modular test suites
@@ -16,6 +17,7 @@ registerCoreTests();
 registerExploreHnswTests();
 registerCompareTests();
 registerV2Tests();
+registerColorsTests();
 
 export function runAll() {
   const container = document.getElementById("test-results-container");
