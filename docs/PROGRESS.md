@@ -1,6 +1,6 @@
 # Project Progress
 
-Last updated: 2026-11-14 by T-055
+Last updated: 2026-11-15 by T-055b
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform (Task T-033 Complete across all 9 Phases P0-P8, Branch `ui-quiet-studio`)
 
@@ -40,6 +40,7 @@ Last updated: 2026-11-14 by T-055
   - **Commit `7dc5cf6` (T-055 A)**: Design tokens, shared components and app shell. Tokens in `web/css/app.css` (`--bg-page: #09090b`, `--bg-panel: #121215`, `--bg-raised: #18181c`, `--accent: #d9a441`, `--accent-tint: rgba(217, 164, 65, 0.12)`), zero box-shadows, radii 6/10/14px. Sidebar updated with amber layers brand logo, Recent Chats header with `+` action, timestamp formatting (`formatChatTime`), footer with clean `Ollama online` / `v0.4.0` pill. Registered 5 new SVG line icons (`database`, `user`, `chevronUp`, `external`, `chart`). Page headers on all 5 tabs synced to clean subtitles.
   - **Commit `48dd7ab` (T-055 B)**: Ask tab empty and results state. Centered empty state matching `01-ask-empty.png` with amber-highlighted keyword, 3 horizontal suggestion chips, docked composer with algo selector and amber send button. Results view matching `02-ask-results.png` with user avatar & timestamp, assistant layers logo & timestamp, citation pills, glass-box accordion with 3-part chunk cards, 5 horizontal latency metric tiles (amber Total tile), and 3 action buttons (Open Explore, Compare algorithms, Trace HNSW path). Slide-over `.ask-docs-drawer` preserving 860px centered chat layout.
   - **Docs Sync (T-055 C)**: ADR-047 added, ADR-046 marked fulfilled, ISS-041 closed, ISS-048 in progress, T-048 cancelled, HANDOFF and PROJECT_CONTEXT synchronized.
+- **T-055b**: Fix 2 failing browser tests (realBenchmarkFixture) and close T-055 evidence gaps on branch `ui-redesign-v3`. Moved `realBenchmarkFixture` to module scope in `web/js/tests/test_compare.js` so both T-050 and T-054 suites have access to it (fixing `ReferenceError`). Uncovered secondary production bug in `mapChartRows` (`compare_helpers.js:427` crashes on null latencies; reported and stopped per instructions). Documented ISS-049. Status: IMPLEMENTED (test fixture scoped; mapChartRows production fix pending).
 
 All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count 0. 113 browser unit tests registered in code. Whole-UI redesign v3 in progress on branch `ui-redesign-v3` (ADR-047).
 

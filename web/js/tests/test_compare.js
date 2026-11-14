@@ -18,6 +18,66 @@ import {
   mapChartRows
 } from "../compare_helpers.js";
 
+// Real raw benchmark response fixture captured from running server with 10 top-k items (ADR-036, docs/API.md sec 9)
+const realBenchmarkFixture = {
+  algorithms: {
+    brute: {
+      distance_computations: 1000,
+      latency_us: 120,
+      recall_at_k: 1.0,
+      results: [
+        { id: 101, distance: 0.05 },
+        { id: 102, distance: 0.12 },
+        { id: 103, distance: 0.18 },
+        { id: 104, distance: 0.25 },
+        { id: 105, distance: 0.31 },
+        { id: 106, distance: 0.42 },
+        { id: 107, distance: 0.50 },
+        { id: 108, distance: 0.61 },
+        { id: 109, distance: 0.73 },
+        { id: 110, distance: 0.85 }
+      ]
+    },
+    kdtree: {
+      distance_computations: 240,
+      latency_us: 85,
+      recall_at_k: 1.0,
+      results: [
+        { id: 101, distance: 0.05 },
+        { id: 102, distance: 0.12 },
+        { id: 103, distance: 0.18 },
+        { id: 104, distance: 0.25 },
+        { id: 105, distance: 0.31 },
+        { id: 106, distance: 0.42 },
+        { id: 107, distance: 0.50 },
+        { id: 108, distance: 0.61 },
+        { id: 109, distance: 0.73 },
+        { id: 110, distance: 0.85 }
+      ]
+    },
+    hnsw: {
+      distance_computations: 64,
+      latency_us: 32,
+      recall_at_k: 0.9,
+      results: [
+        { id: 101, distance: 0.05 },
+        { id: 102, distance: 0.12 },
+        { id: 103, distance: 0.18 },
+        { id: 104, distance: 0.25 },
+        { id: 105, distance: 0.31 },
+        { id: 106, distance: 0.42 },
+        { id: 107, distance: 0.50 },
+        { id: 108, distance: 0.61 },
+        { id: 109, distance: 0.73 },
+        { id: 999, distance: 0.91 } // Mismatch at rank 10
+      ]
+    }
+  },
+  count: 1000,
+  ground_truth: "brute",
+  k: 10
+};
+
 export function registerCompareTests() {
   describe("Compare Timing Stats (compare_helpers.js)", (it) => {
     it("Empty array returns zeroed stats", () => {
@@ -247,66 +307,6 @@ export function registerCompareTests() {
   });
 
   describe("Compare Diff Rows & Chart Metrics (ADR-036, T-050)", (it) => {
-    // Real raw response fixture captured from running server with 10 top-k items
-    const realBenchmarkFixture = {
-      algorithms: {
-        brute: {
-          distance_computations: 1000,
-          latency_us: 120,
-          recall_at_k: 1.0,
-          results: [
-            { id: 101, distance: 0.05 },
-            { id: 102, distance: 0.12 },
-            { id: 103, distance: 0.18 },
-            { id: 104, distance: 0.25 },
-            { id: 105, distance: 0.31 },
-            { id: 106, distance: 0.42 },
-            { id: 107, distance: 0.50 },
-            { id: 108, distance: 0.61 },
-            { id: 109, distance: 0.73 },
-            { id: 110, distance: 0.85 }
-          ]
-        },
-        kdtree: {
-          distance_computations: 240,
-          latency_us: 85,
-          recall_at_k: 1.0,
-          results: [
-            { id: 101, distance: 0.05 },
-            { id: 102, distance: 0.12 },
-            { id: 103, distance: 0.18 },
-            { id: 104, distance: 0.25 },
-            { id: 105, distance: 0.31 },
-            { id: 106, distance: 0.42 },
-            { id: 107, distance: 0.50 },
-            { id: 108, distance: 0.61 },
-            { id: 109, distance: 0.73 },
-            { id: 110, distance: 0.85 }
-          ]
-        },
-        hnsw: {
-          distance_computations: 64,
-          latency_us: 32,
-          recall_at_k: 0.9,
-          results: [
-            { id: 101, distance: 0.05 },
-            { id: 102, distance: 0.12 },
-            { id: 103, distance: 0.18 },
-            { id: 104, distance: 0.25 },
-            { id: 105, distance: 0.31 },
-            { id: 106, distance: 0.42 },
-            { id: 107, distance: 0.50 },
-            { id: 108, distance: 0.61 },
-            { id: 109, distance: 0.73 },
-            { id: 999, distance: 0.91 } // Mismatch at rank 10
-          ]
-        }
-      },
-      count: 1000,
-      ground_truth: "brute",
-      k: 10
-    };
-
     it("buildDiffRows produces exactly 10 rows with accurate rank and match flags", () => {
       const rows = buildDiffRows(realBenchmarkFixture, 10);
       assertEqual(rows.length, 10);
