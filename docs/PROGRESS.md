@@ -1,6 +1,6 @@
 # Project Progress
 
-Last updated: 2026-11-15 by T-055c
+Last updated: 2026-11-15 by SYNC-006
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform (Task T-033 Complete across all 9 Phases P0-P8, Branch `ui-quiet-studio`)
 
@@ -48,7 +48,7 @@ Last updated: 2026-11-15 by T-055c
   - **Commit `8abdef3` (T-056 P2)**: `T-056 P2: HNSW tab from mockup 04`. Rebuilt HNSW tab from mockup 04: fixed-width compact layer slider (`L0..Ln`), "HNSW Graph — Layer Ln" header, entry point ring with `Entry (Ln)` badge, query star with `Query` badge, right search path trace panel with Random amber primary button, step playback controls with step counter, stat tiles for current node/dist/layer and search statistics, and bottom topology summary metric strip (Nodes, Max level, Entry point).
   - **Commit `d9a4097` (T-056 P3)**: `T-056 P3: Compare tab from mockups 05 and 06`. Refined Compare tab from mockups 05 & 06: panel headers with subtitles ("Benchmark Setup", "Summary Metrics", "Top-k ground truth diff"), preserved 3-column equal-height layout (T-052), 3 stacked bar charts with ADR-045 axis design, 10 unclipped diff rows with inline match badges, and calm mutually exclusive empty state with secondary button.
   - **Commit `f45e51b` (T-056 P4)**: `T-056 P4: Settings tab from mockup 07`. Rebuilt Settings tab as a one-screen 3-column grid of content-sized filled surface panels with calm padding (eliminating hollow stretching): Col 1 Server status (live status dot, version, dimension/metric, HNSW params, models list, demo memory), Col 2 Demo collection form + Insert random (single primary amber button `+ Insert`), Col 3 Chat history, Documentation links, and quiet soft-red Danger zone.
-  - **Commit `TBD` (T-056 P5)**: `T-056 P5: consistency sweep`. Full consistency audit, strictly <= 1 primary amber button per view verified, CSS dead selectors cleaned, `!important` count = 2, `box-shadow` count = 0, zero hex literals outside `:root` and `colors.js`, docs synchronized (ADR-048, ISS-049 fixed). Status: IMPLEMENTED (all visual states reported as not tested pending human screenshot review).
+  - **Commit `1f5b093` (T-056 P5)**: `T-056 P5: consistency sweep`. Full consistency audit, strictly <= 1 primary amber button per view verified across all states, CSS dead selectors cleaned, `!important` count = 2 (<= 3), `box-shadow` count = 0, zero hex literals outside `:root` and `colors.js`, docs synchronized (ADR-048, ISS-049 fixed). Status: IMPLEMENTED (all visual states reported as not tested pending human screenshot review).
 
 All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count 0. 114 browser unit tests registered in code. Whole-UI redesign v3 in progress on branch `ui-redesign-v3` (ADR-047, ADR-048).
 
@@ -78,7 +78,7 @@ All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count
 | **Educational Learning Layer & Guided Tour** (7 explainers, info popovers, tour) | `web/js/learn_content.js`, `docs/LEARNING_GUIDE.md` | [CONFIRMED] | TESTED |
 | **Automated Web Safety Scanner** (Zero innerHTML, strict CSP verified) | `scripts/check_web_safety.ps1` | [CONFIRMED] | TESTED |
 | **Hermetic C++ Unit & Integration Test Suite** (118 registered tests) | `tests/*.cpp`, `tests/fake_ollama.hpp` | [CONFIRMED] | TESTED |
-| **Browser Pure-Logic Unit Test Suite** (113 registered unit tests) | `web/tests.html`, `web/js/tests/*.js` | [CONFIRMED] | TESTED |
+| **Browser Pure-Logic Unit Test Suite** (114 registered unit tests) | `web/tests.html`, `web/js/tests/*.js` | [CONFIRMED] | TESTED |
 | **Atomic Multi-Chunk Rollback** (Transactional vector rollback on mid-ingest failure, not covered by automated test) | `include/vectordb/rag.hpp`, `src/rag.cpp` | [CONFIRMED: src/rag.cpp:155-160] | IMPLEMENTED |
 | **Quiet Studio UI Design System** (Zero lines except sidebar edge, depth via 3 dark surfaces, zero box-shadows, zero table row underlines, IBM Plex Sans typography, 94 browser unit tests) | `web/css/app.css`, `web/js/colors.js` | [CONFIRMED: ADR-038] | IMPLEMENTED (visual not tested) |
 | **Quiet Studio Layout & Controls Tuning** (Compact single-row toolbars, 170px compare canvas 3-row fit, 440px sidebar unclipped summary metrics, unified canvas panels, custom native controls) | `web/css/app.css`, `web/js/compare_helpers.js` | [CONFIRMED: ADR-039] | IMPLEMENTED (partially tested by screenshots) |

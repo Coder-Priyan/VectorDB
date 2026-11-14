@@ -1,12 +1,12 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by T-055c
+Last updated: 2026-11-15 by SYNC-006
 
 ## 1. Current Status
 
 VectorDB v2 has been completely built across all 9 phases (P0 to P8). Following human browser review on 2026-11-14, Tasks T-034 through T-038 resolved confirmed UI issues, test edge cases, and glass-box response mappers. Following visual rejection of T-040 ("no fun at all", line noise, patched overrides), Task T-041 rebuilt the UI layer under "Quiet Studio". Task T-042 addressed batched human review items across toolbars, compare canvas bars, summary table column visibility, HNSW topology viewport budgeting, native control restyling, and shared empty states. Task T-043 implemented the reference-guided Settings redesign with a live status rail, fixed Compare empty state restoration, transformed Ask glass-box latency breakdown to a tidy grid, converted the Documents drawer to an absolute slide-over panel preserving chat centering, reduced CSS `!important` to 3, and expanded test coverage.
 
-Following human review of Settings (long single scroll rejected), Task T-046 rebuilt Settings into a one-screen 3-column panel grid of filled surface panels (--bg-panel, no borders, no shadows) chosen by the human from an AI mockup (structure and feel only). Human liked the 3-column panel grid concept. Following human review of T-046, Task T-047 polished Settings to fill available width and height, but height/width stretching made panels hollow and sparse. Pending task T-048 (Settings: content-sized panels, balanced columns, left-aligned header) was planned and written by Brain but NOT executed yet, and is now PAUSED by ADR-046.
+Following human review of Settings (long single scroll rejected), Task T-046 rebuilt Settings into a one-screen 3-column panel grid of filled surface panels (--bg-panel, no borders, no shadows) chosen by the human from an AI mockup (structure and feel only). Human liked the 3-column panel grid concept. Following human review of T-046, Task T-047 polished Settings to fill available width and height, but height/width stretching made panels hollow and sparse. Pending task T-048 (Settings: content-sized panels, balanced columns, left-aligned header) was planned and written by Brain but NOT executed, and was CANCELLED/superseded by ADR-047.
 
 Following human visual rejection of T-049 Compare layout (2026-11-14; empty card / skeleton stayed visible over results, 8 rows not 10, side-by-side metrics/bars), Task T-050 rebuilt the Compare tab from a new human-approved AI mockup (layout and feel only, using our tokens and DOM IDs). Implemented as a 3-column Studio panel grid (`.compare-grid`): Column 1 holds benchmark controls, progress indicator, and Summary Metrics; Column 2 and Column 3 show either a clean mutually-exclusive centered empty state (`#compare-empty-state` with secondary action button) or results (`#compare-results-card`, `display: contents`) consisting of Column 2 stacked metric bar charts (latency, distances, recall across Brute Force, KD-Tree, HNSW) and Column 3 scrollable Top-k Diff table showing all 10 rows with match badges.
 
@@ -22,15 +22,40 @@ Following human approval of the full set of 7 AI mockups (ADR-047, superseding Q
 
 Task T-055b investigated the 2 failing tests reported by human on `/tests.html` (111/113 passed). Found `realBenchmarkFixture` had been defined inside the T-050 `describe` closure, making it `undefined` in the T-054 `describe` suite added on `ui-quiet-studio`. Moved `realBenchmarkFixture` to module scope in `web/js/tests/test_compare.js`. Scoping fix uncovered a secondary bug in `mapChartRows` (`web/js/compare_helpers.js:552` passes `latencies = null` into `extractChartMetrics` which does `latencies[alg]` throwing `TypeError: Cannot read properties of null (reading 'brute')`). Documented as ISS-049; stopped without touching production code per instructions.
 
-Task T-055c resolved the secondary bug in `extractChartMetrics` (`web/js/compare_helpers.js:414` now normalizes null/undefined `latencies` to an empty object, allowing fallback to `latency_us`), replaced the hex literal `#ffffff` at line 701 with `THEME.white` from `web/js/colors.js` (achieving zero hex literals outside `:root` and `colors.js`), and added a pure-logic test for null latencies bringing registered tests to 114. Top-k control (`#ask-k-input`) was restored as a compact quiet control next to algorithm select in the Ask composer, and the Command Palette button (`#open-palette-btn`) was restored as a visible ghost search-icon button in the sidebar footer (functioning in both expanded and 56px collapsed rail) (decisions by Brain, delegated design).
+Task T-055c resolved the secondary bug in `extractChartMetrics` (`web/js/compare_helpers.js:414` now normalizes null/undefined `latencies` to an empty object, allowing fallback to `latency_us`), replaced the hex literal `#ffffff` at line 701 with `THEME.white` from `web/js/colors.js` (achieving zero hex literals outside `:root` and `colors.js`), and added a pure-logic test for null latencies bringing registered tests to 114. Top-k control (`#ask-k-input`) was restored as a compact quiet control next to algorithm select in the Ask composer, and the Command Palette button (`#open-palette-btn`) was restored as a visible ghost search-icon button in the sidebar footer (functioning in both expanded and 56px collapsed rail) (decisions by Brain, delegated design, ADR-049).
 
-Task T-056 executed the complete master build of Redesign v3 across 6 sequential phases on branch `ui-redesign-v3`:
-- **Phase 0 (Commit `515ff77`)**: Ask polish & canvas color sync. Synchronized `web/js/colors.js` text tokens (`#f4f4f5`, `#a1a1aa`, `#71717a`) to match `:root` CSS tokens; updated test assertions in `test_colors.js`.
+Task T-056 executed the complete master build of Redesign v3 across 6 sequential phases on branch `ui-redesign-v3` (ADR-048):
+- **Phase 0 (Commit `515ff77`)**: Ask polish & canvas color sync. Synchronized `web/js/colors.js` text tokens (`#f4f4f5`, `#a1a1aa`, `#71717a`) to match `:root` CSS tokens; updated test assertions in `test_colors.js`; verified Ask chip text, page-header subtitle, and glass-box title.
 - **Phase 1 (Commit `7b2be62`)**: Explore tab rebuild from `03-explore.png`. Large rounded 2D PCA panel with PC1/PC2 axis ticks and titles, document cluster legend with counts and Demo neutral swatch, star query with line links and neighbor ID labels, right query sidebar with Project & Search amber primary button and Nearest neighbours list cards displaying distance and similarity, and shared empty-state component.
 - **Phase 2 (Commit `8abdef3`)**: HNSW tab rebuild from `04-hnsw.png`. Fixed-width compact layer slider (`L0..Ln`), "HNSW Graph — Layer Ln" header, entry point ring with `Entry (Ln)` badge, query star with `Query` badge, right search path trace panel with Random amber primary button, step playback controls with step counter, stat tiles for current node/dist/layer and search statistics, and bottom topology summary metric strip (Nodes, Max level, Entry point).
 - **Phase 3 (Commit `d9a4097`)**: Compare tab rebuild from `05-compare-results.png` & `06-compare-empty.png`. Panel headers with subtitles ("Benchmark Setup", "Summary Metrics", "Top-k ground truth diff"), preserved 3-column equal-height layout (T-052), 3 stacked bar charts with ADR-045 axis design, 10 unclipped diff rows with inline match badges, and calm mutually exclusive empty state with secondary button.
 - **Phase 4 (Commit `f45e51b`)**: Settings tab rebuild from `07-settings.png`. One-screen 3-column grid of content-sized filled surface panels with calm padding (eliminating hollow stretching): Col 1 Server status (live status dot, version, dimension/metric, HNSW params, models list, demo memory), Col 2 Demo collection form + Insert random (single primary amber button `+ Insert`), Col 3 Chat history, Documentation links, and quiet soft-red Danger zone.
-- **Phase 5**: Consistency sweep across all 5 tabs. Verified strictly <= 1 primary amber button per view across all states, zero dead styles, `!important` count = 2 (<= 3), `box-shadow` count = 0, zero hex literals outside `:root` and `colors.js`, docs synchronized (ADR-048, ISS-049 fixed).
+- **Phase 5 (Commit `1f5b093`)**: Consistency sweep across all 5 tabs. Verified strictly <= 1 primary amber button per view across all states, zero dead styles, `!important` count = 2 (<= 3), `box-shadow` count = 0, zero hex literals outside `:root` and `colors.js`, docs synchronized (ADR-048, ISS-049 fixed).
+
+### Complete Commits List for T-055 and T-056:
+- `7dc5cf6`: T-055 A: design tokens, shared components and app shell
+- `48dd7ab`: T-055 B: Ask tab empty and results state
+- `79693eb`: docs: T-055 sync
+- `00dbfcd`: T-055b: define real benchmark fixture for mapChartRows tests
+- `f59cf68`: T-055c: null-safe latencies in extractChartMetrics, white from colors.js, test
+- `b12c488`: T-055c: restore top-k control and palette button
+- `ac98680`: docs: T-055c sync
+- `515ff77`: T-056 P0: Ask polish and canvas color sync
+- `7b2be62`: T-056 P1: Explore tab from mockup 03
+- `8abdef3`: T-056 P2: HNSW tab from mockup 04
+- `d9a4097`: T-056 P3: Compare tab from mockups 05 and 06
+- `f45e51b`: T-056 P4: Settings tab from mockup 07
+- `1f5b093`: T-056 P5: consistency sweep
+
+### Verification Status Breakdown:
+- **Human-Confirmed (Real Browser & Terminal)**:
+  - C++ hermetic suite: 118/118 passed (529,813 assertions).
+  - Browser tests: `/tests.html` 114/114 passing (human confirmed on 2026-11-15 after T-055c).
+  - Web safety automated scanner: 100% clean (zero innerHTML/outerHTML, strict CSP verified).
+  - CSS metrics: `!important` count = 2, `box-shadow` count = 0, zero hex literals outside `:root` and `colors.js`.
+  - Git state: clean tracked files on branch `ui-redesign-v3`.
+- **Builder-Reported (Visual States NOT YET TESTED)**:
+  - All visual UI rendering across all 5 tabs in Redesign v3 is reported as "not tested (visual)" pending human review and screenshot capture at 100% zoom. Builder claims of visual accuracy are never proof.
 
 ### T-056 decisions:
 - P0: Synced canvas text colors in `colors.js` to `:root` tokens `#f4f4f5`, `#a1a1aa`, `#71717a` because canvas rendered slightly warmer beige than HTML text.
@@ -72,6 +97,15 @@ Task T-056 executed the complete master build of Redesign v3 across 6 sequential
 | Settings | Mockup showed System panel (max context, chunk size/overlap) | Real RAG chunk settings belong in document ingest drawer; not global server settings |
 | Settings | Mockup showed Auto-save toggle & Export/Import | Real persistence is `--data-dir <path>` on server startup; no runtime toggle exists |
 | Settings | Mockup showed llama3.1:8b | Real server reports actual installed Ollama models via API (e.g. llama3.2:latest) |
+| :--- | :--- | :--- |
+| Explore | Mockup showed kb-computer-networks | Real collection select has "Demo Vectors" and "Document Chunks" |
+| Explore | Mockup showed 4 hardcoded cluster legends | Real Docs legend dynamically lists ingested document titles with chunk counts; Demo shows neutral amber swatch |
+| HNSW | Mockup showed kb-computer-networks | Real collection select has "Demo" and "Docs" |
+| Compare | Mockup showed Query Count & algorithm checkboxes | Real Compare uses Repetitions (1/3/5/10/20) and benchmarks all 3 algorithms simultaneously |
+| Compare | Mockup diff table showed query sentences and checkmarks | Real diff table shows ground truth Brute Force vs KD-Tree vs HNSW ID matches at ranks 1-10 with inline badges |
+| Settings | Mockup showed System panel (max context, chunk size/overlap) | Real RAG chunk settings belong in document ingest drawer; not global server settings |
+| Settings | Mockup showed Auto-save toggle & Export/Import | Real persistence is `--data-dir <path>` on server startup; no runtime toggle exists |
+| Settings | Mockup showed llama3.1:8b | Real server reports actual installed Ollama models via API (e.g. llama3.2:latest) |
 
 - **Key Collaboration & Process Lessons**:
   - **Full Product-Level Redesign (ADR-047)**: Human approved 7 AI mockups saved in `docs/mockups/` representing one coherent design direction for the entire app. T-048 (Settings content-sized panels) is CANCELLED (superseded by ADR-047). Redesign v3 proceeds tab-by-tab with human screenshots after each task.
@@ -84,12 +118,14 @@ Task T-056 executed the complete master build of Redesign v3 across 6 sequential
   - `ui-redesign`: Base v2 platform through T-039.
   - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
   - `ui-quiet-studio`: Quiet Studio branch through T-054 and SYNC-005.
-  - `ui-redesign-v3`: Active branch containing T-055 (foundation + shell + Ask tab).
+  - `ui-redesign-v3`: Active branch containing T-055, T-055b, T-055c, and full T-056 master build (P0-P5).
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
   - *Nothing pushed to remote origin.*
-- **Human Verification on 2026-11-14**:
-  - **Terminal**: C++ 118/118 (529,813 assertions, 117 run + 1 opt-in live-Ollama test skipped), scanner pass, CSS `!important` count 3 human-confirmed after T-046. NOT yet human-confirmed after T-047 through T-054: `/tests.html` count (last confirmed 94/94 after T-043; 113 registered in code); 125% zoom NOT checked.
-  - **Screenshots**: `/tests.html` 94/94 passed (2026-11-14, after T-043); Explore toolbar single row and canvas panel OK; Compare after benchmark shows 3 charts with all 3 algorithms and 5 summary columns (ISS-024 fixed); Settings font larger and persistence status in sans; Compare results state seen after T-052 and T-054 and looks close to mockup.
+- **Human Verification Status**:
+  - **Terminal**: C++ 118/118 (529,813 assertions, 117 run + 1 opt-in live-Ollama test skipped), scanner pass, CSS `!important` count 2, `box-shadow` count 0, zero hex color literals outside `:root` and `colors.js`.
+  - **Browser Pure-Logic Tests**: `/tests.html` 114/114 passed [CONFIRMED: human real-browser run 2026-11-15 after T-055c].
+  - **Screenshots (Historic / Quiet Studio)**: `/tests.html` 94/94 (after T-043); Compare results state seen after T-052 and T-054 and looked close to mockup.
+  - **Redesign v3 Visual States**: All 5 tabs and app shell in Redesign v3 are reported as "not tested (visual)" pending human review and screenshot capture at 100% zoom.
 - **T-050 to T-054 Commits on `ui-quiet-studio`**:
   - `c89aa04`, `17986e9`, `96170df`: T-050 Compare tab rebuild
   - `ee9cd78`, `cb04a73`, `231370e`: T-051 Compare diff table, badge, metric fixes
@@ -98,34 +134,32 @@ Task T-056 executed the complete master build of Redesign v3 across 6 sequential
   - `846c5a1`, `1b46ad2`: T-054 Compare new chart design (header, axis, ticks)
 - **Automated Tests**:
   - C++ unit and integration tests: 118 / 118 passed (529,813 assertions).
-  - Browser unit tests: 113 registered tests (`http://127.0.0.1:8080/tests.html`), including 8 pure-logic tests for Compare nice-axis scaling, tick intervals, metric axis configs, and chart row mapping from real fixtures (T-054); real browser result pending human opening /tests.html.
+  - Browser unit tests: 114 registered tests (`http://127.0.0.1:8080/tests.html`), 114/114 passing.
   - Web security scan: 28 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
-- **Design System ("Quiet Studio") Principles Enforced**:
-  - **Zero Lines**: Allowed lines are strictly the right boundary of the sidebar (`border-right: 1px solid var(--border-line)`) and accessibility focus ring (`outline: 2px solid var(--accent); outline-offset: 2px;`). All card borders, panel outlines, button borders, and table row underlines eliminated.
-  - **3 Dark Surfaces for Depth**: `--bg-page: #09090b`, `--bg-panel: #121215`, `--bg-raised: #18181c` + generous whitespace. All canvas areas wrapped in `--bg-panel` with `--bg-canvas` surfaces.
+- **Design System ("Redesign v3" / ADR-047) Principles Enforced**:
+  - **Hairlines Only in Tables, Metric Strips, and Sidebar Dividers**: All card borders, panel outlines, and button borders eliminated.
+  - **3 Dark Surfaces for Depth**: `--bg-page: #09090b`, `--bg-panel: #121215`, `--bg-raised: #18181c`.
   - **Zero Box-Shadows**: Grep `box-shadow` in `web/css` returns strictly 0 matches. Zero glow on status dots.
-  - **Single Font Family**: IBM Plex Sans everywhere; IBM Plex Mono strictly restricted to code, IDs, numbers inside tables, and small size. Metric values and headings are never mono.
-  - **Shared 5-Tab Header & Empty States**: Every tab has `<div class="page-header">` with `<h1 class="page-header-title">`. Ask and Compare use shared `.empty-state` component.
-  - **Button System**: At most ONE `.btn-primary` (solid amber) per visible view; filled quiet secondary (`var(--bg-raised)`), ghost, and soft red tint danger (`var(--danger-bg)` with no border).
-  - **Compact Single-Row Toolbars**: Selects and inputs sized to content; `.tab-toolbar` does not stretch controls to 800px or wrap across multiple rows on standard desktop screens.
-  - **Slide-Over Drawer**: Ask tab documents drawer slides over as an overlay (`position: absolute; right: 0;`), preserving exact viewport centering of the chat column.
+  - **Single Font Family**: IBM Plex Sans everywhere; IBM Plex Mono strictly restricted to code, IDs, numbers inside tables, and small size.
+  - **Single Amber Accent**: `#d9a441`, with at most ONE primary amber button (`.btn-primary`) per view in every state across all 5 tabs.
+  - **Radii Scale**: 6px (`--radius-sm`), 10px (`--radius-md`), 14px (`--radius-lg`).
+  - **Shared 5-Tab Header & Empty States**: Every tab has `<div class="page-header">` with `<h1 class="page-header-title">` and clean subtitle. Shared `.empty-state` component used for Ask, Explore, Compare, and HNSW/Settings fallback.
 
 > [!NOTE]
 > Verification status:
-> - **Human-confirmed by terminal on 2026-11-14**: C++ 118/118, scanner ALL CHECKS PASSED, CSS `!important` 3 confirmed by human terminal after T-046; git log commits up to `febe43a` (T-047) and `e2fc065` (T-049).
-> - **Human-confirmed by screenshots on 2026-11-14**: `/tests.html` 94/94 (after T-043), 5 tabs at 1920x1080, Ask chat flow, Explore Docs PCA, Open Explore deep link, Compare in Ask (3 rows), Trace (6 nodes), Settings new sections, footer removed, Explore toolbar 1 row, Compare 3 side-by-side charts, Compare summary table 5 columns unclipped.
-> - **Compare Verification State**: Compare results state was seen by the human in screenshots after T-052 and T-054 and looks close to the mockup; Compare EMPTY state after T-053 NOT yet seen by screenshot.
-> - **Pending Human Screenshots**:
->   - Compare empty state after T-053 (when convenient).
->   - Browser unit tests: `/tests.html` at 100% zoom (verify 113/113 tests pass in real browser; last screenshot confirmed 94/94 after T-043).
+> - **Human-confirmed by terminal on 2026-11-15**: C++ 118/118, scanner ALL CHECKS PASSED, `/tests.html` 114/114 passed, CSS `!important` count = 2, `box-shadow` count = 0, zero hex literals outside `:root` and `colors.js`.
+> - **Redesign v3 Screenshots Pending**:
+>   - Ask tab empty state (`01-ask-empty.png`)
+>   - Ask tab results state (`02-ask-results.png`)
+>   - Explore tab (`03-explore.png`)
+>   - HNSW tab (`04-hnsw.png`)
+>   - Compare tab empty state (`06-compare-empty.png`)
+>   - Compare tab results state (`05-compare-results.png`)
+>   - Settings tab (`07-settings.png`)
+>   - Sidebar collapsed (56px icon rail)
 >   - 125% browser zoom layout check across tabs.
->   - Ask tab: glass-box latency breakdown formatted as tidy label+value tiles in sans font.
->   - Ask tab: chat column remaining perfectly centered when Documents inventory drawer is opened or closed.
->   - HNSW tab at 1366x768 and 1920x1080 with topology summary.
->   - Sidebar collapsed (56px icon rail).
->   - Small-screen fallback below 1100px.
-> - **Paused / Not Done**:
->   - T-048 (Settings content-sized panels) is PAUSED by ADR-046 (if ever executed, must use ADR-047 or higher).
+> - **Paused / Superseded**:
+>   - T-048 (Settings content-sized panels) is CANCELLED (superseded by ADR-047/ADR-048).
 >   - T-054 optional chart polish (larger tick labels, more space between axis and bars, more icon contrast) NOT done.
 > - **Visual items marked**: All visual rendering items marked "not tested (visual)" until human screenshots confirm.
 
@@ -207,23 +241,31 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ## 5. Pending Human Actions
 
-1. **(a) Screenshots after each task**: Send screenshots of Ask tab empty state and Ask tab results state (100% zoom, 1920x1080).
-2. **(b) License copyright name**: Fill `<YOUR NAME>` placeholder in `LICENSE`.
-3. **(c) No merge and no push**: Do NOT merge `ui-redesign-v3` into `main` and do NOT push to remote origin until approved.
-4. **(d) Compare empty-state & `/tests.html` screenshots (when convenient)**: Send screenshots of Compare tab empty state and `/tests.html` (expecting 113/113) when convenient; no blocker.
-5. **(e) Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
+1. **Verify `/tests.html` in real browser**: Open `http://127.0.0.1:8080/tests.html` at 100% browser zoom and verify 114/114 tests pass.
+2. **Screenshots review**: Capture screenshots at 100% browser zoom (1920x1080) for all 5 tabs and shell states:
+   - Ask tab empty state (`01-ask-empty.png`)
+   - Ask tab results state (`02-ask-results.png`)
+   - Explore tab (`03-explore.png`)
+   - HNSW tab (`04-hnsw.png`)
+   - Compare tab empty state (`06-compare-empty.png`)
+   - Compare tab results state (`05-compare-results.png`)
+   - Settings tab (`07-settings.png`)
+   - Sidebar collapsed (56px icon rail)
+   - 125% zoom layout check across tabs
+3. **License copyright name**: Fill `<YOUR NAME>` placeholder in `LICENSE`.
+4. **Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
+5. **No merge and no push**: Do NOT merge `ui-redesign-v3` into `main` and do NOT push to remote origin until approved.
 
 ---
 
 ## 6. Open Follow-ups & Roadmap
 
 ### Open Follow-ups
-- **Redesign v3 rollout (ADR-047)**:
-  - T-055: Foundation, app shell, Ask tab (DONE on `ui-redesign-v3`).
-  - T-056: Explore & HNSW tabs rebuild from mockups `03-explore.png` and `04-hnsw.png`.
-  - T-057: Compare tab rebuild from mockups `05-compare-results.png` and `06-compare-empty.png`.
-  - T-058: Settings tab rebuild from mockup `07-settings.png`.
-  - T-059: Consistency sweep across all 5 tabs.
+- **Redesign v3 verification (ADR-047, ADR-048)**:
+  - T-055 (Foundation, app shell, Ask tab): Complete on `ui-redesign-v3`.
+  - T-055b / T-055c (Null-safety, top-k & palette button restore, colors sync): Complete on `ui-redesign-v3`.
+  - T-056 (Master build across P0-P5: Ask polish, Explore, HNSW, Compare, Settings, Consistency): Complete on `ui-redesign-v3`.
+  - Pending: Human screenshot review against `docs/mockups/`. Brain will review screenshots and write ONE batched fix task if any visual adjustments are needed.
 - **T-048**: CANCELLED (superseded by ADR-047).
 - Optional C++ unit test for ISS-006 ingest rollback.
 
@@ -237,9 +279,10 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ## 7. Recommended Next Step
 
-1. Human sends screenshots of Ask empty and Ask results (100% zoom, 1920x1080).
-2. Brain reviews screenshots and proceeds with T-056 (Explore and HNSW rebuild).
-3. No merge of `ui-redesign-v3` to `main` and no push to origin.
+1. Human opens `http://127.0.0.1:8080/tests.html` in browser at 100% zoom and confirms 114/114 passing.
+2. Human captures 100% zoom screenshots (1920x1080) of all 5 tabs (both empty and results where applicable), collapsed sidebar, and 125% zoom check.
+3. Brain compares the screenshots with `docs/mockups/` and batches any visual fixes into ONE task.
+4. No merge of `ui-redesign-v3` to `main` and no push to origin.
 
 ---
 

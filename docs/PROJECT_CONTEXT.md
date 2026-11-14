@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-15 by T-055c
+Last updated: 2026-11-15 by SYNC-006
 
 ## 1. Operating Model
 
@@ -147,7 +147,15 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 37. **Piecemeal Patching Repeatedly Failed**: Patching CSS on top of old rules repeatedly failed visually across multiple iterations (T-040, T-047, T-051). A cohesive design system built cleanly in 3 stages is required.
 38. **Builder ID Lists vs Real Grep**: Builder ID lists in task reports can be wrong or invented (e.g. T-050 report listed ids that did not match real ids). Trust only an id list produced by `Select-String` / `grep` in the human's terminal.
 39. **Handoff for Next Brain Chat (Stage 1 Interview)**: Human asked for Stage 1 questions to be answered in a new chat. The new Brain must start by asking Stage 1 questions (2-3 reference apps, dark vs light, vibe: calm/minimal, sharp/technical, or warm/friendly) one line at a time, in short Hinglish, without jumping into task prompts.
-40. **Brain Chat Length Warning**: Brain should keep warning about chat length earlier to ensure clean handoffs before context truncation.
+40. **Brain Chat Length Warning**: Brain should warn about chat length at about 25 exchanges and the human then says SYNC to ensure clean handoffs before context truncation.
+41. **Unattended Master Redesign & Human Verification Flow**: Human wants the whole redesign finished in big unattended master tasks and verifies next day by screenshots and terminal; tests and screenshots are done by the human later, not at night.
+42. **AI Mockups Invent Unbacked Engine Controls**: AI mockups invent controls the engine does not have. Known mismatches: Compare mockup shows Query Count, algorithm checkboxes, ms units and per-query match counts, but real Compare has repetitions (1/3/5), one query on all 3 algorithms, latency in microseconds, rank-by-rank top-10 diff; Settings mockup shows a System panel, Auto-save toggle, Export/Import collection, storage quota, uptime and model llama3.1:8b which are not real (model is llama3.2, persistence is the --data-dir flag). Explore, HNSW and Settings have no empty-state mockup: use the shared empty-state component.
+43. **Builder Mockup Descriptions vs Visual Inspection**: Builder descriptions of mockup images are unreliable (T-055v and T-055b listed a breadcrumb, kb-computer tag, paperclip, Auto-save toggle, dot-product chip, LLM First Token/Total tiles and a profile section that were not in mockups 01 and 02). Evidence tag: [CONFIRMED: Brain review of builder reports, T-055c]. Judge UI only by human screenshots.
+44. **ISS-049 Scoping Lesson**: In T-054, a test fixture declared inside one `describe` block was undefined in a later suite; fixtures must be at module scope (ADR-036). Builder test counts are claims; the human's `/tests.html` is the proof.
+45. **mapChartRows Caller Scope**: `mapChartRows` has no production caller (only tests call it); the null-latencies crash was reachable only in tests. `web/js/compare.js` calls `extractChartMetrics` directly.
+46. **Canvas vs CSS Text Color Sync**: Canvas colors in `web/js/colors.js` differed from CSS `:root` text tokens (`#f0ede6` vs `#f4f4f5`, `#827e77` vs `#71717a`) causing a warmer tint on canvas; synchronized in T-056 P0.
+47. **Standard Terminal Verification Commands**: Brain asked the human to verify with terminal commands after each task (`git log`, `git status`, `git diff --stat ui-quiet-studio -- src include tests`, `!important` count, scanner, `/tests.html`). Keep doing this.
+48. **Verification State Post-T-055c/T-056**: Human confirmed `/tests.html` 114/114, C++ 118/118 and git state by terminal on 2026-11-15 (after T-055c). Ask empty/results, top-k control, palette button, collapsed sidebar and all other tabs in the new shell are NOT yet seen by screenshot.
 
 ---
 
@@ -166,9 +174,26 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 - **Human-confirmed by screenshots on 2026-11-14**: `/tests.html` 94/94 (after T-043), 5 tabs at 1920x1080, Ask chat flow, Explore Docs PCA, Open Explore deep link, Compare in Ask (3 rows), Trace (6 nodes), Settings new sections, footer removed, Explore toolbar 1 row, Compare 3 side-by-side charts, Compare summary table 5 columns unclipped, Settings font larger and persistence status in sans.
 - **Compare Verification State**: Compare results state was seen by the human in screenshots after T-052 and T-054 and looks close to the mockup; Compare EMPTY state after T-053 NOT yet seen by screenshot.
 - **Still human-reported only (no screenshots)**: `--data-dir` persistence restart, Ctrl K, sidebar collapse, guided tour.
-- **Pending Human Screenshots**: Compare empty state (after T-053), `/tests.html` at 100% zoom, 125% zoom layout check.
-- **Pending Human Actions**: Answer Stage 1 redesign questions in new chat (reference apps, dark/light, vibe); LICENSE name placeholder; merge decision for `ui-quiet-studio` (no merge or push until new design direction approved); Linux/macOS support tier.
-- **Tasks Paused**: T-048 (Settings content-sized panels) is PAUSED by ADR-046 (if ever executed, must use ADR-047 or higher); T-054 optional chart polish (larger tick labels, more spacing) is NOT done.
+- **Pending Human Screenshots**:
+  1. Ask tab empty state (`01-ask-empty.png`)
+  2. Ask tab results state (`02-ask-results.png`)
+  3. Explore tab (`03-explore.png`)
+  4. HNSW tab (`04-hnsw.png`)
+  5. Compare tab empty state (`06-compare-empty.png`)
+  6. Compare tab results state (`05-compare-results.png`)
+  7. Settings tab (`07-settings.png`)
+  8. Sidebar collapsed (56px rail)
+  9. 125% zoom layout check across tabs
+  10. `/tests.html` at 100% zoom (expecting 114/114 passed)
+- **Pending Human Actions**:
+  - Open `/tests.html` and verify 114/114 in real browser.
+  - Capture 100% zoom screenshots (1920x1080) for all tabs.
+  - Fill `<YOUR NAME>` placeholder in `LICENSE`.
+  - Decide Linux/macOS support tier & release timing.
+  - DO NOT merge `ui-redesign-v3` into `main` and DO NOT push to remote origin until visual approval.
+- **Tasks Paused / Superseded**:
+  - T-048 (Settings content-sized panels) is CANCELLED (superseded by ADR-047/ADR-048).
+  - T-054 optional chart polish (larger tick labels, more spacing) is NOT done.
 - **Not verified**: 1366x768 layout, Ask New chat empty-state guided card.
 
 Tasks verified and completed on branch `ui-redesign` (T-017 through T-038), and `ui-polish-2026` (T-040):
