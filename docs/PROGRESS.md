@@ -1,10 +1,10 @@
 # Project Progress
 
-Last updated: 2026-11-14 by T-033 (VectorDB v2)
+Last updated: 2026-11-14 by SYNC-001
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform (Task T-033 Complete across all 9 Phases P0-P8, Branch `ui-redesign`)
 
-VectorDB v2 transforms VectorDB into an offline, transparent "glass-box" educational product and semantic chat platform. All 9 phases are completed and verified:
+**Direction Change (2026-11-14)**: ADR-017 (engine freeze) was cancelled by the human after safety backup (`backup-before-v2`). Direction pivoted to an open-source, fully offline, transparent "glass-box" vector database and RAG learning product (ADR-029). The aggressive T-033 master build unfreezing the engine and implementing the full glass-box product across 9 phases (P0 to P8) is 100% complete on branch `ui-redesign`. All 9 phases are completed and committed:
 - **P0**: Pre-flight unfreezing (ADR-029, ADR-030, ADR-031), CSS fixes, HNSW toolbar stabilization.
 - **P1**: Multi-turn history support in `/api/ask` and `/api/ask/stream` (capped to 6 messages, 3000 chars).
 - **P2**: Unified HNSW search path trace (`POST /api/hnsw/trace` with `"collection": "demo" | "docs"` and query text embedding).
