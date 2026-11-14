@@ -2092,7 +2092,7 @@ input[type="number"] {
   gap: var(--space-2);
 }
 
-/* Canvas Frames (Zero borders, zero shadows) */
+/* Canvas Frames: Unified rounded panel surface across Explore, HNSW, Compare */
 .canvas-frame {
   position: relative;
   flex: 1;
@@ -2100,15 +2100,19 @@ input[type="number"] {
   min-width: 0;
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: var(--bg-canvas);
+  background: var(--bg-panel);
+  padding: var(--space-3);
+  box-sizing: border-box;
 }
 
 .canvas-frame canvas {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  inset: var(--space-3);
+  width: calc(100% - 2 * var(--space-3));
+  height: calc(100% - 2 * var(--space-3));
   display: block;
+  border-radius: var(--radius-sm);
+  background: var(--bg-canvas);
 }
 
 .canvas-wrapper {
@@ -2116,13 +2120,17 @@ input[type="number"] {
   width: 100%;
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: var(--bg-canvas);
+  background: var(--bg-panel);
+  padding: var(--space-3);
+  box-sizing: border-box;
 }
 
 #compare-bars-canvas {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
+  border-radius: var(--radius-sm);
+  background: var(--bg-canvas);
 }
 
 #explore-canvas, #hnsw-canvas {
@@ -2232,11 +2240,11 @@ input[type="number"] {
   overflow-y: auto;
 }
 
-/* Compare Tab Specific Rules */
+/* Compare Tab Specific Rules: 440px rebalanced sidebar & unclipped 3-row canvas */
 #panel-compare .viz-sidebar {
-  width: 380px;
-  min-width: 380px;
-  max-width: 380px;
+  width: 440px;
+  min-width: 440px;
+  max-width: 440px;
 }
 
 #panel-compare #compare-results-card {
@@ -2248,7 +2256,7 @@ input[type="number"] {
 }
 
 #panel-compare .canvas-wrapper {
-  height: 140px;
+  height: 170px;
   flex-shrink: 0;
 }
 
@@ -2263,8 +2271,13 @@ input[type="number"] {
 #panel-compare .viz-sidebar .table-container {
   max-height: none;
   overflow-y: visible;
-  overflow-x: auto;
+  overflow-x: hidden;
   width: 100%;
+}
+
+#panel-compare .viz-sidebar .info-table {
+  width: 100%;
+  table-layout: auto;
 }
 
 #panel-compare .viz-sidebar .info-table td.empty-state {
@@ -2276,8 +2289,8 @@ input[type="number"] {
 #panel-compare .viz-sidebar .info-table th,
 #panel-compare .viz-sidebar .info-table td {
   white-space: nowrap;
-  padding: 6px 8px;
-  font-size: 12px;
+  padding: 6px 4px;
+  font-size: 11px;
 }
 
 #panel-compare .info-table th {

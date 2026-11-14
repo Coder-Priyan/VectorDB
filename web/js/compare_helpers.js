@@ -316,15 +316,7 @@ export function drawComparisonBars(canvas, data, isDark = false) {
     ctx.textAlign = "left";
     ctx.fillText(displayTitle, panel.x, panel.y + 2);
 
-    // Baseline grid rule below title
-    const contentY = layout.rowY[0];
-    const dividerY = Math.max(panel.y + 16, contentY - 6);
-    ctx.strokeStyle = gridColor;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(panel.x, dividerY);
-    ctx.lineTo(panel.x + panel.w, dividerY);
-    ctx.stroke();
+    // Divider line removed per T-042 quiet studio specification
 
     if (layout.rowHeight <= 0) return;
 

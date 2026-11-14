@@ -221,6 +221,16 @@ export function registerCompareTests() {
       assertEqual(layout.rows[1].height, layout.rowHeight);
       assertEqual(layout.rows[2].height, layout.rowHeight);
     });
+
+    it("Heights from 140px to 170px ensure all 3 algorithm rows fit within canvas without clipping", () => {
+      for (const h of [140, 146, 160, 170]) {
+        const layout = computeChartLayout(700, h);
+        assertEqual(layout.rows.length, 3);
+        assert(layout.rowHeight >= 30, `rowHeight (${layout.rowHeight}) must be at least 30px at h=${h}`);
+        const lastRowBottom = layout.rows[2].y + layout.rows[2].height;
+        assert(lastRowBottom <= h, `Last row bottom (${lastRowBottom}) must not exceed canvas height (${h})`);
+      }
+    });
   });
 }
 
