@@ -251,38 +251,46 @@
       <div class="viz-layout">
         <div class="viz-main">
           <div class="canvas-frame">
-            <canvas id="explore-canvas" width="680" height="460"></canvas>
-            <div id="explore-tooltip" class="canvas-tooltip hidden" role="tooltip"></div>
+            <div class="canvas-panel-header">
+              <h2 class="canvas-panel-title">Vector Space (PCA, 2D)</h2>
+              <p class="canvas-panel-subtitle">Each point is a document chunk, projected to 2D using PCA.</p>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="explore-canvas" width="680" height="460"></canvas>
+              <div id="explore-tooltip" class="canvas-tooltip hidden" role="tooltip"></div>
+            </div>
+            <div id="explore-legend-container" class="legend-row"></div>
           </div>
-          <div id="explore-legend-container" class="legend-row"></div>
           <div id="explore-empty-state" class="empty-state-box hidden"></div>
         </div>
         <aside class="viz-sidebar">
           <div id="explore-docs-controls" class="hidden">
-            <h3 class="section-title">Query Document Space</h3>
+            <h3 class="section-title">Query</h3>
             <form id="explore-query-docs-form" class="form-stack mt-2">
               <div class="form-group">
-                <label for="explore-query-docs-input">Query Text</label>
-                <input type="text" id="explore-query-docs-input" class="input-text" placeholder="e.g. vector search" required>
+                <textarea id="explore-query-docs-input" class="textarea-field" rows="3" placeholder="What is the HNSW algorithm and how does it work in a vector database?" required></textarea>
               </div>
               <div class="form-row">
                 <div class="form-group flex-1">
                   <label for="explore-query-docs-k">Top k</label>
-                  <input type="number" id="explore-query-docs-k" class="input-text" value="5" min="1" max="50">
+                  <input type="number" id="explore-query-docs-k" class="input-text" value="3" min="1" max="50">
                 </div>
                 <div class="form-group flex-1 align-end">
-                  <button type="submit" id="explore-query-docs-btn" class="btn btn-primary w-100">Project &amp; Search</button>
+                  <button type="submit" id="explore-query-docs-btn" class="btn btn-primary w-100">
+                    <span class="btn-icon" data-icon="send"></span>
+                    <span>Project &amp; Search</span>
+                  </button>
                 </div>
               </div>
             </form>
           </div>
           <div id="explore-demo-controls">
-            <h3 class="section-title">Query Demo Vectors</h3>
+            <h3 class="section-title">Query</h3>
             <div class="form-stack mt-2">
               <div class="form-row">
                 <div class="form-group flex-1">
                   <label for="explore-demo-k">Top k</label>
-                  <input type="number" id="explore-demo-k" class="input-text" value="5" min="1" max="50">
+                  <input type="number" id="explore-demo-k" class="input-text" value="3" min="1" max="50">
                 </div>
                 <div class="form-group flex-1 align-end">
                   <button type="button" id="explore-demo-random-btn" class="btn btn-primary w-100">Random Query</button>
@@ -300,13 +308,15 @@
             </div>
           </div>
           <div class="viz-results-section mt-4">
-            <h3 class="section-title">Nearest Neighbors</h3>
-            <div class="table-container">
-              <table class="info-table">
+            <h3 class="section-title" id="explore-results-heading">Nearest neighbours (k = 3)</h3>
+            <div class="explore-neighbors-list" id="explore-neighbors-list">
+              <table class="info-table explore-neighbors-table">
                 <thead>
-                  <tr><th>Rank</th><th>Target</th><th>Distance</th><th>Similarity</th></tr>
+                  <tr><th>Target</th><th>Distance</th><th>Similarity</th></tr>
                 </thead>
-                <tbody id="explore-results-tbody"></tbody>
+                <tbody id="explore-results-tbody">
+                  <tr><td colspan="3" class="text-muted empty-state">Run a query to inspect nearest neighbours.</td></tr>
+                </tbody>
               </table>
             </div>
           </div>

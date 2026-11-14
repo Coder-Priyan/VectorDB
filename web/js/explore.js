@@ -70,17 +70,28 @@ export function initExploreTab() {
     if (!emptyStateBox) return;
     emptyStateBox.classList.remove("hidden");
     if (isDocs) {
-      emptyStateBox.replaceChildren(el("p", { className: "text-muted" }, "No documents ingested yet. Go to Ask tab to ingest documents."));
+      emptyStateBox.replaceChildren(
+        el("div", { className: "empty-state" },
+          el("h3", { className: "empty-state-title" }, "No documents yet"),
+          el("p", { className: "empty-state-description" }, "No documents ingested yet. Go to Ask tab to ingest documents.")
+        )
+      );
     } else {
       const countInput = el("input", { type: "number", className: "input-text", value: "1000", min: "10", max: "20000" });
-      const insertBtn = el("button", { type: "button", className: "btn btn-sm btn-secondary" }, "Insert Demo Vectors");
+      const insertBtn = el("button", { type: "button", className: "btn btn-secondary" }, "Insert 1,000 vectors");
       insertBtn.addEventListener("click", async () => {
         const count = parseInt(countInput.value, 10) || 1000;
         await withButtonBusy(insertBtn, async () => {
           try { await api.insertDemoRandom(count); await loadData(); } catch (err) { showGlobalError(err.code, err.message); }
         });
       });
-      emptyStateBox.replaceChildren(el("p", { className: "text-muted" }, "Demo collection is empty."), el("div", { className: "form-row mt-3" }, countInput, insertBtn));
+      emptyStateBox.replaceChildren(
+        el("div", { className: "empty-state" },
+          el("h3", { className: "empty-state-title" }, "Demo collection is empty"),
+          el("p", { className: "empty-state-description" }, "Insert synthetic demo vectors to explore 2D PCA space."),
+          el("div", { className: "form-row mt-3 justify-center" }, countInput, insertBtn)
+        )
+      );
     }
   }
 
@@ -88,7 +99,7 @@ export function initExploreTab() {
     if (!varianceNote) return;
     const r1 = ((ratios[0] || 0) * 100).toFixed(1), r2 = ((ratios[1] || 0) * 100).toFixed(1);
     const sum = (((ratios[0] || 0) + (ratios[1] || 0)) * 100).toFixed(1);
-    let text = `Points: ${count} | PC1: ${r1}% | PC2: ${r2}% (Total 2D: ${sum}%)`;
+    let text = `Explained variance (PCA, 2D): ${sum}% (PC1: ${r1}%, PC2: ${r2}%)`;
     if (count < 10) text += " — Note: PCA projection is not statistically meaningful with fewer than 10 vectors.";
     varianceNote.textContent = text;
   }
@@ -96,13 +107,26 @@ export function initExploreTab() {
   function updateLegend(isDocs, points) {
     if (!legendContainer) return;
     legendContainer.replaceChildren();
-    if (!isDocs) return;
-    const docMap = new Map();
-    points.forEach(pt => { if (pt.doc_id !== undefined && !docMap.has(pt.doc_id)) docMap.set(pt.doc_id, pt.title || `Doc ${pt.doc_id}`); });
-    const items = Array.from(docMap.entries()).map(([docId, title]) => {
+    if (!isDocs) {
       const swatch = el("span", { className: "legend-swatch" });
-      swatch.style.setProperty("background-color", getDocColor(docId));
-      return el("div", { className: "legend-item" }, swatch, el("span", {}, title));
+      swatch.style.setProperty("background-color", THEME.accent);
+      legendContainer.replaceChildren(
+        el("div", { className: "legend-item" }, swatch, el("span", {}, `Vectors (${points.length})`))
+      );
+      return;
+    }
+    const docMap = new Map();
+    points.forEach(pt => {
+      const key = pt.doc_id !== undefined ? pt.doc_id : "unknown";
+      if (!docMap.has(key)) {
+        docMap.set(key, { title: pt.title || `Doc ${pt.doc_id}`, count: 0, docId: pt.doc_id });
+      }
+      docMap.get(key).count++;
+    });
+    const items = Array.from(docMap.values()).map(doc => {
+      const swatch = el("span", { className: "legend-swatch" });
+      swatch.style.setProperty("background-color", getDocColor(doc.docId));
+      return el("div", { className: "legend-item" }, swatch, el("span", {}, `${doc.title} (${doc.count})`));
     });
     legendContainer.replaceChildren(...items);
   }
@@ -126,11 +150,57 @@ export function initExploreTab() {
     ctx.moveTo(orig.x, 0); ctx.lineTo(orig.x, height);
     ctx.stroke();
 
-    // Axis Labels
+    // Axis Ticks & Tick Labels
     ctx.fillStyle = THEME.textMuted;
+    ctx.font = "11px 'IBM Plex Sans', -apple-system, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+
+    // Ticks along X-axis
+    for (let xVal = -0.6; xVal <= 0.65; xVal += 0.2) {
+      const scr = viewport.toScreen(xVal, 0);
+      if (scr.x >= 30 && scr.x <= width - 30) {
+        ctx.beginPath();
+        ctx.moveTo(scr.x, orig.y);
+        ctx.lineTo(scr.x, orig.y + 4);
+        ctx.stroke();
+        const lbl = Math.abs(xVal) < 0.001 ? "0.0" : xVal.toFixed(1);
+        ctx.fillText(lbl, scr.x, Math.min(Math.max(orig.y + 7, 15), height - 18));
+      }
+    }
+
+    // Ticks along Y-axis
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    for (let yVal = -0.6; yVal <= 0.65; yVal += 0.2) {
+      if (Math.abs(yVal) < 0.001) continue; // 0.0 handled
+      const scr = viewport.toScreen(0, yVal);
+      if (scr.y >= 20 && scr.y <= height - 20) {
+        ctx.beginPath();
+        ctx.moveTo(orig.x - 4, scr.y);
+        ctx.lineTo(orig.x, scr.y);
+        ctx.stroke();
+        ctx.fillText(yVal.toFixed(1), Math.max(orig.x - 7, 24), scr.y);
+      }
+    }
+
+    // Axis Titles (PC1 & PC2)
+    ctx.fillStyle = THEME.textSecondary;
     ctx.font = "12px 'IBM Plex Sans', -apple-system, sans-serif";
-    ctx.fillText(`PC1 (${((explainedRatios[0] || 0) * 100).toFixed(1)}%)`, width - 95, Math.min(Math.max(20, orig.y - 6), height - 10));
-    ctx.fillText(`PC2 (${((explainedRatios[1] || 0) * 100).toFixed(1)}%)`, Math.min(Math.max(10, orig.x + 6), width - 90), 20);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+    ctx.fillText("PC1", width / 2, height - 6);
+
+    ctx.save();
+    ctx.translate(14, height / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillText("PC2", 0, 0);
+    ctx.restore();
+
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
 
     const isDocs = collSelect.value === "docs";
     for (let i = 0; i < currentPoints.length; i++) {
@@ -148,14 +218,26 @@ export function initExploreTab() {
       for (let i = 0; i < topKResults.length; i++) {
         const res = topKResults[i];
         const rScr = viewport.toScreen(res.x, res.y);
-        ctx.strokeStyle = "rgba(217, 164, 65, 0.45)"; ctx.lineWidth = 1;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.25)"; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(qScr.x, qScr.y); ctx.lineTo(rScr.x, rScr.y); ctx.stroke();
-        ctx.strokeStyle = THEME.accent; ctx.lineWidth = 1.5;
+        ctx.strokeStyle = THEME.accent; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(rScr.x, rScr.y, 6.5, 0, Math.PI * 2); ctx.stroke();
+
+        // Node ID label next to ring as in mockup (#102, #087, #215)
+        const idLabel = `#${res.id ?? (res.chunk_index !== undefined ? res.chunk_index : i + 1)}`;
+        ctx.fillStyle = THEME.textPrimary;
+        ctx.font = "11px 'IBM Plex Sans', -apple-system, sans-serif";
+        ctx.fillText(idLabel, rScr.x + 9, rScr.y + 4);
       }
-      ctx.fillStyle = THEME.textPrimary; ctx.strokeStyle = THEME.textInverse; ctx.lineWidth = 1.5;
+      ctx.fillStyle = THEME.accent; ctx.strokeStyle = THEME.bgCanvas; ctx.lineWidth = 1.5;
       drawStar(ctx, qScr.x, qScr.y, 5, 9, 4.5);
       ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = THEME.textPrimary;
+      ctx.font = "11px 'IBM Plex Sans', -apple-system, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Query", qScr.x, qScr.y + 16);
+      ctx.textAlign = "left";
     }
 
     if (hoveredPoint) {
@@ -168,10 +250,37 @@ export function initExploreTab() {
   function renderTable(results, isDocs) {
     if (!resultsTableBody) return;
     resultsTableBody.replaceChildren();
-    if (!results || results.length === 0) return;
-    const rows = results.map((r, idx) => {
-      const label = isDocs ? `${r.title || "Doc " + r.doc_id} [chunk ${r.chunk_index}]` : `ID: ${r.id}`;
-      return el("tr", {}, el("td", {}, `#${idx + 1}`), el("td", {}, label), el("td", {}, r.distance !== undefined ? r.distance.toFixed(4) : "-"), el("td", {}, formatSimilarity(r.similarity)));
+    const heading = byId("explore-results-heading");
+    const kVal = isDocs ? (queryDocsK ? queryDocsK.value : 3) : (queryDemoK ? queryDemoK.value : 3);
+    if (heading) heading.textContent = `Nearest neighbours (k = ${kVal})`;
+
+    if (!results || results.length === 0) {
+      const emptyRow = el("tr", {},
+        el("td", { colSpan: 3, className: "text-muted empty-state" }, "Run a query to inspect nearest neighbours.")
+      );
+      resultsTableBody.appendChild(emptyRow);
+      return;
+    }
+
+    const rows = results.map((r) => {
+      const docTitle = isDocs ? (r.title || `Doc ${r.doc_id}`) : `Vector #${r.id}`;
+      const chunkSub = isDocs ? `Chunk #${r.chunk_index}` : `ID: ${r.id}`;
+      const distStr = r.distance !== undefined ? r.distance.toFixed(4) : "-";
+      const simStr = formatSimilarity(r.similarity);
+
+      return el("tr", { className: "explore-neighbor-row" },
+        el("td", { className: "neighbor-target-cell" },
+          el("div", { className: "neighbor-target-meta" },
+            el("span", { className: "neighbor-icon", textContent: "📄" }),
+            el("div", { className: "neighbor-info" },
+              el("span", { className: "neighbor-title" }, docTitle),
+              el("span", { className: "neighbor-sub" }, chunkSub)
+            )
+          )
+        ),
+        el("td", { className: "neighbor-dist-cell" }, distStr),
+        el("td", { className: "neighbor-sim-cell" }, simStr)
+      );
     });
     resultsTableBody.replaceChildren(...rows);
   }
