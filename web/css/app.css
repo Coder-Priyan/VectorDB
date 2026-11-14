@@ -2373,7 +2373,6 @@ input[type="number"] {
   display: grid;
   grid-template-columns: 420px 385px minmax(360px, 1fr);
   gap: var(--space-3);
-  align-items: start;
   flex: 1;
   min-height: 0;
   width: 100%;
@@ -2407,7 +2406,9 @@ input[type="number"] {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  height: auto;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
   overflow-x: hidden;
 }
 
@@ -2488,19 +2489,20 @@ input[type="number"] {
 
 /* Summary Metrics inside Left Panel */
 .compare-summary-section {
-  flex: 0 0 auto;
-  margin-top: var(--space-1);
+  flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
 .compare-summary-table-wrap {
+  flex: 1;
+  min-height: 0;
   width: 100%;
   background: transparent;
   border-radius: 0;
+  overflow-y: auto;
   overflow-x: auto;
-  overflow-y: hidden;
 }
 
 .compare-summary-table {
@@ -2531,7 +2533,8 @@ input[type="number"] {
   justify-content: center;
   text-align: center;
   padding: var(--space-6);
-  min-height: 320px;
+  height: 100%;
+  min-height: 0;
 }
 
 .compare-col-empty .empty-state {
@@ -2550,20 +2553,20 @@ input[type="number"] {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  height: auto;
+  height: 100%;
   min-height: 0;
 }
 
 .compare-chart-panel {
-  flex: 0 0 auto;
+  flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: var(--space-4);
+  padding: var(--space-3) var(--space-4);
 }
 
 .compare-chart-panel .canvas-wrapper {
-  height: 74px;
+  flex: 1;
   min-height: 0;
   width: 100%;
   position: relative;
@@ -2581,7 +2584,7 @@ input[type="number"] {
 .compare-col-right {
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 180px);
+  height: 100%;
   min-height: 0;
 }
 
@@ -2719,7 +2722,7 @@ input[type="number"] {
   }
 
   .compare-chart-panel {
-    height: auto;
+    height: 140px;
     flex: none;
   }
 

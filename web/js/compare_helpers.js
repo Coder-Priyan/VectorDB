@@ -498,7 +498,7 @@ export function drawMetricBarChart(canvas, metricKey, metricValues, isDark = tru
   const barStartX = padLeft + labelWidth + 8;
   const rowCount = 3;
   const rowHeight = Math.max(0, Math.floor(h / rowCount));
-  const barHeight = Math.max(5, Math.min(8, rowHeight - 14));
+  const barHeight = Math.max(6, Math.min(14, rowHeight - 12));
 
   algorithms.forEach((alg, idx) => {
     const rowY = idx * rowHeight;

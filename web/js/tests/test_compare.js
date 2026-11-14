@@ -374,17 +374,17 @@ export function registerCompareTests() {
       let filledDarkBg = false;
       const mockCanvas = {
         clientWidth: 350,
-        clientHeight: 74,
+        clientHeight: 90,
         width: 350,
-        height: 74,
+        height: 90,
         getContext: () => ({
           clearRect: (x, y, w, h) => {
-            if (x === 0 && y === 0 && w === 350 && h === 74) {
+            if (x === 0 && y === 0 && w === 350 && h === 90) {
               cleared = true;
             }
           },
           fillRect: (x, y, w, h) => {
-            if (x === 0 && y === 0 && w === 350 && h === 74) {
+            if (x === 0 && y === 0 && w === 350 && h === 90) {
               filledDarkBg = true;
             }
           },
