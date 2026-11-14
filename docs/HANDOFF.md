@@ -1,29 +1,41 @@
 # Project Handoff
 
-Last updated: 2026-11-14 by T-039
+Last updated: 2026-11-14 by T-040
 
 ## 1. Current Status
 
-VectorDB v2 has been completely built across all 9 phases (P0 to P8) on branch `ui-redesign`. VectorDB is now an open-source, fully offline, transparent "glass-box" vector database and RAG learning platform. Following human browser review on 2026-11-14, Tasks T-034 through T-038 resolved confirmed UI issues, test edge cases, and glass-box response mappers.
+VectorDB v2 has been completely built across all 9 phases (P0 to P8). Following human browser review on 2026-11-14, Tasks T-034 through T-038 resolved confirmed UI issues, test edge cases, and glass-box response mappers. Task T-040 completed a full-app quiet luxury design overhaul across all 5 tabs and the app shell.
 
-- **Active Branch**: `ui-redesign` (safety branch `backup-before-v2` confirmed intact).
-- **Last Commit**: `a57c573` before SYNC-002; nothing pushed to remote.
+- **Active Branch**: `ui-polish-2026` (branched from `ui-redesign` at `f8780b1`; safety branches `backup-before-v2` and `ui-redesign` confirmed intact).
+- **Last Commits**:
+  - `c04dd79` ui-polish: Phase 1 foundation design tokens, colors module, and typography
+  - `c734f36` ui-polish: Phase 2 app shell, spacious sidebar, and command palette
+  - `0ebae37` ui-polish: Phase 3 Ask tab centered chat and clean glass-box
+  - `d7713c6` ui-polish: Phase 4 Explore, HNSW, and Compare tabs polish
+  - `d438d41` ui-polish: Phase 5 Settings tab centered layout and metrics grid
 - **Automated Tests**:
   - C++ unit and integration tests: 118 / 118 passed (529,813 assertions).
   - Browser unit tests: 88 registered tests (`http://127.0.0.1:8080/tests.html`).
-  - Web security scan: 25 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
+  - Web security scan: 27 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
 - **Server REST/SSE Endpoints**: 30 registered endpoints.
 - **Button Hierarchy**: At most ONE `.btn-primary` per visible view.
 - **DOM ID Preservation**: 100% of all existing tab DOM IDs preserved.
+- **Design Tokens**: All hex colors in `web/` exist strictly in `:root` of `web/css/app.css` and `web/js/colors.js`.
 
 > [!NOTE]
 > Verification status:
 > - **Human-confirmed by terminal on 2026-11-14**: C++ 118/118 passed, scanner ALL CHECKS PASSED, git log commits up to `a57c573` (T-038).
 > - **Human-confirmed by screenshots on 2026-11-14**: `/tests.html` 88/88 (after T-038), 5 tabs at 1920x1080, Ask chat flow, Explore Docs PCA, Open Explore deep link, Compare in Ask (3 rows), Trace (6 nodes), Settings new sections, footer removed.
+> - **Pending Human Screenshots (T-040 Quiet Luxury UI Redesign)**:
+>   - Ask tab: centered 820px conversation thread, zero-gutter collapsed Documents drawer, docked calm composer, smooth similarity meter.
+>   - Sidebar: spacious bottom footer (Ollama status dot, commands hint button, version row).
+>   - Settings tab: centered 1040px layout, sans-serif metrics grid, soft card columns, single scrollbar with no bottom clipping.
+>   - Explore & HNSW tabs: consistent 380px sidebar and rounded canvas frame.
+>   - Compare tab: 3 side-by-side charts, unclipped Top-k diff table, swatches derived from design tokens.
 > - **Still human-reported only (no screenshots)**: `--data-dir` persistence restart, Ctrl K, sidebar collapse, guided tour.
 > - **Not verified**: 1366x768 layout, Ask New chat empty-state guided card.
 
-Per git log on branch `ui-redesign`:
+Per git log on branch `ui-redesign` and `ui-polish-2026`:
 - **Phase P0 (Commit `b26212c`)**: Pre-flight unfreezing (ADR-029, ADR-030, ADR-031), CSS disabled-state fix, HNSW toolbar slider stabilization.
 - **Phase P1 (Commit `4586a07`)**: Multi-turn history support in `/api/ask` and `/api/ask/stream` (capped to last 6 messages, 3,000 characters).
 - **Phase P2 (Commit `b857406`)**: Unified HNSW search path trace (`POST /api/hnsw/trace` with `"collection": "demo" | "docs"` and chunk metadata). Fixed ISS-009.
@@ -41,6 +53,7 @@ Per git log on branch `ui-redesign`:
   - **Group C (`aaaa6c6`)**: Explore empty-state variance text clearing, Compare Summary Metrics table clipping fix (no horizontal scrollbar), Settings tab P7 additions (persistence status, two-step Clear Chat History, documentation links card filling vertical space), and moved version badge to sidebar footer while removing the verbose app footer.
 - **T-037 (Commit `b401029`)**: Small fixes after T-036 human verification (hidden empty box under Compare algorithms until results exist, HNSW trace in Ask fixed to read `tRes.trace` and `tRes.stats.nodesVisited` instead of `visited_nodes`, verified persistence health JSON derivation with and without `--data-dir`, updated verification status in docs).
 - **T-038 (Commit `a57c573`)**: Fix silent "Compare algorithms on this query" button in Ask glass-box (mapped server response `algorithms` field to display rows via new `web/js/ask_helpers.js`, added compact latency bars with swatches, added toast and inline notifications on error, added 4 pure-logic browser unit tests bringing test suite to 88 tests).
+- **T-040 (Commits `c04dd79`, `c734f36`, `0ebae37`, `d7713c6`, `d438d41`)**: Full-app quiet luxury UI redesign across all 5 tabs and app shell. Implemented in 5 phases (tokens, colors module, zero hex outside tokens; spacious sidebar bottom; centered 820px Ask chat; 380px visual sidebars & unclipped compare table; centered 1040px Settings metrics grid with sans numbers and single unclipped scroll). All visual aspects reported as "not tested" pending human screenshots.
 
 ---
 

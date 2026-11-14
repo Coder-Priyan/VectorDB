@@ -37,6 +37,6 @@ Last updated: 2026-11-14 by T-039
 | ISS-031 | Bug | Ask glass-box trace read wrong fields (`visited_nodes`), showed "0 nodes" (fixed T-037, human screenshot) | `web/js/ask.js` | Medium | [CONFIRMED: human screenshot 2026-11-14] | FIXED (human-verified by screenshot) | 2026-11-14 |
 | ISS-032 | Bug | Ask glass-box Compare button silent, read `bRes.reports` instead of `bRes.algorithms` (fixed T-038, human screenshot shows 3 rows) | `web/js/ask.js`, `web/js/ask_helpers.js` | Medium | [CONFIRMED: human screenshot 2026-11-14] | FIXED (human-verified by screenshot) | 2026-11-14 |
 | ISS-033 | Bug | Ask glass-box mini PCA canvas was empty; replaced by "Open Explore" deep link (fixed T-036, human screenshot) | `web/js/ask.js`, `web/index.html` | Low | [CONFIRMED: human screenshot 2026-11-14] | FIXED (human-verified by screenshot) | 2026-11-14 |
-| ISS-034 | Tech Debt | Compare swatch colors are hardcoded in ask.js / CSS | `web/js/ask.js`, `web/css/app.css` | Low | [CONFIRMED: web/js/ask.js, web/css/app.css] | OPEN | 2026-11-14 |
+| ISS-034 | Tech Debt | Compare swatch colors are hardcoded in ask.js / CSS | `web/js/ask.js`, `web/css/app.css` | Low | [CONFIRMED: web/js/ask.js, web/css/app.css] | FIXED (centralized in `web/js/colors.js` and `:root` tokens in `app.css`, zero hex literals in active code) | 2026-11-14 |
 
 *(Optional polish, not an issue: Compare sidebar has empty space below Summary Metrics at 1920x1080.)*

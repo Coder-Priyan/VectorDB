@@ -125,6 +125,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 18. **Builder Cannot Run Browser Tests**: Builder cannot run browser tests; its browser test counts are never proof. Real browser testing by the human found a failing test in T-033 review (83/84 passed, consecutive citation pills edge case) despite earlier reports claiming 84/84. Always report browser tests as unverified until the human opens `/tests.html`.
 19. **Human 'OK' Without Screenshot Can Be Wrong**: Any earlier claim or report that Compare algorithms and Trace HNSW path buttons were working based only on human "OK" report without screenshots was WRONG because the Compare button never worked until T-038 (read `bRes.reports` instead of `bRes.algorithms`) and Trace showed 0 nodes until T-037 (read `visited_nodes` instead of `stats.nodesVisited`). A human 'OK' without screenshot can be wrong; prefer screenshots for features.
 20. **HNSW vs Brute Force Scaling**: Do not claim HNSW is faster than brute force in README, DEMO_SCRIPT or LEARNING_GUIDE for small collections; at 6 chunks brute force wins due to cache locality and zero graph traversal overhead (ISS-004).
+21. **Visual Verification Requires Screenshots**: Visual changes, layouts, color palettes, and aesthetics cannot be verified programmatically or by unit tests alone. All visual aspects must be reported as "not tested" until verified by human screenshots.
 
 ---
 
@@ -133,9 +134,10 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 - **Human-confirmed by terminal on 2026-11-14**: C++ 118/118 passed, scanner ALL CHECKS PASSED, git log commits up to `a57c573` (T-038).
 - **Human-confirmed by screenshots on 2026-11-14**: `/tests.html` 88/88 (after T-038), 5 tabs at 1920x1080, Ask chat flow, Explore Docs PCA, Open Explore deep link, Compare in Ask (3 rows), Trace (6 nodes), Settings new sections, footer removed.
 - **Still human-reported only (no screenshots)**: `--data-dir` persistence restart, Ctrl K, sidebar collapse, guided tour.
+- **Not verified / Pending Human Screenshot**: T-040 quiet luxury UI redesign (Phase 1-5 changes: zero-hex palette, spacious sidebar bottom, centered 820px Ask chat, zero-gutter collapsed Documents drawer, 380px visual sidebars, centered 1040px Settings metrics grid with sans numbers, generous bottom scroll padding).
 - **Not verified**: 1366x768 layout, Ask New chat empty-state guided card.
 
-Tasks verified and completed on branch `ui-redesign` (T-017 through T-038):
+Tasks verified and completed on branch `ui-redesign` (T-017 through T-038), and `ui-polish-2026` (T-040):
 - **T-017** (2026-11-12, commit `033c8fd`): One-screen feasibility study (read-only architectural analysis across shell and all 5 tabs; confirmed CSS layout strategy and Option A proposal for Compare).
 - **T-018** (2026-11-12, commits `7ea24db`, `e98b381`, `31a2edb`): Pre-redesign cleanup (removed `web/mockup/`, replaced native alert/confirm with inline banners/two-step reset confirm, cleaned and deduplicated docs). [CONFIRMED: human terminal test / git]
 - **T-019** (2026-11-13, commits `8ce28c9`, `a230057`, `6ee2d04`, `c3693e7`): One-screen UI Phase 1 (100dvh fixed app shell, Ask tab one-screen layout with inner scroll, smart auto-scroll helper with 4 unit tests bringing count to 66). Verified by human in real browser at 1920x1080 and small-window fallback. [CONFIRMED: human screenshot/report]
@@ -171,6 +173,7 @@ Features verified in a real browser by the human (earlier milestones and histori
 - T-020 one-screen Phase 2 (Explore + HNSW fit panel, canvas sized from wrapper via ResizeObserver, fallback for Ask/Explore/HNSW, Compare regression check, 1366x768, /tests.html, console) verified by human in real browser on 2026-11-13 [CONFIRMED: human-reported, no screenshots]
 - T-021 Ask height fix (short answer, long answer, empty state, 1366x768, small-window fallback, /tests.html 74/74, console) verified by human in real browser on 2026-11-13 [CONFIRMED: human-reported, no screenshots]
 - T-023a Compare Phase 3a (fixed-height layout, Summary Metrics in sidebar) at 100% zoom 1920x1080 and 125% zoom verified by human screenshots on 2026-11-13 [CONFIRMED: human screenshots]. Pending human confirmation: console clean, /tests.html 74/74, Explore/HNSW/Ask/Settings regression, 1366x768, small-window fallback.
+- **T-040** (2026-11-14, branch `ui-polish-2026`): Quiet luxury premium UI overhaul across all 5 tabs and app shell. Implemented in 5 phases: Phase 1 (design tokens, colors module `web/js/colors.js`, zero hex outside tokens); Phase 2 (spacious sidebar bottom with status dot, commands hint, version row, smooth collapse transition, elevated palette modal); Phase 3 (centered 820px Ask chat, zero-gutter collapsed Documents drawer, docked calm composer, smooth similarity meters, latency chips); Phase 4 (consistent 380px visual sidebars, rounded canvas frames, unclipped Compare Top-k diff table); Phase 5 (centered 1040px Settings container, single scrollbar, generous 64px bottom scroll padding, metric strip with sans numbers, soft card columns). All 118 C++ tests pass, web safety scanner passes, 88 registered browser tests intact. All visual aspects reported as "not tested" pending human screenshots.
 
 Features verified in a real browser by the human (2026-11-12, T-004):
 - Settings tab: Demo Memory shows 50.8 KB with 100 vectors, efConstruction form default 200, Ollama Models row shows llama3.2:latest and nomic-embed-text:latest [CONFIRMED: screenshot saved by human in chat, not in results/screenshots/]

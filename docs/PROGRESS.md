@@ -54,6 +54,7 @@ All 118 C++ tests pass. 88 browser unit tests registered (88/88 confirmed by hum
 | **Hermetic C++ Unit & Integration Test Suite** (118 registered tests) | `tests/*.cpp`, `tests/fake_ollama.hpp` | [CONFIRMED] | TESTED |
 | **Browser Pure-Logic Unit Test Suite** (88 registered unit tests) | `web/tests.html`, `web/js/tests/*.js` | [CONFIRMED] | TESTED |
 | **Atomic Multi-Chunk Rollback** (Transactional vector rollback on mid-ingest failure, not covered by automated test) | `include/vectordb/rag.hpp`, `src/rag.cpp` | [CONFIRMED: src/rag.cpp:155-160] | IMPLEMENTED |
+| **Quiet Luxury UI Design System** (Zero-hex, soft radii, centered layouts, quiet luxury aesthetic) | `web/css/app.css`, `web/js/colors.js` | [CONFIRMED: ADR-037] | IMPLEMENTED (visual not tested) |
 
 ---
 
