@@ -84,6 +84,21 @@ export function registerV2Tests() {
       assertEqual(tokens[1].type, "citation");
       assertEqual(tokens[1].n, 999);
     });
+
+    test("Citations with adjacent punctuation parse cleanly into text and citation tokens", () => {
+      const tokens = parseCitations("Reference [1], note [2]. Finished [3]!");
+      assertEqual(tokens.length, 7);
+      assertEqual(tokens[0].text, "Reference ");
+      assertEqual(tokens[1].type, "citation");
+      assertEqual(tokens[1].n, 1);
+      assertEqual(tokens[2].text, ", note ");
+      assertEqual(tokens[3].type, "citation");
+      assertEqual(tokens[3].n, 2);
+      assertEqual(tokens[4].text, ". Finished ");
+      assertEqual(tokens[5].type, "citation");
+      assertEqual(tokens[5].n, 3);
+      assertEqual(tokens[6].text, "!");
+    });
   });
 
   describe("v2: LocalStorage Chat Persistence & Cap Pruning", (test) => {

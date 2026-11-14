@@ -55,8 +55,58 @@ export function initCompareTab() {
 
   collSelect.addEventListener("change", () => {
     updateCollectionVisibility();
+    lastReportData = null;
     checkCollectionStats();
   });
+
+  function showDefaultEmptyState() {
+    if (!emptyStateBox) return;
+    const isDocs = collSelect?.value === "docs";
+    const title = "No benchmark results yet";
+    const desc = isDocs
+      ? "Enter a semantic query on the right and click Run Benchmark to compare retrieval algorithms."
+      : "Choose parameters on the right and run a benchmark to compare Brute Force, KD-Tree, and HNSW head-to-head.";
+    const btnText = isDocs ? "Benchmark Document Chunks" : "Benchmark Demo Vectors";
+
+    emptyStateBox.replaceChildren(
+      el("div", { className: "empty-state" },
+        el("div", { className: "empty-state-icon" },
+          el("svg", {
+            width: "32",
+            height: "32",
+            viewBox: "0 0 24 24",
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-width": "1.5",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round"
+          },
+            el("path", { d: "M18 20V10" }),
+            el("path", { d: "M12 20V4" }),
+            el("path", { d: "M6 20v-6" })
+          )
+        ),
+        el("h3", { className: "empty-state-title" }, title),
+        el("p", { className: "empty-state-description" }, desc),
+        el("button", {
+          type: "button",
+          id: "compare-initial-run-btn",
+          className: "btn btn-secondary mt-3"
+        }, btnText)
+      )
+    );
+
+    emptyStateBox.querySelector("#compare-initial-run-btn")?.addEventListener("click", () => {
+      if (isDocs) {
+        docsRunBtn?.click();
+      } else {
+        demoRandomBtn?.click();
+      }
+    });
+
+    emptyStateBox.classList.remove("hidden");
+    resultsCard?.classList.add("hidden");
+  }
 
   async function checkCollectionStats() {
     clearGlobalError();
@@ -77,7 +127,12 @@ export function initCompareTab() {
           return false;
         }
       }
-      emptyStateBox?.classList.add("hidden");
+      if (!lastReportData) {
+        showDefaultEmptyState();
+      } else {
+        emptyStateBox?.classList.add("hidden");
+        resultsCard?.classList.remove("hidden");
+      }
       return true;
     } catch (err) {
       showGlobalError(err.code, err.message);

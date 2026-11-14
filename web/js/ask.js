@@ -358,7 +358,7 @@ export function initAskTab() {
         let chunkDrawer = null;
         let isExpanded = false;
 
-        const expandBtn = el("button", { type: "button", className: "btn btn-sm btn-outline" }, "Chunks");
+        const expandBtn = el("button", { type: "button", className: "btn btn-sm btn-ghost" }, "Chunks");
         expandBtn.addEventListener("click", async () => {
           if (isExpanded) {
             chunkDrawer?.remove();
@@ -408,13 +408,13 @@ export function initAskTab() {
 
         const card = el(
           "div",
-          { className: "doc-card" },
-          el("div", { className: "doc-card-header" },
-            el("div", {},
-              el("div", { className: "doc-card-title" }, doc.title),
-              el("div", { className: "doc-card-meta" }, `ID: ${doc.id} \u00B7 ${doc.chunks} chunks \u00B7 ${formatBytes(doc.bytes)} \u00B7 ${doc.strategy}`)
+          { className: "doc-item" },
+          el("div", { className: "doc-item-header" },
+            el("div", { className: "doc-item-info" },
+              el("div", { className: "doc-title-text" }, doc.title),
+              el("div", { className: "doc-meta-text" }, `${doc.chunks} chunks \u00B7 ${formatBytes(doc.bytes)} \u00B7 ${doc.strategy}`)
             ),
-            el("div", { className: "btn-group" }, expandBtn, deleteBtn)
+            el("div", { className: "doc-item-actions" }, expandBtn, deleteBtn)
           )
         );
 
@@ -680,21 +680,27 @@ export function initAskTab() {
     sourcesSection.appendChild(sourcesList);
     body.appendChild(sourcesSection);
 
-    // Panel B: Timings breakdown
+    // Panel B: Timings breakdown (Tidy grid of label + value pairs in sans, tabular numbers)
     if (timings && typeof timings === "object") {
       const timingsSection = el("div", { className: "glass-box-section" },
         el("div", { className: "glass-box-section-title" }, "Latency Breakdown")
       );
-      const timingsRow = el("div", { className: "glass-box-timings" });
-      const parts = [
-        `embed ${formatDuration(timings.embed_ms)}`,
-        `search ${formatDuration(timings.search_ms)}`,
-        `first token ${formatDuration(timings.first_token_ms)}`,
-        `generate ${formatDuration(timings.generate_ms)}`,
-        `total ${formatDuration(timings.total_ms)}`
+      const items = [
+        { label: "Embed", ms: timings.embed_ms },
+        { label: "Search", ms: timings.search_ms },
+        { label: "First token", ms: timings.first_token_ms },
+        { label: "Generate", ms: timings.generate_ms },
+        { label: "Total", ms: timings.total_ms }
       ];
-      timingsRow.appendChild(el("span", { className: "timing-chip" }, parts.join(" \u00B7 ")));
-      timingsSection.appendChild(timingsRow);
+      const timingsGrid = el("div", { className: "glass-box-timings-grid" },
+        ...items.map(it =>
+          el("div", { className: "glass-timing-item" },
+            el("span", { className: "glass-timing-label" }, it.label),
+            el("span", { className: "glass-timing-val" }, formatDuration(it.ms))
+          )
+        )
+      );
+      timingsSection.appendChild(timingsGrid);
       body.appendChild(timingsSection);
     }
 
@@ -755,9 +761,9 @@ export function initAskTab() {
             const swatch = el("span", { className: `legend-swatch swatch-${r.key} mr-1` });
             const rowEl = el("div", { className: "bench-row" },
               el("span", { className: "bench-name" }, swatch, r.name),
-              el("span", { className: "bench-stat font-mono" }, r.latencyFormatted),
-              el("span", { className: "bench-stat text-muted font-mono" }, `${r.distanceComputations} dist`),
-              el("span", { className: "bench-stat text-muted font-mono" }, `Recall: ${r.recallFormatted}`)
+              el("span", { className: "bench-stat" }, r.latencyFormatted),
+              el("span", { className: "bench-stat text-muted" }, `${r.distanceComputations} dist`),
+              el("span", { className: "bench-stat text-muted" }, `Recall: ${r.recallFormatted}`)
             );
             const track = el("div", { className: "bench-bar-track" });
             const fill = el("div", { className: `bench-bar-fill swatch-${r.key}` });
