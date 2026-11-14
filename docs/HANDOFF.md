@@ -1,6 +1,6 @@
 # Project Handoff
 
-Last updated: 2026-11-14 by SYNC-004
+Last updated: 2026-11-14 by T-050
 
 ## 1. Current Status
 
@@ -8,29 +8,30 @@ VectorDB v2 has been completely built across all 9 phases (P0 to P8). Following 
 
 Following human review of Settings (long single scroll rejected), Task T-046 rebuilt Settings into a one-screen 3-column panel grid of filled surface panels (--bg-panel, no borders, no shadows) chosen by the human from an AI mockup (structure and feel only). Human liked the 3-column panel grid concept. Following human review of T-046, Task T-047 polished Settings to fill available width and height, but height/width stretching made panels hollow and sparse. Pending task T-048 (Settings: content-sized panels, balanced columns, left-aligned header) was planned and written by Brain but NOT executed yet.
 
-Following human review of Compare (tall panels and empty bands rejected), Task T-049 redesigned the Compare tab from an AI mockup showing only the empty state. Human visually REJECTED the T-049 Compare layout (2026-11-14). Known T-049 bugs seen in human screenshots: after a benchmark completes, the empty-state card and grey skeleton panels stay visible above results, pushing results down so the page scrolls; the controls bar is cramped (progress line inside it); diff table showed 8 rows not 10; summary metrics and performance bars sit side by side instead of the mockup's layout. A new Compare design is being created with another AI mockup. Do NOT merge T-049 to main until the human approves a new design.
+Following human visual rejection of T-049 Compare layout (2026-11-14; empty card / skeleton stayed visible over results, 8 rows not 10, side-by-side metrics/bars), Task T-050 rebuilt the Compare tab from a new human-approved AI mockup (layout and feel only, using our tokens and DOM IDs). Implemented as a 3-column Studio panel grid (`.compare-grid`): Column 1 holds benchmark controls, progress indicator, and Summary Metrics; Column 2 and Column 3 show either a clean mutually-exclusive centered empty state (`#compare-empty-state` with secondary action button) or results (`#compare-results-card`, `display: contents`) consisting of Column 2 stacked metric bar charts (latency, distances, recall across Brute Force, KD-Tree, HNSW) and Column 3 scrollable Top-k Diff table showing all 10 rows with match badges. Registered browser tests expanded to 98.
 
 - **Key Collaboration & Process Lessons**:
   - **Dual Mockup Rule**: The mockup given to the builder in T-049 showed only the empty state; always get BOTH empty-state and results mockups before implementing so the builder does not invent results layouts.
-  - **Builder Claims vs Human Screenshots**: Builder reports claimed "zero deviations" three times (T-046, T-047, T-049) while screenshots showed real deviations. Judge UI strictly by human screenshots at 100% browser zoom; builder claims of visual accuracy are never proof.
+  - **Builder Claims vs Human Screenshots**: Builder reports claimed "zero deviations" three times (T-046, T-047, T-049) while screenshots showed real deviations. Judge UI strictly by human screenshots at 100% browser zoom; builder claims of visual accuracy are never proof. Mark all visual aspects "not tested (visual)".
+  - **ADR Numbering Gap**: Note that ADR-042 was reserved for T-048 (Settings content-sized panels) which was written but not executed, so ADR-042 is missing from `DECISIONS.md`. Any future Settings task must use ADR-045 or higher.
   - **Collaboration Preferences**: Human uses ChatGPT/Gemini for mockups and passes the chosen image. Brain gives outcome briefs; builder decides implementation. Human writes Hinglish (Hindi in Roman letters); Brain replies in short Hinglish with one question at a time.
-  - **No Merge Until Approval**: Do not merge `ui-quiet-studio` to `main` until the human approves both the Settings fix (T-048) and the new Compare design.
+  - **No Merge Until Approval**: Do not merge `ui-quiet-studio` to `main` until the human approves both the Settings fix (T-048) and the new Compare design (T-050).
 
 - **Branches**:
   - `ui-redesign`: Base v2 platform through T-039.
   - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
-  - `ui-quiet-studio`: Active branch containing T-041 (Quiet Studio rebuild), T-042 (batched fixes), T-043 (Settings redesign + polish), T-044/T-045 (docs fixes), T-046 (Settings 3-column panel grid rebuild), T-047 (Settings full width/height), and T-049 (Compare tab redesign, visually rejected, new mockup pending).
+  - `ui-quiet-studio`: Active branch containing T-041 (Quiet Studio rebuild), T-042 (batched fixes), T-043 (Settings redesign + polish), T-044/T-045 (docs fixes), T-046 (Settings 3-column panel grid rebuild), T-047 (Settings full width/height), T-049 (superseded), and T-050 (Compare tab rebuild from human-approved mockup).
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
   - *Nothing pushed to remote origin.*
 - **Human Verification on 2026-11-14**:
-  - **Terminal**: C++ 118/118 (529,813 assertions, 117 run + 1 opt-in live-Ollama test skipped), scanner pass, CSS `!important` count 3 human-confirmed after T-046. NOT yet human-confirmed after T-047/T-049: `/tests.html` count (last confirmed 94/94 after T-043), C++ tests, scanner.
+  - **Terminal**: C++ 118/118 (529,813 assertions, 117 run + 1 opt-in live-Ollama test skipped), scanner pass, CSS `!important` count 3 human-confirmed after T-046. NOT yet human-confirmed after T-047/T-049/T-050: `/tests.html` count (last confirmed 94/94 after T-043; 98 registered in T-050), C++ tests, scanner.
   - **Screenshots**: `/tests.html` 94/94 passed (2026-11-14, after T-043); Explore toolbar single row and canvas panel OK; Compare after benchmark shows 3 charts with all 3 algorithms and 5 summary columns (ISS-024 fixed); Settings font larger and persistence status in sans.
-- **T-043 Commits on `ui-quiet-studio`**:
-  - `c84a913` ui-quiet-studio: T-043 Commit 1 Settings redesign with live status rail and unboxed stacked settings
-  - `34e403a` ui-quiet-studio: T-043 Commit 2 Compare empty state fix, Ask glass-box latency grid, slide-over document drawer, and docs sync
+- **T-050 Commits on `ui-quiet-studio`**:
+  - `c89aa04` ui-quiet-studio: T-050 Compare rebuild layout and empty/results states
+  - `17986e9` ui-quiet-studio: T-050 Compare diff table, charts and tests
 - **Automated Tests**:
   - C++ unit and integration tests: 118 / 118 passed (529,813 assertions).
-  - Browser unit tests: 94 registered tests (`http://127.0.0.1:8080/tests.html`), including citation punctuation parsing tests.
+  - Browser unit tests: 98 registered tests (`http://127.0.0.1:8080/tests.html`), including 4 new pure-logic tests for Compare diff rows and chart metrics extraction.
   - Web security scan: 28 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
 - **Design System ("Quiet Studio") Principles Enforced**:
   - **Zero Lines**: Allowed lines are strictly the right boundary of the sidebar (`border-right: 1px solid var(--border-line)`) and accessibility focus ring (`outline: 2px solid var(--accent); outline-offset: 2px;`). All card borders, panel outlines, button borders, and table row underlines eliminated.
@@ -138,7 +139,8 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 2. **(b) Add Inter font files (optional)**: Add Inter `.woff2` files to `web/fonts/` (pending human action; currently IBM Plex Sans enforced).
 3. **(c) Take screenshots for unverified / reported areas (Quiet Studio)**:
    - Settings tab: T-047 state seen (hollow panels, fix pending via T-048); not tested (visual).
-   - Compare tab: new design (after human passes new mockup; T-049 layout rejected); not tested (visual).
+   - Compare tab: T-050 rebuild implemented (3-column Studio panel grid, mutually exclusive empty/results state, 10 unclipped diff rows, 3 stacked bar charts); not tested (visual).
+   - Browser unit tests: `/tests.html` at 100% zoom (verify 98/98 tests pass in real browser).
    - Ask tab: glass-box latency breakdown formatted as tidy label+value tiles in sans font; chat column remaining centered with zero horizontal shift when Documents inventory drawer is opened or closed.
    - HNSW tab at 1366x768 and 1920x1080 with topology summary.
    - Sidebar collapsed (56px icon rail).
@@ -146,7 +148,7 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
    - Persistence restart screenshot with `--data-dir ./data`.
    - `Ctrl+K` Command Palette navigation.
    - Interactive guided tour.
-4. **(d) Decide merge of `ui-quiet-studio` into `main`**: Do NOT merge `ui-quiet-studio` to `main` until the human approves both the Settings fix (T-048) and the new Compare design.
+4. **(d) Decide merge of `ui-quiet-studio` into `main`**: Do NOT merge `ui-quiet-studio` to `main` until the human approves both the Settings fix (T-048) and the new Compare design (T-050).
 5. **(e) Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
 
 ---
@@ -155,8 +157,7 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ### Open Follow-ups
 - Pending task T-048 execution (Settings: content-sized panels, balanced columns, left-aligned header).
-- New Compare design mockup (both empty state and results state) from human, followed by Compare rebuild task.
-- Human screenshot verification of Settings (after T-048) and Compare (after new design) at 100% browser zoom.
+- Human screenshot verification of Settings (after T-048) and Compare (T-050) at 100% browser zoom.
 - Optional C++ unit test for ISS-006 ingest rollback.
 - Human addition of Inter font files to `web/fonts/` (ISS-041).
 
@@ -170,11 +171,10 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ## 7. Recommended Next Step
 
-1. Human provides new Compare AI mockup (showing BOTH empty-state and results-state layout) or instructs to run pending task T-048 (Settings content-sized panels).
-2. Execute T-048 and/or rebuild Compare layout based on the dual mockup.
-3. Human reviews in real browser at 100% zoom and verifies via screenshots.
-4. Once Settings and Compare are approved, decide merge of `ui-quiet-studio` into `main`.
-5. Address pending non-code items: LICENSE name placeholder, Linux/macOS tier & release timing.
+1. Human reviews Compare T-050 in real browser at 100% zoom and verifies via screenshots (empty state and results state).
+2. Human decides on pending task T-048 (Settings content-sized panels) or other polish before merging `ui-quiet-studio` to `main`.
+3. Once Settings and Compare are approved, decide merge of `ui-quiet-studio` into `main`.
+4. Address pending non-code items: LICENSE name placeholder, Linux/macOS tier & release timing.
 
 ---
 
