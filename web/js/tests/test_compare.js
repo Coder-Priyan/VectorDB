@@ -557,6 +557,22 @@ export function registerCompareTests() {
       assert(drawnElements.some(e => e.includes("Brute Force")), "Brute Force label rendered");
       assert(drawnElements.some(e => e.includes("Latency (μs)")), "Axis title rendered");
     });
+
+    it("extractChartMetrics and mapChartRows handle latencies = null gracefully and fall back to latency_us", () => {
+      const metrics = extractChartMetrics(realBenchmarkFixture, null);
+      assertEqual(metrics.latency.brute, 120);
+      assertEqual(metrics.latency.kdtree, 85);
+      assertEqual(metrics.latency.hnsw, 32);
+
+      const rows = mapChartRows("latency", realBenchmarkFixture, null);
+      assertEqual(rows.length, 3);
+      assertEqual(rows[0].value, 120);
+      assertEqual(rows[0].formattedValue, "120 μs");
+      assertEqual(rows[1].value, 85);
+      assertEqual(rows[1].formattedValue, "85 μs");
+      assertEqual(rows[2].value, 32);
+      assertEqual(rows[2].formattedValue, "32 μs");
+    });
   });
 }
 

@@ -412,6 +412,7 @@ export function buildDiffRows(report, maxRows = 10) {
  * }}
  */
 export function extractChartMetrics(report, latencies = {}) {
+  const safeLatencies = (latencies && typeof latencies === "object") ? latencies : {};
   const algs = report?.algorithms || {};
   const algorithms = ["brute", "kdtree", "hnsw"];
 
@@ -423,7 +424,7 @@ export function extractChartMetrics(report, latencies = {}) {
 
   for (const alg of algorithms) {
     const aData = algs[alg] || {};
-    const latList = latencies[alg];
+    const latList = safeLatencies[alg];
     if (Array.isArray(latList) && latList.length > 0) {
       res.latency[alg] = computeTimingStats(latList).median;
     } else {
@@ -698,7 +699,7 @@ export function drawMetricBarChart(canvas, metricKey, metricValues, isDark = tru
     if (valX + textW > w - padRight) {
       if (barW > textW + 12) {
         valX = barStartX + barW - textW - 6;
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = THEME.white;
       } else {
         valX = Math.max(barStartX + 4, w - padRight - textW);
         ctx.fillStyle = THEME.textPrimary;
