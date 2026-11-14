@@ -13,6 +13,7 @@ import {
   buildDiffRows,
   extractChartMetrics,
   drawMetricBarChart,
+  getCompareEmptyStateConfig,
   ALGORITHM_LABELS,
   ALGORITHM_COLORS
 } from "./compare_helpers.js";
@@ -81,17 +82,35 @@ export function initCompareTab() {
     }
   }
 
-  collSelect.addEventListener("change", () => {
-    updateCollectionVisibility();
+  function resetCompareView() {
     lastReportData = null;
+    summaryTbody?.replaceChildren(
+      el("tr", {},
+        el("td", { colSpan: 5, className: "text-muted empty-state" }, "Run a benchmark to compare algorithms.")
+      )
+    );
+    if (statusNotice) statusNotice.textContent = "Ready to benchmark.";
+    if (progressBar) progressBar.style.setProperty("width", "0%");
+    [canvasLatency, canvasDistances, canvasRecall, canvasBars].forEach(c => {
+      if (c) {
+        const ctx = c.getContext("2d");
+        if (ctx) ctx.clearRect(0, 0, c.width, c.height);
+      }
+    });
+    topkResultsTable?.replaceChildren();
+  }
+
+  collSelect.addEventListener("change", () => {
+    resetCompareView();
+    updateCollectionVisibility();
     checkCollectionStats();
   });
 
-  function showDefaultEmptyState() {
+  function showDefaultEmptyState(title, desc) {
     if (!emptyStateBox) return;
     const isDocs = collSelect?.value === "docs";
-    if (emptyTitle) emptyTitle.textContent = "No benchmark yet";
-    if (emptyDesc) emptyDesc.textContent = "Run a benchmark to see latency, distance computations, recall and the top-k diff.";
+    if (emptyTitle) emptyTitle.textContent = title || "No benchmark yet";
+    if (emptyDesc) emptyDesc.textContent = desc || "Run a benchmark to see latency, distance computations, recall and the top-k diff.";
     if (initialRunBtn) {
       initialRunBtn.textContent = isDocs ? "Benchmark Document Chunks" : "Benchmark Demo Vectors";
       initialRunBtn.classList.remove("hidden");
@@ -104,25 +123,29 @@ export function initCompareTab() {
 
   async function checkCollectionStats() {
     clearGlobalError();
-    const isDocs = collSelect.value === "docs";
+    const coll = collSelect?.value || "demo";
+    const isDocs = coll === "docs";
     try {
+      let count = 0;
       if (isDocs) {
         const docsRes = await api.getDocs();
-        const totalDocs = docsRes.documents?.length || 0;
-        if (totalDocs === 0) {
-          showEmptyNotice("No documents ingested yet. Add documents in the Ask tab, or switch to the Demo collection.");
-          return false;
-        }
+        count = docsRes.documents?.length || 0;
       } else {
         const stats = await api.getStats();
         currentDim = stats.dimension || 128;
-        if (!stats.count || stats.count === 0) {
-          showEmptyNotice("Demo collection is empty. Insert vectors in Settings, or run benchmarks on Document Chunks.");
-          return false;
-        }
+        count = stats.count || 0;
       }
+
+      const emptyCfg = getCompareEmptyStateConfig(coll, count, Boolean(lastReportData));
+
+      if (count === 0) {
+        resetCompareView();
+        showEmptyNotice(emptyCfg.title, emptyCfg.description);
+        return false;
+      }
+
       if (!lastReportData) {
-        showDefaultEmptyState();
+        showDefaultEmptyState(emptyCfg.title, emptyCfg.description);
       } else {
         showResultsView();
       }
@@ -133,8 +156,8 @@ export function initCompareTab() {
     }
   }
 
-  function showEmptyNotice(msg) {
-    if (emptyTitle) emptyTitle.textContent = "Notice";
+  function showEmptyNotice(title, msg) {
+    if (emptyTitle) emptyTitle.textContent = title || "Collection is empty";
     if (emptyDesc) emptyDesc.textContent = msg;
     if (initialRunBtn) initialRunBtn.classList.add("hidden");
     demoRandomBtn?.setAttribute("disabled", "true");
@@ -358,16 +381,38 @@ export function initCompareTab() {
     });
   }
 
-  const targetObserver = chartsCol || canvas?.parentElement;
+  const targetObserver = chartsCol || canvasLatency?.parentElement;
   if (targetObserver && typeof ResizeObserver !== "undefined") {
     const ro = new ResizeObserver(scheduleResize);
     ro.observe(targetObserver);
   }
 
-  byId("tab-btn-compare")?.addEventListener("click", () => {
+  function onTabActivated() {
     checkCollectionStats();
     if (lastReportData) {
       requestAnimationFrame(() => renderChart());
+    }
+  }
+
+  byId("tab-btn-compare")?.addEventListener("click", onTabActivated);
+
+  const panelCompare = byId("panel-compare");
+  if (panelCompare && typeof MutationObserver !== "undefined") {
+    const observer = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        if (m.type === "attributes" && m.attributeName === "class") {
+          if (!panelCompare.classList.contains("hidden")) {
+            onTabActivated();
+          }
+        }
+      }
+    });
+    observer.observe(panelCompare, { attributes: true, attributeFilter: ["class"] });
+  }
+
+  window.addEventListener("focus", () => {
+    if (panelCompare && !panelCompare.classList.contains("hidden")) {
+      onTabActivated();
     }
   });
 

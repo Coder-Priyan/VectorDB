@@ -11,7 +11,8 @@ import {
   computeChartLayout,
   buildDiffRows,
   extractChartMetrics,
-  drawMetricBarChart
+  drawMetricBarChart,
+  getCompareEmptyStateConfig
 } from "../compare_helpers.js";
 
 export function registerCompareTests() {
@@ -395,6 +396,56 @@ export function registerCompareTests() {
       drawMetricBarChart(mockCanvas, "latency", { brute: 100, kdtree: 50, hnsw: 20 });
       assertEqual(cleared, true);
       assertEqual(filledDarkBg, false);
+    });
+  });
+
+  describe("Compare Empty State Presentation Config (T-053, ADR-036)", (it) => {
+    it("Empty demo collection prompts inserting vectors or using docs chunks", () => {
+      const cfg = getCompareEmptyStateConfig("demo", 0, false);
+      assertEqual(cfg.showEmpty, true);
+      assertEqual(cfg.title, "Collection is empty");
+      assert(cfg.description.includes("Insert vectors in Settings"), "Description must guide to Settings");
+      assertEqual(cfg.canRun, false);
+      assertEqual(cfg.buttonText, "Benchmark Demo Vectors");
+    });
+
+    it("Empty docs collection prompts ingesting documents in Ask tab", () => {
+      const cfg = getCompareEmptyStateConfig("docs", 0, false);
+      assertEqual(cfg.showEmpty, true);
+      assertEqual(cfg.title, "No documents yet");
+      assert(cfg.description.includes("Add documents in the Ask tab"), "Description must guide to Ask tab");
+      assertEqual(cfg.canRun, false);
+      assertEqual(cfg.buttonText, "Benchmark Document Chunks");
+    });
+
+    it("Populated unbenchmarked demo collection presents ready state", () => {
+      const cfg = getCompareEmptyStateConfig("demo", 100, false);
+      assertEqual(cfg.showEmpty, true);
+      assertEqual(cfg.title, "No benchmark yet");
+      assert(cfg.description.includes("Run a benchmark to see latency"), "Description explains benchmark metrics");
+      assertEqual(cfg.canRun, true);
+      assertEqual(cfg.buttonText, "Benchmark Demo Vectors");
+    });
+
+    it("Populated unbenchmarked docs collection presents ready state", () => {
+      const cfg = getCompareEmptyStateConfig("docs", 42, false);
+      assertEqual(cfg.showEmpty, true);
+      assertEqual(cfg.title, "No benchmark yet");
+      assertEqual(cfg.canRun, true);
+      assertEqual(cfg.buttonText, "Benchmark Document Chunks");
+    });
+
+    it("Populated collection with existing results hides empty view", () => {
+      const cfg = getCompareEmptyStateConfig("demo", 100, true);
+      assertEqual(cfg.showEmpty, false);
+      assertEqual(cfg.canRun, true);
+    });
+
+    it("Empty collection with hasResults=true still enforces empty state to prevent stale data display", () => {
+      const cfg = getCompareEmptyStateConfig("demo", 0, true);
+      assertEqual(cfg.showEmpty, true);
+      assertEqual(cfg.title, "Collection is empty");
+      assertEqual(cfg.canRun, false);
     });
   });
 }

@@ -541,3 +541,54 @@ export function drawMetricBarChart(canvas, metricKey, metricValues, isDark = tru
   });
 }
 
+/**
+ * Resolves the empty-state presentation configuration (title, description, canRun)
+ * for the Compare tab based on collection type, item count, and benchmark result status.
+ *
+ * @param {string} collection - "demo" | "docs"
+ * @param {number} count - Count of vectors (demo) or documents (docs)
+ * @param {boolean} [hasResults=false] - Whether benchmark results are currently present
+ * @returns {{
+ *   showEmpty: boolean,
+ *   title: string,
+ *   description: string,
+ *   canRun: boolean,
+ *   buttonText: string
+ * }}
+ */
+export function getCompareEmptyStateConfig(collection, count, hasResults = false) {
+  const isDocs = collection === "docs";
+  const numItems = typeof count === "number" && !isNaN(count) ? Math.max(0, count) : 0;
+  const buttonText = isDocs ? "Benchmark Document Chunks" : "Benchmark Demo Vectors";
+
+  if (hasResults && numItems > 0) {
+    return {
+      showEmpty: false,
+      title: "",
+      description: "",
+      canRun: true,
+      buttonText
+    };
+  }
+
+  if (numItems === 0) {
+    return {
+      showEmpty: true,
+      title: isDocs ? "No documents yet" : "Collection is empty",
+      description: isDocs
+        ? "No documents ingested yet. Add documents in the Ask tab, or switch to the Demo collection."
+        : "Demo collection is empty. Insert vectors in Settings, or run benchmarks on Document Chunks.",
+      canRun: false,
+      buttonText
+    };
+  }
+
+  return {
+    showEmpty: true,
+    title: "No benchmark yet",
+    description: "Run a benchmark to see latency, distance computations, recall and the top-k diff.",
+    canRun: true,
+    buttonText
+  };
+}
+
