@@ -11,8 +11,8 @@ export function registerColorsTests() {
       assert(typeof THEME.bgSurface === "string" && THEME.bgSurface.startsWith("#"), "bgSurface must be hex color");
       assert(typeof THEME.bgElevated === "string" && THEME.bgElevated.startsWith("#"), "bgElevated must be hex color");
       assertEqual(THEME.accent, "#d9a441");
-      assertEqual(THEME.textPrimary, "#f0ede6");
-      assertEqual(THEME.textMuted, "#827e77");
+      assertEqual(THEME.textPrimary, "#f4f4f5");
+      assertEqual(THEME.textMuted, "#71717a");
       assertEqual(THEME.borderSubtle, "#1c1c22");
     });
 
