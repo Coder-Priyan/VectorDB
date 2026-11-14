@@ -523,19 +523,37 @@
           <!-- Column 2 (Middle Panel): 3 Stacked Metric Bar Chart Panels -->
           <div id="compare-charts-col" class="compare-col compare-col-middle">
             <div class="compare-panel compare-chart-panel">
-              <h3 class="section-title">Latency (μs) — lower is better</h3>
+              <div class="compare-chart-header">
+                <span class="compare-chart-icon" data-icon="clock" aria-hidden="true"></span>
+                <div class="compare-chart-heading">
+                  <h3 class="compare-chart-title">Latency (μs)</h3>
+                  <div class="compare-chart-subtitle">Lower is better</div>
+                </div>
+              </div>
               <div class="canvas-wrapper">
                 <canvas id="compare-chart-latency" width="350" height="90"></canvas>
               </div>
             </div>
             <div class="compare-panel compare-chart-panel">
-              <h3 class="section-title">Distance Computations — lower is better</h3>
+              <div class="compare-chart-header">
+                <span class="compare-chart-icon" data-icon="layers" aria-hidden="true"></span>
+                <div class="compare-chart-heading">
+                  <h3 class="compare-chart-title">Distance Computations</h3>
+                  <div class="compare-chart-subtitle">Lower is better</div>
+                </div>
+              </div>
               <div class="canvas-wrapper">
                 <canvas id="compare-chart-distances" width="350" height="90"></canvas>
               </div>
             </div>
             <div class="compare-panel compare-chart-panel">
-              <h3 class="section-title">Recall@k — higher is better</h3>
+              <div class="compare-chart-header">
+                <span class="compare-chart-icon" data-icon="target" aria-hidden="true"></span>
+                <div class="compare-chart-heading">
+                  <h3 class="compare-chart-title">Recall@k</h3>
+                  <div class="compare-chart-subtitle">Higher is better</div>
+                </div>
+              </div>
               <div class="canvas-wrapper">
                 <canvas id="compare-chart-recall" width="350" height="90"></canvas>
               </div>

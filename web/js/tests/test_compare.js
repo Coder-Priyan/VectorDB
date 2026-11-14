@@ -12,7 +12,10 @@ import {
   buildDiffRows,
   extractChartMetrics,
   drawMetricBarChart,
-  getCompareEmptyStateConfig
+  getCompareEmptyStateConfig,
+  niceAxis,
+  getMetricAxisConfig,
+  mapChartRows
 } from "../compare_helpers.js";
 
 export function registerCompareTests() {
@@ -446,6 +449,113 @@ export function registerCompareTests() {
       assertEqual(cfg.showEmpty, true);
       assertEqual(cfg.title, "Collection is empty");
       assertEqual(cfg.canRun, false);
+    });
+  });
+
+  describe("Compare New Chart Axis & Row Mapping (T-054, ADR-045)", (it) => {
+    it("niceAxis scales max 43 to 0..50 with step 10", () => {
+      const axis = niceAxis(43);
+      assertEqual(axis.max, 50);
+      assertEqual(axis.step, 10);
+      assertEqual(axis.ticks.length, 6);
+      assertEqual(axis.ticks[0], 0);
+      assertEqual(axis.ticks[axis.ticks.length - 1], 50);
+    });
+
+    it("niceAxis scales max 112 to 0..120 with step 20", () => {
+      const axis = niceAxis(112);
+      assertEqual(axis.max, 120);
+      assertEqual(axis.step, 20);
+      assertEqual(axis.ticks.length, 7);
+      assertEqual(axis.ticks[0], 0);
+      assertEqual(axis.ticks[axis.ticks.length - 1], 120);
+    });
+
+    it("niceAxis handles 0 or tiny non-positive values without divide by zero", () => {
+      const zeroAxis = niceAxis(0);
+      assertEqual(zeroAxis.max, 10);
+      assertEqual(zeroAxis.step, 2);
+      assertEqual(zeroAxis.ticks[0], 0);
+
+      const tinyAxis = niceAxis(0.001);
+      assert(tinyAxis.max > 0, "Max must be positive");
+      assert(tinyAxis.step > 0, "Step must be positive");
+      assertEqual(tinyAxis.ticks[0], 0);
+    });
+
+    it("getMetricAxisConfig configures fixed 0..1 scale for Recall@k", () => {
+      const axis = getMetricAxisConfig("recall", 1.0);
+      assertEqual(axis.max, 1.0);
+      assertEqual(axis.step, 0.2);
+      assertEqual(axis.ticks.length, 6);
+      assertEqual(axis.formatTick(0), "0%");
+      assertEqual(axis.formatTick(0.6), "60%");
+      assertEqual(axis.formatTick(1.0), "100%");
+    });
+
+    it("niceAxis handles three identical non-zero values gracefully", () => {
+      const axis = niceAxis(60);
+      assertEqual(axis.max, 60);
+      assertEqual(axis.step, 10);
+      assertEqual(axis.ticks[0], 0);
+      assertEqual(axis.ticks[axis.ticks.length - 1], 60);
+    });
+
+    it("mapChartRows maps latency from real server response fixture with labels and formatted units", () => {
+      const rows = mapChartRows("latency", realBenchmarkFixture);
+      assertEqual(rows.length, 3);
+      assertEqual(rows[0].algorithm, "brute");
+      assertEqual(rows[0].label, "Brute Force");
+      assertEqual(rows[0].value, 120);
+      assertEqual(rows[0].formattedValue, "120 μs");
+
+      assertEqual(rows[1].algorithm, "kdtree");
+      assertEqual(rows[1].label, "KD-Tree");
+      assertEqual(rows[1].value, 85);
+      assertEqual(rows[1].formattedValue, "85 μs");
+
+      assertEqual(rows[2].algorithm, "hnsw");
+      assertEqual(rows[2].label, "HNSW");
+      assertEqual(rows[2].value, 32);
+      assertEqual(rows[2].formattedValue, "32 μs");
+    });
+
+    it("mapChartRows maps distance computations and recall from real fixture", () => {
+      const distRows = mapChartRows("dist", realBenchmarkFixture);
+      assertEqual(distRows[0].value, 1000);
+      assertEqual(distRows[0].formattedValue, "1000");
+      assertEqual(distRows[1].value, 240);
+      assertEqual(distRows[2].value, 64);
+
+      const recallRows = mapChartRows("recall", realBenchmarkFixture);
+      assertEqual(recallRows[0].value, 1.0);
+      assertEqual(recallRows[0].formattedValue, "100.0%");
+      assertNear(recallRows[2].value, 0.9, 0.001);
+      assertEqual(recallRows[2].formattedValue, "90.0%");
+    });
+
+    it("drawMetricBarChart renders axis and labels on full canvas context without errors", () => {
+      const drawnElements = [];
+      const mockCanvas = {
+        clientWidth: 350,
+        clientHeight: 120,
+        width: 350,
+        height: 120,
+        getContext: () => ({
+          clearRect: () => drawnElements.push("clear"),
+          fillText: (text) => drawnElements.push(`text:${text}`),
+          beginPath: () => {},
+          moveTo: () => {},
+          lineTo: () => {},
+          stroke: () => drawnElements.push("stroke"),
+          fill: () => drawnElements.push("fill"),
+          measureText: (txt) => ({ width: (txt || "").length * 7 })
+        })
+      };
+      drawMetricBarChart(mockCanvas, "latency", { brute: 50, kdtree: 30, hnsw: 10 });
+      assert(drawnElements.includes("clear"), "Canvas must be cleared");
+      assert(drawnElements.some(e => e.includes("Brute Force")), "Brute Force label rendered");
+      assert(drawnElements.some(e => e.includes("Latency (μs)")), "Axis title rendered");
     });
   });
 }

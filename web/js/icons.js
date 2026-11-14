@@ -70,6 +70,25 @@ const ICON_SPECS = {
     { tag: "circle", attrs: { cx: "8", cy: "8", r: "6" } },
     { tag: "line", attrs: { x1: "8", y1: "7", x2: "8", y2: "11" } },
     { tag: "line", attrs: { x1: "8", y1: "4.5", x2: "8", y2: "5" } }
+  ],
+  clock: [
+    { tag: "circle", attrs: { cx: "8", cy: "8", r: "6" } },
+    { tag: "polyline", attrs: { points: "8 4.5 8 8 11 8" } }
+  ],
+  layers: [
+    { tag: "polygon", attrs: { points: "8 2.5 13.5 5.5 8 8.5 2.5 5.5" } },
+    { tag: "polyline", attrs: { points: "2.5 8.5 8 11.5 13.5 8.5" } },
+    { tag: "polyline", attrs: { points: "2.5 11.5 8 14.5 13.5 11.5" } }
+  ],
+  stack: [
+    { tag: "polygon", attrs: { points: "8 2.5 13.5 5.5 8 8.5 2.5 5.5" } },
+    { tag: "polyline", attrs: { points: "2.5 8.5 8 11.5 13.5 8.5" } },
+    { tag: "polyline", attrs: { points: "2.5 11.5 8 14.5 13.5 11.5" } }
+  ],
+  target: [
+    { tag: "circle", attrs: { cx: "8", cy: "8", r: "6" } },
+    { tag: "circle", attrs: { cx: "8", cy: "8", r: "3.5" } },
+    { tag: "circle", attrs: { cx: "8", cy: "8", r: "1" } }
   ]
 };
 

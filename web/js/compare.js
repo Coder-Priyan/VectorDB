@@ -57,6 +57,15 @@ export function initCompareTab() {
   const controlsTitle = byId("compare-controls-title");
   const chartsCol = byId("compare-charts-col");
 
+  // Populate line icons in chart headers
+  const chartIconSlots = document.querySelectorAll(".compare-chart-icon[data-icon]");
+  chartIconSlots.forEach(slot => {
+    const iconName = slot.getAttribute("data-icon");
+    if (iconName && !slot.hasChildNodes()) {
+      slot.appendChild(createIcon(iconName, 16));
+    }
+  });
+
   let currentDim = 128;
   let lastReportData = null;
 

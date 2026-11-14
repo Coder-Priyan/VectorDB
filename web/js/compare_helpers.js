@@ -442,24 +442,158 @@ export function extractChartMetrics(report, latencies = {}) {
 export const METRIC_CONFIGS = {
   latency: {
     key: "latency",
-    title: "Latency (μs) — lower is better",
+    title: "Latency (μs)",
+    subtitle: "Lower is better",
+    axisTitle: "Latency (μs)",
     format: v => `${Math.round(v)} μs`
   },
   dist: {
     key: "dist",
-    title: "Distance Computations — lower is better",
-    format: v => `${v}`
+    title: "Distance Computations",
+    subtitle: "Lower is better",
+    axisTitle: "Distance Computations",
+    format: v => `${Math.round(v)}`
   },
   recall: {
     key: "recall",
-    title: "Recall@k — higher is better",
+    title: "Recall@k",
+    subtitle: "Higher is better",
+    axisTitle: "Recall@k",
     format: v => `${(v * 100).toFixed(1)}%`
   }
 };
 
 /**
- * Draws a single horizontal bar chart with 3 rows (Brute Force, KD-Tree, HNSW)
- * and the metric value at the end of each bar. Sized strictly in CSS pixels.
+ * Calculates a "nice" upper bound, step size, and tick sequence for a numeric axis.
+ * Produces ~5-6 ticks.
+ *
+ * @param {number} maxValue - The maximum data value to accommodate
+ * @param {number} [targetTicks=5] - Desired approximate number of intervals
+ * @returns {{ max: number, step: number, ticks: number[] }}
+ */
+export function niceAxis(maxValue, targetTicks = 5) {
+  if (typeof maxValue !== "number" || isNaN(maxValue) || maxValue <= 0) {
+    return {
+      max: 10,
+      step: 2,
+      ticks: [0, 2, 4, 6, 8, 10]
+    };
+  }
+
+  const roughStep = maxValue / Math.max(1, targetTicks);
+  const exponent = Math.floor(Math.log10(roughStep));
+  const magnitude = Math.pow(10, exponent);
+  const normalized = roughStep / magnitude;
+
+  let stepMultiplier;
+  if (normalized < 1.5) {
+    stepMultiplier = 1;
+  } else if (normalized < 3.5) {
+    stepMultiplier = 2;
+  } else if (normalized < 7.5) {
+    stepMultiplier = 5;
+  } else {
+    stepMultiplier = 10;
+  }
+
+  const step = stepMultiplier * magnitude;
+  const max = Math.ceil(maxValue / step) * step;
+
+  const ticks = [];
+  const decimals = Math.max(0, -exponent + (stepMultiplier < 1 ? 1 : 0));
+  for (let val = 0; val <= max + step * 0.001; val += step) {
+    const rounded = Number(val.toFixed(decimals < 10 ? Math.min(6, Math.max(0, decimals)) : 2));
+    if (rounded <= max) {
+      ticks.push(rounded);
+    }
+  }
+
+  if (ticks.length === 0 || ticks[0] !== 0) ticks.unshift(0);
+  if (ticks[ticks.length - 1] < max) ticks.push(Number(max.toFixed(4)));
+
+  return {
+    max: Number(max.toFixed(4)),
+    step: Number(step.toFixed(4)),
+    ticks
+  };
+}
+
+/**
+ * Returns axis configuration (max, step, ticks, formatTick) tailored for each metric type.
+ *
+ * @param {string} metricKey - "latency" | "dist" | "recall"
+ * @param {number} maxValue - Max value in the dataset
+ * @returns {{ max: number, step: number, ticks: number[], formatTick: (v: number) => string }}
+ */
+export function getMetricAxisConfig(metricKey, maxValue) {
+  if (metricKey === "recall") {
+    return {
+      max: 1.0,
+      step: 0.2,
+      ticks: [0, 0.2, 0.4, 0.6, 0.8, 1.0],
+      formatTick: (val) => `${Math.round(val * 100)}%`
+    };
+  }
+  const axis = niceAxis(maxValue);
+  return {
+    ...axis,
+    formatTick: (val) => String(val)
+  };
+}
+
+/**
+ * Maps raw benchmark report algorithms into chart rows with labels, colors, and formatted values.
+ *
+ * @param {string} metricKey - "latency" | "dist" | "recall"
+ * @param {Object} report - Raw server response with report.algorithms
+ * @param {Object} [latencies=null] - Optional repetition sample lists { brute: [], kdtree: [], hnsw: [] }
+ * @returns {Array<{ algorithm: string, label: string, value: number, formattedValue: string, color: string }>}
+ */
+export function mapChartRows(metricKey, report, latencies = null) {
+  const metrics = extractChartMetrics(report, latencies);
+  const values = metrics[metricKey] || {};
+  const cfg = METRIC_CONFIGS[metricKey] || METRIC_CONFIGS.latency;
+  const algorithms = ["brute", "kdtree", "hnsw"];
+
+  return algorithms.map(alg => {
+    const rawVal = typeof values[alg] === "number" ? values[alg] : 0;
+    return {
+      algorithm: alg,
+      label: ALGORITHM_LABELS[alg] || alg,
+      value: rawVal,
+      formattedValue: cfg.format(rawVal),
+      color: ALGORITHM_COLORS[alg] || DOC_FALLBACK_COLOR
+    };
+  });
+}
+
+/**
+ * Helper to draw a horizontal bar with slightly rounded right corners.
+ */
+function drawBarWithRoundedRightEnd(ctx, x, y, width, height, radius = 3) {
+  if (width <= 0 || height <= 0) return;
+  const r = Math.min(radius, width / 2, height / 2);
+  if (typeof ctx.roundRect === "function") {
+    ctx.beginPath?.();
+    ctx.roundRect(x, y, width, height, [0, r, r, 0]);
+    ctx.fill?.();
+    return;
+  }
+  ctx.beginPath?.();
+  ctx.moveTo?.(x, y);
+  ctx.lineTo?.(x + width - r, y);
+  ctx.quadraticCurveTo?.(x + width, y, x + width, y + r);
+  ctx.lineTo?.(x + width, y + height - r);
+  ctx.quadraticCurveTo?.(x + width, y + height, x + width - r, y + height);
+  ctx.lineTo?.(x, y + height);
+  ctx.closePath?.();
+  ctx.fill?.();
+}
+
+/**
+ * Draws a single horizontal bar chart with 3 rows (Brute Force, KD-Tree, HNSW),
+ * value labels at the end of each bar, and an X-axis below with ticks and centered title.
+ * Sized strictly in CSS pixels and DPR-safe.
  *
  * @param {HTMLCanvasElement} canvas
  * @param {string} metricKey - "latency" | "dist" | "recall"
@@ -483,62 +617,138 @@ export function drawMetricBarChart(canvas, metricKey, metricValues, isDark = tru
 
   if (w <= 0 || h <= 0) return;
 
-  ctx.clearRect(0, 0, w, h);
+  ctx.clearRect?.(0, 0, w, h);
 
   const algorithms = ["brute", "kdtree", "hnsw"];
   const cfg = METRIC_CONFIGS[metricKey] || METRIC_CONFIGS.latency;
 
-  const maxVal = metricKey === "recall"
-    ? 1.0
-    : Math.max(...algorithms.map(a => metricValues?.[a] || 0), 1);
+  const maxDataVal = Math.max(...algorithms.map(a => metricValues?.[a] || 0), 0);
+  const axisCfg = getMetricAxisConfig(metricKey, maxDataVal);
+  const axisMax = axisCfg.max;
 
   const padLeft = 8;
   const padRight = 8;
   const labelWidth = 74;
   const barStartX = padLeft + labelWidth + 8;
-  const rowCount = 3;
-  const rowHeight = Math.max(0, Math.floor(h / rowCount));
-  const barHeight = Math.max(6, Math.min(14, rowHeight - 12));
 
+  // Measure max formatted value text width to reserve right padding
+  let maxValTextW = 32;
+  if (ctx.measureText) {
+    algorithms.forEach(alg => {
+      const vStr = cfg.format(metricValues?.[alg] || 0);
+      const measured = ctx.measureText(vStr)?.width || 30;
+      if (measured > maxValTextW) maxValTextW = measured;
+    });
+  }
+  const reservedValRoom = Math.max(46, Math.ceil(maxValTextW) + 10);
+  const axisEndX = Math.max(barStartX + 30, w - padRight - reservedValRoom);
+  const axisWidth = Math.max(1, axisEndX - barStartX);
+
+  // Vertical layout budgeting: keep axis height fixed, let row gap adapt if space is tight
+  const axisAreaHeight = 36;
+  const barsAreaHeight = Math.max(30, h - axisAreaHeight);
+  const rowCount = 3;
+  const rowHeight = Math.max(12, barsAreaHeight / rowCount);
+  const barHeight = Math.max(12, Math.min(18, Math.floor(rowHeight * 0.58)));
+
+  // 1. Draw very faint vertical gridlines at ticks
+  if (axisMax > 0 && Array.isArray(axisCfg.ticks)) {
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
+    ctx.lineWidth = 1;
+    axisCfg.ticks.forEach(t => {
+      const tickX = Math.round(barStartX + (t / axisMax) * axisWidth);
+      ctx.beginPath?.();
+      ctx.moveTo?.(tickX, 2);
+      ctx.lineTo?.(tickX, barsAreaHeight);
+      ctx.stroke?.();
+    });
+  }
+
+  // 2. Draw algorithm rows (label, solid rounded bar, mono value)
   algorithms.forEach((alg, idx) => {
     const rowY = idx * rowHeight;
-    const rowCenterY = rowY + Math.floor(rowHeight / 2);
-    const barY = rowCenterY - Math.floor(barHeight / 2);
+    const rowCenterY = Math.round(rowY + rowHeight / 2);
+    const barY = Math.round(rowCenterY - barHeight / 2);
 
-    // Algorithm name on left
+    // Row label on left in sans
     ctx.fillStyle = THEME.textPrimary;
     ctx.font = '12px "IBM Plex Sans", sans-serif';
     ctx.textBaseline = "middle";
     ctx.textAlign = "left";
-    ctx.fillText(ALGORITHM_LABELS[alg] || alg, padLeft, rowCenterY);
+    ctx.fillText?.(ALGORITHM_LABELS[alg] || alg, padLeft, rowCenterY);
 
-    // Value calculation
+    // Value and bar length
     const rawVal = metricValues?.[alg] || 0;
-    const fraction = maxVal > 0 ? Math.min(1.0, Math.max(0, rawVal / maxVal)) : 0;
+    const fraction = axisMax > 0 ? Math.min(1.0, Math.max(0, rawVal / axisMax)) : 0;
+    const barW = Math.max(fraction > 0 ? 3 : 0, Math.round(fraction * axisWidth));
     const valStr = cfg.format(rawVal);
 
-    ctx.font = '11px "IBM Plex Mono", monospace';
-    const valWidth = ctx.measureText(valStr).width;
-    const textPad = 8;
-    const maxBarW = Math.max(0, w - barStartX - valWidth - textPad - padRight);
-    const barW = maxBarW > 0 ? Math.max(3, Math.round(fraction * maxBarW)) : 0;
-
-    // Draw horizontal bar
+    // Draw solid bar with rounded right end (thicker: 14-18px)
     if (barW > 0) {
       ctx.fillStyle = ALGORITHM_COLORS[alg] || DOC_FALLBACK_COLOR;
-      ctx.fillRect(barStartX, barY, barW, barHeight);
+      drawBarWithRoundedRightEnd(ctx, barStartX, barY, barW, barHeight, 3);
     }
 
-    // Draw value at the end of the bar
-    if (w > barStartX + valWidth) {
-      const valX = barStartX + barW + textPad;
-      const clampedValX = Math.min(valX, w - valWidth - padRight);
+    // Draw mono value label right after bar end (or inside bar if near max)
+    ctx.font = '11px "IBM Plex Mono", monospace';
+    ctx.textBaseline = "middle";
+    const textW = ctx.measureText ? (ctx.measureText(valStr)?.width || 30) : 30;
+    let valX = barStartX + barW + 6;
+
+    if (valX + textW > w - padRight) {
+      if (barW > textW + 12) {
+        valX = barStartX + barW - textW - 6;
+        ctx.fillStyle = "#ffffff";
+      } else {
+        valX = Math.max(barStartX + 4, w - padRight - textW);
+        ctx.fillStyle = THEME.textPrimary;
+      }
+    } else {
       ctx.fillStyle = THEME.textPrimary;
-      ctx.textBaseline = "middle";
-      ctx.textAlign = "left";
-      ctx.fillText(valStr, clampedValX, rowCenterY);
     }
+    ctx.textAlign = "left";
+    ctx.fillText?.(valStr, valX, rowCenterY);
   });
+
+  // 3. Draw X-axis under the bars
+  const axisY = barsAreaHeight + 2;
+
+  // Thin hairline axis
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+  ctx.lineWidth = 1;
+  ctx.beginPath?.();
+  ctx.moveTo?.(barStartX, axisY);
+  ctx.lineTo?.(axisEndX, axisY);
+  ctx.stroke?.();
+
+  // Tick marks and tick labels
+  ctx.font = '10px "IBM Plex Sans", sans-serif';
+  ctx.fillStyle = THEME.textMuted;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+
+  if (axisMax > 0 && Array.isArray(axisCfg.ticks)) {
+    axisCfg.ticks.forEach(t => {
+      const tickX = Math.round(barStartX + (t / axisMax) * axisWidth);
+      ctx.beginPath?.();
+      ctx.moveTo?.(tickX, axisY);
+      ctx.lineTo?.(tickX, axisY + 3);
+      ctx.stroke?.();
+
+      const tickLabel = axisCfg.formatTick ? axisCfg.formatTick(t) : String(t);
+      ctx.fillText?.(tickLabel, tickX, axisY + 5);
+    });
+  }
+
+  // Axis title centered below ticks
+  const axisTitle = cfg.axisTitle || cfg.title;
+  const titleY = axisY + 18;
+  ctx.font = '11px "IBM Plex Sans", sans-serif';
+  ctx.fillStyle = THEME.textMuted;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  const centerAxisX = Math.round(barStartX + axisWidth / 2);
+  ctx.fillText?.(axisTitle, centerAxisX, titleY);
 }
 
 /**
