@@ -58,19 +58,16 @@
       </div>
 
       <div class="sidebar-footer">
-        <div id="ollama-status-container" class="sidebar-status-indicator status-indicator">
+        <button type="button" id="ollama-check-btn" class="sidebar-footer-btn sidebar-status-btn" title="Check Ollama status (click to refresh)">
           <span class="status-dot"></span>
           <span id="ollama-status-badge" class="badge badge-neutral" aria-live="polite">Checking Ollama...</span>
-          <button type="button" id="ollama-check-btn" class="sidebar-icon-btn btn-ghost" title="Check Ollama" aria-label="Refresh Ollama">Refresh</button>
-        </div>
-        <div class="sidebar-footer-hint">
-          <button type="button" id="open-palette-btn" class="sidebar-hint-btn" title="Command Palette (Ctrl+K)">
-            <span class="hint-label">Commands</span>
-            <span class="kbd">Ctrl K</span>
-          </button>
-        </div>
+        </button>
+        <button type="button" id="open-palette-btn" class="sidebar-footer-btn sidebar-cmd-btn" title="Command Palette (Ctrl+K)">
+          <span class="sidebar-cmd-label">Commands</span>
+          <span class="kbd">Ctrl K</span>
+        </button>
         <div class="sidebar-version-row">
-          <span id="footer-version" class="sidebar-version-badge font-mono text-xs text-muted">v0.4.0</span>
+          <span id="footer-version" class="sidebar-version-text">v0.4.0</span>
         </div>
       </div>
     </aside>
