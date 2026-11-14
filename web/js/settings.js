@@ -80,17 +80,53 @@ export function initSettingsTab() {
         if (persisHintEl) persisHintEl.textContent = "Pass --data-dir <path> on startup to persist collections across restarts.";
       }
 
+      const modelChips = [];
+      if (!ollama || !ollama.reachable) {
+        modelChips.push(el("span", { className: "text-muted text-xs" }, "Ollama Offline"));
+      } else if (!ollama.models || ollama.models.length === 0) {
+        modelChips.push(el("span", { className: "text-muted text-xs" }, "None installed"));
+      } else {
+        ollama.models.forEach(m => {
+          modelChips.push(el("span", { className: "badge badge-neutral" }, m));
+        });
+      }
+
       healthBox.replaceChildren(
-        el("table", { className: "info-table" },
-          el("tbody", {},
-            el("tr", {}, el("td", {}, "Server status"), el("td", {}, health.status || "healthy")),
-            el("tr", {}, el("td", {}, "Server version"), el("td", {}, health.version || "-")),
-            el("tr", {}, el("td", {}, "Dimension"), el("td", {}, config.dimension)),
-            el("tr", {}, el("td", {}, "Metric"), el("td", {}, config.metric)),
-            el("tr", {}, el("td", {}, "HNSW parameters"), el("td", {}, `M=${config.hnsw?.M}, efC=${config.hnsw?.efConstruction}, efS=${config.hnsw?.efSearch}`)),
-            el("tr", {}, el("td", {}, "Vectors count"), el("td", {}, stats.count)),
-            el("tr", {}, el("td", {}, "Memory (approx)"), el("td", {}, formatBytes(stats.memory_bytes || 0))),
-            el("tr", {}, el("td", {}, "Ollama models"), el("td", {}, formatOllamaModels(ollama)))
+        el("div", { className: "status-rail-list" },
+          el("div", { className: "status-rail-item" },
+            el("div", { className: "status-rail-label" }, "Server status"),
+            el("div", { className: "status-rail-value status-indicator" },
+              el("span", { className: "status-dot status-dot-healthy" }),
+              el("span", {}, health.status || "healthy")
+            )
+          ),
+          el("div", { className: "status-rail-item" },
+            el("div", { className: "status-rail-label" }, "Server version"),
+            el("div", { className: "status-rail-value" }, `v${health.version || "-"}`)
+          ),
+          el("div", { className: "status-rail-item" },
+            el("div", { className: "status-rail-label" }, "Dimension"),
+            el("div", { className: "status-rail-value" }, String(config.dimension ?? "-"))
+          ),
+          el("div", { className: "status-rail-item" },
+            el("div", { className: "status-rail-label" }, "Metric"),
+            el("div", { className: "status-rail-value" }, String(config.metric ?? "-"))
+          ),
+          el("div", { className: "status-rail-item" },
+            el("div", { className: "status-rail-label" }, "HNSW parameters"),
+            el("div", { className: "status-rail-value" }, `M=${config.hnsw?.M}, efC=${config.hnsw?.efConstruction}, efS=${config.hnsw?.efSearch}`)
+          ),
+          el("div", { className: "status-rail-item" },
+            el("div", { className: "status-rail-label" }, "Vectors count"),
+            el("div", { className: "status-rail-value" }, String(stats.count ?? 0))
+          ),
+          el("div", { className: "status-rail-item" },
+            el("div", { className: "status-rail-label" }, "Memory (approx)"),
+            el("div", { className: "status-rail-value" }, formatBytes(stats.memory_bytes || 0))
+          ),
+          el("div", { className: "status-rail-item" },
+            el("div", { className: "status-rail-label" }, "Ollama models"),
+            el("div", { className: "status-rail-chips" }, ...modelChips)
           )
         )
       );

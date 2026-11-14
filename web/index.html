@@ -526,129 +526,128 @@
       <header class="page-header settings-page-header">
         <div>
           <h1 class="page-header-title settings-title">Settings</h1>
-          <p class="page-header-description settings-subtitle">Server status and demo collection configuration.</p>
+          <p class="page-header-description settings-subtitle">Server status and system configuration</p>
         </div>
         <div class="page-header-actions">
           <span id="settings-info-slot"></span>
         </div>
       </header>
 
-      <!-- Server Status Metric Strip -->
-      <section class="settings-strip-section">
-        <h2 class="section-title">Server status</h2>
-        <div id="settings-health-box">
-          <p class="text-muted empty-state">Loading metrics...</p>
+      <!-- Two-Column Reference-Guided Layout: Left Editable Settings, Right Sticky Status Rail -->
+      <div class="settings-layout">
+        <!-- LEFT: Editable Settings stacked with generous whitespace -->
+        <div class="settings-main">
+          <!-- 1. Demo collection -->
+          <section class="settings-section">
+            <h2 class="section-title">Demo collection</h2>
+            <p class="section-desc">Vector dimension, distance metric, and HNSW graph construction parameters.</p>
+            <form id="settings-reset-demo-form" class="form-stack mt-3">
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="demo-dim-input">Dimension</label>
+                  <input type="number" id="demo-dim-input" class="input-text" value="128" min="1" max="4096" required>
+                </div>
+                <div class="form-group flex-1">
+                  <label for="demo-metric-select">Metric</label>
+                  <select id="demo-metric-select" class="input-select">
+                    <option value="cosine" selected>Cosine</option>
+                    <option value="euclidean">Euclidean</option>
+                    <option value="manhattan">Manhattan</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row mt-2">
+                <div class="form-group flex-1">
+                  <label for="demo-m-input">M (Max edges per node)</label>
+                  <input type="number" id="demo-m-input" class="input-text" value="16" min="2" max="128">
+                </div>
+                <div class="form-group flex-1">
+                  <label for="demo-efc-input">efConstruction</label>
+                  <input type="number" id="demo-efc-input" class="input-text" value="200" min="4" max="1000">
+                </div>
+              </div>
+            </form>
+          </section>
+
+          <!-- 2. Insert random vectors -->
+          <section class="settings-section">
+            <h2 class="section-title">Insert random vectors</h2>
+            <p class="section-desc">Generate synthetic Gaussian vectors for experimentation and search benchmarking.</p>
+            <form id="settings-random-demo-form" class="form-row mt-3">
+              <div class="form-group flex-2">
+                <input type="number" id="demo-random-count" class="input-text" value="100" min="1" max="20000" aria-label="Insert random vectors count">
+              </div>
+              <div class="form-group flex-1">
+                <button type="submit" id="demo-insert-random-btn" class="btn btn-primary w-100">Insert</button>
+              </div>
+            </form>
+            <div id="settings-random-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
+          </section>
+
+          <!-- 3. Persistence and storage -->
+          <section class="settings-section">
+            <h2 class="section-title">Persistence and storage</h2>
+            <p class="section-desc">Engine snapshot and disk persistence status across restarts.</p>
+            <div class="settings-kv-list mt-3">
+              <div class="settings-kv-row">
+                <span class="settings-kv-label">Persistence status</span>
+                <span id="settings-persistence-status" class="settings-kv-value text-primary">Checking...</span>
+              </div>
+              <div class="settings-kv-row">
+                <span class="settings-kv-label">Data directory</span>
+                <span id="settings-persistence-dir" class="settings-kv-value text-muted">--</span>
+              </div>
+            </div>
+            <p id="settings-persistence-hint" class="section-desc text-xs text-muted mt-2">Pass --data-dir &lt;path&gt; on server start to persist collections and RAG documents across restarts.</p>
+          </section>
+
+          <!-- 4. Chat history -->
+          <section class="settings-section">
+            <h2 class="section-title">Chat history</h2>
+            <p class="section-desc">Clear local conversation threads and reset the active Ask chat.</p>
+            <div class="settings-confirm-actions mt-3">
+              <button type="button" id="settings-clear-chats-cancel-btn" class="btn btn-sm btn-secondary hidden">Cancel</button>
+              <button type="button" id="settings-clear-chats-btn" class="btn btn-sm btn-secondary">Clear Chat History</button>
+            </div>
+            <div id="settings-clear-chats-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
+          </section>
+
+          <!-- 5. Documentation and guides -->
+          <section class="settings-section">
+            <h2 class="section-title">Documentation and guides</h2>
+            <p class="section-desc">Offline educational guides, interactive walkthroughs, and automated test suite verification.</p>
+            <div class="settings-doc-list mt-3">
+              <a href="/tests.html" target="_blank" class="settings-doc-row">
+                <span class="settings-doc-label">Interactive Test Suite</span>
+                <span class="text-xs text-muted font-mono">/tests.html</span>
+              </a>
+              <button type="button" id="settings-start-tour-btn" class="settings-doc-row">
+                <span class="settings-doc-label">Start Guided Tour</span>
+                <span class="text-xs text-muted">7-step interactive walkthrough</span>
+              </button>
+            </div>
+            <p class="section-desc text-xs text-muted mt-2">A transparent, offline vector database and RAG learning tool.</p>
+          </section>
+
+          <!-- 6. Danger zone (last, visually quiet, extra whitespace above) -->
+          <section class="settings-section settings-danger-section">
+            <h2 class="section-title">Danger zone</h2>
+            <p class="section-desc">Clears all demo vectors and rebuilds the index with the configuration above.</p>
+            <div class="settings-confirm-actions mt-3">
+              <button type="button" id="demo-reset-cancel-btn" class="btn btn-sm btn-secondary hidden">Cancel</button>
+              <button type="button" id="demo-reset-btn" class="btn btn-sm btn-danger">Reset Demo Collection</button>
+            </div>
+            <div id="settings-reset-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
+          </section>
         </div>
-      </section>
 
-      <!-- 3-Column Configuration Row -->
-      <div class="settings-config-row">
-        <!-- Column 1: Demo Collection -->
-        <section class="settings-config-col">
-          <h2 class="section-title">Demo collection</h2>
-          <form id="settings-reset-demo-form" class="form-stack">
-            <div class="form-row">
-              <div class="form-group flex-1">
-                <label for="demo-dim-input">Dimension</label>
-                <input type="number" id="demo-dim-input" class="input-text" value="128" min="1" max="4096" required>
-              </div>
-              <div class="form-group flex-1">
-                <label for="demo-metric-select">Metric</label>
-                <select id="demo-metric-select" class="input-select">
-                  <option value="cosine" selected>Cosine</option>
-                  <option value="euclidean">Euclidean</option>
-                  <option value="manhattan">Manhattan</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group flex-1">
-                <label for="demo-m-input">M</label>
-                <input type="number" id="demo-m-input" class="input-text" value="16" min="2" max="128">
-              </div>
-              <div class="form-group flex-1">
-                <label for="demo-efc-input">efConstruction</label>
-                <input type="number" id="demo-efc-input" class="input-text" value="200" min="4" max="1000">
-              </div>
-            </div>
-          </form>
-        </section>
-
-        <!-- Column 2: Insert Random Vectors -->
-        <section class="settings-config-col">
-          <h2 class="section-title">Insert random vectors</h2>
-          <p class="settings-col-desc">Fill the demo collection with random vectors.</p>
-          <form id="settings-random-demo-form" class="form-row mt-3">
-            <div class="form-group flex-2">
-              <input type="number" id="demo-random-count" class="input-text" value="100" min="1" max="20000" aria-label="Insert random vectors count">
-            </div>
-            <div class="form-group flex-1">
-              <button type="submit" id="demo-insert-random-btn" class="btn btn-primary w-100">Insert</button>
-            </div>
-          </form>
-          <div id="settings-random-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
-        </section>
-
-        <!-- Column 3: Danger Zone -->
-        <section class="settings-config-col settings-config-danger">
-          <h2 class="section-title">Danger zone</h2>
-          <p class="settings-col-desc">Clears all demo vectors and rebuilds the index with the configuration above.</p>
-          <div class="settings-confirm-actions mt-3">
-            <button type="button" id="demo-reset-cancel-btn" class="btn btn-sm btn-secondary hidden">Cancel</button>
-            <button type="button" id="demo-reset-btn" class="btn btn-sm btn-danger">Reset Demo Collection</button>
+        <!-- RIGHT: One sticky Server status rail (the only boxed surface on this page) -->
+        <aside class="settings-status-rail">
+          <h2 class="status-rail-title">Server status</h2>
+          <div id="settings-health-box">
+            <p class="text-muted empty-state">Loading metrics...</p>
           </div>
-          <div id="settings-reset-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
-        </section>
-      </div>
-
-      <!-- Secondary 3-Column Row: Storage, Chat Maintenance & Docs -->
-      <div class="settings-config-row mt-4">
-        <!-- Column 1: Persistence & Storage -->
-        <section class="settings-config-col">
-          <h2 class="section-title">Persistence & storage</h2>
-          <p class="settings-col-desc">Engine snapshot and disk persistence status.</p>
-          <div class="form-stack mt-3">
-            <div class="form-group">
-              <label>Persistence status</label>
-              <div id="settings-persistence-status" class="text-sm text-primary">Checking...</div>
-            </div>
-            <div class="form-group mt-2">
-              <label>Data directory</label>
-              <div id="settings-persistence-dir" class="text-xs text-muted">--</div>
-            </div>
-            <p id="settings-persistence-hint" class="settings-col-desc text-xs text-muted mt-2">Pass --data-dir &lt;path&gt; on server start to persist collections and RAG documents across restarts.</p>
-          </div>
-        </section>
-
-        <!-- Column 2: Chat History Maintenance -->
-        <section class="settings-config-col">
-          <h2 class="section-title">Chat history</h2>
-          <p class="settings-col-desc">Clear local conversation threads and reset the active Ask chat.</p>
-          <div class="settings-confirm-actions mt-3">
-            <button type="button" id="settings-clear-chats-cancel-btn" class="btn btn-sm btn-secondary hidden">Cancel</button>
-            <button type="button" id="settings-clear-chats-btn" class="btn btn-sm btn-secondary">Clear Chat History</button>
-          </div>
-          <div id="settings-clear-chats-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
-        </section>
-
-        <!-- Column 3: Documentation & Guides -->
-        <section class="settings-config-col">
-          <h2 class="section-title">Documentation & guides</h2>
-          <p class="settings-col-desc">Offline educational guides and browser test verification.</p>
-          <div class="settings-docs-links mt-3">
-            <a href="/tests.html" target="_blank" class="settings-doc-link">
-              <span>Interactive Test Suite</span>
-              <span class="text-xs text-muted font-mono">/tests.html</span>
-            </a>
-            <button type="button" id="settings-start-tour-btn" class="settings-doc-link-btn">
-              <span>Start Guided Tour</span>
-              <span class="text-xs text-muted">7-step interactive walkthrough</span>
-            </button>
-            <div class="settings-doc-hint mt-2">
-              <span class="text-xs text-muted">Offline learning tool for vector search & RAG.</span>
-            </div>
-          </div>
-        </section>
+        </aside>
       </div>
     </section>
   </main>

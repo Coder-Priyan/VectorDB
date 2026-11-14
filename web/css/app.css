@@ -1819,36 +1819,26 @@ input[type="number"] {
 
 
 /* ==========================================================================
-   Settings Tab Layout (Centered 900px Column, 3 Stacked Sections, Sans-Serif Metrics)
+   Settings Tab Layout (Two Columns: Left Editable Settings, Right Sticky Status Rail)
    ========================================================================== */
 #panel-settings {
   height: 100%;
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: var(--space-4) var(--space-4) 64px;
+  padding: 0 var(--space-6) var(--space-8);
   box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-  max-width: 900px;
-  width: 100%;
-  margin: 0 auto;
-}
-
-#panel-settings > * {
-  width: 100%;
-  max-width: 900px;
 }
 
 .settings-page-header {
-  padding: var(--space-2) 0 var(--space-1);
-  margin-bottom: 0;
+  max-width: 1040px;
+  margin: 0 auto var(--space-4);
+  padding: var(--space-4) 0 var(--space-2);
 }
 
 .settings-title {
   font-family: var(--font-sans);
-  font-size: var(--text-xl);
+  font-size: var(--text-2xl);
   font-weight: 600;
   line-height: 1.2;
   color: var(--text-primary);
@@ -1862,174 +1852,168 @@ input[type="number"] {
   margin-top: 4px;
 }
 
-#panel-settings .section-title {
+.settings-layout {
+  display: flex;
+  gap: var(--space-7);
+  align-items: flex-start;
+  max-width: 1040px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Left Column: Stacked sections with generous whitespace, zero cards, zero dividers */
+.settings-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-section .section-title {
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.settings-section .section-desc {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.settings-danger-section {
+  margin-top: var(--space-4);
+}
+
+/* Consistent row pattern for Persistence & storage and Documentation */
+.settings-kv-list,
+.settings-doc-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.settings-kv-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+}
+
+.settings-kv-label {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.settings-kv-value {
   font-size: var(--text-sm);
   font-weight: 500;
-  color: var(--text-secondary);
-  margin-bottom: var(--space-3);
+  text-align: right;
+  overflow-wrap: anywhere;
 }
 
-.settings-strip-section {
+.settings-doc-row {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+  color: inherit;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  font-family: inherit;
+  transition: opacity 0.15s ease;
 }
 
-/* Metric Strip (Quiet surface, zero lines, sans-serif metrics) */
-#panel-settings #settings-health-box {
+.settings-doc-row:hover {
+  opacity: 0.8;
+}
+
+.settings-doc-label {
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* Right Column: One sticky Server status rail (the only boxed surface) */
+.settings-status-rail {
+  width: 320px;
+  min-width: 320px;
   background: var(--bg-panel);
   border-radius: var(--radius-md);
-  padding: var(--space-4);
-  overflow: hidden;
+  padding: var(--space-5);
+  position: sticky;
+  top: var(--space-4);
+  box-sizing: border-box;
 }
 
-#panel-settings #settings-health-box table {
-  display: block;
-  width: 100%;
-  border-collapse: collapse;
+.status-rail-title {
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
 }
 
-#panel-settings #settings-health-box tbody {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-4);
-  width: 100%;
-}
-
-#panel-settings #settings-health-box tr {
+.status-rail-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  min-width: 0;
-  border: none;
-  padding: 0;
+  gap: var(--space-4);
 }
 
-/* Row 2: HNSW parameters spans 2 columns */
-#panel-settings #settings-health-box tr:nth-child(5) {
-  grid-column: span 2;
+.status-rail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-/* Row 3: Ollama models spans full width */
-#panel-settings #settings-health-box tr:nth-child(8) {
-  grid-column: 1 / -1;
-}
-
-#panel-settings #settings-health-box td {
-  display: block;
-  padding: 0;
-  border: none;
-  background: transparent;
-}
-
-#panel-settings #settings-health-box td:first-child {
+.status-rail-label {
   font-size: var(--text-xs);
-  font-weight: 400;
   color: var(--text-muted);
+  font-weight: 400;
   line-height: 1.4;
 }
 
-#panel-settings #settings-health-box td:last-child {
+.status-rail-value {
   font-family: var(--font-sans);
-  font-size: var(--text-md);
+  font-size: var(--text-base);
   font-weight: 500;
   color: var(--text-primary);
   line-height: 1.4;
   overflow-wrap: anywhere;
 }
 
-#panel-settings #settings-health-box tr:first-child td:last-child::before {
-  content: "";
-  display: inline-block;
+.status-rail-value.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-dot-healthy {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background-color: var(--success-color);
-  margin-right: 8px;
-  vertical-align: middle;
+  display: inline-block;
+  flex-shrink: 0;
 }
 
-#panel-settings #settings-health-box tr:nth-child(8) td:last-child {
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  font-weight: 400;
-  line-height: 1.4;
-  white-space: normal;
-  overflow-wrap: break-word;
-}
-
-/* 3-Column Configuration Sections (Cardless, zero borders, zero shadows) */
-.settings-config-row {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
-  width: 100%;
-}
-
-.settings-config-col {
-  padding: var(--space-4);
-  background: var(--bg-panel);
-  border-radius: var(--radius-md);
+.status-rail-chips {
   display: flex;
-  flex-direction: column;
-  min-width: 0;
-  box-sizing: border-box;
-}
-
-.settings-col-desc {
-  font-size: var(--text-xs);
-  line-height: 1.5;
-  color: var(--text-muted);
-  margin: 0;
-}
-
-.settings-docs-links {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.settings-doc-link,
-.settings-doc-link-btn {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 10px 12px;
-  background: var(--bg-raised);
-  border-radius: var(--radius-sm);
-  border: none;
-  text-decoration: none;
-  color: var(--text-primary);
-  font-size: var(--text-sm);
-  font-family: var(--font-sans);
-  cursor: pointer;
-  transition: background 0.15s ease;
-  width: 100%;
-  text-align: left;
-  box-sizing: border-box;
-}
-
-.settings-doc-link:hover,
-.settings-doc-link-btn:hover {
-  background: var(--bg-active);
-  color: var(--accent);
-}
-
-#panel-settings .form-group label {
-  font-size: var(--text-xs);
-  line-height: 1.5;
-}
-
-#panel-settings #settings-random-demo-form {
-  display: flex;
-  gap: var(--space-2);
-  align-items: stretch;
-  margin-top: var(--space-2);
-}
-
-#panel-settings #demo-insert-random-btn {
-  height: 100%;
-  min-height: 36px;
-  white-space: nowrap;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
 }
 
 .settings-inline-msg {
@@ -2381,12 +2365,14 @@ input[type="number"] {
     height: auto;
   }
 
-  .settings-config-row {
-    grid-template-columns: 1fr;
+  .settings-layout {
+    flex-direction: column-reverse;
   }
 
-  #panel-settings #settings-health-box tbody {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .settings-status-rail {
+    width: 100%;
+    min-width: 0;
+    position: static;
   }
 }
 
