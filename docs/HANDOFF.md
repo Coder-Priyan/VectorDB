@@ -1,6 +1,6 @@
 # Project Handoff
 
-Last updated: 2026-11-14 by T-053
+Last updated: 2026-11-14 by T-054
 
 ## 1. Current Status
 
@@ -16,29 +16,32 @@ Following human screenshot review of T-051, Task T-052 restored the full-height 
 
 Task T-053 resolved Compare tab stale results and empty state presentation. Added `resetCompareView()` to wipe Summary Metrics, status text, progress bar, chart canvases, diff table, and cached report data when: (a) collection is changed, (b) collection count is 0, or (c) Compare tab is activated (via `#tab-btn-compare` click, `MutationObserver` on `#panel-compare` class, or `window.focus`). Empty panel titles dynamically adapt via helper `getCompareEmptyStateConfig`: 'Collection is empty' (Demo), 'No documents yet' (Docs), and 'No benchmark yet' (unbenchmarked populated collection). Registered browser unit tests expanded to 105 (6 new tests).
 
+Task T-054 replaced the 3 middle-column Compare bar charts with the human-approved design from AI mockups (ADR-045). Added HTML panel headers with SVG line icons (`clock`, `layers`/`stack`, `target` in `web/js/icons.js`), bold titles ("Latency (µs)", "Distance Computations", "Recall@k"), and muted subtitles ("Lower is better", "Higher is better"); thicker solid horizontal bars (14-18px) with rounded right ends and mono value labels; hairline x-axes with tick marks, muted tick labels, and centered axis titles; pure helper `niceAxis(maxValue)` (~5-6 ticks) and `mapChartRows(metricKey, report, latencies)` reading real server responses. Registered browser unit tests expanded to 113 (8 new pure-logic tests).
+
 - **Key Collaboration & Process Lessons**:
   - **Dual Mockup Rule**: The mockup given to the builder in T-049 showed only the empty state; always get BOTH empty-state and results mockups before implementing so the builder does not invent results layouts.
   - **Builder Claims vs Human Screenshots**: Builder reports claimed "zero deviations" three times (T-046, T-047, T-049) while screenshots showed real deviations. T-050 builder claimed all 10 diff rows fit; real screenshot showed 8. Judge UI strictly by human screenshots at 100% browser zoom; builder claims of visual accuracy are never proof. Mark all visual aspects "not tested (visual)".
   - **Tab-Specific Panel Sizing**: Content-sized panels are right for Settings (T-047 lesson) but NOT for Compare (T-051 lesson); follow each tab's mockup rather than transferring sizing rules between tabs.
-  - **ADR Numbering Gap**: Note that ADR-042 was reserved for T-048 (Settings content-sized panels) which was written but not executed, so ADR-042 is missing from `DECISIONS.md`. Any future Settings task must use ADR-045 or higher.
+  - **ADR Numbering Gap**: Note that ADR-042 was reserved for T-048 (Settings content-sized panels) which was written but not executed, so ADR-042 is missing from `DECISIONS.md`. Any future Settings task must use ADR-046 or higher (ADR-045 is used for Compare charts).
   - **Collaboration Preferences**: Human uses ChatGPT/Gemini for mockups and passes the chosen image. Brain gives outcome briefs; builder decides implementation. Human writes Hinglish (Hindi in Roman letters); Brain replies in short Hinglish with one question at a time.
-  - **No Merge Until Approval**: Do not merge `ui-quiet-studio` to `main` until the human approves both the Settings fix (T-048) and the new Compare design (T-050/T-052).
+  - **No Merge Until Approval**: Do not merge `ui-quiet-studio` to `main` until the human approves both the Settings fix (T-048) and the new Compare design (T-050/T-052/T-054).
 
 - **Branches**:
   - `ui-redesign`: Base v2 platform through T-039.
   - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
-  - `ui-quiet-studio`: Active branch containing T-041 (Quiet Studio rebuild), T-042 (batched fixes), T-043 (Settings redesign + polish), T-044/T-045 (docs fixes), T-046 (Settings 3-column panel grid rebuild), T-047 (Settings full width/height), T-049 (superseded), T-050 (Compare tab rebuild from human-approved mockup), T-051 (Compare table & metric fixes), T-052 (Compare full-height equal panel restoration), and T-053 (Compare reset stale results on empty/changed collection).
+  - `ui-quiet-studio`: Active branch containing T-041 (Quiet Studio rebuild), T-042 (batched fixes), T-043 (Settings redesign + polish), T-044/T-045 (docs fixes), T-046 (Settings 3-column panel grid rebuild), T-047 (Settings full width/height), T-049 (superseded), T-050 (Compare tab rebuild from human-approved mockup), T-051 (Compare table & metric fixes), T-052 (Compare full-height equal panel restoration), T-053 (Compare reset stale results), and T-054 (Compare new bar charts & axis system).
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
   - *Nothing pushed to remote origin.*
 - **Human Verification on 2026-11-14**:
-  - **Terminal**: C++ 118/118 (529,813 assertions, 117 run + 1 opt-in live-Ollama test skipped), scanner pass, CSS `!important` count 3 human-confirmed after T-046. NOT yet human-confirmed after T-047/T-049/T-050/T-051/T-052/T-053: `/tests.html` count (last confirmed 94/94 after T-043; 105 registered in T-053), C++ tests, scanner.
+  - **Terminal**: C++ 118/118 (529,813 assertions, 117 run + 1 opt-in live-Ollama test skipped), scanner pass, CSS `!important` count 3 human-confirmed after T-046. NOT yet human-confirmed after T-047/T-049/T-050/T-051/T-052/T-053/T-054: `/tests.html` count (last confirmed 94/94 after T-043; 113 registered in T-054), C++ tests, scanner.
   - **Screenshots**: `/tests.html` 94/94 passed (2026-11-14, after T-043); Explore toolbar single row and canvas panel OK; Compare after benchmark shows 3 charts with all 3 algorithms and 5 summary columns (ISS-024 fixed); Settings font larger and persistence status in sans.
-- **T-052/T-053 Commits on `ui-quiet-studio`**:
+- **T-052/T-053/T-054 Commits on `ui-quiet-studio`**:
   - `bb0649c` ui-quiet-studio: T-052 Compare restore full-height equal panels, keep diff table fixes
   - `f22417b` ui-quiet-studio: T-053 Compare reset stale results on empty or changed collection
+  - `846c5a1` ui-quiet-studio: T-054 Compare new chart design (header, axis, ticks)
 - **Automated Tests**:
   - C++ unit and integration tests: 118 / 118 passed (529,813 assertions).
-  - Browser unit tests: 105 registered tests (`http://127.0.0.1:8080/tests.html`), including 6 pure-logic tests for Compare empty-state presentation configuration (T-053); real browser result pending human opening /tests.html.
+  - Browser unit tests: 113 registered tests (`http://127.0.0.1:8080/tests.html`), including 8 pure-logic tests for Compare nice-axis scaling, tick intervals, metric axis configs, and chart row mapping from real fixtures (T-054); real browser result pending human opening /tests.html.
   - Web security scan: 28 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
 - **Design System ("Quiet Studio") Principles Enforced**:
   - **Zero Lines**: Allowed lines are strictly the right boundary of the sidebar (`border-right: 1px solid var(--border-line)`) and accessibility focus ring (`outline: 2px solid var(--accent); outline-offset: 2px;`). All card borders, panel outlines, button borders, and table row underlines eliminated.
@@ -146,8 +149,8 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 2. **(b) Add Inter font files (optional)**: Add Inter `.woff2` files to `web/fonts/` (pending human action; currently IBM Plex Sans enforced).
 3. **(c) Take screenshots for unverified / reported areas (Quiet Studio)**:
    - Settings tab: T-047 state seen (hollow panels, fix pending via T-048); not tested (visual).
-   - Compare tab: T-052/T-053 state (left panel resets when Demo empty, dynamic empty titles 'Collection is empty' / 'No documents yet' / 'No benchmark yet', results state, collection switch); not tested (visual).
-   - Browser unit tests: `/tests.html` at 100% zoom (verify 105/105 tests pass in real browser; last screenshot confirmed 94/94 after T-043).
+   - Compare tab: T-052/T-053/T-054 state (new 3-bar charts with HTML headers, line icons, thicker rounded bars, hairline x-axis with ticks & axis titles, left panel reset on empty, dynamic empty titles, results state, collection switch at 100% zoom and 125% zoom); not tested (visual).
+   - Browser unit tests: `/tests.html` at 100% zoom (verify 113/113 tests pass in real browser; last screenshot confirmed 94/94 after T-043).
    - Ask tab: glass-box latency breakdown formatted as tidy label+value tiles in sans font; chat column remaining centered with zero horizontal shift when Documents inventory drawer is opened or closed.
    - HNSW tab at 1366x768 and 1920x1080 with topology summary.
    - Sidebar collapsed (56px icon rail).
