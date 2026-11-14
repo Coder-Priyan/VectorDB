@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-14 by SYNC-003
+Last updated: 2026-11-14 by T-044
 
 ## 1. Operating Model
 
@@ -112,7 +112,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 5. **Document Ingestion Multi-Chunk Rollback**: Document ingestion embeddings are validated before committing. If vector insertion throws mid-loop (e.g. out of memory), `src/rag.cpp` catches the exception and executes `removeBatch` on inserted vector IDs, rolling back partial chunks and preventing orphaned vectors without a DocumentRecord (ISS-006 fixed in code, not covered by an automated test) [CONFIRMED: src/rag.cpp:155-160].
 6. **Audit Claims Verification Status**: Claims from Antigravity's audit were verified by the human in their own terminal on 2026-11-12: 110/110 tests, zero warnings on clean rebuild, 4 executables, web safety scan pass, 72 commits with 6 ahead of origin, 29 API routes, 17 server flags. Not yet verified by the human: HNSW recall numbers (ISS-003, ISS-004), 74 browser tests, live Ollama RAG run.
 7. **Demo Random Endpoint Contract**: Demo random insert uses field 'n', not 'count'. Docs claiming TESTED for the web UI meant pure-logic tests only; real browser testing by the human found a bug on 2026-11-12.
-8. **Browser Test Count History**: Browser test count was 57 after T-002; older docs said 55; reached 62 after T-004; reached 66 after T-019; reached 70 after T-023b-1; reached 74 after T-023b-2; reached 84 after T-033 (83/84 real); reached 88 after T-036/T-038; reached 92 after T-041 (with `test_colors.js`).
+8. **Browser Test Count History**: Browser test count was 57 after T-002; older docs said 55; reached 62 after T-004; reached 66 after T-019; reached 70 after T-023b-1; reached 74 after T-023b-2; reached 84 after T-033 (83/84 real); reached 88 after T-036/T-038; reached 92 after T-041 (with `test_colors.js`); reached 94 after T-043 (builder claimed 96, real 94).
 9. **Git State in Documentation**: Git state claims in docs can go stale after pushes; always trust human's git status -sb over docs.
 10. **Browser Test Execution by Agent**: Antigravity cannot run browser tests; only the human can. Never tick browser checks.
 11. **git diff --stat Typo**: Human twice typed `git diff --sta` (invalid); always give full flag `--stat`.
@@ -130,15 +130,16 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 23. **Compare Empty State False Claim**: T-042 claimed the Compare empty state was done, but the human screenshot showed a blank main area because `checkCollectionStats` hid it whenever vectors were present before a benchmark ran; verify visually before trusting.
 24. **Builder Scratch Scripts**: Builder leaves helper scripts in `scratch/` (untracked); never commit them, keep workspace clean.
 25. **Font Availability & Inter Requirement**: Builder says "IBM Plex Sans only" because no Inter file exists in `web/fonts/`; Inter `.woff2` must be added by the human (pending).
+26. **Cross-Check Builder Counts and IDs**: T-043 builder reported 96 browser tests and a button id #btn-danger-reset; real values were 94 and #demo-reset-btn. Builder retyped numbers and ids that were not checked. Always cross-check counts and ids against the human's browser/terminal.
 
 ---
 
 ## 7. Verification Status (as of 2026-11-14)
 
-- **Human-confirmed by terminal on 2026-11-14**: C++ 118/118 passed, scanner ALL CHECKS PASSED, git log commits up to `a57c573` (T-038).
-- **Human-confirmed by screenshots on 2026-11-14**: `/tests.html` 88/88 (after T-038), 5 tabs at 1920x1080, Ask chat flow, Explore Docs PCA, Open Explore deep link, Compare in Ask (3 rows), Trace (6 nodes), Settings new sections, footer removed.
+- **Human-confirmed by terminal on 2026-11-14**: C++ 118/118 passed, scanner ALL CHECKS PASSED, git log commits up to `a57c573` (T-038) and T-042 commits `eeb605e`, `280c3b2`, `f466c41` on `ui-quiet-studio`. C++ 118/118 after T-043 is builder-reported only until the human runs .\build\vectordb_tests.exe.
+- **Human-confirmed by screenshots on 2026-11-14**: `/tests.html` 94/94 (after T-043), 5 tabs at 1920x1080, Ask chat flow, Explore Docs PCA, Open Explore deep link, Compare in Ask (3 rows), Trace (6 nodes), Settings new sections, footer removed, Explore toolbar 1 row, Compare 3 side-by-side charts, Compare summary table 5 columns unclipped, Settings font larger and persistence status in sans.
 - **Still human-reported only (no screenshots)**: `--data-dir` persistence restart, Ctrl K, sidebar collapse, guided tour.
-- **Not verified / Pending Human Screenshot**: T-040 quiet luxury UI redesign (Phase 1-5 changes: zero-hex palette, spacious sidebar bottom, centered 820px Ask chat, zero-gutter collapsed Documents drawer, 380px visual sidebars, centered 1040px Settings metrics grid with sans numbers, generous bottom scroll padding).
+- **Pending Human Screenshot (T-043 Quiet Studio)**: Settings tab at 1920x1080 (unboxed left + boxed status rail right) and 1366x768 (stacked fallback), Compare empty state before benchmark, Ask glass-box latency breakdown grid & drawer toggle without chat shift, HNSW tab at 1366x768.
 - **Not verified**: 1366x768 layout, Ask New chat empty-state guided card.
 
 Tasks verified and completed on branch `ui-redesign` (T-017 through T-038), and `ui-polish-2026` (T-040):

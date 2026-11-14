@@ -1,6 +1,6 @@
 # Project Handoff
 
-Last updated: 2026-11-14 by SYNC-003
+Last updated: 2026-11-14 by T-044
 
 ## 1. Current Status
 
@@ -14,13 +14,13 @@ VectorDB v2 has been completely built across all 9 phases (P0 to P8). Following 
   - *Nothing pushed to remote origin.*
 - **Human Verification on 2026-11-14**:
   - **Terminal**: Git log shows T-042 commits `eeb605e`, `280c3b2`, `f466c41` on `ui-quiet-studio`; `box-shadow` grep empty; C++ tests pass 118/118; web safety scanner 100% clean; `src/`, `include/`, `tests/`, and `CMakeLists.txt` untouched.
-  - **Screenshots**: `/tests.html` 93/93 passed; Explore toolbar single row and canvas panel OK; Compare after benchmark shows 3 charts with all 3 algorithms and 5 summary columns (ISS-024 fixed); Settings font larger and persistence status in sans.
+  - **Screenshots**: `/tests.html` 94/94 passed (2026-11-14, after T-043); Explore toolbar single row and canvas panel OK; Compare after benchmark shows 3 charts with all 3 algorithms and 5 summary columns (ISS-024 fixed); Settings font larger and persistence status in sans.
 - **T-043 Commits on `ui-quiet-studio`**:
   - `c84a913` ui-quiet-studio: T-043 Commit 1 Settings redesign with live status rail and unboxed stacked settings
   - `34e403a` ui-quiet-studio: T-043 Commit 2 Compare empty state fix, Ask glass-box latency grid, slide-over document drawer, and docs sync
 - **Automated Tests**:
   - C++ unit and integration tests: 118 / 118 passed (529,813 assertions).
-  - Browser unit tests: 96 registered tests (`http://127.0.0.1:8080/tests.html`), including citation punctuation parsing tests.
+  - Browser unit tests: 94 registered tests (`http://127.0.0.1:8080/tests.html`), including citation punctuation parsing tests.
   - Web security scan: 28 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
 - **Design System ("Quiet Studio") Principles Enforced**:
   - **Zero Lines**: Allowed lines are strictly the right boundary of the sidebar (`border-right: 1px solid var(--border-line)`) and accessibility focus ring (`outline: 2px solid var(--accent); outline-offset: 2px;`). All card borders, panel outlines, button borders, and table row underlines eliminated.
@@ -35,7 +35,7 @@ VectorDB v2 has been completely built across all 9 phases (P0 to P8). Following 
 > [!NOTE]
 > Verification status:
 > - **Human-confirmed by terminal on 2026-11-14**: C++ 118/118 passed, scanner ALL CHECKS PASSED, git log commits up to `a57c573` (T-038) and T-042 commits `eeb605e`, `280c3b2`, `f466c41`.
-> - **Human-confirmed by screenshots on 2026-11-14**: `/tests.html` 93/93 (after T-042), 5 tabs at 1920x1080, Ask chat flow, Explore Docs PCA, Open Explore deep link, Compare in Ask (3 rows), Trace (6 nodes), Settings new sections, footer removed, Explore toolbar 1 row, Compare 3 side-by-side charts, Compare summary table 5 columns unclipped.
+> - **Human-confirmed by screenshots on 2026-11-14**: `/tests.html` 94/94 (after T-043), 5 tabs at 1920x1080, Ask chat flow, Explore Docs PCA, Open Explore deep link, Compare in Ask (3 rows), Trace (6 nodes), Settings new sections, footer removed, Explore toolbar 1 row, Compare 3 side-by-side charts, Compare summary table 5 columns unclipped.
 > - **Pending Human Screenshots (T-043 Settings Redesign & Visual Polish)**:
 >   - Settings tab at 1920x1080: unboxed stacked settings on left, sticky "Server status" rail on right with status dot and Ollama model chips.
 >   - Settings tab below 1100px: responsive stacking with status rail on top, single app-content scrollbar.
@@ -44,8 +44,7 @@ VectorDB v2 has been completely built across all 9 phases (P0 to P8). Following 
 >   - Ask tab glass-box: Latency breakdown formatted as tidy label+value tiles in sans font.
 >   - HNSW tab at 1366x768 and 1920x1080 with topology summary.
 >   - Sidebar collapsed (56px icon rail).
->   - 125% browser zoom layout check.
->   - Browser unit tests at `/tests.html` showing 96/96 passed.
+>   - 125% browser zoom layout check across all 5 tabs.
 > - **Visual items marked**: All visual rendering items marked "not tested (visual)" until human screenshots confirm.
 
 
@@ -115,10 +114,10 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 - **Branches**:
   - `ui-redesign`: Base v2 platform + T-039 docs polish.
   - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
-  - `ui-quiet-studio`: Active branch containing T-041 (Quiet Studio rebuild), T-042 (batched fixes), and T-043 (Settings redesign + polish).
+  - `ui-quiet-studio`: Active branch containing T-041 (Quiet Studio rebuild), T-042 (batched fixes), T-043 (Settings redesign + polish), and the latest commit `3d8ce2d` (SYNC-003 docs sync) on top of `34e403a`.
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
 - **Tracking Status**: Local branch `ui-quiet-studio` without upstream tracking (commits unpushed per protocol; nothing pushed to origin).
-- **Working Tree**: Clean on all tracked files (only untracked test logs in `results/logs/`) [CONFIRMED: git status -sb].
+- **Working Tree**: The human's `git status -sb` shows only untracked files in `results/logs/`.
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
 ---
@@ -138,7 +137,6 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
    - Persistence restart screenshot with `--data-dir ./data`.
    - `Ctrl+K` Command Palette navigation.
    - Interactive guided tour.
-   - Browser unit tests at `/tests.html` showing 96/96 passed.
 4. **(d) Decide merge of `ui-quiet-studio` into `main`**: Branch `ui-quiet-studio` contains all clean Quiet Studio commits (T-041, T-042, T-043). Brain recommendation: verify fixes first by screenshot, then merge into `main`.
 5. **(e) Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
 
