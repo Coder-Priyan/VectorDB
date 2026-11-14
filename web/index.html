@@ -552,7 +552,10 @@
       <div id="compare-main-area" class="compare-grid">
         <!-- Column 1 (Left Panel): Controls, Progress & Summary Metrics -->
         <div class="compare-col compare-col-left compare-panel">
-          <h2 id="compare-controls-title" class="section-title">Benchmark Demo Vectors</h2>
+          <div class="panel-header-with-subtitle">
+            <h2 id="compare-controls-title" class="section-title">Benchmark Setup</h2>
+            <p class="text-muted text-xs">Configure the experiment and run a comparison.</p>
+          </div>
 
           <!-- Demo Controls -->
           <div id="compare-demo-controls" class="compare-controls-stack">
@@ -603,7 +606,10 @@
 
           <!-- Summary Metrics -->
           <div class="compare-summary-section">
-            <h3 class="section-title">Summary Metrics</h3>
+            <div class="panel-header-with-subtitle">
+              <h3 class="section-title">Summary Metrics</h3>
+              <p class="text-muted text-xs">Overall performance across algorithms.</p>
+            </div>
             <div class="compare-summary-table-wrap" tabindex="0" aria-label="Summary Metrics">
               <table class="info-table compare-summary-table">
                 <thead>
@@ -681,7 +687,10 @@
 
           <!-- Column 3 (Right Panel): Top-k Ground Truth Diff Table -->
           <div id="compare-diff-col" class="compare-col compare-col-right compare-panel">
-            <h3 class="section-title">Top-k Results Ground Truth Diff</h3>
+            <div class="panel-header-with-subtitle">
+              <h3 class="section-title">Top-k ground truth diff</h3>
+              <p class="text-muted text-xs">Compare retrieved top-k results with the ground truth.</p>
+            </div>
             <div class="compare-diff-scroll" tabindex="0" aria-label="Top-k Ground Truth Diff">
               <table class="info-table compare-diff-table">
                 <thead>

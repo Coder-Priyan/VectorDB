@@ -2828,6 +2828,18 @@ details:not([open]) .glass-box-chevron {
 }
 
 /* 3-Column Grid Container */
+.panel-header-with-subtitle {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: var(--space-3);
+  flex-shrink: 0;
+}
+
+.panel-header-with-subtitle .section-title {
+  margin: 0;
+}
+
 .compare-grid {
   display: grid;
   grid-template-columns: 420px 385px minmax(360px, 1fr);
