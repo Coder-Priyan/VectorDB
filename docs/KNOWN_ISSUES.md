@@ -1,6 +1,6 @@
 # Known Issues, Limitations & Risk Tracker
 
-Last updated: 2026-11-14 by SYNC-005
+Last updated: 2026-11-14 by T-055
 
 | ID | Type | Description | Where (File/Function) | Severity | Evidence | Status | Date |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -44,13 +44,13 @@ Last updated: 2026-11-14 by SYNC-005
 | ISS-038 | Layout | Ask Documents panel inventory row plain text, grey blob Chunks button; composer Algorithm select cramped | `web/js/ask.js`, `web/css/app.css` | Low | [CONFIRMED: web/js/ask.js:360, web/css/app.css:1710] | FIXED (visual screenshot pending) | 2026-11-14 |
 | ISS-039 | Layout | Settings tab used 6 boxed cards with heavy lines; rebuilt in T-043 with status rail, and in T-046 into a one-screen 3-column panel grid of filled surfaces (--bg-panel, no borders, no shadows) | `web/index.html`, `web/css/app.css` | Medium | [CONFIRMED: web/index.html:536] | FIXED (visual screenshot pending) | 2026-11-14 |
 | ISS-040 | Tech Debt | CSS `!important` count was 15 in web/css/app.css (override smell) | `web/css/app.css` | Low | [CONFIRMED: web/css/app.css] | FIXED (reduced from 15 to 3) | 2026-11-14 |
-| ISS-041 | Tech Debt | Font is still IBM Plex Sans (+Mono); Inter not added (`web/fonts/` lacks Inter `.woff2` files) | `web/fonts/`, `web/css/app.css` | Low | [CONFIRMED: web/fonts/] | OPEN | 2026-11-14 |
+| ISS-041 | Tech Debt | Font is still IBM Plex Sans (+Mono); Inter not added (`web/fonts/` lacks Inter `.woff2` files) | `web/fonts/`, `web/css/app.css` | Low | [CONFIRMED: web/fonts/] | CLOSED (not needed; IBM Plex Sans enforced by ADR-047) | 2026-11-14 |
 | ISS-042 | Unverified Area | HNSW tab, 1366x768 viewport, sidebar collapsed, 125% zoom, and Ask empty state (chip version) are NOT yet verified by screenshot | `web/` | Low | [CONFIRMED: project context] | OPEN | 2026-11-14 |
 | ISS-043 | Layout | Settings panel stretching in T-047 made panels hollow and sparse; task T-048 planned by Brain (content-sized panels, balanced columns, left-aligned header) but NOT executed yet | `web/css/app.css` | Low | [CONFIRMED: human review 2026-11-14] | OPEN | 2026-11-14 |
 | ISS-044 | Layout & Bug | Compare tab redesign (T-049) visually REJECTED by human: empty-state card & skeletons stayed visible above results pushing results down causing scroll; controls bar cramped; diff table 8 rows; summary metrics & bars side-by-side. Rebuilt in T-050 (3-column grid: controls+progress+summary left, 3 stacked chart panels middle, diff table 10 rows right, calm mutually-exclusive empty state). | `web/index.html`, `web/js/compare.js`, `web/css/app.css` | Medium | [CONFIRMED: human screenshot 2026-11-14] | OPEN (T-050 implemented, screenshot verification pending) | 2026-11-14 |
 | ISS-045 | Layout | T-050 Compare after human screenshot: diff table showed 8 rows (row 9 clipped, row 10 hidden) although builder report claimed 10 rows fit; nested inner surfaces in diff, summary and chart panels; badges far from ID text; hollow bottom area in left panel; Median showed extra (0.0 ms). | `web/index.html`, `web/css/app.css`, `web/js/compare.js`, `web/js/compare_helpers.js` | Medium | [CONFIRMED: human screenshot 2026-11-14] | FIXED in T-051 (visual screenshot pending) | 2026-11-14 |
 | ISS-046 | Layout | T-051 made Compare panels content-sized (Brain instruction error); human screenshot showed large empty area below panels and squeezed charts; human preferred the T-050 full-height layout. | `web/css/app.css`, `web/js/compare_helpers.js` | Low | [CONFIRMED: human screenshot 2026-11-14] | FIXED in T-052 (visual screenshot pending) | 2026-11-14 |
 | ISS-047 | Bug | Compare left panel kept stale Summary Metrics and "Completed 5 benchmark runs." after the Demo collection became empty or changed; empty panel title was generic "Notice". Fixed in T-053: resetCompareView clears metrics, status, canvases, and diff table on collection change, count === 0, or tab activation; empty title updated dynamically ("Collection is empty", "No documents yet", "No benchmark yet"). | `web/js/compare.js`, `web/js/compare_helpers.js` | Medium | [CONFIRMED: human screenshot 2026-11-14] | FIXED in T-053 (visual screenshot pending) | 2026-11-14 |
-| ISS-048 | UX | Human feedback: product works but lacks product-level UI/feel; whole-UI redesign planned (ADR-046) | `web/` | Medium | [CONFIRMED: human instruction in chat] | OPEN | 2026-11-14 |
+| ISS-048 | UX | Human feedback: product works but lacks product-level UI/feel; whole-UI redesign planned (ADR-046) | `web/` | Medium | [CONFIRMED: human instruction in chat] | IN PROGRESS (ADR-047, T-055) | 2026-11-14 |
 
 *(Optional polish, not an issue: Compare sidebar has empty space below Summary Metrics at 1920x1080.)*

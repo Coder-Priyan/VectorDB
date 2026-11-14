@@ -1,6 +1,6 @@
 # Project Handoff
 
-Last updated: 2026-11-14 by SYNC-005
+Last updated: 2026-11-14 by T-055
 
 ## 1. Current Status
 
@@ -18,20 +18,20 @@ Task T-053 resolved Compare tab stale results and empty state presentation. Adde
 
 Task T-054 replaced the 3 middle-column Compare bar charts with the human-approved design from AI mockups (ADR-045). Added HTML panel headers with SVG line icons (`clock`, `layers`/`stack`, `target` in `web/js/icons.js`), bold titles ("Latency (µs)", "Distance Computations", "Recall@k"), and muted subtitles ("Lower is better", "Higher is better"); thicker solid horizontal bars (14-18px) with rounded right ends and mono value labels; hairline x-axes with tick marks, muted tick labels, and centered axis titles; pure helper `niceAxis(maxValue)` (~5-6 ticks) and `mapChartRows(metricKey, report, latencies)` reading real server responses. Registered browser unit tests expanded to 113 (8 new pure-logic tests).
 
+Following human approval of the full set of 7 AI mockups (ADR-047, superseding Quiet Studio), Task T-055 initiated the Redesign v3 on branch `ui-redesign-v3`. T-055 established the unified design foundation (3 dark surfaces `#09090b`, `#121215`, `#18181c`, amber accent `#d9a441`, radii 6/10/14px, hairlines restricted to tables/metric strips/sidebar dividers, zero box-shadows), app shell (brand header, timestamped Recent Chats with `+` action, footer with `Ollama online` / `v0.4.0` status pills), and completely rebuilt the Ask tab (centered 860px viewport, empty state with chips matching `01-ask-empty.png`, results view with user avatar timestamps, assistant layers logo, citation pills, glass-box accordion with 3-part chunk cards, 5-column latency metric tiles with amber Total tile, 3 action buttons matching `02-ask-results.png`, and slide-over `.ask-docs-drawer`).
+
 - **Key Collaboration & Process Lessons**:
-  - **The Real Goal: Full Product-Level Redesign (ADR-046)**: Human gives the real goal in plain words: "product works fine but there is no product feel, no good UI, design or structure; I want a proper good redesign of the whole UI." Piecemeal per-tab patching is STOPPED. Next direction = whole product-level UI redesign in 3 stages.
-  - **AI Mockups Per Tab Caused Incoherence**: Each tab's mockup came from a different AI image generator run, so tabs (Settings vs Compare vs Ask) do not feel like one coherent product. Future redesign must start from ONE design system and ONE hero screen (Ask tab), then derive all other tabs.
-  - **Dual Mockup Rule**: The mockup given to the builder in T-049 showed only the empty state; always get BOTH empty-state and results mockups before implementing so the builder does not invent results layouts.
-  - **Builder Claims vs Human Screenshots**: Builder reports claimed "zero deviations" three times (T-046, T-047, T-049) while screenshots showed real deviations. T-050 builder claimed all 10 diff rows fit; real screenshot showed 8. Judge UI strictly by human screenshots at 100% browser zoom; builder claims of visual accuracy are never proof. Mark all visual aspects "not tested (visual)".
-  - **Tab-Specific Panel Sizing**: Content-sized panels are right for Settings (T-047 lesson) but NOT for Compare (T-051 lesson); follow each tab's mockup rather than transferring sizing rules between tabs.
-  - **ADR Numbering Gap**: Note that ADR-042 was reserved for T-048 (Settings content-sized panels) which was written but not executed, so ADR-042 is missing from `DECISIONS.md`. Any future Settings task must use ADR-047 or higher (ADR-045 is Compare charts, ADR-046 is full UI redesign).
+  - **Full Product-Level Redesign (ADR-047)**: Human approved 7 AI mockups saved in `docs/mockups/` representing one coherent design direction for the entire app. T-048 (Settings content-sized panels) is CANCELLED (superseded by ADR-047). Redesign v3 proceeds tab-by-tab with human screenshots after each task.
+  - **AI Mockup Realism & Engine Constraints**: AI mockups invent controls the engine does not have. Mismatches to handle: Compare mockup shows Query Count, algorithm checkboxes, ms units and per-query match counts, but the real Compare has repetitions (1/3/5), one query run on all 3 algorithms, latency in microseconds and a rank-by-rank top-10 diff; Settings mockup shows System panel (max context, chunk size/overlap), Auto-save toggle, Export/Import collection, storage quota, uptime, model llama3.1:8b which are not real (model is llama3.2; persistence is the --data-dir flag); Explore, HNSW and Settings have no empty-state mockup, use the shared empty-state component.
+  - **Builder Claims vs Human Screenshots**: Builder reports claimed "zero deviations" multiple times while screenshots showed real deviations. Judge UI strictly by human screenshots at 100% browser zoom; builder claims of visual accuracy are never proof. Mark all visual aspects "not tested (visual)".
   - **Collaboration Preferences**: Human uses ChatGPT/Gemini for mockups and passes the chosen image. Brain gives outcome briefs; builder decides implementation. Human writes Hinglish (Hindi in Roman letters); Brain replies in short Hinglish with one question at a time.
-  - **No Merge Until Approval**: Do not merge `ui-quiet-studio` to `main` and do not push until the new product-level UI redesign direction (ADR-046) is approved.
+  - **No Merge Until Approval**: Do not merge `ui-redesign-v3` to `main` and do not push until the human explicitly approves.
 
 - **Branches**:
   - `ui-redesign`: Base v2 platform through T-039.
   - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
-  - `ui-quiet-studio`: Active branch containing T-041 (Quiet Studio rebuild), T-042 (batched fixes), T-043 (Settings redesign + polish), T-044/T-045 (docs fixes), T-046 (Settings 3-column panel grid rebuild), T-047 (Settings full width/height), T-049 (superseded), T-050 (Compare tab rebuild from human-approved mockup), T-051 (Compare table & metric fixes), T-052 (Compare full-height equal panel restoration), T-053 (Compare reset stale results), T-054 (Compare new bar charts & axis system), and SYNC-005.
+  - `ui-quiet-studio`: Quiet Studio branch through T-054 and SYNC-005.
+  - `ui-redesign-v3`: Active branch containing T-055 (foundation + shell + Ask tab).
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
   - *Nothing pushed to remote origin.*
 - **Human Verification on 2026-11-14**:
@@ -143,32 +143,36 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 - **Branches**:
   - `ui-redesign`: Base v2 platform + T-039 docs polish.
   - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
-  - `ui-quiet-studio`: Active branch containing T-041 (Quiet Studio rebuild), T-042 (batched fixes), T-043 (Settings redesign + polish), SYNC-003, T-044 (browser test count fix to 94), T-045 (human C++ test verification), T-046 (Settings 3-column panel grid rebuild), T-047 (Settings full width/height & roomier panels), T-049 (Compare tab redesign), T-050 (Compare rebuild from mockup), T-051 (diff table clipping fixes), T-052 (restored full-height equal panels), T-053 (stale results clearing on empty/switch), T-054 (new 3-bar charts & axis system), and SYNC-005 (docs sync for new Brain chat handoff).
+  - `ui-quiet-studio`: Quiet Studio branch through T-054 and SYNC-005.
+  - `ui-redesign-v3`: Active branch containing T-055 (foundation + shell + Ask tab).
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
-- **Tracking Status**: Local branch `ui-quiet-studio` without upstream tracking (commits unpushed per protocol; nothing pushed to origin).
-- **Working Tree**: Only untracked test logs in `results/logs/`.
+- **Tracking Status**: Local branch `ui-redesign-v3` without upstream tracking (commits unpushed per protocol; nothing pushed to origin).
+- **Working Tree**: Clean tracked files; only untracked test logs in `results/logs/`.
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
 ---
 
 ## 5. Pending Human Actions
 
-1. **(a) Answer Stage 1 redesign questions in new Brain chat**: Provide 2-3 reference apps/products, dark vs light preference, and intended vibe (calm/minimal, sharp/technical, warm/friendly) to define the whole-UI design system (ADR-046).
+1. **(a) Screenshots after each task**: Send screenshots of Ask tab empty state and Ask tab results state (100% zoom, 1920x1080).
 2. **(b) License copyright name**: Fill `<YOUR NAME>` placeholder in `LICENSE`.
-3. **(c) Add Inter font files (optional)**: Add Inter `.woff2` files to `web/fonts/` (pending human action; currently IBM Plex Sans enforced).
+3. **(c) No merge and no push**: Do NOT merge `ui-redesign-v3` into `main` and do NOT push to remote origin until approved.
 4. **(d) Compare empty-state & `/tests.html` screenshots (when convenient)**: Send screenshots of Compare tab empty state and `/tests.html` (expecting 113/113) when convenient; no blocker.
-5. **(e) No merge and no push**: Do NOT merge `ui-quiet-studio` into `main` and do NOT push to remote origin until the new design direction (ADR-046) is approved.
-6. **(f) Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
+5. **(e) Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
 
 ---
 
 ## 6. Open Follow-ups & Roadmap
 
 ### Open Follow-ups
-- **Full product-level UI redesign (ADR-046)**: Piecemeal per-tab patching is stopped. Executing in 3 stages (Stage 1: Direction interview; Stage 2: Unified design system & Ask hero screen mockup; Stage 3: Tab-by-tab rebuild on the new system).
-- **Settings content-sized panels (T-048)**: PAUSED by ADR-046; if ever executed, must be assigned ADR-047 or higher.
+- **Redesign v3 rollout (ADR-047)**:
+  - T-055: Foundation, app shell, Ask tab (DONE on `ui-redesign-v3`).
+  - T-056: Explore & HNSW tabs rebuild from mockups `03-explore.png` and `04-hnsw.png`.
+  - T-057: Compare tab rebuild from mockups `05-compare-results.png` and `06-compare-empty.png`.
+  - T-058: Settings tab rebuild from mockup `07-settings.png`.
+  - T-059: Consistency sweep across all 5 tabs.
+- **T-048**: CANCELLED (superseded by ADR-047).
 - Optional C++ unit test for ISS-006 ingest rollback.
-- Human addition of Inter font files to `web/fonts/` (ISS-041).
 
 ### Roadmap (Not Started)
 - **Hybrid search (BM25 + RRF)**: Requires inverted index and rank fusion; on roadmap, but strictly out of scope for v2.
@@ -180,10 +184,9 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ## 7. Recommended Next Step
 
-1. Open new Brain chat.
-2. Human answers Stage 1 questions (2-3 reference apps, dark/light, vibe).
-3. Brain then proposes the Stage 2 design system and Ask hero mockup brief.
-4. No merge of `ui-quiet-studio` to `main` and no push until the new design direction is approved.
+1. Human sends screenshots of Ask empty and Ask results (100% zoom, 1920x1080).
+2. Brain reviews screenshots and proceeds with T-056 (Explore and HNSW rebuild).
+3. No merge of `ui-redesign-v3` to `main` and no push to origin.
 
 ---
 
