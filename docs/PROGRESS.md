@@ -1,6 +1,6 @@
 # Project Progress
 
-Last updated: 2026-11-14 by T-045
+Last updated: 2026-11-14 by T-046
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform (Task T-033 Complete across all 9 Phases P0-P8, Branch `ui-quiet-studio`)
 
@@ -27,6 +27,7 @@ Last updated: 2026-11-14 by T-045
 - **T-041**: Rebuild the UI layer properly - "Quiet Studio" on branch `ui-quiet-studio`. Clean structural rewrite in 6 phased commits (`e495d64`, `9e4d24e`, `3c49374`, `0e08c3a`, `e1880fe`, `1882064`) enforcing 3 dark surfaces, zero box-shadows, zero non-sidebar lines, and IBM Plex Sans typography. Status: IMPLEMENTED (visual verification pending).
 - **T-042**: Quiet Studio fixes after human screenshot review on branch `ui-quiet-studio`. Batched fixes in 3 commits (`eeb605e`, `280c3b2`, `f466c41`) addressing compact single-row toolbars, compare 3-row canvas fitting, summary metrics recall column (ISS-024), unified canvas panels, custom native controls, shared empty states, and expanding test suite to 93 tests. Status: IMPLEMENTED (partially verified by human screenshots on 2026-11-14: `/tests.html` 93/93, Explore toolbar, Compare 3 charts & 5 columns, Settings sans status; remaining items visual verification pending).
 - **T-043**: Settings redesign (reference-guided) + pending Ask/Compare polish on branch `ui-quiet-studio`. Two commits (`c84a913`, `34e403a`) implementing live status rail (Variant E), unboxed stacked settings, compare empty state restoration (ISS-035), Ask latency breakdown grid (ISS-037), slide-over document drawer preserving chat center (ISS-036), widened mini select (ISS-038), reducing CSS `!important` to 3, and expanding test suite to 94 tests. Status: IMPLEMENTED (visual verification pending).
+- **T-046**: Settings page rebuild: one-screen 3-column panel grid (human-chosen mockup) on branch `ui-quiet-studio`. Rebuilt Settings under shared `.page-header` into a 3-column grid of filled surfaces (`--bg-panel`, no borders, no shadows) fitting on one screen with no page scroll: Col 1 Server status (full column height), Col 2 Demo collection / Insert random / Persistence, Col 3 Chat history / Documentation / Danger zone (soft danger reset, two-step confirm). Single `.btn-primary` (`#demo-insert-random-btn`). Responsive collapse stacking with Server status first below 1100px. Status: IMPLEMENTED (visual verification pending).
 
 All 118 C++ tests pass (529,813 assertions, human-confirmed by terminal after T-043). 94 browser unit tests registered (94/94 confirmed passed by human screenshot at `/tests.html`). 100% clean web safety scan.
 
@@ -61,6 +62,7 @@ All 118 C++ tests pass (529,813 assertions, human-confirmed by terminal after T-
 | **Quiet Studio UI Design System** (Zero lines except sidebar edge, depth via 3 dark surfaces, zero box-shadows, zero table row underlines, IBM Plex Sans typography, 94 browser unit tests) | `web/css/app.css`, `web/js/colors.js` | [CONFIRMED: ADR-038] | IMPLEMENTED (visual not tested) |
 | **Quiet Studio Layout & Controls Tuning** (Compact single-row toolbars, 170px compare canvas 3-row fit, 440px sidebar unclipped summary metrics, unified canvas panels, custom native controls) | `web/css/app.css`, `web/js/compare_helpers.js` | [CONFIRMED: ADR-039] | IMPLEMENTED (partially tested by screenshots) |
 | **Settings Status Rail & Glass-Box Polish** (Variant E unboxed settings + boxed live status rail, compare empty state restored, Ask latency grid, slide-over drawer preserving chat center) | `web/index.html`, `web/css/app.css`, `web/js/settings.js`, `web/js/compare.js`, `web/js/ask.js` | [CONFIRMED: ADR-040] | IMPLEMENTED (visual not tested) |
+| **Settings 3-Column Panel Grid** (One-screen 3-column panel grid with filled surface panels, zero borders, zero shadows, responsive collapse to 1 column below 1100px) | `web/index.html`, `web/css/app.css`, `web/js/settings.js` | [CONFIRMED: ADR-041] | IMPLEMENTED (visual not tested) |
 
 ---
 

@@ -1906,44 +1906,56 @@ input[type="number"] {
   margin-top: 4px;
 }
 
-.settings-layout {
-  display: flex;
-  gap: var(--space-7);
-  align-items: flex-start;
-  max-width: 1040px;
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  max-width: 1360px;
   margin: 0 auto;
   width: 100%;
+  box-sizing: border-box;
+  align-items: stretch;
 }
 
-/* Left Column: Stacked sections with generous whitespace, zero cards, zero dividers */
-.settings-main {
-  flex: 1;
+.settings-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
 }
 
-.settings-section {
+.settings-panel {
+  background: var(--bg-panel);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  border: none;
+  box-shadow: none;
+  outline: none;
 }
 
-.settings-section .section-title {
+.settings-panel-status {
+  height: 100%;
+  flex: 1;
+}
+
+.settings-panel .section-title {
   font-size: var(--text-md);
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 2px;
 }
 
-.settings-section .section-desc {
+.settings-panel .section-desc {
   font-size: var(--text-xs);
   color: var(--text-muted);
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
-.settings-danger-section {
-  margin-top: var(--space-4);
+.settings-panel-danger .section-title {
+  color: var(--danger);
 }
 
 /* Consistent row pattern for Persistence & storage and Documentation */
@@ -2001,25 +2013,7 @@ input[type="number"] {
   font-weight: 500;
 }
 
-/* Right Column: One sticky Server status rail (the only boxed surface) */
-.settings-status-rail {
-  width: 320px;
-  min-width: 320px;
-  background: var(--bg-panel);
-  border-radius: var(--radius-md);
-  padding: var(--space-5);
-  position: sticky;
-  top: var(--space-4);
-  box-sizing: border-box;
-}
-
-.status-rail-title {
-  font-size: var(--text-md);
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: var(--space-4);
-}
-
+/* Server status list within settings-panel-status */
 .status-rail-list {
   display: flex;
   flex-direction: column;
@@ -2405,6 +2399,17 @@ input[type="number"] {
 }
 
 
+@media (max-width: 1100px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .settings-panel-status {
+    height: auto;
+  }
+}
+
 /* Responsive Small-Screen Fallback */
 @media (max-width: 1024px) {
   .viz-layout {
@@ -2417,16 +2422,6 @@ input[type="number"] {
     min-width: 0;
     max-width: 100%;
     height: auto;
-  }
-
-  .settings-layout {
-    flex-direction: column-reverse;
-  }
-
-  .settings-status-rail {
-    width: 100%;
-    min-width: 0;
-    position: static;
   }
 }
 

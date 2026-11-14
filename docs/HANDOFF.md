@@ -1,15 +1,15 @@
 # Project Handoff
 
-Last updated: 2026-11-14 by T-045
+Last updated: 2026-11-14 by T-046
 
 ## 1. Current Status
 
-VectorDB v2 has been completely built across all 9 phases (P0 to P8). Following human browser review on 2026-11-14, Tasks T-034 through T-038 resolved confirmed UI issues, test edge cases, and glass-box response mappers. Following visual rejection of T-040 ("no fun at all", line noise, patched overrides), Task T-041 rebuilt the UI layer under "Quiet Studio". Task T-042 addressed batched human review items across toolbars, compare canvas bars, summary table column visibility, HNSW topology viewport budgeting, native control restyling, and shared empty states. Task T-043 implemented the reference-guided Settings redesign with a live status rail, fixed Compare empty state restoration, transformed Ask glass-box latency breakdown to a tidy grid, converted the Documents drawer to an absolute slide-over panel preserving chat centering, reduced CSS `!important` to 3, and expanded test coverage.
+VectorDB v2 has been completely built across all 9 phases (P0 to P8). Following human browser review on 2026-11-14, Tasks T-034 through T-038 resolved confirmed UI issues, test edge cases, and glass-box response mappers. Following visual rejection of T-040 ("no fun at all", line noise, patched overrides), Task T-041 rebuilt the UI layer under "Quiet Studio". Task T-042 addressed batched human review items across toolbars, compare canvas bars, summary table column visibility, HNSW topology viewport budgeting, native control restyling, and shared empty states. Task T-043 implemented the reference-guided Settings redesign with a live status rail, fixed Compare empty state restoration, transformed Ask glass-box latency breakdown to a tidy grid, converted the Documents drawer to an absolute slide-over panel preserving chat centering, reduced CSS `!important` to 3, and expanded test coverage. Following human review of Settings (long single scroll rejected), Task T-046 rebuilt Settings into a one-screen 3-column panel grid of filled surface panels (--bg-panel, no borders, no shadows) chosen by the human from an AI mockup (structure and feel only).
 
 - **Branches**:
   - `ui-redesign`: Base v2 platform through T-039.
   - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
-  - `ui-quiet-studio`: Active branch containing T-041 (Quiet Studio rebuild), T-042 (batched fixes), and T-043 (Settings redesign + polish).
+  - `ui-quiet-studio`: Active branch containing T-041 (Quiet Studio rebuild), T-042 (batched fixes), T-043 (Settings redesign + polish), T-044/T-045 (docs fixes), and T-046 (Settings 3-column panel grid rebuild).
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
   - *Nothing pushed to remote origin.*
 - **Human Verification on 2026-11-14**:
@@ -79,7 +79,7 @@ Per git log on branch `ui-redesign` and `ui-polish-2026`:
 - `web/js/sidebar.js` - Collapsible navigation sidebar and recent chats controller
 - `web/js/palette.js` - Keyboard-first Command Palette (`Ctrl+K` / `Cmd+K`)
 - `web/js/learn_content.js` - Plain-language learning explainers and interactive guided tour
-- `web/js/tests/test_v2.js` - Browser unit tests for v2 functionality (14 tests)
+- `web/js/tests/test_v2.js` - Browser unit tests for v2 functionality (15 tests)
 - `web/samples/vectordb_intro.txt` - Sample document for zero-friction testing
 - `LICENSE` - MIT License with `<YOUR NAME>` copyright holder placeholder
 - `CONTRIBUTING.md` - Open-source contribution guidelines
@@ -114,7 +114,7 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 - **Branches**:
   - `ui-redesign`: Base v2 platform + T-039 docs polish.
   - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
-  - `ui-quiet-studio`: Active branch containing T-041 (Quiet Studio rebuild), T-042 (batched fixes), T-043 (Settings redesign + polish), and the latest commit `3d8ce2d` (SYNC-003 docs sync) on top of `34e403a`.
+  - `ui-quiet-studio`: Active branch containing T-041 (Quiet Studio rebuild), T-042 (batched fixes), T-043 (Settings redesign + polish), SYNC-003, T-044 (browser test count fix to 94), T-045 (human C++ test verification), and T-046 (Settings 3-column panel grid rebuild).
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
 - **Tracking Status**: Local branch `ui-quiet-studio` without upstream tracking (commits unpushed per protocol; nothing pushed to origin).
 - **Working Tree**: The human's `git status -sb` shows only untracked files in `results/logs/`.
@@ -126,9 +126,9 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 1. **(a) License copyright name**: Fill `<YOUR NAME>` placeholder in `LICENSE`.
 2. **(b) Add Inter font files (optional)**: Add Inter `.woff2` files to `web/fonts/` (pending human action; currently IBM Plex Sans enforced).
-3. **(c) Take screenshots for unverified / reported areas (T-043 Quiet Studio)**:
-   - Settings tab at 1920x1080 (unboxed stacked settings on left, sticky boxed "Server status" rail on right with status dot and Ollama model chips).
-   - Settings tab at 1366x768 and below 1100px (status rail stacked above settings, single `.app-content` scrollbar).
+3. **(c) Take screenshots for unverified / reported areas (T-046 Quiet Studio)**:
+   - Settings tab at 1920x1080 (one-screen 3-column panel grid: Col 1 Server status, Col 2 Demo/Insert/Persistence, Col 3 Chats/Docs/Danger zone; filled `--bg-panel` surfaces, no borders, no shadows).
+   - Settings tab at 1366x768 and below 1100px (responsive collapse with Server status first, single `.app-content` scrollbar if overflowing).
    - Compare tab: empty state card with CTA button visible before first benchmark run on demo/docs collections.
    - Ask tab: glass-box latency breakdown formatted as tidy label+value tiles in sans font; chat column remaining centered with zero horizontal shift when Documents inventory drawer is opened or closed.
    - HNSW tab at 1366x768 and 1920x1080 with topology summary.
@@ -137,7 +137,7 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
    - Persistence restart screenshot with `--data-dir ./data`.
    - `Ctrl+K` Command Palette navigation.
    - Interactive guided tour.
-4. **(d) Decide merge of `ui-quiet-studio` into `main`**: Branch `ui-quiet-studio` contains all clean Quiet Studio commits (T-041, T-042, T-043). Brain recommendation: verify fixes first by screenshot, then merge into `main`.
+4. **(d) Decide merge of `ui-quiet-studio` into `main`**: Branch `ui-quiet-studio` contains all clean Quiet Studio commits (T-041, T-042, T-043, T-046). Brain recommendation: verify fixes first by screenshot, then merge into `main`.
 5. **(e) Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
 
 ---

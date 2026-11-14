@@ -1,6 +1,6 @@
 # Known Issues, Limitations & Risk Tracker
 
-Last updated: 2026-11-14 by SYNC-003
+Last updated: 2026-11-14 by T-046
 
 | ID | Type | Description | Where (File/Function) | Severity | Evidence | Status | Date |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -42,7 +42,7 @@ Last updated: 2026-11-14 by SYNC-003
 | ISS-036 | Layout | Ask tab chat container shifted off-center when Documents drawer opened | `web/css/app.css` | Low | [CONFIRMED: web/css/app.css:1720] | FIXED (visual screenshot pending) | 2026-11-14 |
 | ISS-037 | Layout | Ask glass-box latency shown as one mono line; Compare rows in mono; full-width action bars | `web/js/ask.js`, `web/css/app.css` | Low | [CONFIRMED: web/js/ask.js:710] | FIXED (visual screenshot pending) | 2026-11-14 |
 | ISS-038 | Layout | Ask Documents panel inventory row plain text, grey blob Chunks button; composer Algorithm select cramped | `web/js/ask.js`, `web/css/app.css` | Low | [CONFIRMED: web/js/ask.js:360, web/css/app.css:1710] | FIXED (visual screenshot pending) | 2026-11-14 |
-| ISS-039 | Layout | Settings tab used 6 boxed cards with heavy lines | `web/index.html`, `web/css/app.css` | Medium | [CONFIRMED: web/index.html:150] | FIXED (visual screenshot pending) | 2026-11-14 |
+| ISS-039 | Layout | Settings tab used 6 boxed cards with heavy lines; rebuilt in T-043 with status rail, and in T-046 into a one-screen 3-column panel grid of filled surfaces (--bg-panel, no borders, no shadows) | `web/index.html`, `web/css/app.css` | Medium | [CONFIRMED: web/index.html:536] | FIXED (visual screenshot pending) | 2026-11-14 |
 | ISS-040 | Tech Debt | CSS `!important` count was 15 in web/css/app.css (override smell) | `web/css/app.css` | Low | [CONFIRMED: web/css/app.css] | FIXED (reduced from 15 to 3) | 2026-11-14 |
 | ISS-041 | Tech Debt | Font is still IBM Plex Sans (+Mono); Inter not added (`web/fonts/` lacks Inter `.woff2` files) | `web/fonts/`, `web/css/app.css` | Low | [CONFIRMED: web/fonts/] | OPEN | 2026-11-14 |
 | ISS-042 | Unverified Area | HNSW tab, 1366x768 viewport, sidebar collapsed, 125% zoom, and Ask empty state (chip version) are NOT yet verified by screenshot | `web/` | Low | [CONFIRMED: project context] | OPEN | 2026-11-14 |
