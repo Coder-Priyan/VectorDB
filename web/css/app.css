@@ -1475,12 +1475,13 @@ input[type="number"] {
 /* Glass-Box Chat & Ask Tab Layout */
 .ask-layout {
   display: flex;
-  gap: var(--space-6);
+  gap: 0;
   align-items: stretch;
   width: 100%;
   height: 100%;
   min-height: 0;
   position: relative;
+  overflow: hidden;
 }
 
 .ask-chat-viewport {
@@ -1490,12 +1491,17 @@ input[type="number"] {
   min-width: 0;
   height: 100%;
   min-height: 0;
+  padding: 0 var(--space-6);
 }
 
 .ask-chat-viewport > .page-header {
-  padding: var(--space-3) 0 var(--space-4);
-  margin-bottom: var(--space-3);
+  padding: var(--space-4) 0 var(--space-3);
+  margin-bottom: var(--space-2);
   flex-shrink: 0;
+  max-width: 820px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Ask Tab Empty State Guided Card */
@@ -1504,10 +1510,11 @@ input[type="number"] {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
-  max-width: 640px;
+  max-width: 680px;
   width: 100%;
-  margin: var(--space-4) auto;
+  margin: var(--space-6) auto;
   text-align: left;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 .ask-guide-steps {
@@ -1550,10 +1557,10 @@ input[type="number"] {
 }
 
 .ask-example-q-btn {
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-4);
   font-size: var(--text-xs);
   color: var(--text-secondary);
   text-align: left;
@@ -1563,7 +1570,7 @@ input[type="number"] {
 }
 
 .ask-example-q-btn:hover {
-  background: var(--bg-elevated);
+  background: var(--bg-active);
   border-color: var(--accent-border);
   color: var(--text-primary);
 }
@@ -1595,7 +1602,10 @@ input[type="number"] {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  padding: var(--space-2) 0;
+  padding: var(--space-2) 0 var(--space-4);
+  max-width: 820px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .chat-bubble-row {
@@ -1613,28 +1623,30 @@ input[type="number"] {
 }
 
 .chat-bubble-user {
-  background: var(--bg-active);
+  background: var(--bg-surface);
   border: 1px solid var(--border-active);
-  border-radius: 12px 12px 2px 12px;
+  border-radius: var(--radius-lg);
   padding: var(--space-3) var(--space-4);
   max-width: 75%;
   color: var(--text-primary);
   word-break: break-word;
   white-space: pre-wrap;
   font-size: var(--text-sm);
+  line-height: 1.6;
 }
 
 .chat-bubble-assistant {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 12px 12px 12px 2px;
+  border-radius: var(--radius-lg);
   padding: var(--space-4);
-  max-width: 90%;
+  max-width: 100%;
   width: 100%;
   color: var(--text-primary);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
 }
 
 .chat-assistant-content {
@@ -1676,6 +1688,7 @@ input[type="number"] {
   display: flex;
   align-items: center;
   gap: 4px;
+  transition: all 0.12s ease;
 }
 
 .chat-msg-action-btn:hover {
@@ -1687,8 +1700,8 @@ input[type="number"] {
 /* Glass-box Details Accordion */
 .glass-box-details {
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
   overflow: hidden;
   margin-top: var(--space-2);
 }
@@ -1702,7 +1715,8 @@ input[type="number"] {
   color: var(--text-muted);
   cursor: pointer;
   user-select: none;
-  background: var(--bg-secondary);
+  background: transparent;
+  transition: color 0.15s ease;
 }
 
 .glass-box-summary:hover {
@@ -1711,6 +1725,8 @@ input[type="number"] {
 
 .glass-box-body {
   padding: var(--space-3);
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-primary);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -1720,25 +1736,30 @@ input[type="number"] {
 /* Composer */
 .ask-composer-wrap {
   flex-shrink: 0;
-  border-top: 1px solid var(--border-color);
-  padding-top: var(--space-3);
+  padding: var(--space-3) 0 var(--space-5);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  max-width: 820px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .composer-box {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .composer-box:focus-within {
   border-color: var(--border-active);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
 }
 
 .composer-textarea {
@@ -1786,14 +1807,16 @@ input[type="number"] {
   background: var(--bg-surface);
   display: flex;
   flex-direction: column;
-  transition: width 0.2s ease, min-width 0.2s ease, opacity 0.2s ease;
+  transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1), min-width 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.15s ease;
   overflow: hidden;
 }
 
 .ask-docs-drawer.collapsed {
-  width: 0;
-  min-width: 0;
-  border-left: none;
+  width: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  overflow: hidden !important;
   opacity: 0;
   pointer-events: none;
 }
@@ -2118,16 +2141,21 @@ input[type="number"] {
 
 .timings-bar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  margin-top: 16px;
+  gap: var(--space-2);
+  margin-top: 14px;
   padding-top: 10px;
   border-top: 1px solid var(--border-color);
 }
 
 .timing-chip {
-  background: transparent;
-  font-size: 12px;
-  color: var(--text-muted);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  padding: 3px 8px;
+  font-size: 11px;
+  color: var(--text-secondary);
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
@@ -2135,43 +2163,40 @@ input[type="number"] {
 .sources-list {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: var(--space-2);
   flex: 1;
   min-height: 120px;
   overflow-y: auto;
-  margin-top: 4px;
-  border-top: 1px solid var(--border-color);
+  margin-top: 8px;
+  padding-top: 4px;
 }
 
 .source-card {
-  border: none;
-  border-bottom: 1px solid var(--border-color);
-  border-radius: 0;
-  padding: 16px 0;
-  background: transparent;
-  transition: border-color 100ms ease, background-color 100ms ease;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  background: var(--bg-surface);
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .source-card:last-child {
-  border-bottom: none;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .source-card.highlighted {
   border-color: var(--accent-color);
   background: var(--accent-light);
-  padding-left: 10px;
-  padding-right: 10px;
 }
 
 .source-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .source-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--text-primary);
 }
@@ -2180,7 +2205,7 @@ input[type="number"] {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
@@ -2188,14 +2213,16 @@ input[type="number"] {
 
 .meter-track {
   width: 64px;
-  height: 3px;
+  height: 4px;
   background: var(--border-color);
-  border-radius: 0;
+  border-radius: var(--radius-full);
+  overflow: hidden;
 }
 
 .meter-fill {
   height: 100%;
   background: var(--accent-color);
+  border-radius: var(--radius-full);
 }
 
 .source-text {
@@ -3255,11 +3282,11 @@ body:has(#test-results-container) .app-content {
 .glass-box-trace-results {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .glass-box-bench-results:empty,
@@ -3288,9 +3315,9 @@ body:has(#test-results-container) .app-content {
 .bench-item {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 4px 0;
-  border-bottom: 1px solid var(--border-color);
+  gap: 4px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .bench-item:last-child {
@@ -3305,15 +3332,15 @@ body:has(#test-results-container) .app-content {
 
 .bench-bar-track {
   width: 100%;
-  height: 3px;
+  height: 4px;
   background: var(--bg-secondary);
-  border-radius: 2px;
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 
 .bench-bar-fill {
   height: 100%;
-  border-radius: 2px;
+  border-radius: var(--radius-full);
   transition: width 0.3s ease;
 }
 
