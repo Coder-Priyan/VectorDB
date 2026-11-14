@@ -90,10 +90,12 @@ vectordb/
    - Grounded Q&A: retrieves top-$k$ context chunks, formats numbered citation prompt (`[1]`, `[2]`), and streams response tokens [CONFIRMED: src/rag.cpp:220].
 3. **Evaluation Suite (`rag_eval.hpp`, `src/rag_eval.cpp`, `src/rag_eval_main.cpp`)**:
    - Evaluates response quality across prompt templates (v1, v2, v3) measuring citation presence, forbidden phrases, and refusal accuracy [CONFIRMED: src/rag_eval.cpp:30-120].
+4. **Persistence Layer (`persistence.hpp`, `src/persistence.cpp`)**:
+   - Versioned binary file storage (`VDBC` for collection, `VDBR` for RAG pipeline) supporting atomic writes via temp-file rename and automatic startup hydration with full index reconstruction [CONFIRMED: src/persistence.cpp:10].
 
 ### Server & Web Interface Layer
 1. **REST API Server (`api.hpp`, `src/api.cpp`, `src/server_main.cpp`)**:
-   - Embedded multi-threaded HTTP server exposing 29 REST endpoints and static file routes [CONFIRMED: src/server_main.cpp:230-380].
+   - Embedded multi-threaded HTTP server exposing 30 REST endpoints and static file routes [CONFIRMED: src/server_main.cpp:230-380].
 2. **Browser Single Page App (`web/`)**:
    - Zero-dependency client featuring 5 tabs: `#ask` (RAG chat), `#explore` (2D PCA), `#hnsw` (graph viewer), `#compare` (benchmarks), `#settings` (server health) rendered in a dark-only Editor/Terminal aesthetic [CONFIRMED: web/js/main.js:15-60, ADR-018, ADR-019].
 

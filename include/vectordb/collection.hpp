@@ -262,6 +262,35 @@ public:
      */
     CollectionConfig getConfig() const;
 
+    /**
+     * @brief Removes a vector by ID, rebuilding internal indexes from remaining vectors.
+     * Retains exact IDs of remaining vectors. Returns true if vector was found and removed.
+     */
+    bool remove(VectorId id);
+
+    /**
+     * @brief Removes a set of vectors by ID, rebuilding internal indexes from remaining vectors.
+     * Returns count of removed vectors.
+     */
+    std::size_t removeBatch(const std::vector<VectorId>& ids);
+
+    /**
+     * @brief Exports all stored vectors with their IDs and metadata without cap.
+     */
+    std::vector<StoredVector> exportAllVectors() const;
+
+    /**
+     * @brief Returns the next auto-assigned ID counter.
+     */
+    VectorId nextId() const noexcept;
+
+    /**
+     * @brief Rebuilds the collection from stored vectors.
+     */
+    void loadFromVectors(const CollectionConfig& config,
+                         const std::vector<StoredVector>& vectors,
+                         VectorId nextId);
+
 private:
     void validateVector(const std::vector<float>& v) const;
     void validateK(std::size_t k) const;

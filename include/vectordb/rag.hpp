@@ -182,6 +182,17 @@ public:
     /// Get details of a single document including its chunks
     std::optional<DocumentRecord> getDocument(uint64_t id) const;
 
+    /// Delete a document by ID and remove its chunk vectors from the collection.
+    /// Returns true if document existed and was deleted, false otherwise.
+    bool deleteDocument(uint64_t id);
+
+    /// Export documents and nextDocId for persistence
+    std::vector<DocumentRecord> exportDocuments() const;
+    uint64_t nextDocId() const noexcept;
+
+    /// Load documents and nextDocId from persistence
+    void loadDocuments(const std::vector<DocumentRecord>& docs, uint64_t nextDocId);
+
     /// Clear all documents and reset the collection
     void reset();
 

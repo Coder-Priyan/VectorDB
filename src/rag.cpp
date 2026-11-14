@@ -136,20 +136,27 @@ IngestResult RagPipeline::ingest(const std::string& title,
     std::vector<DocumentChunkInfo> docChunks;
     docChunks.reserve(chunks.size());
 
-    for (std::size_t i = 0; i < chunks.size(); ++i) {
-        const auto& ch = chunks[i];
+    try {
+        for (std::size_t i = 0; i < chunks.size(); ++i) {
+            const auto& ch = chunks[i];
 
-        json metaJson;
-        metaJson["doc_id"] = docId;
-        metaJson["title"] = title;
-        metaJson["chunk_index"] = ch.index;
-        metaJson["start"] = ch.startByte;
-        metaJson["end"] = ch.endByte;
-        metaJson["text"] = ch.text; // Text without nomic prefix
+            json metaJson;
+            metaJson["doc_id"] = docId;
+            metaJson["title"] = title;
+            metaJson["chunk_index"] = ch.index;
+            metaJson["start"] = ch.startByte;
+            metaJson["end"] = ch.endByte;
+            metaJson["text"] = ch.text; // Text without nomic prefix
 
-        VectorId vid = collection_->insert(std::nullopt, embeddings[i], metaJson.dump());
-        vectorIds.push_back(vid);
-        docChunks.push_back({ch.index, ch.startByte, ch.endByte, ch.text});
+            VectorId vid = collection_->insert(std::nullopt, embeddings[i], metaJson.dump());
+            vectorIds.push_back(vid);
+            docChunks.push_back({ch.index, ch.startByte, ch.endByte, ch.text});
+        }
+    } catch (...) {
+        if (!vectorIds.empty()) {
+            collection_->removeBatch(vectorIds);
+        }
+        throw;
     }
 
     DocumentRecord rec;
@@ -474,6 +481,42 @@ std::optional<DocumentRecord> RagPipeline::getDocument(uint64_t id) const {
         }
     }
     return std::nullopt;
+}
+
+bool RagPipeline::deleteDocument(uint64_t id) {
+    std::vector<uint64_t> chunkVecIds;
+    {
+        std::lock_guard<std::mutex> lock(pipelineMutex_);
+        auto it = std::find_if(documents_.begin(), documents_.end(), [id](const DocumentRecord& d) {
+            return d.id == id;
+        });
+        if (it == documents_.end()) {
+            return false;
+        }
+        chunkVecIds = it->chunkVectorIds;
+        documents_.erase(it);
+    }
+
+    if (!chunkVecIds.empty()) {
+        collection_->removeBatch(chunkVecIds);
+    }
+    return true;
+}
+
+std::vector<DocumentRecord> RagPipeline::exportDocuments() const {
+    std::lock_guard<std::mutex> lock(pipelineMutex_);
+    return documents_;
+}
+
+uint64_t RagPipeline::nextDocId() const noexcept {
+    std::lock_guard<std::mutex> lock(pipelineMutex_);
+    return nextDocId_;
+}
+
+void RagPipeline::loadDocuments(const std::vector<DocumentRecord>& docs, uint64_t nextDocId) {
+    std::lock_guard<std::mutex> lock(pipelineMutex_);
+    documents_ = docs;
+    nextDocId_ = nextDocId;
 }
 
 void RagPipeline::reset() {

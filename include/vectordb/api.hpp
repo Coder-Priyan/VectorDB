@@ -2,6 +2,7 @@
 
 #include "vectordb/collection.hpp"
 #include "vectordb/rag.hpp"
+#include "vectordb/persistence.hpp"
 #include "vectordb/pca.hpp"
 
 #include <string>
@@ -52,7 +53,7 @@ ApiResponse makeErrorResponse(int status, const std::string& code, const std::st
 // Endpoint Handlers
 // -----------------------------------------------------------------------------
 
-ApiResponse handleHealth();
+ApiResponse handleHealth(const PersistenceStatus* persistence = nullptr);
 
 ApiResponse handleGetConfig(const Collection& collection);
 
@@ -89,6 +90,8 @@ ApiResponse handleIngestDoc(RagPipeline& rag, const std::string& body);
 ApiResponse handleListDocs(const RagPipeline& rag);
 
 ApiResponse handleGetDoc(const RagPipeline& rag, uint64_t id);
+
+ApiResponse handleDeleteDoc(RagPipeline& rag, uint64_t id, const PersistenceStatus* persistence = nullptr);
 
 ApiResponse handleSearchDocs(RagPipeline& rag, const std::string& body);
 

@@ -36,10 +36,22 @@ static json parseMetadata(const std::string& metaStr) {
     return parsed;
 }
 
-ApiResponse handleHealth() {
+ApiResponse handleHealth(const PersistenceStatus* persistence) {
     json doc;
     doc["status"] = "ok";
     doc["version"] = "0.4.0";
+    if (persistence && persistence->enabled) {
+        doc["persistence"] = {
+            {"enabled", true},
+            {"data_dir", persistence->dataDir},
+            {"loaded", persistence->lastLoadSuccess},
+            {"error", persistence->lastError}
+        };
+    } else {
+        doc["persistence"] = {
+            {"enabled", false}
+        };
+    }
     return {200, doc.dump()};
 }
 
@@ -837,6 +849,28 @@ ApiResponse handleGetDoc(const RagPipeline& rag, uint64_t id) {
         }
         resp["chunks"] = std::move(chunksArr);
 
+        return {200, resp.dump()};
+    } catch (const std::exception& e) {
+        return makeErrorResponse(500, "internal_error", e.what());
+    }
+}
+
+ApiResponse handleDeleteDoc(RagPipeline& rag, uint64_t id, const PersistenceStatus* persistence) {
+    try {
+        bool deleted = rag.deleteDocument(id);
+        if (!deleted) {
+            return makeErrorResponse(404, "not_found", "Document ID not found");
+        }
+
+        if (persistence && persistence->enabled) {
+            std::string docsFile = persistence->dataDir + "/docs_collection.bin";
+            std::string err;
+            saveRagPipelineToFile(rag, docsFile, &err);
+        }
+
+        json resp;
+        resp["deleted"] = true;
+        resp["id"] = id;
         return {200, resp.dump()};
     } catch (const std::exception& e) {
         return makeErrorResponse(500, "internal_error", e.what());

@@ -40,7 +40,10 @@ curl.exe -s http://127.0.0.1:8080/api/health
 ```json
 {
   "status": "ok",
-  "version": "0.4.0"
+  "version": "0.4.0",
+  "persistence": {
+    "enabled": false
+  }
 }
 ```
 
@@ -543,7 +546,36 @@ curl.exe -s http://127.0.0.1:8080/api/docs/1
 
 ---
 
-### 21. Semantic Document Search
+### 21. Delete Document
+`DELETE /api/docs/:id`
+
+Removes a document and all of its chunk vectors from the RAG collection. The collection's internal indexes (Brute Force, KD-Tree, HNSW) are reconstructed from remaining vectors, maintaining stable VectorIds for all untouched items.
+
+```powershell
+curl.exe -s -X DELETE http://127.0.0.1:8080/api/docs/1
+```
+
+#### Response (200 OK):
+```json
+{
+  "deleted": true,
+  "id": 1
+}
+```
+
+#### Error Response (404 Not Found):
+```json
+{
+  "error": {
+    "code": "not_found",
+    "message": "Document ID not found"
+  }
+}
+```
+
+---
+
+### 22. Semantic Document Search
 `POST /api/docs/search`
 
 Embeds the textual query and retrieves the top-$k$ most relevant document chunks without calling the generative LLM.
@@ -584,7 +616,7 @@ curl.exe -s -X POST http://127.0.0.1:8080/api/docs/search -H "Content-Type: appl
 
 ---
 
-### 22. Document Collection Benchmark
+### 23. Document Collection Benchmark
 `POST /api/docs/benchmark`
 
 Embeds the query once and benchmarks Brute Force, KD-Tree, and HNSW on real 768-dimensional document embeddings.
@@ -610,10 +642,10 @@ curl.exe -s -X POST http://127.0.0.1:8080/api/docs/benchmark -H "Content-Type: a
 
 ---
 
-### 23. Ask Grounded Question (RAG)
+### 24. Ask Grounded Question (RAG)
 `POST /api/ask`
 
-Retrieves the top-$k$ relevant chunks, injects them into a strict grounding prompt, and queries the local LLM (`llama3.2`). Returns the generated answer along with numbered source citations (`[1]`, `[2]`). If the index is empty, immediately returns `"No documents have been ingested yet."` without invoking the LLM.
+Retrieves the top-$k$ relevant chunks, injects them into a strict grounding prompt, and queries the local LLM (`llama3.2`). Multi-turn conversation history can optionally be supplied via the `history` field (array of `{role: "user"|"assistant", content: string}`). Returns the generated answer along with numbered source citations (`[1]`, `[2]`). If the index is empty, immediately returns `"No documents have been ingested yet."` without invoking the LLM.
 
 #### Request Body:
 ```json
@@ -622,7 +654,11 @@ Retrieves the top-$k$ relevant chunks, injects them into a strict grounding prom
   "k": 3,
   "algorithm": "hnsw",
   "temperature": 0.0,
-  "debug": true
+  "debug": true,
+  "history": [
+    {"role": "user", "content": "Tell me about data structures."},
+    {"role": "assistant", "content": "Data structures organize data."}
+  ]
 }
 ```
 
@@ -660,7 +696,7 @@ curl.exe --max-time 900 -s -X POST http://127.0.0.1:8080/api/ask -H "Content-Typ
 
 ---
 
-### 24. Real-Time Streaming RAG Answer (SSE)
+### 25. Real-Time Streaming RAG Answer (SSE)
 `POST /api/ask/stream`
 
 Streams generation tokens incrementally over an HTTP chunked connection (`Content-Type: text/event-stream; charset=utf-8`) using standard Server-Sent Events format (`event: <type>\ndata: <json>\n\n`).
@@ -701,7 +737,7 @@ data: {"answer":"Vector search discovers vectors that minimize distance function
 
 ---
 
-### 25. Reset Documents
+### 26. Reset Documents
 `POST /api/docs/reset`
 
 Clears all ingested documents and wipes the RAG vector collection.
@@ -720,7 +756,7 @@ curl.exe -s -X POST http://127.0.0.1:8080/api/docs/reset -H "Content-Type: appli
 
 ---
 
-### 26. Get RAG Document PCA 2D Projection
+### 27. Get RAG Document PCA 2D Projection
 `GET /api/docs/pca?limit=5000`
 
 Projects 768-dimensional document chunk embeddings onto 2D space. Points include `doc_id`, `chunk_index`, and `title`, while omitting the raw chunk text to preserve bandwidth.
@@ -750,7 +786,7 @@ curl.exe --max-time 5 -s "http://127.0.0.1:8080/api/docs/pca?limit=5000"
 
 ---
 
-### 27. Project RAG Document Query onto PCA Space
+### 28. Project RAG Document Query onto PCA Space
 `POST /api/docs/pca/query`
 
 Accepts a natural language query (embedded via `nomic-embed-text`) or a raw vector, projects it onto the 2D subspace, and returns top-$k$ retrieved chunks with 2D positions.
@@ -783,7 +819,7 @@ curl.exe --max-time 30 -s -X POST -H "Content-Type: application/json" -d '{
 
 ---
 
-### 28. Get RAG Document HNSW Graph Topology
+### 29. Get RAG Document HNSW Graph Topology
 `GET /api/docs/hnsw/graph?layer=0&max_edges=20000`
 
 Returns the HNSW graph topology of the document chunk index, with each node enriched with `doc_id`, `chunk_index`, and `title`.
@@ -823,7 +859,7 @@ curl.exe --max-time 5 -s "http://127.0.0.1:8080/api/docs/hnsw/graph?layer=0"
 
 ---
 
-### 29. Get RAG Document HNSW Graph Topology Summary
+### 30. Get RAG Document HNSW Graph Topology Summary
 `GET /api/docs/hnsw/info`
 
 Returns topological summary statistics for the RAG documents collection HNSW graph (total nodes, maximum layer, entry point ID, nodes per layer, average and maximum degree per layer). Operates safely on both empty and populated document collections.
@@ -886,10 +922,10 @@ Errors are returned with structured JSON payloads:
 
 ## Known Limitations
 
-1. **In-Memory Only**:
-   - Ingested documents, chunks, and index graphs reside strictly in RAM. Restarting `vectordb_server` clears all documents. Disk persistence (`save` / `load`) is scheduled for subsequent development.
-2. **No Document Deletion**:
-   - The current pipeline supports `ingest`, `list`, `get`, and `reset`. Granular document deletion (`DELETE /api/docs/:id`) is not yet supported.
+1. **In-Memory by Default (Optional Persistence)**:
+   - Ingested documents, chunks, and index graphs reside in RAM by default. Disk persistence across restarts is supported via the `--data-dir <DIR>` CLI flag.
+2. **Document Deletion Supported**:
+   - Granular document deletion is supported via `DELETE /api/docs/:id`. It removes the document record and chunk vectors, rebuilding indexes from remaining vectors with stable IDs.
 3. **Single Mutex Synchronization**:
    - `Collection` uses a single `std::mutex` for thread synchronization. Mutexes are never held while communicating with Ollama, but concurrent in-memory vector mutations serialize behind this lock.
 4. **Plain-Text Only**:

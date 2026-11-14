@@ -1,6 +1,7 @@
 #include "vectordb/collection.hpp"
 #include "vectordb/api.hpp"
 #include "vectordb/rag.hpp"
+#include "vectordb/persistence.hpp"
 
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -55,6 +56,7 @@ int main(int argc, char* argv[]) {
     bool allowRemoteOllama = false;
     std::string corsOrigin = "";
     RagPromptVersion ragPromptVer = RagPromptVersion::V2;
+    std::string dataDir = "";
 
     // Parse CLI arguments
     for (int i = 1; i < argc; ++i) {
@@ -87,6 +89,8 @@ int main(int argc, char* argv[]) {
             ragDim = std::stoull(argv[++i]);
         } else if (arg == "--rag-prompt" && i + 1 < argc) {
             ragPromptVer = ragPromptVersionFromString(argv[++i]);
+        } else if (arg == "--data-dir" && i + 1 < argc) {
+            dataDir = argv[++i];
         } else if (arg == "--allow-remote-ollama") {
             allowRemoteOllama = true;
         } else if (arg == "--cors-origin" && i + 1 < argc) {
@@ -108,6 +112,7 @@ int main(int argc, char* argv[]) {
                       << "  --chat-model <NAME>         Ollama chat model (default: llama3.2)\n"
                       << "  --rag-dim <DIM>             Embedding dimension for RAG documents (default: 768)\n"
                       << "  --rag-prompt <v1|v2|v3>     RAG prompt template version (default: v2)\n"
+                      << "  --data-dir <DIR>            Directory for persisting collections across restarts (default: off)\n"
                       << "  --allow-remote-ollama       Allow connecting to non-loopback Ollama hosts (default: off)\n"
                       << "  --cors-origin <ORIGIN>      Allowed CORS origin header (default: disabled / same-origin only)\n"
                       << "  --help, -h                  Display this help message\n";
@@ -130,6 +135,40 @@ int main(int argc, char* argv[]) {
 
     OllamaClient ollamaClient(ollamaConfig);
     RagPipeline ragPipeline(ragConfig, ollamaClient);
+
+    PersistenceStatus persistenceStatus;
+    std::string demoDataFile;
+    std::string docsDataFile;
+    if (!dataDir.empty()) {
+        persistenceStatus.enabled = true;
+        persistenceStatus.dataDir = dataDir;
+        std::error_code ec;
+        std::filesystem::create_directories(dataDir, ec);
+        demoDataFile = (std::filesystem::path(dataDir) / "demo_collection.bin").string();
+        docsDataFile = (std::filesystem::path(dataDir) / "docs_collection.bin").string();
+
+        if (std::filesystem::exists(demoDataFile)) {
+            std::string err;
+            if (!loadCollectionFromFile(collection, demoDataFile, &err)) {
+                std::cerr << "Warning: Failed to load demo collection persistence: " << err << "\n";
+                persistenceStatus.lastLoadSuccess = false;
+                persistenceStatus.lastError = err;
+            } else {
+                std::cout << "Loaded demo collection from " << demoDataFile << " (" << collection.stats().count << " vectors)\n";
+            }
+        }
+
+        if (std::filesystem::exists(docsDataFile)) {
+            std::string err;
+            if (!loadRagPipelineFromFile(ragPipeline, docsDataFile, &err)) {
+                std::cerr << "Warning: Failed to load docs collection persistence: " << err << "\n";
+                persistenceStatus.lastLoadSuccess = false;
+                persistenceStatus.lastError = err;
+            } else {
+                std::cout << "Loaded docs collection from " << docsDataFile << " (" << ragPipeline.listDocuments().size() << " documents, " << ragPipeline.collection().stats().count << " chunks)\n";
+            }
+        }
+    }
 
     PcaCache mainPcaCache;
     PcaCache docsPcaCache;
@@ -228,7 +267,7 @@ int main(int argc, char* argv[]) {
 
     // Route: GET /api/health
     svr.Get("/api/health", [&](const httplib::Request&, httplib::Response& res) {
-        sendResponse(res, handleHealth());
+        sendResponse(res, handleHealth(&persistenceStatus));
     });
 
     // Route: GET /api/config
@@ -238,7 +277,12 @@ int main(int argc, char* argv[]) {
 
     // Route: POST /api/reset
     svr.Post("/api/reset", [&](const httplib::Request& req, httplib::Response& res) {
-        sendResponse(res, handleReset(collection, req.body));
+        auto r = handleReset(collection, req.body);
+        if (persistenceStatus.enabled && r.status == 200) {
+            std::string err;
+            saveCollectionToFile(collection, demoDataFile, &err);
+        }
+        sendResponse(res, r);
     });
 
     // Route: GET /api/stats
@@ -248,12 +292,22 @@ int main(int argc, char* argv[]) {
 
     // Route: POST /api/vectors
     svr.Post("/api/vectors", [&](const httplib::Request& req, httplib::Response& res) {
-        sendResponse(res, handleInsertVector(collection, req.body));
+        auto r = handleInsertVector(collection, req.body);
+        if (persistenceStatus.enabled && r.status == 201) {
+            std::string err;
+            saveCollectionToFile(collection, demoDataFile, &err);
+        }
+        sendResponse(res, r);
     });
 
     // Route: POST /api/vectors/batch
     svr.Post("/api/vectors/batch", [&](const httplib::Request& req, httplib::Response& res) {
-        sendResponse(res, handleBatchInsert(collection, req.body));
+        auto r = handleBatchInsert(collection, req.body);
+        if (persistenceStatus.enabled && r.status == 201) {
+            std::string err;
+            saveCollectionToFile(collection, demoDataFile, &err);
+        }
+        sendResponse(res, r);
     });
 
     // Route: GET /api/vectors/:id
@@ -290,7 +344,12 @@ int main(int argc, char* argv[]) {
 
     // Route: POST /api/demo/random
     svr.Post("/api/demo/random", [&](const httplib::Request& req, httplib::Response& res) {
-        sendResponse(res, handleDemoRandom(collection, req.body));
+        auto r = handleDemoRandom(collection, req.body);
+        if (persistenceStatus.enabled && (r.status == 200 || r.status == 201)) {
+            std::string err;
+            saveCollectionToFile(collection, demoDataFile, &err);
+        }
+        sendResponse(res, r);
     });
 
     // Route: GET /api/pca
@@ -346,7 +405,12 @@ int main(int argc, char* argv[]) {
 
     // Route: POST /api/docs
     svr.Post("/api/docs", [&](const httplib::Request& req, httplib::Response& res) {
-        sendResponse(res, handleIngestDoc(ragPipeline, req.body));
+        auto r = handleIngestDoc(ragPipeline, req.body);
+        if (persistenceStatus.enabled && r.status == 201) {
+            std::string err;
+            saveRagPipelineToFile(ragPipeline, docsDataFile, &err);
+        }
+        sendResponse(res, r);
     });
 
     // Route: GET /api/docs
@@ -358,6 +422,18 @@ int main(int argc, char* argv[]) {
     svr.Get(R"(/api/docs/(\d+))", [&](const httplib::Request& req, httplib::Response& res) {
         uint64_t id = std::stoull(req.matches[1]);
         sendResponse(res, handleGetDoc(ragPipeline, id));
+    });
+
+    // Route: DELETE /api/docs/:id
+    svr.Delete(R"(/api/docs/(\d+))", [&](const httplib::Request& req, httplib::Response& res) {
+        uint64_t id = 0;
+        try {
+            id = std::stoull(req.matches[1]);
+        } catch (...) {
+            sendResponse(res, makeErrorResponse(400, "validation_error", "Document ID must be an integer"));
+            return;
+        }
+        sendResponse(res, handleDeleteDoc(ragPipeline, id, &persistenceStatus));
     });
 
     // Route: POST /api/docs/search
@@ -468,7 +544,12 @@ int main(int argc, char* argv[]) {
 
     // Route: POST /api/docs/reset
     svr.Post("/api/docs/reset", [&](const httplib::Request&, httplib::Response& res) {
-        sendResponse(res, handleResetDocs(ragPipeline));
+        auto r = handleResetDocs(ragPipeline);
+        if (persistenceStatus.enabled && r.status == 200) {
+            std::string err;
+            saveRagPipelineToFile(ragPipeline, docsDataFile, &err);
+        }
+        sendResponse(res, r);
     });
 
     // Route: GET /api/docs/pca

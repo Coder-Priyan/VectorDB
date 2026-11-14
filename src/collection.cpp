@@ -408,4 +408,124 @@ HnswLayerGraph Collection::hnswLayerGraph(int layer, std::size_t maxEdges) const
     return graph;
 }
 
+bool Collection::remove(VectorId id) {
+    return removeBatch({id}) > 0;
+}
+
+std::size_t Collection::removeBatch(const std::vector<VectorId>& ids) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (ids.empty() || vectors_.empty()) {
+        return 0;
+    }
+
+    std::unordered_set<VectorId> toDrop(ids.begin(), ids.end());
+    std::vector<StoredVector> remaining;
+    remaining.reserve(vectors_.size());
+
+    VectorId maxId = 0;
+    for (const auto& kv : vectors_) {
+        VectorId id = kv.first;
+        if (toDrop.find(id) == toDrop.end()) {
+            std::string meta;
+            auto itMeta = metadataJson_.find(id);
+            if (itMeta != metadataJson_.end()) {
+                meta = itMeta->second;
+            }
+            remaining.push_back(StoredVector{id, kv.second, std::move(meta)});
+            if (id > maxId) {
+                maxId = id;
+            }
+        }
+    }
+
+    std::size_t removedCount = vectors_.size() - remaining.size();
+    if (removedCount == 0) {
+        return 0;
+    }
+
+    // Rebuild fresh indexes from remaining vectors
+    brute_ = std::make_unique<BruteForceIndex>(config_.dimension, config_.metric);
+    kd_ = std::make_unique<KdTreeIndex>(config_.dimension, config_.metric, config_.leafSize);
+    hnsw_ = std::make_unique<HnswIndex>(config_.dimension, config_.metric, config_.hnswParams);
+    vectors_.clear();
+    metadataJson_.clear();
+
+    for (const auto& sv : remaining) {
+        brute_->insert(sv.id, sv.vector);
+        kd_->insert(sv.id, sv.vector);
+        hnsw_->insert(sv.id, sv.vector);
+        vectors_.emplace(sv.id, sv.vector);
+        if (!sv.metadata.empty()) {
+            metadataJson_.emplace(sv.id, sv.metadata);
+        }
+    }
+
+    if (maxId >= nextAutoId_) {
+        nextAutoId_ = maxId + 1;
+    }
+    ++version_;
+    return removedCount;
+}
+
+std::vector<StoredVector> Collection::exportAllVectors() const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    std::vector<VectorId> ids;
+    ids.reserve(vectors_.size());
+    for (const auto& kv : vectors_) {
+        ids.push_back(kv.first);
+    }
+    std::sort(ids.begin(), ids.end());
+
+    std::vector<StoredVector> result;
+    result.reserve(ids.size());
+    for (VectorId id : ids) {
+        StoredVector sv;
+        sv.id = id;
+        sv.vector = vectors_.at(id);
+        auto itMeta = metadataJson_.find(id);
+        if (itMeta != metadataJson_.end()) {
+            sv.metadata = itMeta->second;
+        }
+        result.push_back(std::move(sv));
+    }
+    return result;
+}
+
+VectorId Collection::nextId() const noexcept {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return nextAutoId_;
+}
+
+void Collection::loadFromVectors(const CollectionConfig& config,
+                                 const std::vector<StoredVector>& vectors,
+                                 VectorId nextId) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (config.dimension == 0) {
+        throw std::invalid_argument("Dimension must be greater than 0");
+    }
+    if (config.leafSize == 0) {
+        throw std::invalid_argument("Leaf size must be greater than 0");
+    }
+
+    config_ = config;
+    nextAutoId_ = nextId;
+    vectors_.clear();
+    metadataJson_.clear();
+    ++version_;
+
+    brute_ = std::make_unique<BruteForceIndex>(config_.dimension, config_.metric);
+    kd_ = std::make_unique<KdTreeIndex>(config_.dimension, config_.metric, config_.leafSize);
+    hnsw_ = std::make_unique<HnswIndex>(config_.dimension, config_.metric, config_.hnswParams);
+
+    for (const auto& sv : vectors) {
+        brute_->insert(sv.id, sv.vector);
+        kd_->insert(sv.id, sv.vector);
+        hnsw_->insert(sv.id, sv.vector);
+        vectors_.emplace(sv.id, sv.vector);
+        if (!sv.metadata.empty()) {
+            metadataJson_.emplace(sv.id, sv.metadata);
+        }
+    }
+}
+
 } // namespace vectordb

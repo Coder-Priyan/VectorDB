@@ -43,6 +43,7 @@ add_library(vectordb_rag
     src/ollama_client.cpp
     src/rag.cpp
     src/rag_eval.cpp
+    src/persistence.cpp
 )
 
 target_include_directories(vectordb_rag PUBLIC
@@ -116,6 +117,7 @@ add_executable(vectordb_tests
     tests/test_live_ollama.cpp
     tests/test_api.cpp
     tests/test_server_http.cpp
+    tests/test_persistence.cpp
 )
 
 target_link_libraries(vectordb_tests PRIVATE vectordb_core vectordb_rag)
