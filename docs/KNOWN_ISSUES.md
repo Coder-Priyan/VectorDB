@@ -46,5 +46,7 @@ Last updated: 2026-11-14 by T-046
 | ISS-040 | Tech Debt | CSS `!important` count was 15 in web/css/app.css (override smell) | `web/css/app.css` | Low | [CONFIRMED: web/css/app.css] | FIXED (reduced from 15 to 3) | 2026-11-14 |
 | ISS-041 | Tech Debt | Font is still IBM Plex Sans (+Mono); Inter not added (`web/fonts/` lacks Inter `.woff2` files) | `web/fonts/`, `web/css/app.css` | Low | [CONFIRMED: web/fonts/] | OPEN | 2026-11-14 |
 | ISS-042 | Unverified Area | HNSW tab, 1366x768 viewport, sidebar collapsed, 125% zoom, and Ask empty state (chip version) are NOT yet verified by screenshot | `web/` | Low | [CONFIRMED: project context] | OPEN | 2026-11-14 |
+| ISS-043 | Layout | Settings panel stretching in T-047 made panels hollow and sparse; task T-048 planned by Brain (content-sized panels, balanced columns, left-aligned header) but NOT executed yet | `web/css/app.css` | Low | [CONFIRMED: human review 2026-11-14] | OPEN | 2026-11-14 |
+| ISS-044 | Layout & Bug | Compare tab redesign (T-049) visually REJECTED by human: empty-state card and grey skeleton panels stay visible above results after benchmark pushing results down causing page scroll; controls bar cramped (progress line inside it); diff table showed 8 rows not 10; summary metrics and performance bars sit side by side instead of mockup layout. New mockup pending. | `web/index.html`, `web/js/compare.js`, `web/css/app.css` | Medium | [CONFIRMED: human screenshot 2026-11-14] | OPEN | 2026-11-14 |
 
 *(Optional polish, not an issue: Compare sidebar has empty space below Summary Metrics at 1920x1080.)*
