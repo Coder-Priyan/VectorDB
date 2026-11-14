@@ -59,7 +59,16 @@ export function initHnswTab() {
       const data = isDocs ? await api.getDocsHnswGraph(layer, maxEdges) : await api.getHnswGraph(layer, maxEdges);
       currentGraph = data;
       layerSlider.max = String(data.max_level || 0);
-      layerLabel.textContent = `Layer ${layer} (Max: ${data.max_level || 0})`;
+      layerLabel.textContent = `Layer L${layer}`;
+
+      const titleEl = byId("hnsw-graph-title");
+      if (titleEl) titleEl.textContent = `HNSW Graph — Layer L${layer}`;
+      const subtitleEl = byId("hnsw-graph-subtitle");
+      if (subtitleEl) {
+        subtitleEl.textContent = layer > 0
+          ? "A higher layer with sparser connections for faster navigation."
+          : "Base layer containing all indexed vector nodes and full connectivity.";
+      }
 
       nodeMap.clear();
       (data.nodes || []).forEach(n => nodeMap.set(n.id, n));
@@ -79,22 +88,27 @@ export function initHnswTab() {
   }
 
   async function loadHnswInfo() {
-    if (!infoTableBox) return;
     const isDocs = collSelect?.value === "docs";
     try {
       const info = isDocs ? await api.getDocsHnswInfo() : await api.getHnswInfo();
-      const s = formatHnswTopologySummary(info);
-      infoTableBox.replaceChildren(
-        el("table", { className: "info-table" },
-          el("tbody", {},
-            el("tr", {}, el("td", {}, "Nodes / Max Lvl"), el("td", {}, s.nodesMaxLvl)),
-            el("tr", {}, el("td", {}, "Entry Point ID"), el("td", {}, s.entryPointId)),
-            el("tr", {}, el("td", {}, "Nodes / Layer"), el("td", {}, s.nodesPerLayer)),
-            el("tr", {}, el("td", {}, "Avg Degree / Layer"), el("td", {}, s.avgDegreePerLayer))
-          )
-        )
-      );
-    } catch (_) { infoTableBox.replaceChildren(el("p", { className: "text-muted" }, "Info unavailable")); }
+      const numNodes = info.numNodes || info.num_nodes || 0;
+      const maxLvl = info.maxLevel !== undefined ? info.maxLevel : (info.max_level !== undefined ? info.max_level : 0);
+      const entryId = info.entryPointId !== undefined ? info.entryPointId : (info.entry_point !== undefined ? info.entry_point : "-");
+
+      const nodesEl = byId("hnsw-topo-nodes");
+      if (nodesEl) nodesEl.textContent = numNodes ? numNodes.toLocaleString() : "-";
+      const maxLvlEl = byId("hnsw-topo-max-level");
+      if (maxLvlEl) maxLvlEl.textContent = `L${maxLvl}`;
+      const entryEl = byId("hnsw-topo-entry");
+      if (entryEl) entryEl.textContent = entryId !== "-" ? `#${entryId}` : "-";
+    } catch (_) {
+      const nodesEl = byId("hnsw-topo-nodes");
+      if (nodesEl) nodesEl.textContent = "-";
+      const maxLvlEl = byId("hnsw-topo-max-level");
+      if (maxLvlEl) maxLvlEl.textContent = "-";
+      const entryEl = byId("hnsw-topo-entry");
+      if (entryEl) entryEl.textContent = "-";
+    }
   }
 
   function rebuildOffscreenEdges(w, h) {
@@ -147,10 +161,39 @@ export function initHnswTab() {
       if (scr.x < -10 || scr.x > width + 10 || scr.y < -10 || scr.y > height + 10) continue;
       const isEntry = n.id === entryId;
       ctx.beginPath();
-      ctx.arc(scr.x, scr.y, isEntry ? 6.5 : 3.5, 0, Math.PI * 2);
-      ctx.fillStyle = isEntry ? THEME.textPrimary : getLayerColor(currentGraph.layer);
+      ctx.arc(scr.x, scr.y, isEntry ? 6.5 : 4, 0, Math.PI * 2);
+      ctx.fillStyle = isEntry ? THEME.accent : THEME.textMuted;
       ctx.fill();
-      if (isEntry) { ctx.strokeStyle = THEME.accent; ctx.lineWidth = 1.5; ctx.stroke(); }
+      if (isEntry) {
+        ctx.strokeStyle = THEME.accent;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(scr.x, scr.y, 10, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Entry point badge as in mockup: "Entry (L2)"
+        const badgeText = `Entry (L${currentGraph.layer || 0})`;
+        ctx.font = "11px 'IBM Plex Sans', -apple-system, sans-serif";
+        const badgeW = ctx.measureText(badgeText).width + 12;
+        const badgeH = 20;
+        const badgeX = scr.x - badgeW / 2;
+        const badgeY = scr.y - 28;
+
+        ctx.fillStyle = "rgba(18, 18, 21, 0.85)";
+        ctx.strokeStyle = THEME.accent;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 4);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = THEME.accent;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(badgeText, scr.x, badgeY + badgeH / 2);
+        ctx.textAlign = "left";
+        ctx.textBaseline = "alphabetic";
+      }
     }
 
     // Render Search Path
@@ -167,19 +210,42 @@ export function initHnswTab() {
           ctx.beginPath(); ctx.moveTo(prevScr.x, prevScr.y); ctx.lineTo(curScr.x, curScr.y); ctx.stroke();
         }
         const isCurrent = i === state.currentIndex;
-        ctx.fillStyle = isCurrent ? THEME.accent : THEME.textSecondary;
-        ctx.beginPath(); ctx.arc(curScr.x, curScr.y, isCurrent ? 6.5 : 4.5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = isCurrent ? THEME.accent : THEME.accent;
+        ctx.beginPath(); ctx.arc(curScr.x, curScr.y, isCurrent ? 6.5 : 5, 0, Math.PI * 2); ctx.fill();
         if (isCurrent) {
           ctx.strokeStyle = THEME.white;
-          ctx.lineWidth = 1.5;
+          ctx.lineWidth = 2;
           ctx.stroke();
         }
         prevScr = curScr;
       }
       if (traceQueryStar) {
         const qScr = viewport.toScreen(traceQueryStar.x, traceQueryStar.y);
-        ctx.fillStyle = THEME.textPrimary; ctx.strokeStyle = THEME.textInverse; ctx.lineWidth = 1.5;
+        ctx.fillStyle = THEME.accent; ctx.strokeStyle = THEME.textInverse; ctx.lineWidth = 1.5;
         drawStar(ctx, qScr.x, qScr.y, 5, 9, 4.5); ctx.fill(); ctx.stroke();
+
+        // Query badge as in mockup
+        const qText = "Query";
+        ctx.font = "11px 'IBM Plex Sans', -apple-system, sans-serif";
+        const qW = ctx.measureText(qText).width + 12;
+        const qH = 20;
+        const qX = qScr.x + 10;
+        const qY = qScr.y - 10;
+
+        ctx.fillStyle = "rgba(18, 18, 21, 0.85)";
+        ctx.strokeStyle = THEME.borderSubtle;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(qX, qY, qW, qH, 4);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = THEME.textPrimary;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(qText, qX + qW / 2, qY + qH / 2);
+        ctx.textAlign = "left";
+        ctx.textBaseline = "alphabetic";
       }
     }
   }
@@ -208,6 +274,28 @@ export function initHnswTab() {
     const st = playback.getState();
     if (tracePlayBtn) tracePlayBtn.textContent = st.isPlaying ? "Pause" : "Play";
     if (traceSlider) { traceSlider.value = String(st.currentIndex); }
+
+    const counterEl = byId("hnsw-step-counter");
+    if (counterEl) {
+      counterEl.textContent = st.totalSteps > 0
+        ? `Step ${Math.max(0, st.currentIndex + 1)} / ${st.totalSteps}`
+        : "Step 0 / 0";
+    }
+
+    const currNodeEl = byId("hnsw-curr-node");
+    const currDistEl = byId("hnsw-curr-dist");
+    const currLayerEl = byId("hnsw-curr-layer");
+
+    if (st.currentStep) {
+      if (currNodeEl) currNodeEl.textContent = `#${st.currentStep.id}`;
+      if (currDistEl) currDistEl.textContent = st.currentStep.distance !== undefined ? st.currentStep.distance.toFixed(4) : "-";
+      if (currLayerEl) currLayerEl.textContent = `L${st.currentStep.layer}`;
+    } else {
+      if (currNodeEl) currNodeEl.textContent = "-";
+      if (currDistEl) currDistEl.textContent = "-";
+      if (currLayerEl) currLayerEl.textContent = "-";
+    }
+
     if (traceStepAnnounce) {
       traceStepAnnounce.textContent = st.currentStep
         ? `Step ${st.currentIndex + 1} / ${st.totalSteps}: Node ${st.currentStep.id} on Layer ${st.currentStep.layer} (dist: ${st.currentStep.distance?.toFixed(4)})`
@@ -244,18 +332,21 @@ export function initHnswTab() {
   }
 
   function renderStats(stats, results) {
-    if (!traceStatsBox) return;
-    const lCounts = (stats.visitedPerLayer || []).map((c, l) => `L${l}: ${c}`).join(", ");
-    traceStatsBox.replaceChildren(
-      el("table", { className: "info-table" },
-        el("tbody", {},
-          el("tr", {}, el("td", {}, "Distance Computations"), el("td", {}, stats.distanceComputations)),
-          el("tr", {}, el("td", {}, "Total Visited Nodes"), el("td", {}, stats.nodesVisited)),
-          el("tr", {}, el("td", {}, "Visited Per Layer"), el("td", {}, lCounts || "-")),
-          el("tr", {}, el("td", {}, "Top Result ID"), el("td", {}, results?.[0]?.id || "-"))
-        )
-      )
-    );
+    const distEl = byId("hnsw-stat-dist-comps");
+    const visitedEl = byId("hnsw-stat-nodes-visited");
+    const layersEl = byId("hnsw-stat-visited-layers");
+
+    if (distEl) distEl.textContent = stats?.distanceComputations !== undefined ? String(stats.distanceComputations) : "-";
+    if (visitedEl) visitedEl.textContent = stats?.nodesVisited !== undefined ? String(stats.nodesVisited) : "-";
+
+    if (layersEl) {
+      const vLayers = stats?.visitedPerLayer || [];
+      if (vLayers.length > 0) {
+        layersEl.textContent = vLayers.map((c, l) => `L${l}: ${c}`).join("  |  ");
+      } else {
+        layersEl.textContent = "-";
+      }
+    }
   }
 
   // Mouse Listeners

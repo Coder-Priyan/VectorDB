@@ -2582,6 +2582,20 @@ details:not([open]) .glass-box-chevron {
   flex-shrink: 0;
 }
 
+#panel-hnsw {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#panel-hnsw .viz-layout {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
 #panel-hnsw .viz-main {
   flex: 1;
   min-height: 0;
@@ -2592,22 +2606,171 @@ details:not([open]) .glass-box-chevron {
 }
 
 #panel-hnsw .canvas-frame {
-  flex: 1 1 360px;
+  flex: 1;
   min-height: 240px;
 }
 
-#panel-hnsw .viz-results-section {
-  flex: 0 0 auto;
-  max-height: 200px;
+.hnsw-legend-row {
   display: flex;
-  flex-direction: column;
-  min-height: 0;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--text-xs);
+  flex-shrink: 0;
+  padding-top: var(--space-2);
 }
 
-#panel-hnsw #hnsw-info-box {
-  max-height: 150px;
-  overflow-y: auto;
-  overflow-x: auto;
+.hnsw-legend-ring {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  display: inline-block;
+  box-sizing: border-box;
+}
+
+.hnsw-other-node {
+  background-color: var(--text-muted);
+}
+
+.hnsw-legend-line {
+  width: 16px;
+  height: 1px;
+  background-color: var(--text-muted);
+  display: inline-block;
+}
+
+/* Sidebar header with action */
+.sidebar-header-with-action {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.sidebar-header-with-action .section-title {
+  margin: 0;
+}
+
+/* HNSW Player styling */
+.hnsw-player-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.hnsw-player-wrap .player-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.step-slider-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.step-slider-row input[type="range"] {
+  flex: 1;
+}
+
+/* Step tiles & search statistics grid */
+.hnsw-step-tiles,
+.hnsw-search-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+.hnsw-search-stats-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.hnsw-stat-tile {
+  background: var(--bg-raised);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hnsw-stat-tile.full-width {
+  grid-column: 1 / -1;
+}
+
+.stat-tile-label {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.stat-tile-val {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Bottom Topology Summary Strip */
+.hnsw-topology-strip {
+  display: flex;
+  align-items: center;
+  background: var(--bg-panel);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-5);
+  gap: var(--space-5);
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.strip-label-col {
+  flex-shrink: 0;
+}
+
+.strip-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.strip-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.strip-stat-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+}
+
+.strip-icon {
+  width: 22px;
+  height: 22px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.strip-stat-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.strip-stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.strip-stat-val {
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 /* Clean Quiet Chips for Example Questions */

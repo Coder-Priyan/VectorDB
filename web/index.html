@@ -342,7 +342,7 @@
             <option value="demo" selected>Demo</option>
             <option value="docs">Docs</option>
           </select>
-          <label for="hnsw-layer-slider" id="hnsw-layer-label" class="toolbar-label font-mono ml-2">Layer 0</label>
+          <label for="hnsw-layer-slider" id="hnsw-layer-label" class="toolbar-label font-mono ml-2">Layer L0</label>
           <input type="range" id="hnsw-layer-slider" min="0" max="0" value="0" class="input-range">
           <label for="hnsw-max-edges-select" class="toolbar-label ml-2">Max Edges</label>
           <select id="hnsw-max-edges-select" class="input-select toolbar-select">
@@ -361,18 +361,45 @@
       <div class="viz-layout">
         <div class="viz-main">
           <div class="canvas-frame">
-            <canvas id="hnsw-canvas" width="680" height="460"></canvas>
-          </div>
-          <div class="viz-results-section mt-4">
-            <h3 class="section-title">Graph Topology Summary</h3>
-            <div id="hnsw-info-box" class="info-table-container"></div>
+            <div class="canvas-panel-header">
+              <h2 class="canvas-panel-title" id="hnsw-graph-title">HNSW Graph &mdash; Layer L0</h2>
+              <p class="canvas-panel-subtitle" id="hnsw-graph-subtitle">A higher layer with sparser connections for faster navigation.</p>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="hnsw-canvas" width="680" height="460"></canvas>
+            </div>
+            <div class="legend-row hnsw-legend-row">
+              <div class="legend-item">
+                <span class="hnsw-legend-ring entry-ring"></span>
+                <span>Entry point</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-swatch swatch-hnsw"></span>
+                <span>Visited (search path)</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-swatch hnsw-other-node"></span>
+                <span>Other node</span>
+              </div>
+              <div class="legend-item">
+                <span class="hnsw-legend-line"></span>
+                <span>Edge (neighbor link)</span>
+              </div>
+            </div>
           </div>
         </div>
         <aside class="viz-sidebar">
           <div id="hnsw-trace-notice" class="notice-box notice-neutral hidden">Search path trace is available for the Demo collection (documents index does not support step trace).</div>
           <div id="hnsw-trace-section">
-            <h3 class="section-title">Search Path Step Trace</h3>
-            <div class="form-stack mt-2">
+            <div class="sidebar-header-with-action">
+              <div>
+                <h3 class="section-title">Search path trace</h3>
+                <p class="text-muted text-xs">Step through the HNSW search to see how the query navigates the graph.</p>
+              </div>
+              <button type="button" id="hnsw-trace-random-btn" class="btn btn-primary btn-sm">Random</button>
+            </div>
+
+            <div class="form-stack mt-3">
               <div class="form-row">
                 <div class="form-group flex-1">
                   <label for="hnsw-trace-k">k</label>
@@ -382,11 +409,8 @@
                   <label for="hnsw-trace-ef">efSearch</label>
                   <input type="number" id="hnsw-trace-ef" class="input-text" value="16" min="1" max="500">
                 </div>
-                <div class="form-group flex-1 align-end">
-                  <button type="button" id="hnsw-trace-random-btn" class="btn btn-primary w-100">Random</button>
-                </div>
               </div>
-              <div class="form-row mt-2">
+              <div class="form-row mt-1">
                 <div class="form-group flex-2">
                   <label for="hnsw-trace-id-input">Stored Vector ID</label>
                   <input type="number" id="hnsw-trace-id-input" class="input-text" placeholder="e.g. 1" min="1">
@@ -395,29 +419,99 @@
                   <button type="button" id="hnsw-trace-id-btn" class="btn btn-secondary w-100">Trace ID</button>
                 </div>
               </div>
-              <div class="player-bar mt-3">
-                <button type="button" id="hnsw-trace-play-btn" class="btn btn-sm btn-secondary">Play</button>
-                <button type="button" id="hnsw-trace-prev-btn" class="btn btn-sm btn-secondary">Prev</button>
-                <button type="button" id="hnsw-trace-next-btn" class="btn btn-sm btn-secondary">Next</button>
-                <button type="button" id="hnsw-trace-reset-btn" class="btn btn-sm btn-secondary">Reset</button>
-                <select id="hnsw-trace-speed" class="input-select btn-sm">
-                  <option value="0.5">0.5x</option>
-                  <option value="1" selected>1x</option>
-                  <option value="2">2x</option>
-                  <option value="5">5x</option>
-                </select>
+
+              <!-- Player Step Controls -->
+              <div class="hnsw-player-wrap mt-3">
+                <div class="player-bar">
+                  <button type="button" id="hnsw-trace-prev-btn" class="btn btn-sm btn-ghost" title="Previous step">&larr;</button>
+                  <button type="button" id="hnsw-trace-play-btn" class="btn btn-sm btn-secondary">Play</button>
+                  <button type="button" id="hnsw-trace-next-btn" class="btn btn-sm btn-ghost" title="Next step">&rarr;</button>
+                  <button type="button" id="hnsw-trace-reset-btn" class="btn btn-sm btn-ghost">Reset</button>
+                  <select id="hnsw-trace-speed" class="input-select btn-sm">
+                    <option value="0.5">0.5x</option>
+                    <option value="1" selected>1x</option>
+                    <option value="2">2x</option>
+                    <option value="5">5x</option>
+                  </select>
+                </div>
+                <div class="step-slider-row mt-2">
+                  <span id="hnsw-step-counter" class="font-mono text-xs text-muted">Step 0 / 0</span>
+                  <input type="range" id="hnsw-trace-slider" min="-1" max="-1" value="-1" class="input-range">
+                </div>
+                <div id="hnsw-trace-announcement" class="sr-only" aria-live="polite">Search trace ready</div>
+                <div id="hnsw-trace-missing" class="notice-box notice-warning hidden"></div>
               </div>
-              <input type="range" id="hnsw-trace-slider" min="-1" max="-1" value="-1" class="input-range mt-2">
-              <div id="hnsw-trace-announcement" class="text-muted font-mono text-xs mt-1" aria-live="polite">Search trace ready</div>
-              <div id="hnsw-trace-missing" class="notice-box notice-warning hidden"></div>
+
+              <!-- Current Step Stat Tiles -->
+              <div class="hnsw-step-tiles mt-3" id="hnsw-step-tiles">
+                <div class="hnsw-stat-tile">
+                  <span class="stat-tile-label">Current node</span>
+                  <span class="stat-tile-val font-mono" id="hnsw-curr-node">-</span>
+                </div>
+                <div class="hnsw-stat-tile">
+                  <span class="stat-tile-label">Distance to query</span>
+                  <span class="stat-tile-val font-mono" id="hnsw-curr-dist">-</span>
+                </div>
+                <div class="hnsw-stat-tile">
+                  <span class="stat-tile-label">Layer</span>
+                  <span class="stat-tile-val font-mono" id="hnsw-curr-layer">-</span>
+                </div>
+              </div>
             </div>
+
+            <!-- Search Statistics Section -->
             <div class="viz-results-section mt-4">
-              <h3 class="section-title">Search Traversal Statistics</h3>
-              <div id="hnsw-trace-stats-box" class="info-table-container">
-                <p class="text-muted empty-state">Run a trace above to see hop diagnostics.</p>
+              <h3 class="section-title">Search statistics</h3>
+              <div class="hnsw-search-stats-grid" id="hnsw-trace-stats-box">
+                <div class="hnsw-stat-tile">
+                  <span class="stat-tile-label">Distance computations</span>
+                  <span class="stat-tile-val font-mono" id="hnsw-stat-dist-comps">-</span>
+                </div>
+                <div class="hnsw-stat-tile">
+                  <span class="stat-tile-label">Nodes visited</span>
+                  <span class="stat-tile-val font-mono" id="hnsw-stat-nodes-visited">-</span>
+                </div>
+                <div class="hnsw-stat-tile full-width">
+                  <span class="stat-tile-label">Visited per layer</span>
+                  <span class="stat-tile-val font-mono text-xs" id="hnsw-stat-visited-layers">-</span>
+                </div>
               </div>
             </div>
           </div>
+        </aside>
+      </div>
+
+      <!-- Bottom Topology Summary Strip -->
+      <div class="hnsw-topology-strip mt-3" id="hnsw-topology-strip">
+        <div class="strip-label-col">
+          <span class="strip-title">Topology summary</span>
+        </div>
+        <div class="strip-divider"></div>
+        <div class="strip-stat-item">
+          <span class="strip-icon" data-icon="database"></span>
+          <div class="strip-stat-meta">
+            <span class="strip-stat-label">Nodes</span>
+            <span class="strip-stat-val font-mono" id="hnsw-topo-nodes">-</span>
+          </div>
+        </div>
+        <div class="strip-divider"></div>
+        <div class="strip-stat-item">
+          <span class="strip-icon" data-icon="graph"></span>
+          <div class="strip-stat-meta">
+            <span class="strip-stat-label">Max level</span>
+            <span class="strip-stat-val font-mono" id="hnsw-topo-max-level">-</span>
+          </div>
+        </div>
+        <div class="strip-divider"></div>
+        <div class="strip-stat-item">
+          <span class="strip-icon" data-icon="target"></span>
+          <div class="strip-stat-meta">
+            <span class="strip-stat-label">Entry point</span>
+            <span class="strip-stat-val font-mono" id="hnsw-topo-entry">-</span>
+          </div>
+        </div>
+        <div id="hnsw-info-box" class="hidden"></div>
+      </div>
         </aside>
       </div>
     </section>
