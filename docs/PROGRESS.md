@@ -1,6 +1,6 @@
 # Project Progress
 
-Last updated: 2026-11-14 by SYNC-002
+Last updated: 2026-11-14 by T-039
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform (Task T-033 Complete across all 9 Phases P0-P8, Branch `ui-redesign`)
 
@@ -13,7 +13,7 @@ Last updated: 2026-11-14 by SYNC-002
 - **P5**: New app shell (collapsible sidebar ~260px to ~56px icon rail, recent chats list, bottom Ollama status and shortcut hint, Command Palette `Ctrl+K`, Toast notifications). All existing DOM IDs preserved.
 - **P6**: Ask tab glass-box chat (multi-turn persistent chat with localStorage, auto-growing composer, citation pill interactions, collapsible Documents drawer with sample loader and per-doc delete).
 - **P7**: Glass-box panels & educational layer (retrieval chunks, latency breakdown, mini 2D PCA canvas, compare benchmark button, HNSW search path trace, `web/js/learn_content.js` with 7 plain-language explainers, info popovers on all tabs, guided tour).
-- **P8**: Release readiness (MIT `LICENSE`, `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `docs/LEARNING_GUIDE.md`, `.github/workflows/ci.yml`, browser unit tests expanded to 84/84 passing).
+- **P8**: Release readiness (MIT `LICENSE`, `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `docs/LEARNING_GUIDE.md`, `.github/workflows/ci.yml`, browser unit tests expanded to 84/84 passing - builder's claim at that time, real was 83/84; see ISS-030).
 - **637fd58**: T-034: Fix stale docs (license, test count, persistence magic header)
 - **83c1257**: T-035: Align ISS-006 ingest rollback documentation in `docs/API.md`
 - **d1c6a3d**: T-036 A: Fix citation parser test assertion and `/tests.html` scroll
@@ -22,8 +22,9 @@ Last updated: 2026-11-14 by SYNC-002
 - **cf79729**: docs: Sync verification and gotchas for T-036
 - **b401029**: T-037: Small fixes after human verification (empty compare box hidden, trace fields fix, persistence health derivation)
 - **a57c573**: T-038: Fix compare button in ask glass-box (`algorithms` mapping, latency bars, toast on error, 4 unit tests)
+- **T-039**: Docs polish - fix stale and false claims (removed non-existent dot-product metric, corrected HNSW speedup claims, synced demo script with current UI, unified KD-tree dimension wording, documented POST /api/hnsw/trace fields, updated architecture directory tree).
 
-All 118 C++ tests pass. 88 browser unit tests registered (pending human confirmation in browser). 100% clean web safety scan.
+All 118 C++ tests pass. 88 browser unit tests registered (88/88 confirmed by human screenshot on 2026-11-14). 100% clean web safety scan.
 
 ---
 

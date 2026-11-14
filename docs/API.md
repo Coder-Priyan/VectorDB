@@ -286,18 +286,79 @@ curl.exe --max-time 5 -s http://127.0.0.1:8080/api/hnsw/node/42
 ### 12. HNSW Search Trace
 `POST /api/hnsw/trace`
 
-Executes nearest-neighbor routing while capturing a step-by-step diagnostic trace across layers, recording every visited node, candidate distance, and layer transitions.
+Executes nearest-neighbor routing while capturing a step-by-step diagnostic trace across layers, recording every visited node, candidate distance, and layer transitions. Supported on both `"demo"` (default) and `"docs"` collections.
 
 #### Request Body:
+
+**For Demo Collection (vector required):**
 ```json
 {
+  "collection": "demo",
   "vector": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8],
+  "k": 10,
   "ef": 16
 }
 ```
 
+**For Docs Collection (query text or vector):**
+```json
+{
+  "collection": "docs",
+  "query": "What is vector search?",
+  "k": 5,
+  "ef": 50
+}
+```
+
+#### Request Parameters:
+- `collection` *(optional string, default `"demo"`)*: Target collection to search (`"demo"` or `"docs"`).
+- `vector` *(array of numbers)*: Query vector. Required for `"demo"`. For `"docs"`, either `vector` (dim=768) or `query` must be provided.
+- `query` *(string, 1 to 2000 characters)*: Query text for `"docs"` collection; automatically embedded via local Ollama.
+- `k` *(optional unsigned integer, default 10)*: Number of top nearest neighbors to return.
+- `ef` *(optional unsigned integer)*: Dynamic candidate list size (`efSearch`) for HNSW search beam.
+
+#### Response Body (200 OK):
+```json
+{
+  "results": [
+    {
+      "id": 1,
+      "distance": 0.1234,
+      "metadata": {},
+      "doc_id": "doc_abc123",
+      "chunk_index": 0,
+      "title": "Intro"
+    }
+  ],
+  "stats": {
+    "distanceComputations": 42,
+    "nodesVisited": 18,
+    "visitedPerLayer": {
+      "0": 12,
+      "1": 4,
+      "2": 2
+    }
+  },
+  "trace": [
+    {
+      "layer": 2,
+      "id": 45,
+      "distance": 0.5432,
+      "doc_id": "doc_abc123",
+      "chunk_index": 0,
+      "title": "Intro"
+    }
+  ]
+}
+```
+*(Fields `doc_id`, `chunk_index`, and `title` are included for items in the `"docs"` collection when chunk metadata is present).*
+
 ```powershell
-curl.exe --max-time 5 -s -X POST http://127.0.0.1:8080/api/hnsw/trace -H "Content-Type: application/json" -d "{\"vector\":[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8]}"
+# Trace on Demo collection with vector
+curl.exe --max-time 5 -s -X POST http://127.0.0.1:8080/api/hnsw/trace -H "Content-Type: application/json" -d "{\"collection\":\"demo\",\"vector\":[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8]}"
+
+# Trace on Docs collection with query text
+curl.exe --max-time 15 -s -X POST http://127.0.0.1:8080/api/hnsw/trace -H "Content-Type: application/json" -d "{\"collection\":\"docs\",\"query\":\"What is vector search?\",\"k\":3}"
 ```
 
 ---

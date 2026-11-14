@@ -84,7 +84,7 @@ http://127.0.0.1:8080
 | **Exact Search** | `BruteForceIndex` with bounded top-$k$ max-heap and deterministic tie-breaking. |
 | **Spatial Indexing** | `KdTreeIndex` with median splits, branch-and-bound pruning, and Euclidean mapping. |
 | **Approximate Graph (ANN)** | Malkov & Yashunin (2018) `HnswIndex` with heuristic neighbor selection and skip-list layers. |
-| **Distance Metrics** | Cosine distance, Euclidean (L2), and Dot Product. |
+| **Distance Metrics** | Cosine distance, Euclidean (L2), and Manhattan (L1). |
 | **Dimensionality Reduction** | Matrix-free Power Iteration PCA with Gram-Schmidt deflation (2D projections). |
 | **Document Processing** | Configurable Sentence Boundary and Fixed Window chunking with UTF-8 safety. |
 | **Local LLM Integration** | Non-blocking loopback client for Ollama embeddings and streaming generation. |
@@ -97,7 +97,7 @@ http://127.0.0.1:8080
 
 VectorDB includes an interactive learning layer and curriculum covering 6 core modules:
 1. **Vector Fundamentals**: High-dimensional coordinates and semantic embeddings.
-2. **Distance Metrics**: Geometric differences between Cosine, Euclidean, and Dot Product.
+2. **Distance Metrics**: Geometric differences between Cosine, Euclidean, and Manhattan (L1).
 3. **Space Partitioning**: How KD-Trees prune space and why the curse of dimensionality affects high dimensions.
 4. **Graph-Based ANN**: Hierarchical skip-list graphs and logarithmic routing.
 5. **Dimensionality Reduction**: Visualizing 768-dimensional manifolds on 2D screens with PCA.

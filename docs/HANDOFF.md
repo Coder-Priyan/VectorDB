@@ -1,6 +1,6 @@
 # Project Handoff
 
-Last updated: 2026-11-14 by SYNC-002
+Last updated: 2026-11-14 by T-039
 
 ## 1. Current Status
 
@@ -53,7 +53,7 @@ Per git log on branch `ui-redesign`:
 - `web/js/sidebar.js` - Collapsible navigation sidebar and recent chats controller
 - `web/js/palette.js` - Keyboard-first Command Palette (`Ctrl+K` / `Cmd+K`)
 - `web/js/learn_content.js` - Plain-language learning explainers and interactive guided tour
-- `web/js/tests/test_v2.js` - Browser unit tests for v2 functionality (10 tests)
+- `web/js/tests/test_v2.js` - Browser unit tests for v2 functionality (14 tests)
 - `web/samples/vectordb_intro.txt` - Sample document for zero-friction testing
 - `LICENSE` - MIT License with `<YOUR NAME>` copyright holder placeholder
 - `CONTRIBUTING.md` - Open-source contribution guidelines
@@ -107,14 +107,11 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ---
 
-## 6. Open Follow-ups (Planned for T-039) & Roadmap
+## 6. Open Follow-ups & Roadmap
 
-### Open Follow-ups (Planned for T-039)
-- Fix stale docs wording about Compare button.
-- Note that `AUDIT_AND_HISTORY.md` is a historical snapshot; avoid rewriting history numbers.
+### Open Follow-ups
 - Optional C++ unit test for ISS-006 ingest rollback.
-- Compare swatch colors are hardcoded in ask.js / CSS.
-- Note HNSW is slower than brute force on 6 chunks (expected, small $N$); do not claim HNSW is faster in README or LEARNING_GUIDE for small collections.
+- Compare swatch colors are hardcoded in ask.js / CSS (tracked as ISS-034).
 
 ### Roadmap (Not Started)
 - **Hybrid search (BM25 + RRF)**: Requires inverted index and rank fusion; on roadmap, but strictly out of scope for v2.
@@ -127,9 +124,8 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 ## 7. Recommended Next Step
 
 1. Human completes pending actions **(a)** (fill `<YOUR NAME>` in `LICENSE`) and **(b)** (take screenshots of persistence restart, `Ctrl+K`, sidebar collapse, guided tour, Ask New chat empty state, 1366x768 Ask).
-2. Brain reviews screenshots.
-3. Execute **T-039** (small docs polish and follow-ups).
-4. Human decides on merging `ui-redesign` into `main`.
+2. Brain reviews screenshots and confirms release readiness.
+3. Human decides on merging `ui-redesign` into `main`.
 
 ---
 

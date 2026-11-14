@@ -1,5 +1,7 @@
 # Project Takeover Audit & History
 
+Historical snapshot (2026-11-12); numbers here are not updated on purpose.
+
 Last updated: 2026-11-12 by T-004
 
 ## 1. Project History Reconstructed from Git

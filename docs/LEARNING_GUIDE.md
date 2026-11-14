@@ -20,16 +20,16 @@ This guide walks you through six core modules using VectorDB's interactive tools
 
 ---
 
-## Module 2: Distance Metrics (Cosine, Euclidean, Dot Product)
+## Module 2: Distance Metrics (Cosine, Euclidean, Manhattan)
 
 ### Mathematical Foundations
 - **Cosine Distance**: $1 - \frac{u \cdot v}{\|u\|_2 \|v\|_2}$. Measures angular divergence regardless of vector magnitude.
 - **Euclidean (L2) Distance**: $\sqrt{\sum_{i=1}^D (u_i - v_i)^2}$. Measures straight-line geometric distance.
-- **Dot Product**: $-\sum_{i=1}^D u_i v_i$. Direction and magnitude combined; optimal for pre-normalized vectors.
+- **Manhattan (L1) Distance**: $\sum_{i=1}^D |u_i - v_i|$. Grid-like metric summing absolute coordinate divergences.
 
 ### Hands-on Exercise
 1. Navigate to the **Compare** tab.
-2. Run a benchmark with **Cosine** metric, then switch collection config to **Euclidean**.
+2. Run a benchmark with **Cosine** metric, then switch collection config to **Euclidean** or **Manhattan**.
 3. Observe how distance values and relative rankings behave under different metrics.
 
 ---
@@ -39,7 +39,7 @@ This guide walks you through six core modules using VectorDB's interactive tools
 ### Algorithmic Mechanism
 - A **k-d tree** is a binary space partitioning tree that cyclically splits dimensions at each level.
 - During search, hyper-plane boundaries allow the tree to prune branches that cannot contain a point closer than the current $k$-th nearest candidate.
-- **Curse of Dimensionality**: When $D > 30$, points become nearly equidistant, forcing search to inspect almost every leaf.
+- **Curse of Dimensionality**: Pruning gets worse as dimension grows (roughly above 10 to 20 dimensions), with no sharp threshold; almost every leaf cell intersects the search hypersphere, forcing search to inspect nearly every branch and approaching brute-force complexity.
 
 ### Hands-on Exercise
 1. In the **Compare** tab, benchmark **Brute Force** vs **KD-Tree** on 128-dimensional vectors.
@@ -52,7 +52,7 @@ This guide walks you through six core modules using VectorDB's interactive tools
 ### Algorithmic Mechanism
 - **Hierarchical Navigable Small World (HNSW)** builds multi-layer proximity graphs inspired by skip-lists.
 - Layer 0 contains all vectors with dense local connections. Higher layers contain exponentially fewer nodes with long-range highway edges.
-- Search begins at the top entry point, greedily greedily descends through layers, and explores layer 0 with an exploration beam (`efSearch`).
+- Search begins at the top entry point, greedily descends through layers, and explores layer 0 with an exploration beam (`efSearch`).
 
 ### Hands-on Exercise
 1. Switch to the **HNSW Graph** tab.
