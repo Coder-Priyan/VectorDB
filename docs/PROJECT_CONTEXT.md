@@ -139,17 +139,25 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 32. **T-050 Diff Rows Claim vs Real Screenshot**: T-050 builder claimed all 10 diff rows fit; real screenshot showed 8 (row 9 cut in half, row 10 hidden due to `.table-container` max-height cap and nested box). Builder visual claims are never proof; judge layout strictly by human screenshots.
 33. **Tab-Specific Panel Sizing**: Content-sized panels are right for Settings (T-047 lesson) but NOT for Compare (T-051 lesson); follow each tab's mockup rather than transferring sizing rules between tabs.
 34. **Stale Compare Results on Collection State Changes**: If the Demo collection is emptied (or changed) after a benchmark, the Compare view must explicitly clear summary metrics, status text, progress bars, chart canvases, and diff rows (`resetCompareView`). Otherwise, the left panel displays stale results alongside the "collection is empty" empty-state panel (ISS-047, fixed in T-053).
+35. **The Real Goal: Full Product-Level Redesign (ADR-046)**: Human gives the real goal in plain words: "product works fine but there is no product feel, no good UI, design or structure; I want a proper good redesign of the whole UI." Piecemeal per-tab patching is stopped.
+36. **AI Mockups Per Tab Caused Incoherence**: Each tab's mockup came from a different AI image generator run, so tabs (Settings vs Compare vs Ask) do not feel like one coherent product. Future redesign must start from ONE design system and ONE hero screen (Ask tab), then derive all other tabs.
+37. **Piecemeal Patching Repeatedly Failed**: Patching CSS on top of old rules repeatedly failed visually across multiple iterations (T-040, T-047, T-051). A cohesive design system built cleanly in 3 stages is required.
+38. **Builder ID Lists vs Real Grep**: Builder ID lists in task reports can be wrong or invented (e.g. T-050 report listed ids that did not match real ids). Trust only an id list produced by `Select-String` / `grep` in the human's terminal.
+39. **Handoff for Next Brain Chat (Stage 1 Interview)**: Human asked for Stage 1 questions to be answered in a new chat. The new Brain must start by asking Stage 1 questions (2-3 reference apps, dark vs light, vibe: calm/minimal, sharp/technical, or warm/friendly) one line at a time, in short Hinglish, without jumping into task prompts.
+40. **Brain Chat Length Warning**: Brain should keep warning about chat length earlier to ensure clean handoffs before context truncation.
 
 ---
 
 ## 7. Verification Status (as of 2026-11-14)
 
 - **Human-confirmed after T-046 by terminal**: C++ 118/118 (529,813 assertions, 117 run + 1 opt-in live-Ollama test skipped), scanner pass, CSS `!important` count 3.
-- **NOT yet human-confirmed after T-047/T-049/T-050/T-051/T-052/T-053**: `/tests.html` count (last confirmed 94/94 after T-043; 105 registered in T-053), C++ tests, scanner.
+- **NOT yet human-confirmed after T-047/T-049/T-050/T-051/T-052/T-053/T-054**: `/tests.html` count (last confirmed 94/94 after T-043; 113 registered in T-054), C++ tests, scanner.
 - **Human-confirmed by screenshots on 2026-11-14**: `/tests.html` 94/94 (after T-043), 5 tabs at 1920x1080, Ask chat flow, Explore Docs PCA, Open Explore deep link, Compare in Ask (3 rows), Trace (6 nodes), Settings new sections, footer removed, Explore toolbar 1 row, Compare 3 side-by-side charts, Compare summary table 5 columns unclipped, Settings font larger and persistence status in sans.
+- **Compare Verification State**: Compare results state was seen by the human in screenshots after T-052 and T-054 and looks close to the mockup; Compare EMPTY state after T-053 NOT yet seen by screenshot.
 - **Still human-reported only (no screenshots)**: `--data-dir` persistence restart, Ctrl K, sidebar collapse, guided tour.
-- **Pending Human Screenshots**: Settings (T-047 state seen, fix pending via T-048), Compare tab T-052/T-053 state (left panel resets on empty, dynamic empty titles, results view, 100% zoom), Ask glass-box latency breakdown grid & drawer toggle without chat shift, HNSW tab at 1366x768, 125% zoom, below 1100px.
-- **Pending Human Actions**: LICENSE name placeholder, merge decision for `ui-quiet-studio` (do NOT merge until Settings and Compare are approved), Linux/macOS support tier.
+- **Pending Human Screenshots**: Compare empty state (after T-053), `/tests.html` at 100% zoom, 125% zoom layout check.
+- **Pending Human Actions**: Answer Stage 1 redesign questions in new chat (reference apps, dark/light, vibe); LICENSE name placeholder; merge decision for `ui-quiet-studio` (no merge or push until new design direction approved); Linux/macOS support tier.
+- **Tasks Paused**: T-048 (Settings content-sized panels) is PAUSED by ADR-046 (if ever executed, must use ADR-047 or higher); T-054 optional chart polish (larger tick labels, more spacing) is NOT done.
 - **Not verified**: 1366x768 layout, Ask New chat empty-state guided card.
 
 Tasks verified and completed on branch `ui-redesign` (T-017 through T-038), and `ui-polish-2026` (T-040):

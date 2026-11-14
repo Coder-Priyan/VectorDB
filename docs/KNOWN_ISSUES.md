@@ -1,6 +1,6 @@
 # Known Issues, Limitations & Risk Tracker
 
-Last updated: 2026-11-14 by T-053
+Last updated: 2026-11-14 by SYNC-005
 
 | ID | Type | Description | Where (File/Function) | Severity | Evidence | Status | Date |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -51,5 +51,6 @@ Last updated: 2026-11-14 by T-053
 | ISS-045 | Layout | T-050 Compare after human screenshot: diff table showed 8 rows (row 9 clipped, row 10 hidden) although builder report claimed 10 rows fit; nested inner surfaces in diff, summary and chart panels; badges far from ID text; hollow bottom area in left panel; Median showed extra (0.0 ms). | `web/index.html`, `web/css/app.css`, `web/js/compare.js`, `web/js/compare_helpers.js` | Medium | [CONFIRMED: human screenshot 2026-11-14] | FIXED in T-051 (visual screenshot pending) | 2026-11-14 |
 | ISS-046 | Layout | T-051 made Compare panels content-sized (Brain instruction error); human screenshot showed large empty area below panels and squeezed charts; human preferred the T-050 full-height layout. | `web/css/app.css`, `web/js/compare_helpers.js` | Low | [CONFIRMED: human screenshot 2026-11-14] | FIXED in T-052 (visual screenshot pending) | 2026-11-14 |
 | ISS-047 | Bug | Compare left panel kept stale Summary Metrics and "Completed 5 benchmark runs." after the Demo collection became empty or changed; empty panel title was generic "Notice". Fixed in T-053: resetCompareView clears metrics, status, canvases, and diff table on collection change, count === 0, or tab activation; empty title updated dynamically ("Collection is empty", "No documents yet", "No benchmark yet"). | `web/js/compare.js`, `web/js/compare_helpers.js` | Medium | [CONFIRMED: human screenshot 2026-11-14] | FIXED in T-053 (visual screenshot pending) | 2026-11-14 |
+| ISS-048 | UX | Human feedback: product works but lacks product-level UI/feel; whole-UI redesign planned (ADR-046) | `web/` | Medium | [CONFIRMED: human instruction in chat] | OPEN | 2026-11-14 |
 
 *(Optional polish, not an issue: Compare sidebar has empty space below Summary Metrics at 1920x1080.)*
