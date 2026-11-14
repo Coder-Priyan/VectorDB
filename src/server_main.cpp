@@ -432,7 +432,7 @@ int main(int argc, char* argv[]) {
                         return sink.write(sseData.data(), sseData.size());
                     };
 
-                    AskResult askRes = ragPipeline.ask(askReq.question, askReq.k, askReq.algorithm, askReq.ef, askReq.chatOpt, askReq.debug, onToken, onSources);
+                    AskResult askRes = ragPipeline.ask(askReq.question, askReq.k, askReq.algorithm, askReq.ef, askReq.chatOpt, askReq.debug, onToken, onSources, askReq.history);
 
                     json dDoc;
                     dDoc["answer"] = askRes.answer;

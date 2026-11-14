@@ -1004,6 +1004,30 @@ std::optional<ApiResponse> parseAskRequest(const std::string& body, AskRequest& 
         out.debug = req["debug"].get<bool>();
     }
 
+    out.history.clear();
+    if (req.contains("history")) {
+        if (!req["history"].is_array()) {
+            return makeErrorResponse(400, "validation_error", "'history' must be an array");
+        }
+        for (const auto& item : req["history"]) {
+            if (!item.is_object()) {
+                return makeErrorResponse(400, "validation_error", "Each item in 'history' must be an object");
+            }
+            if (!item.contains("role") || !item["role"].is_string()) {
+                return makeErrorResponse(400, "validation_error", "Each item in 'history' must have a 'role' string");
+            }
+            std::string role = item["role"].get<std::string>();
+            if (role != "user" && role != "assistant") {
+                return makeErrorResponse(400, "validation_error", "'role' must be 'user' or 'assistant'");
+            }
+            if (!item.contains("content") || !item["content"].is_string()) {
+                return makeErrorResponse(400, "validation_error", "Each item in 'history' must have a 'content' string");
+            }
+            std::string content = item["content"].get<std::string>();
+            out.history.push_back(ChatMessage{std::move(role), std::move(content)});
+        }
+    }
+
     return std::nullopt;
 }
 
@@ -1014,7 +1038,7 @@ ApiResponse handleAsk(RagPipeline& rag, const std::string& body) {
             return *err;
         }
 
-        auto res = rag.ask(req.question, req.k, req.algorithm, req.ef, req.chatOpt, req.debug);
+        auto res = rag.ask(req.question, req.k, req.algorithm, req.ef, req.chatOpt, req.debug, {}, {}, req.history);
 
         json sourcesArr = json::array();
         for (const auto& s : res.sources) {

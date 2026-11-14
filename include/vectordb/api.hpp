@@ -101,6 +101,7 @@ struct AskRequest {
     std::optional<std::size_t> ef = std::nullopt;
     ChatOptions chatOpt;
     bool debug = false;
+    std::vector<ChatMessage> history;
 };
 
 /**

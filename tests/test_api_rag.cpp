@@ -355,3 +355,126 @@ TEST(ApiRagTest, DocsHnswInfoEmptyAndPopulated) {
     CHECK(!pj["nodesPerLayer"].empty());
     CHECK(pj["nodesPerLayer"][0] == pj["numNodes"]);
 }
+
+TEST(ApiRagTest, MultiTurnHistoryPresentAndCapped) {
+    FakeOllamaServer fake;
+
+    OllamaConfig ollamaCfg;
+    ollamaCfg.baseUrl = fake.baseUrl();
+    OllamaClient client(ollamaCfg);
+
+    RagConfig ragCfg;
+    ragCfg.dimension = 768;
+    RagPipeline pipeline(ragCfg, client);
+
+    pipeline.ingest("RAG Doc", "Retrieval augmented generation connects external knowledge to large language models.");
+
+    // 1. Ask with valid history
+    json bodyObj;
+    bodyObj["question"] = "Can you summarize it?";
+    bodyObj["k"] = 1;
+    bodyObj["history"] = json::array({
+        {{"role", "user"}, {"content", "What is RAG?"}},
+        {{"role", "assistant"}, {"content", "RAG is retrieval augmented generation."}}
+    });
+
+    auto res = handleAsk(pipeline, bodyObj.dump());
+    CHECK(res.status == 200);
+
+    // Verify history appeared in chat prompt
+    {
+        std::lock_guard<std::mutex> lock(fake.dataMutex);
+        CHECK(!fake.receivedChatRequests.empty());
+        if (!fake.receivedChatRequests.empty()) {
+            const auto& lastReq = fake.receivedChatRequests.back();
+            std::string combined;
+            if (lastReq.contains("messages") && lastReq["messages"].is_array()) {
+                for (const auto& m : lastReq["messages"]) {
+                    if (m.contains("content")) {
+                        combined += m["content"].get<std::string>();
+                    }
+                }
+            }
+            CHECK(combined.find("Prior conversation history") != std::string::npos);
+            CHECK(combined.find("What is RAG?") != std::string::npos);
+            CHECK(combined.find("RAG is retrieval augmented generation.") != std::string::npos);
+            CHECK(combined.find("Can you summarize it?") != std::string::npos);
+        }
+    }
+
+    // 2. Cap enforcement: Send 10 messages, only last 6 should be present
+    json capBody;
+    capBody["question"] = "Latest question?";
+    capBody["k"] = 1;
+    json hist = json::array();
+    for (int i = 1; i <= 10; ++i) {
+        hist.push_back({{"role", "user"}, {"content", "Message " + std::to_string(i)}});
+    }
+    capBody["history"] = hist;
+
+    auto capRes = handleAsk(pipeline, capBody.dump());
+    CHECK(capRes.status == 200);
+
+    {
+        std::lock_guard<std::mutex> lock(fake.dataMutex);
+        const auto& lastReq = fake.receivedChatRequests.back();
+        std::string combined;
+        if (lastReq.contains("messages") && lastReq["messages"].is_array()) {
+            for (const auto& m : lastReq["messages"]) {
+                if (m.contains("content")) {
+                    combined += m["content"].get<std::string>();
+                }
+            }
+        }
+        // Messages 1 to 4 should be capped out
+        CHECK(combined.find("Message 1\n") == std::string::npos);
+        CHECK(combined.find("Message 4\n") == std::string::npos);
+        // Messages 5 to 10 should be present (last 6 messages)
+        CHECK(combined.find("Message 5") != std::string::npos);
+        CHECK(combined.find("Message 10") != std::string::npos);
+    }
+}
+
+TEST(ApiRagTest, MultiTurnHistoryValidationErrors) {
+    FakeOllamaServer fake;
+
+    OllamaConfig ollamaCfg;
+    ollamaCfg.baseUrl = fake.baseUrl();
+    OllamaClient client(ollamaCfg);
+
+    RagConfig ragCfg;
+    ragCfg.dimension = 768;
+    RagPipeline pipeline(ragCfg, client);
+
+    // Invalid history type (string instead of array)
+    {
+        auto res = handleAsk(pipeline, R"({"question":"hi","history":"not-an-array"})");
+        CHECK(res.status == 400);
+        auto j = json::parse(res.body);
+        CHECK(j["error"]["code"] == "validation_error");
+    }
+
+    // Invalid item in array (string instead of object)
+    {
+        auto res = handleAsk(pipeline, R"({"question":"hi","history":["string"]})");
+        CHECK(res.status == 400);
+        auto j = json::parse(res.body);
+        CHECK(j["error"]["code"] == "validation_error");
+    }
+
+    // Invalid role
+    {
+        auto res = handleAsk(pipeline, R"({"question":"hi","history":[{"role":"moderator","content":"hello"}]})");
+        CHECK(res.status == 400);
+        auto j = json::parse(res.body);
+        CHECK(j["error"]["code"] == "validation_error");
+    }
+
+    // Missing content
+    {
+        auto res = handleAsk(pipeline, R"({"question":"hi","history":[{"role":"user"}]})");
+        CHECK(res.status == 400);
+        auto j = json::parse(res.body);
+        CHECK(j["error"]["code"] == "validation_error");
+    }
+}

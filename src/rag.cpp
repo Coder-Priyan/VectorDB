@@ -229,7 +229,8 @@ AskResult RagPipeline::ask(const std::string& question,
                            const ChatOptions& chatOpt,
                            bool debug,
                            const std::function<bool(const std::string&)>& onToken,
-                           const std::function<void(const std::vector<RagSource>&)>& onSources) {
+                           const std::function<void(const std::vector<RagSource>&)>& onSources,
+                           const std::vector<ChatMessage>& history) {
     if (question.empty() || question.size() > 2000) {
         throw std::invalid_argument("RagPipeline::ask: question must be between 1 and 2000 characters");
     }
@@ -353,6 +354,30 @@ AskResult RagPipeline::ask(const std::string& question,
 
     if (onSources) {
         onSources(sources);
+    }
+
+    // Cap history: last 6 messages, max 3000 total characters
+    if (!history.empty()) {
+        std::size_t startIdx = (history.size() > 6) ? (history.size() - 6) : 0;
+        std::size_t totalChars = 0;
+        std::vector<ChatMessage> selected;
+        for (std::size_t i = history.size(); i > startIdx; --i) {
+            const auto& msg = history[i - 1];
+            if (totalChars + msg.content.size() > 3000 && !selected.empty()) {
+                break;
+            }
+            selected.push_back(msg);
+            totalChars += msg.content.size();
+        }
+        std::reverse(selected.begin(), selected.end());
+
+        if (!selected.empty()) {
+            userPrompt += "\nPrior conversation history (for reference only, context excerpts above take precedence):\n";
+            for (const auto& msg : selected) {
+                std::string roleLabel = (msg.role == "assistant") ? "Assistant" : "User";
+                userPrompt += roleLabel + ": " + msg.content + "\n";
+            }
+        }
     }
 
     userPrompt += "\nQuestion: " + question;

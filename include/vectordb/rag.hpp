@@ -166,7 +166,8 @@ public:
                   const ChatOptions& chatOpt = {},
                   bool debug = false,
                   const std::function<bool(const std::string&)>& onToken = {},
-                  const std::function<void(const std::vector<RagSource>&)>& onSources = {});
+                  const std::function<void(const std::vector<RagSource>&)>& onSources = {},
+                  const std::vector<ChatMessage>& history = {});
 
     /**
      * @brief Run brute-force, KD-Tree, and HNSW benchmarks on real document embeddings.
