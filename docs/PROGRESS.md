@@ -1,6 +1,6 @@
 # Project Progress
 
-Last updated: 2026-11-14 by T-039
+Last updated: 2026-11-14 by SYNC-003
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform (Task T-033 Complete across all 9 Phases P0-P8, Branch `ui-redesign`)
 
@@ -23,16 +23,12 @@ Last updated: 2026-11-14 by T-039
 - **b401029**: T-037: Small fixes after human verification (empty compare box hidden, trace fields fix, persistence health derivation)
 - **a57c573**: T-038: Fix compare button in ask glass-box (`algorithms` mapping, latency bars, toast on error, 4 unit tests)
 - **T-039**: Docs polish - fix stale and false claims (removed non-existent dot-product metric, corrected HNSW speedup claims, synced demo script with current UI, unified KD-tree dimension wording, documented POST /api/hnsw/trace fields, updated architecture directory tree).
-- **T-040**: Full-app UI polish on branch `ui-polish-2026` (reviewed by human, rejected visually due to remaining line noise, patched overrides, and box-shadows).
-- **T-041**: Rebuild the UI layer properly - "Quiet Studio" on branch `ui-quiet-studio`. Clean structural rewrite in 6 phased commits:
-  - Phase 1 (`e495d64`): Design tokens, base styles, button system (solid amber primary, filled secondary, soft red tint danger, no outlines), and shared components (`.page-header`, `.empty-state`, `.tab-toolbar`).
-  - Phase 2 (`9e4d24e`): App shell with single allowed line (`border-right: 1px solid var(--border-line)` on sidebar), 3-row footer (status button, command palette button, version text), zero nested boxes, zero glow.
-  - Phase 3 (`3c49374`): Ask tab centered 820px chat column, zero-border user and assistant bubbles, docked composer, slide-over documents drawer with zero gutter when collapsed, whitespace-separated glass-box panels.
-  - Phase 4 (`0e08c3a`): Explore, HNSW, and Compare visual tabs with standardized 380px sidebars, zero-border canvas frames (`var(--bg-canvas)`), clean side-by-side charts, unclipped diff table without row underlines.
-  - Phase 5 (`e1880fe`): Settings tab centered 900px single-scroll column, 3 stacked cardless sections, sans-serif metric strip without inner lines, soft danger zone, zero box-shadows.
-  - Phase 6: Test suite expansion with `web/js/tests/test_colors.js` (92 registered browser unit tests), all 9 acceptance criteria verified, docs synced.
+- **T-040**: Full-app UI polish on branch `ui-polish-2026` (reviewed by human, rejected visually due to remaining line noise, patched overrides, and box-shadows). Status: REJECTED VISUALLY.
+- **T-041**: Rebuild the UI layer properly - "Quiet Studio" on branch `ui-quiet-studio`. Clean structural rewrite in 6 phased commits (`e495d64`, `9e4d24e`, `3c49374`, `0e08c3a`, `e1880fe`, `1882064`) enforcing 3 dark surfaces, zero box-shadows, zero non-sidebar lines, and IBM Plex Sans typography. Status: IMPLEMENTED (visual verification pending).
+- **T-042**: Quiet Studio fixes after human screenshot review on branch `ui-quiet-studio`. Batched fixes in 3 commits (`eeb605e`, `280c3b2`, `f466c41`) addressing compact single-row toolbars, compare 3-row canvas fitting, summary metrics recall column (ISS-024), unified canvas panels, custom native controls, shared empty states, and expanding test suite to 93 tests. Status: IMPLEMENTED (partially verified by human screenshots on 2026-11-14: `/tests.html` 93/93, Explore toolbar, Compare 3 charts & 5 columns, Settings sans status; remaining items visual verification pending).
+- **T-043**: Settings redesign (reference-guided) + pending Ask/Compare polish on branch `ui-quiet-studio`. Two commits (`c84a913`, `34e403a`) implementing live status rail (Variant E), unboxed stacked settings, compare empty state restoration (ISS-035), Ask latency breakdown grid (ISS-037), slide-over document drawer preserving chat center (ISS-036), widened mini select (ISS-038), reducing CSS `!important` to 3, and expanding test suite to 96 tests. Status: IMPLEMENTED (visual verification pending).
 
-All 118 C++ tests pass. 92 browser unit tests registered. 100% clean web safety scan.
+All 118 C++ tests pass. 96 browser unit tests registered (93 confirmed passed by human screenshot at `/tests.html`). 100% clean web safety scan.
 
 ---
 
@@ -62,7 +58,9 @@ All 118 C++ tests pass. 92 browser unit tests registered. 100% clean web safety 
 | **Hermetic C++ Unit & Integration Test Suite** (118 registered tests) | `tests/*.cpp`, `tests/fake_ollama.hpp` | [CONFIRMED] | TESTED |
 | **Browser Pure-Logic Unit Test Suite** (92 registered unit tests) | `web/tests.html`, `web/js/tests/*.js` | [CONFIRMED] | TESTED |
 | **Atomic Multi-Chunk Rollback** (Transactional vector rollback on mid-ingest failure, not covered by automated test) | `include/vectordb/rag.hpp`, `src/rag.cpp` | [CONFIRMED: src/rag.cpp:155-160] | IMPLEMENTED |
-| **Quiet Studio UI Design System** (Zero lines except sidebar edge, depth via 3 dark surfaces, zero box-shadows, zero table row underlines, IBM Plex Sans typography, 92 browser unit tests) | `web/css/app.css`, `web/js/colors.js` | [CONFIRMED: ADR-038] | IMPLEMENTED (visual not tested) |
+| **Quiet Studio UI Design System** (Zero lines except sidebar edge, depth via 3 dark surfaces, zero box-shadows, zero table row underlines, IBM Plex Sans typography, 96 browser unit tests) | `web/css/app.css`, `web/js/colors.js` | [CONFIRMED: ADR-038] | IMPLEMENTED (visual not tested) |
+| **Quiet Studio Layout & Controls Tuning** (Compact single-row toolbars, 170px compare canvas 3-row fit, 440px sidebar unclipped summary metrics, unified canvas panels, custom native controls) | `web/css/app.css`, `web/js/compare_helpers.js` | [CONFIRMED: ADR-039] | IMPLEMENTED (partially tested by screenshots) |
+| **Settings Status Rail & Glass-Box Polish** (Variant E unboxed settings + boxed live status rail, compare empty state restored, Ask latency grid, slide-over drawer preserving chat center) | `web/index.html`, `web/css/app.css`, `web/js/settings.js`, `web/js/compare.js`, `web/js/ask.js` | [CONFIRMED: ADR-040] | IMPLEMENTED (visual not tested) |
 
 ---
 

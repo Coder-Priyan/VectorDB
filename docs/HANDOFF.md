@@ -1,23 +1,23 @@
 # Project Handoff
 
-Last updated: 2026-11-14 by T-043
+Last updated: 2026-11-14 by SYNC-003
 
 ## 1. Current Status
 
-VectorDB v2 has been completely built across all 9 phases (P0 to P8). Following human browser review on 2026-11-14, Tasks T-034 through T-038 resolved confirmed UI issues, test edge cases, and glass-box response mappers. Following visual rejection of T-040 ("no fun at all", line noise, patched overrides), Task T-041 rebuilt the UI layer under "Quiet Studio". Task T-042 addressed batched human review items across toolbars, compare canvas bars, summary table column visibility, HNSW topology viewport budgeting, native control restyling, and shared empty states. Task T-043 implemented the reference-guided Settings redesign with a live status rail, fixed Compare empty state restoration, transformed Ask glass-box latency breakdown to a tidy grid, converted the Documents drawer to an absolute slide-over panel preserving chat centering, and eliminated unnecessary `!important` rules.
+VectorDB v2 has been completely built across all 9 phases (P0 to P8). Following human browser review on 2026-11-14, Tasks T-034 through T-038 resolved confirmed UI issues, test edge cases, and glass-box response mappers. Following visual rejection of T-040 ("no fun at all", line noise, patched overrides), Task T-041 rebuilt the UI layer under "Quiet Studio". Task T-042 addressed batched human review items across toolbars, compare canvas bars, summary table column visibility, HNSW topology viewport budgeting, native control restyling, and shared empty states. Task T-043 implemented the reference-guided Settings redesign with a live status rail, fixed Compare empty state restoration, transformed Ask glass-box latency breakdown to a tidy grid, converted the Documents drawer to an absolute slide-over panel preserving chat centering, reduced CSS `!important` to 3, and expanded test coverage.
 
-- **Active Branch**: `ui-quiet-studio` (safety branches `backup-before-v2`, `ui-redesign`, and `ui-polish-2026` confirmed intact).
-- **T-041, T-042 & T-043 Commits**:
-  - `e495d64` ui-quiet-studio: Phase 1 design tokens, base styles, buttons, and shared components
-  - `9e4d24e` ui-quiet-studio: Phase 2 app shell, spacious sidebar, and command palette
-  - `3c49374` ui-quiet-studio: Phase 3 Ask tab centered chat, slide-over documents, and glass-box
-  - `0e08c3a` ui-quiet-studio: Phase 4 Explore, HNSW, and Compare visual tabs with 380px sidebars
-  - `e1880fe` ui-quiet-studio: Phase 5 Settings tab centered layout, sans-serif metrics, and cardless sections
-  - `eeb605e` ui-quiet-studio: T-042 Group 1 toolbar compact layout, custom native controls, and readable type scale
-  - `280c3b2` ui-quiet-studio: T-042 Group 2 compare bars 3-row fit, summary metrics recall column, and unified canvas panel surface
-  - `f466c41` ui-quiet-studio: T-042 Group 3 shared empty states, HNSW topology fit, test expansion, and docs sync
+- **Branches**:
+  - `ui-redesign`: Base v2 platform through T-039.
+  - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
+  - `ui-quiet-studio`: Active branch containing T-041 (Quiet Studio rebuild), T-042 (batched fixes), and T-043 (Settings redesign + polish).
+  - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
+  - *Nothing pushed to remote origin.*
+- **Human Verification on 2026-11-14**:
+  - **Terminal**: Git log shows T-042 commits `eeb605e`, `280c3b2`, `f466c41` on `ui-quiet-studio`; `box-shadow` grep empty; C++ tests pass 118/118; web safety scanner 100% clean; `src/`, `include/`, `tests/`, and `CMakeLists.txt` untouched.
+  - **Screenshots**: `/tests.html` 93/93 passed; Explore toolbar single row and canvas panel OK; Compare after benchmark shows 3 charts with all 3 algorithms and 5 summary columns (ISS-024 fixed); Settings font larger and persistence status in sans.
+- **T-043 Commits on `ui-quiet-studio`**:
   - `c84a913` ui-quiet-studio: T-043 Commit 1 Settings redesign with live status rail and unboxed stacked settings
-  - (pending) ui-quiet-studio: T-043 Commit 2 Compare empty state fix, Ask glass-box latency grid, slide-over document drawer, and docs sync
+  - `34e403a` ui-quiet-studio: T-043 Commit 2 Compare empty state fix, Ask glass-box latency grid, slide-over document drawer, and docs sync
 - **Automated Tests**:
   - C++ unit and integration tests: 118 / 118 passed (529,813 assertions).
   - Browser unit tests: 96 registered tests (`http://127.0.0.1:8080/tests.html`), including citation punctuation parsing tests.
@@ -34,14 +34,17 @@ VectorDB v2 has been completely built across all 9 phases (P0 to P8). Following 
 
 > [!NOTE]
 > Verification status:
-> - **Human-confirmed by terminal on 2026-11-14**: C++ 118/118 passed, scanner ALL CHECKS PASSED, git log commits up to `a57c573` (T-038).
-> - **Human-confirmed by screenshots on 2026-11-14**: `/tests.html` 88/88 (after T-038), 5 tabs at 1920x1080, Ask chat flow, Explore Docs PCA, Open Explore deep link, Compare in Ask (3 rows), Trace (6 nodes), Settings new sections, footer removed.
-> - **Pending Human Screenshots (T-043 Settings Redesign + Visual Polish)**:
+> - **Human-confirmed by terminal on 2026-11-14**: C++ 118/118 passed, scanner ALL CHECKS PASSED, git log commits up to `a57c573` (T-038) and T-042 commits `eeb605e`, `280c3b2`, `f466c41`.
+> - **Human-confirmed by screenshots on 2026-11-14**: `/tests.html` 93/93 (after T-042), 5 tabs at 1920x1080, Ask chat flow, Explore Docs PCA, Open Explore deep link, Compare in Ask (3 rows), Trace (6 nodes), Settings new sections, footer removed, Explore toolbar 1 row, Compare 3 side-by-side charts, Compare summary table 5 columns unclipped.
+> - **Pending Human Screenshots (T-043 Settings Redesign & Visual Polish)**:
 >   - Settings tab at 1920x1080: unboxed stacked settings on left, sticky "Server status" rail on right with status dot and Ollama model chips.
 >   - Settings tab below 1100px: responsive stacking with status rail on top, single app-content scrollbar.
 >   - Compare tab: empty state card with CTA button visible before first benchmark run on demo/docs collections.
 >   - Ask tab: chat column remaining perfectly centered when Documents inventory drawer is opened or closed.
 >   - Ask tab glass-box: Latency breakdown formatted as tidy label+value tiles in sans font.
+>   - HNSW tab at 1366x768 and 1920x1080 with topology summary.
+>   - Sidebar collapsed (56px icon rail).
+>   - 125% browser zoom layout check.
 >   - Browser unit tests at `/tests.html` showing 96/96 passed.
 > - **Visual items marked**: All visual rendering items marked "not tested (visual)" until human screenshots confirm.
 
@@ -109,8 +112,12 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ## 4. Git State
 
-- **Active Branch**: `ui-quiet-studio` (safety branches `backup-before-v2`, `ui-redesign`, and `ui-polish-2026` confirmed intact) [CONFIRMED: git branch]
-- **Tracking Status**: Local branch `ui-quiet-studio` without upstream tracking (commits unpushed per protocol).
+- **Branches**:
+  - `ui-redesign`: Base v2 platform + T-039 docs polish.
+  - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
+  - `ui-quiet-studio`: Active branch containing T-041 (Quiet Studio rebuild), T-042 (batched fixes), and T-043 (Settings redesign + polish).
+  - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
+- **Tracking Status**: Local branch `ui-quiet-studio` without upstream tracking (commits unpushed per protocol; nothing pushed to origin).
 - **Working Tree**: Clean on all tracked files (only untracked test logs in `results/logs/`) [CONFIRMED: git status -sb].
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
@@ -119,28 +126,30 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 ## 5. Pending Human Actions
 
 1. **(a) License copyright name**: Fill `<YOUR NAME>` placeholder in `LICENSE`.
-2. **(b) Take screenshots for unverified / reported areas (T-041 Quiet Studio)**:
-   - 5 tabs at 1920x1080 (Ask, Explore, HNSW, Compare, Settings).
-   - 5 tabs at 1366x768.
-   - Ask tab: centered 820px chat column, zero-gutter collapsed Documents drawer, slide-over drawer open, whitespace-separated glass-box panels.
-   - Sidebar: spacious bottom footer (Ollama status button with non-glowing dot, commands hint button, version text), collapsed 56px icon rail.
-   - Compare tab: 380px sidebar, 3 side-by-side charts, unclipped Top-k diff table without row underlines.
-   - Settings tab: centered 900px layout, sans-serif metrics grid, cardless sections, single scrollbar with no bottom clipping.
-   - Browser unit tests at `/tests.html` showing 92/92 passed.
-   - 125% browser zoom layout check.
-   - Persistence restart with `--data-dir ./data`.
+2. **(b) Add Inter font files (optional)**: Add Inter `.woff2` files to `web/fonts/` (pending human action; currently IBM Plex Sans enforced).
+3. **(c) Take screenshots for unverified / reported areas (T-043 Quiet Studio)**:
+   - Settings tab at 1920x1080 (unboxed stacked settings on left, sticky boxed "Server status" rail on right with status dot and Ollama model chips).
+   - Settings tab at 1366x768 and below 1100px (status rail stacked above settings, single `.app-content` scrollbar).
+   - Compare tab: empty state card with CTA button visible before first benchmark run on demo/docs collections.
+   - Ask tab: glass-box latency breakdown formatted as tidy label+value tiles in sans font; chat column remaining centered with zero horizontal shift when Documents inventory drawer is opened or closed.
+   - HNSW tab at 1366x768 and 1920x1080 with topology summary.
+   - Sidebar collapsed (56px icon rail).
+   - 125% browser zoom layout check across all 5 tabs.
+   - Persistence restart screenshot with `--data-dir ./data`.
    - `Ctrl+K` Command Palette navigation.
    - Interactive guided tour.
-3. **(c) Decide merge of `ui-quiet-studio` into `main`**: Branch `ui-quiet-studio` contains all clean Quiet Studio commits; human authority decides when and whether to merge into `main` (not decided).
-4. **(d) Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
+   - Browser unit tests at `/tests.html` showing 96/96 passed.
+4. **(d) Decide merge of `ui-quiet-studio` into `main`**: Branch `ui-quiet-studio` contains all clean Quiet Studio commits (T-041, T-042, T-043). Brain recommendation: verify fixes first by screenshot, then merge into `main`.
+5. **(e) Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
 
 ---
 
 ## 6. Open Follow-ups & Roadmap
 
 ### Open Follow-ups
+- Human screenshot verification of T-043 (Settings 1920x1080 and 1366x768, Compare empty state, Ask latency grid & drawer toggle, HNSW tab, sidebar collapsed, 125% zoom).
 - Optional C++ unit test for ISS-006 ingest rollback.
-- Compare swatch colors are hardcoded in ask.js / CSS (tracked as ISS-034).
+- Human addition of Inter font files to `web/fonts/` (ISS-041).
 
 ### Roadmap (Not Started)
 - **Hybrid search (BM25 + RRF)**: Requires inverted index and rank fusion; on roadmap, but strictly out of scope for v2.
@@ -152,9 +161,10 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ## 7. Recommended Next Step
 
-1. Human completes pending actions **(a)** (fill `<YOUR NAME>` in `LICENSE`) and **(b)** (take screenshots of persistence restart, `Ctrl+K`, sidebar collapse, guided tour, Ask New chat empty state, 1366x768 Ask).
-2. Brain reviews screenshots and confirms release readiness.
-3. Human decides on merging `ui-redesign` into `main`.
+1. Human reviews T-043 in real browser and captures screenshots (Settings 1920x1080 and 1366x768, Compare empty state, Ask glass-box latency grid & drawer toggle, HNSW tab, sidebar collapsed, 125% zoom).
+2. Brain reviews screenshots and confirms visual quality.
+3. Decide merge of `ui-quiet-studio` into `main` (Brain recommendation: verify fixes first, then merge).
+4. Address pending non-code items: LICENSE name placeholder, Linux/macOS tier & release timing, optional rollback test for ISS-006.
 
 ---
 

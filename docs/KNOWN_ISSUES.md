@@ -1,6 +1,6 @@
 # Known Issues, Limitations & Risk Tracker
 
-Last updated: 2026-11-14 by T-039
+Last updated: 2026-11-14 by SYNC-003
 
 | ID | Type | Description | Where (File/Function) | Severity | Evidence | Status | Date |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -38,7 +38,13 @@ Last updated: 2026-11-14 by T-039
 | ISS-032 | Bug | Ask glass-box Compare button silent, read `bRes.reports` instead of `bRes.algorithms` (fixed T-038, human screenshot shows 3 rows) | `web/js/ask.js`, `web/js/ask_helpers.js` | Medium | [CONFIRMED: human screenshot 2026-11-14] | FIXED (human-verified by screenshot) | 2026-11-14 |
 | ISS-033 | Bug | Ask glass-box mini PCA canvas was empty; replaced by "Open Explore" deep link (fixed T-036, human screenshot) | `web/js/ask.js`, `web/index.html` | Low | [CONFIRMED: human screenshot 2026-11-14] | FIXED (human-verified by screenshot) | 2026-11-14 |
 | ISS-034 | Tech Debt | Compare swatch colors are hardcoded in ask.js / CSS | `web/js/ask.js`, `web/css/app.css` | Low | [CONFIRMED: web/js/ask.js, web/css/app.css] | FIXED (centralized in `web/js/colors.js` and `:root` tokens in `app.css`, zero hex literals in active code) | 2026-11-14 |
-| ISS-035 | Bug | Compare tab empty state was hidden when collection had vectors before benchmark run, leaving blank canvas area | `web/js/compare.js` | Medium | [CONFIRMED: web/js/compare.js:130] | FIXED | 2026-11-14 |
-| ISS-036 | Layout | Ask tab chat container shifted off-center when Documents drawer opened | `web/css/app.css` | Low | [CONFIRMED: web/css/app.css:1720] | FIXED | 2026-11-14 |
+| ISS-035 | Bug | Compare tab empty state was hidden when collection had vectors before benchmark run, leaving blank canvas area (screenshot-confirmed after T-042) | `web/js/compare.js` | Medium | [CONFIRMED: human screenshot after T-042; web/js/compare.js:62] | FIXED (visual screenshot pending) | 2026-11-14 |
+| ISS-036 | Layout | Ask tab chat container shifted off-center when Documents drawer opened | `web/css/app.css` | Low | [CONFIRMED: web/css/app.css:1720] | FIXED (visual screenshot pending) | 2026-11-14 |
+| ISS-037 | Layout | Ask glass-box latency shown as one mono line; Compare rows in mono; full-width action bars | `web/js/ask.js`, `web/css/app.css` | Low | [CONFIRMED: web/js/ask.js:710] | FIXED (visual screenshot pending) | 2026-11-14 |
+| ISS-038 | Layout | Ask Documents panel inventory row plain text, grey blob Chunks button; composer Algorithm select cramped | `web/js/ask.js`, `web/css/app.css` | Low | [CONFIRMED: web/js/ask.js:360, web/css/app.css:1710] | FIXED (visual screenshot pending) | 2026-11-14 |
+| ISS-039 | Layout | Settings tab used 6 boxed cards with heavy lines | `web/index.html`, `web/css/app.css` | Medium | [CONFIRMED: web/index.html:150] | FIXED (visual screenshot pending) | 2026-11-14 |
+| ISS-040 | Tech Debt | CSS `!important` count was 15 in web/css/app.css (override smell) | `web/css/app.css` | Low | [CONFIRMED: web/css/app.css] | FIXED (reduced from 15 to 3) | 2026-11-14 |
+| ISS-041 | Tech Debt | Font is still IBM Plex Sans (+Mono); Inter not added (`web/fonts/` lacks Inter `.woff2` files) | `web/fonts/`, `web/css/app.css` | Low | [CONFIRMED: web/fonts/] | OPEN | 2026-11-14 |
+| ISS-042 | Unverified Area | HNSW tab, 1366x768 viewport, sidebar collapsed, 125% zoom, and Ask empty state (chip version) are NOT yet verified by screenshot | `web/` | Low | [CONFIRMED: project context] | OPEN | 2026-11-14 |
 
 *(Optional polish, not an issue: Compare sidebar has empty space below Summary Metrics at 1920x1080.)*
