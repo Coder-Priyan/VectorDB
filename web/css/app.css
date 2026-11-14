@@ -1034,14 +1034,46 @@ input[type="number"] {
   line-height: 1.4;
 }
 
+.sidebar-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.sidebar-palette-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.sidebar-palette-btn:hover {
+  background: var(--bg-raised);
+  color: var(--text-primary);
+}
+
 .app-sidebar.collapsed .sidebar-footer {
   justify-content: center;
   padding: var(--space-3) 0;
 }
 
+.app-sidebar.collapsed .sidebar-footer-row {
+  justify-content: center;
+}
+
 .app-sidebar.collapsed .ollama-status-badge,
 .app-sidebar.collapsed #ollama-status-badge,
-.app-sidebar.collapsed .sidebar-version-row {
+.app-sidebar.collapsed .sidebar-version-row,
+.app-sidebar.collapsed #footer-version {
   display: none;
 }
 
@@ -1804,6 +1836,45 @@ details:not([open]) .glass-box-chevron {
   cursor: pointer;
   padding: 0 18px 0 0;
   width: auto;
+}
+
+.composer-k-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-raised);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+}
+
+.composer-k-label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-weight: 500;
+  user-select: none;
+}
+
+.composer-k-input {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  width: 22px;
+  padding: 0;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+
+.composer-k-input::-webkit-inner-spin-button,
+.composer-k-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.composer-k-input:focus {
+  outline: none;
 }
 
 .composer-btns {

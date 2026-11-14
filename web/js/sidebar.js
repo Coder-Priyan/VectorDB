@@ -57,6 +57,12 @@ export function initSidebar() {
     });
   }
 
+  // Populate Command Palette button icon
+  const paletteBtn = document.getElementById("open-palette-btn");
+  if (paletteBtn && !paletteBtn.hasChildNodes()) {
+    paletteBtn.appendChild(createIcon("search", 14));
+  }
+
   // Populate Nav Icons
   document.querySelectorAll(".sidebar-nav-item").forEach(item => {
     const iconSlot = item.querySelector(".nav-icon");

@@ -60,11 +60,8 @@
           <span class="status-dot"></span>
           <span id="ollama-status-badge" class="badge badge-neutral" aria-live="polite">Ollama online</span>
         </button>
-        <button type="button" id="open-palette-btn" class="sidebar-footer-btn sidebar-cmd-btn hidden" title="Command Palette (Ctrl+K)">
-          <span class="sidebar-cmd-label">Commands</span>
-          <span class="kbd">Ctrl K</span>
-        </button>
-        <div class="sidebar-version-row">
+        <div class="sidebar-footer-row">
+          <button type="button" id="open-palette-btn" class="sidebar-icon-btn sidebar-palette-btn" title="Commands (Ctrl+K)" aria-label="Commands (Ctrl+K)"></button>
           <span id="footer-version" class="sidebar-version-pill">v0.4.0</span>
         </div>
       </div>
@@ -151,7 +148,10 @@
                       <option value="brute">Brute</option>
                     </select>
                   </div>
-                  <input type="number" id="ask-k-input" class="hidden" value="3" min="1" max="10">
+                  <div class="composer-k-control">
+                    <label for="ask-k-input" class="composer-k-label">k</label>
+                    <input type="number" id="ask-k-input" class="composer-k-input" value="3" min="1" max="10" aria-label="Top k results">
+                  </div>
                   <span id="ask-char-count" class="char-count text-muted hidden">0 / 2000</span>
                 </div>
                 <div class="composer-btns">
