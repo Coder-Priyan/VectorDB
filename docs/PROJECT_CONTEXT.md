@@ -137,6 +137,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 30. **Settings Panel Sizing & Pending Task T-048**: Pending task T-048 (Settings: content-sized panels, balanced columns, left-aligned header) was written by Brain but NOT executed yet. Human liked the 3-column panel grid (T-046) but T-047 height/width stretching made hollow panels.
 31. **Known T-049 Compare Bugs & Visual Rejection**: Human visually REJECTED the T-049 Compare layout (2026-11-14). Bugs seen in human screenshots: after benchmark completes, empty-state card & grey skeleton panels stay visible above results, pushing results down so page scrolls; controls bar is cramped (progress line inside it); diff table showed 8 rows not 10; summary metrics & bars sit side-by-side instead of the mockup's layout. A new Compare design is being created with another AI mockup. Do not merge T-049 to main until human approves a new design.
 32. **T-050 Diff Rows Claim vs Real Screenshot**: T-050 builder claimed all 10 diff rows fit; real screenshot showed 8 (row 9 cut in half, row 10 hidden due to `.table-container` max-height cap and nested box). Builder visual claims are never proof; judge layout strictly by human screenshots.
+33. **Tab-Specific Panel Sizing**: Content-sized panels are right for Settings (T-047 lesson) but NOT for Compare (T-051 lesson); follow each tab's mockup rather than transferring sizing rules between tabs.
 
 ---
 

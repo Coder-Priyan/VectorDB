@@ -1,6 +1,6 @@
 # Known Issues, Limitations & Risk Tracker
 
-Last updated: 2026-11-14 by T-051
+Last updated: 2026-11-14 by T-052
 
 | ID | Type | Description | Where (File/Function) | Severity | Evidence | Status | Date |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -49,5 +49,6 @@ Last updated: 2026-11-14 by T-051
 | ISS-043 | Layout | Settings panel stretching in T-047 made panels hollow and sparse; task T-048 planned by Brain (content-sized panels, balanced columns, left-aligned header) but NOT executed yet | `web/css/app.css` | Low | [CONFIRMED: human review 2026-11-14] | OPEN | 2026-11-14 |
 | ISS-044 | Layout & Bug | Compare tab redesign (T-049) visually REJECTED by human: empty-state card & skeletons stayed visible above results pushing results down causing scroll; controls bar cramped; diff table 8 rows; summary metrics & bars side-by-side. Rebuilt in T-050 (3-column grid: controls+progress+summary left, 3 stacked chart panels middle, diff table 10 rows right, calm mutually-exclusive empty state). | `web/index.html`, `web/js/compare.js`, `web/css/app.css` | Medium | [CONFIRMED: human screenshot 2026-11-14] | OPEN (T-050 implemented, screenshot verification pending) | 2026-11-14 |
 | ISS-045 | Layout | T-050 Compare after human screenshot: diff table showed 8 rows (row 9 clipped, row 10 hidden) although builder report claimed 10 rows fit; nested inner surfaces in diff, summary and chart panels; badges far from ID text; hollow bottom area in left panel; Median showed extra (0.0 ms). | `web/index.html`, `web/css/app.css`, `web/js/compare.js`, `web/js/compare_helpers.js` | Medium | [CONFIRMED: human screenshot 2026-11-14] | FIXED in T-051 (visual screenshot pending) | 2026-11-14 |
+| ISS-046 | Layout | T-051 made Compare panels content-sized (Brain instruction error); human screenshot showed large empty area below panels and squeezed charts; human preferred the T-050 full-height layout. | `web/css/app.css`, `web/js/compare_helpers.js` | Low | [CONFIRMED: human screenshot 2026-11-14] | FIXED in T-052 (visual screenshot pending) | 2026-11-14 |
 
 *(Optional polish, not an issue: Compare sidebar has empty space below Summary Metrics at 1920x1080.)*
