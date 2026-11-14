@@ -14,8 +14,12 @@ Last updated: 2026-11-14 by T-035
 - **P6**: Ask tab glass-box chat (multi-turn persistent chat with localStorage, auto-growing composer, citation pill interactions, collapsible Documents drawer with sample loader and per-doc delete).
 - **P7**: Glass-box panels & educational layer (retrieval chunks, latency breakdown, mini 2D PCA canvas, compare benchmark button, HNSW search path trace, `web/js/learn_content.js` with 7 plain-language explainers, info popovers on all tabs, guided tour).
 - **P8**: Release readiness (MIT `LICENSE`, `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `docs/LEARNING_GUIDE.md`, `.github/workflows/ci.yml`, browser unit tests expanded to 84/84 passing).
+- **T-036**: Batched UI fixes after human real-browser review:
+  - Group A (`d1c6a3d`): Citation parser test assertion fix, `/tests.html` scroll fix.
+  - Group B (`d5df34a`): Ask tab `.page-header` alignment, `<details>` advanced chunking options, guided empty state with sample loader and 3 questions, Explore deep link with prefill, removed empty mini 2D PCA canvas.
+  - Group C (`aaaa6c6`): Explore empty-state variance text clearing, Compare Summary Metrics table clipping fix (no horizontal scrollbar), Settings tab P7 additions (persistence status, two-step Clear Chat History, documentation links card filling vertical space), and moved version badge to sidebar footer while removing the verbose app footer.
 
-All 118 C++ tests pass. All 84 browser unit tests pass. 100% clean web safety scan.
+All 118 C++ tests pass. 84 browser unit tests registered (pending human confirmation in browser). 100% clean web safety scan.
 
 ---
 

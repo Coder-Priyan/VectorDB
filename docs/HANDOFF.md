@@ -1,15 +1,19 @@
 # Project Handoff
 
-Last updated: 2026-11-14 by T-035
+Last updated: 2026-11-14 by T-036
 
 ## 1. Current Status
 
-VectorDB v2 has been completely built across all 9 phases (P0 to P8) on branch `ui-redesign`. VectorDB is now an open-source, fully offline, transparent "glass-box" vector database and RAG learning platform.
+VectorDB v2 has been completely built across all 9 phases (P0 to P8) on branch `ui-redesign`. VectorDB is now an open-source, fully offline, transparent "glass-box" vector database and RAG learning platform. Following human browser review on 2026-11-14, Task T-036 resolved confirmed UI issues and test edge cases.
 
 > [!NOTE]
-> T-033 numbers 118/118 C++ tests and clean web safety scan are confirmed by the human terminal on 2026-11-14. Browser tests 84/84, UI behavior and persistence restart are still unverified by the human.
+> Verification status:
+> - **Human-reported on 2026-11-14 (no screenshots)**: `--data-dir` persistence restart OK, browser console clean, Ctrl K palette / sidebar collapse / guided tour OK, Compare algorithms and Trace HNSW path buttons OK.
+> - **Human-confirmed by screenshots on 2026-11-14**: 5 tabs at 1920x1080, Ask chat flow, Explore Docs PCA, `/tests.html` 83/84 (1 failing: consecutive citation pills; fixed in T-036 Group A).
+> - **Automated tests (confirmed by terminal)**: C++ tests 118/118 passing, web safety scanner 100% clean (zero forbidden patterns).
+> - **Browser test counts**: Builder cannot run browser tests; its browser test counts are never proof. Human must open `http://127.0.0.1:8080/tests.html` to verify the 84/84 tests.
 
-Per git log on branch `ui-redesign`, all 9 phases of Task T-033 are completed and committed:
+Per git log on branch `ui-redesign`:
 - **Phase P0 (Commit `b26212c`)**: Pre-flight unfreezing (ADR-029, ADR-030, ADR-031), CSS disabled-state fix, HNSW toolbar slider stabilization.
 - **Phase P1 (Commit `4586a07`)**: Multi-turn history support in `/api/ask` and `/api/ask/stream` (capped to last 6 messages, 3,000 characters).
 - **Phase P2 (Commit `b857406`)**: Unified HNSW search path trace (`POST /api/hnsw/trace` with `"collection": "demo" | "docs"` and chunk metadata). Fixed ISS-009.
@@ -18,15 +22,21 @@ Per git log on branch `ui-redesign`, all 9 phases of Task T-033 are completed an
 - **Phase P5 (Commit `c25d8a6`)**: New app shell (collapsible sidebar ~260px to ~56px icon rail, recent chats list, Ollama status footer, Command Palette `Ctrl+K`, Toast notifications).
 - **Phase P6 (Commit `cbc57a9`)**: Ask tab glass-box chat (multi-turn localStorage chat persistence, auto-growing composer, citation pill interactions, collapsible Documents drawer with sample loader and per-doc delete).
 - **Phase P7 (Commit `72cbde3`)**: Glass-box panels & educational layer (retrieval chunks with similarity meters, latency breakdown, mini 2D PCA canvas, compare benchmark button, HNSW search path trace, `web/js/learn_content.js` with 7 plain-language explainers, info popovers on all tabs, interactive guided tour).
-- **Phase P8 (Commit `cae814b`)**: Open-source release readiness (MIT `LICENSE`, rewritten `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `docs/LEARNING_GUIDE.md`, `.github/workflows/ci.yml`, browser unit tests in `web/js/tests/test_v2.js` expanded to 84/84 passing).
+- **Phase P8 (Commit `cae814b`)**: Open-source release readiness (MIT `LICENSE`, rewritten `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `docs/LEARNING_GUIDE.md`, `.github/workflows/ci.yml`, browser unit tests in `web/js/tests/test_v2.js`).
+- **T-034 (Commit `637fd58`)**: Fix stale docs (MIT license reference, 118 C++ test count, VDBC/VDBR persistence header documentation).
+- **T-035 (Commit `83c1257`)**: Align ISS-006 ingest rollback documentation in `docs/API.md`, `docs/PROGRESS.md`, and `docs/KNOWN_ISSUES.md`.
+- **T-036 (Commits `d1c6a3d`, `d5df34a`, `aaaa6c6`)**: Batched UI fixes after human real-browser review:
+  - **Group A (`d1c6a3d`)**: Fixed citation parser test assertion in `web/js/tests/test_v2.js` and enabled vertical scrolling on `/tests.html`.
+  - **Group B (`d5df34a`)**: Ask tab header alignment to `.page-header` pattern, collapsible advanced chunking controls `<details>`, guided empty state with sample loader and 3 questions, Explore deep linking with prefill, removed empty mini 2D PCA canvas.
+  - **Group C (`aaaa6c6`)**: Explore empty-state variance text clearing, Compare Summary Metrics table clipping fix (no horizontal scrollbar), Settings tab P7 additions (persistence status, two-step Clear Chat History, documentation links card filling vertical space), and moved version badge to sidebar footer while removing the verbose app footer.
 
 **Verification Metrics**:
 - C++ unit and integration tests: 118 / 118 passed (529,813 assertions).
-- Browser unit tests: 84 / 84 passed (`http://127.0.0.1:8080/tests.html`).
+- Browser unit tests: 84 registered tests (`http://127.0.0.1:8080/tests.html`) — pending human confirmation in browser.
 - Web security scan: 25 files scanned, zero forbidden patterns, strict CSP verified.
 - Server REST/SSE endpoints: 30 registered endpoints.
 - Button hierarchy: at most ONE `.btn-primary` per visible view.
-- DOM ID preservation: 100% of all existing tab DOM IDs preserved (total IDs in `web/index.html` expanded from 113 to 135).
+- DOM ID preservation: 100% of all existing tab DOM IDs preserved.
 
 ---
 
