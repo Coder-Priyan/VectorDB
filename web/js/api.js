@@ -179,6 +179,7 @@ export const api = {
   // Document RAG
   getDocs: () => apiRequest("/api/docs"),
   getDoc: (id) => apiRequest(`/api/docs/${encodeURIComponent(id)}`),
+  deleteDoc: (id) => apiRequest(`/api/docs/${encodeURIComponent(id)}`, { method: "DELETE" }),
   ingestDoc: (payload, signal) => apiRequest("/api/docs", { method: "POST", body: payload, timeoutMs: 60000, signal }),
   resetDocs: () => apiRequest("/api/docs/reset", { method: "POST" }),
 

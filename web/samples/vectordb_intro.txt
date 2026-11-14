@@ -1,0 +1,15 @@
+VectorDB: Semantic Search Engine
+VectorDB is a high-performance, offline vector database and semantic search engine built from scratch in modern C++17.
+It implements exact brute-force search, KD-Trees, and Hierarchical Navigable Small World (HNSW) graphs.
+Unlike cloud-based vector databases, VectorDB runs entirely on your local machine with zero external network dependencies.
+
+Architecture and Performance
+VectorDB stores high-dimensional embeddings and supports Cosine similarity, Euclidean distance (L2), and Dot Product metrics.
+The HNSW implementation uses heuristic neighbor selection with bidirectional pruning, achieving high recall with sub-millisecond query latency.
+Dimensionality reduction via Principal Component Analysis (PCA) maps high-dimensional vectors down to 2D for real-time visualization.
+
+Grounded Retrieval-Augmented Generation (RAG)
+VectorDB includes a transparent RAG pipeline connected to local Ollama models such as nomic-embed-text and llama3.2.
+Documents are parsed and split into sentence or fixed-window chunks.
+Retrieved chunks are formatted with strict citation markers [1], [2] to prevent hallucination.
+When the user asks a question, only grounded facts from the retrieved sources are cited.
