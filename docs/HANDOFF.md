@@ -1,15 +1,15 @@
 # Project Handoff
 
-Last updated: 2026-11-14 by T-046
+Last updated: 2026-11-14 by T-047
 
 ## 1. Current Status
 
-VectorDB v2 has been completely built across all 9 phases (P0 to P8). Following human browser review on 2026-11-14, Tasks T-034 through T-038 resolved confirmed UI issues, test edge cases, and glass-box response mappers. Following visual rejection of T-040 ("no fun at all", line noise, patched overrides), Task T-041 rebuilt the UI layer under "Quiet Studio". Task T-042 addressed batched human review items across toolbars, compare canvas bars, summary table column visibility, HNSW topology viewport budgeting, native control restyling, and shared empty states. Task T-043 implemented the reference-guided Settings redesign with a live status rail, fixed Compare empty state restoration, transformed Ask glass-box latency breakdown to a tidy grid, converted the Documents drawer to an absolute slide-over panel preserving chat centering, reduced CSS `!important` to 3, and expanded test coverage. Following human review of Settings (long single scroll rejected), Task T-046 rebuilt Settings into a one-screen 3-column panel grid of filled surface panels (--bg-panel, no borders, no shadows) chosen by the human from an AI mockup (structure and feel only).
+VectorDB v2 has been completely built across all 9 phases (P0 to P8). Following human browser review on 2026-11-14, Tasks T-034 through T-038 resolved confirmed UI issues, test edge cases, and glass-box response mappers. Following visual rejection of T-040 ("no fun at all", line noise, patched overrides), Task T-041 rebuilt the UI layer under "Quiet Studio". Task T-042 addressed batched human review items across toolbars, compare canvas bars, summary table column visibility, HNSW topology viewport budgeting, native control restyling, and shared empty states. Task T-043 implemented the reference-guided Settings redesign with a live status rail, fixed Compare empty state restoration, transformed Ask glass-box latency breakdown to a tidy grid, converted the Documents drawer to an absolute slide-over panel preserving chat centering, reduced CSS `!important` to 3, and expanded test coverage. Following human review of Settings (long single scroll rejected), Task T-046 rebuilt Settings into a one-screen 3-column panel grid of filled surface panels (--bg-panel, no borders, no shadows) chosen by the human from an AI mockup (structure and feel only). Following human review of T-046, Task T-047 polished Settings to use full width and height under the page-header, roomier panels with increased padding rhythm, evenly spaced server status rows, and sans Data directory value.
 
 - **Branches**:
   - `ui-redesign`: Base v2 platform through T-039.
   - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
-  - `ui-quiet-studio`: Active branch containing T-041 (Quiet Studio rebuild), T-042 (batched fixes), T-043 (Settings redesign + polish), T-044/T-045 (docs fixes), and T-046 (Settings 3-column panel grid rebuild).
+  - `ui-quiet-studio`: Active branch containing T-041 (Quiet Studio rebuild), T-042 (batched fixes), T-043 (Settings redesign + polish), T-044/T-045 (docs fixes), T-046 (Settings 3-column panel grid rebuild), and T-047 (Settings full width/height & roomier panels).
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
   - *Nothing pushed to remote origin.*
 - **Human Verification on 2026-11-14**:
@@ -114,7 +114,7 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 - **Branches**:
   - `ui-redesign`: Base v2 platform + T-039 docs polish.
   - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
-  - `ui-quiet-studio`: Active branch containing T-041 (Quiet Studio rebuild), T-042 (batched fixes), T-043 (Settings redesign + polish), SYNC-003, T-044 (browser test count fix to 94), T-045 (human C++ test verification), and T-046 (Settings 3-column panel grid rebuild).
+  - `ui-quiet-studio`: Active branch containing T-041 (Quiet Studio rebuild), T-042 (batched fixes), T-043 (Settings redesign + polish), SYNC-003, T-044 (browser test count fix to 94), T-045 (human C++ test verification), T-046 (Settings 3-column panel grid rebuild), and T-047 (Settings full width/height & roomier panels).
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
 - **Tracking Status**: Local branch `ui-quiet-studio` without upstream tracking (commits unpushed per protocol; nothing pushed to origin).
 - **Working Tree**: The human's `git status -sb` shows only untracked files in `results/logs/`.
@@ -126,9 +126,11 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 1. **(a) License copyright name**: Fill `<YOUR NAME>` placeholder in `LICENSE`.
 2. **(b) Add Inter font files (optional)**: Add Inter `.woff2` files to `web/fonts/` (pending human action; currently IBM Plex Sans enforced).
-3. **(c) Take screenshots for unverified / reported areas (T-046 Quiet Studio)**:
-   - Settings tab at 1920x1080 (one-screen 3-column panel grid: Col 1 Server status, Col 2 Demo/Insert/Persistence, Col 3 Chats/Docs/Danger zone; filled `--bg-panel` surfaces, no borders, no shadows).
-   - Settings tab at 1366x768 and below 1100px (responsive collapse with Server status first, single `.app-content` scrollbar if overflowing).
+3. **(c) Take screenshots for unverified / reported areas (T-047 Quiet Studio)**:
+   - Settings tab at 1920x1080 (full width and height, roomier panels, even status rhythm, sans data directory value; not tested (visual)).
+   - Settings tab at 1366x768 (compacted rhythm fitting viewport; not tested (visual)).
+   - Settings tab at 125% zoom (layout check with no clipping; not tested (visual)).
+   - Settings tab below 1100px (responsive 1-column stack with Server status first, single scroll; not tested (visual)).
    - Compare tab: empty state card with CTA button visible before first benchmark run on demo/docs collections.
    - Ask tab: glass-box latency breakdown formatted as tidy label+value tiles in sans font; chat column remaining centered with zero horizontal shift when Documents inventory drawer is opened or closed.
    - HNSW tab at 1366x768 and 1920x1080 with topology summary.
@@ -137,7 +139,7 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
    - Persistence restart screenshot with `--data-dir ./data`.
    - `Ctrl+K` Command Palette navigation.
    - Interactive guided tour.
-4. **(d) Decide merge of `ui-quiet-studio` into `main`**: Branch `ui-quiet-studio` contains all clean Quiet Studio commits (T-041, T-042, T-043, T-046). Brain recommendation: verify fixes first by screenshot, then merge into `main`.
+4. **(d) Decide merge of `ui-quiet-studio` into `main`**: Branch `ui-quiet-studio` contains all clean Quiet Studio commits (T-041, T-042, T-043, T-046, T-047). Brain recommendation: verify fixes first by screenshot, then merge into `main`.
 5. **(e) Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
 
 ---

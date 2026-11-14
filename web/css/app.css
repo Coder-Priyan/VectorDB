@@ -1878,9 +1878,11 @@ input[type="number"] {
 #panel-settings {
   height: 100%;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0 var(--space-6) var(--space-8);
+  padding: 0 0 var(--space-4);
   box-sizing: border-box;
 }
 
@@ -1888,6 +1890,7 @@ input[type="number"] {
   max-width: 1040px;
   margin: 0 auto var(--space-4);
   padding: var(--space-4) 0 var(--space-2);
+  flex-shrink: 0;
 }
 
 .settings-title {
@@ -1910,48 +1913,66 @@ input[type="number"] {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-4);
-  max-width: 1360px;
-  margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
   align-items: stretch;
+  flex: 1;
+  min-height: 0;
 }
 
 .settings-col {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
   min-width: 0;
+  height: 100%;
 }
 
 .settings-panel {
   background: var(--bg-panel);
   border-radius: var(--radius-md);
-  padding: var(--space-4);
+  padding: var(--space-5);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   border: none;
   box-shadow: none;
   outline: none;
+  flex: 1;
+  min-height: 0;
 }
 
 .settings-panel-status {
   height: 100%;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-panel-status #settings-health-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  margin-top: var(--space-3);
 }
 
 .settings-panel .section-title {
   font-size: var(--text-md);
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 2px;
+  margin-bottom: var(--space-1);
 }
 
 .settings-panel .section-desc {
   font-size: var(--text-xs);
   color: var(--text-muted);
   line-height: 1.45;
+}
+
+.settings-panel-footer {
+  margin-top: auto;
+  padding-top: var(--space-2);
 }
 
 .settings-panel-danger .section-title {
@@ -2015,9 +2036,12 @@ input[type="number"] {
 
 /* Server status list within settings-panel-status */
 .status-rail-list {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: 0;
 }
 
 .status-rail-item {
@@ -2400,13 +2424,52 @@ input[type="number"] {
 
 
 @media (max-width: 1100px) {
+  #panel-settings {
+    height: auto;
+    min-height: 100%;
+  }
+
   .settings-grid {
     grid-template-columns: 1fr;
     gap: var(--space-4);
+    height: auto;
+    flex: none;
+  }
+
+  .settings-col {
+    height: auto;
+  }
+
+  .settings-panel {
+    flex: none;
+    height: auto;
   }
 
   .settings-panel-status {
     height: auto;
+  }
+
+  .status-rail-list {
+    justify-content: flex-start;
+    gap: var(--space-4);
+  }
+}
+
+@media (max-height: 800px) and (min-width: 1101px) {
+  .settings-panel {
+    padding: var(--space-4);
+  }
+
+  .settings-col {
+    gap: var(--space-3);
+  }
+
+  .settings-panel-status #settings-health-box {
+    margin-top: var(--space-2);
+  }
+
+  .status-rail-list {
+    gap: var(--space-1);
   }
 }
 

@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-14 by T-045
+Last updated: 2026-11-14 by T-047
 
 ## 1. Operating Model
 
@@ -131,6 +131,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 24. **Builder Scratch Scripts**: Builder leaves helper scripts in `scratch/` (untracked); never commit them, keep workspace clean.
 25. **Font Availability & Inter Requirement**: Builder says "IBM Plex Sans only" because no Inter file exists in `web/fonts/`; Inter `.woff2` must be added by the human (pending).
 26. **Cross-Check Builder Counts and IDs**: T-043 builder reported 96 browser tests and a button id #btn-danger-reset; real values were 94 and #demo-reset-btn. Builder retyped numbers and ids that were not checked. Always cross-check counts and ids against the human's browser/terminal.
+27. **Mono Font Deviations**: T-046 builder report claimed mono only for /tests.html and --data-dir, but the Data directory value was also mono; builder omitted this deviation. Check font-family of every value in Settings via screenshot.
 
 ---
 

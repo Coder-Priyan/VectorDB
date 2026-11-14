@@ -551,7 +551,7 @@
           <div class="settings-panel">
             <h2 class="section-title">Demo collection</h2>
             <p class="section-desc">Vector dimension, distance metric, and HNSW graph construction parameters.</p>
-            <form id="settings-reset-demo-form" class="form-stack mt-2">
+            <form id="settings-reset-demo-form" class="form-stack mt-3">
               <div class="form-row">
                 <div class="form-group flex-1">
                   <label for="demo-dim-input">Dimension</label>
@@ -583,7 +583,7 @@
           <div class="settings-panel">
             <h2 class="section-title">Insert random vectors</h2>
             <p class="section-desc">Generate synthetic Gaussian vectors for experimentation and search benchmarking.</p>
-            <form id="settings-random-demo-form" class="form-row mt-2">
+            <form id="settings-random-demo-form" class="form-row mt-3">
               <div class="form-group flex-2">
                 <input type="number" id="demo-random-count" class="input-text" value="100" min="1" max="20000" aria-label="Insert random vectors count">
               </div>
@@ -598,17 +598,17 @@
           <div class="settings-panel">
             <h2 class="section-title">Persistence and storage</h2>
             <p class="section-desc">Engine snapshot and disk persistence status across restarts.</p>
-            <div class="settings-kv-list mt-2">
+            <div class="settings-kv-list mt-3">
               <div class="settings-kv-row">
                 <span class="settings-kv-label">Persistence status</span>
                 <span id="settings-persistence-status" class="settings-kv-value text-primary">Checking...</span>
               </div>
               <div class="settings-kv-row">
                 <span class="settings-kv-label">Data directory</span>
-                <span id="settings-persistence-dir" class="settings-kv-value text-muted font-mono">--</span>
+                <span id="settings-persistence-dir" class="settings-kv-value text-muted">--</span>
               </div>
             </div>
-            <p id="settings-persistence-hint" class="section-desc text-xs text-muted mt-2">Pass <code class="font-mono">--data-dir &lt;path&gt;</code> on server start to persist collections across restarts.</p>
+            <p id="settings-persistence-hint" class="section-desc text-xs text-muted settings-panel-footer mt-3">Pass <code class="font-mono">--data-dir &lt;path&gt;</code> on server start to persist collections across restarts.</p>
           </div>
         </div>
 
@@ -618,7 +618,7 @@
           <div class="settings-panel">
             <h2 class="section-title">Chat history</h2>
             <p class="section-desc">Clear local conversation threads and reset the active Ask chat.</p>
-            <div class="settings-confirm-actions mt-2">
+            <div class="settings-confirm-actions mt-3">
               <button type="button" id="settings-clear-chats-cancel-btn" class="btn btn-sm btn-secondary hidden">Cancel</button>
               <button type="button" id="settings-clear-chats-btn" class="btn btn-sm btn-secondary">Clear Chat History</button>
             </div>
@@ -629,7 +629,7 @@
           <div class="settings-panel">
             <h2 class="section-title">Documentation and guides</h2>
             <p class="section-desc">Offline educational guides, interactive walkthroughs, and automated test suite verification.</p>
-            <div class="settings-doc-list mt-2">
+            <div class="settings-doc-list mt-3">
               <a href="/tests.html" target="_blank" class="settings-doc-row">
                 <span class="settings-doc-label">Interactive Test Suite</span>
                 <span class="text-xs text-muted font-mono">/tests.html</span>
@@ -639,14 +639,14 @@
                 <span class="text-xs text-muted">7-step interactive walkthrough</span>
               </button>
             </div>
-            <p class="section-desc text-xs text-muted mt-2">A transparent, offline vector database and RAG learning tool.</p>
+            <p class="section-desc text-xs text-muted settings-panel-footer mt-3">A transparent, offline vector database and RAG learning tool.</p>
           </div>
 
           <!-- 6. Danger zone (last, quiet) -->
           <div class="settings-panel settings-panel-danger">
             <h2 class="section-title text-danger">Danger zone</h2>
             <p class="section-desc">Clears all demo vectors and rebuilds the index with the configuration above.</p>
-            <div class="settings-confirm-actions mt-2">
+            <div class="settings-confirm-actions mt-3">
               <button type="button" id="demo-reset-cancel-btn" class="btn btn-sm btn-secondary hidden">Cancel</button>
               <button type="button" id="demo-reset-btn" class="btn btn-sm btn-danger">Reset Demo Collection</button>
             </div>
