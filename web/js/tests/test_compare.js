@@ -891,6 +891,7 @@ export function registerCompareTests() {
       assertEqual(brute.rangeText, "120 - 120 µs");
       assertEqual(brute.barWidthPct, 100);
       assertEqual(brute.distanceComputations, 1000);
+      assertEqual(brute.distBarWidthPct, 100);
       assertEqual(brute.rankStrip, null);
       assertEqual(brute.recallPercent, "100.0%");
 
@@ -902,6 +903,7 @@ export function registerCompareTests() {
       assertEqual(kd.medianUs, 85);
       assertEqual(kd.barWidthPct, 71);
       assertEqual(kd.distanceComputations, 240);
+      assertEqual(kd.distBarWidthPct, 24);
       assertEqual(kd.rankStrip.length, 10);
       assertEqual(kd.sameCount, 10);
       assertEqual(kd.total, 10);
@@ -914,9 +916,10 @@ export function registerCompareTests() {
       assertEqual(hnsw.isBrute, false);
       assertEqual(hnsw.medianUs, 42);
       assertEqual(hnsw.barWidthPct, 35);
-      assertEqual(hnsw.distanceComputations, 112);
+      assertEqual(hnsw.distanceComputations, 64);
+      assertEqual(hnsw.distBarWidthPct, 6);
       assertEqual(hnsw.rankStrip.length, 10);
-      assertEqual(hnsw.sameCount, 8);
+      assertEqual(hnsw.sameCount, 9);
       assertEqual(hnsw.total, 10);
       assertEqual(hnsw.recallPercent, "90.0%");
     });
@@ -963,6 +966,10 @@ export function registerCompareTests() {
 
       const cards = mapReportToCards(customReport);
       assertEqual(cards.length, 3);
+
+      assertEqual(cards[0].distBarWidthPct, 100);
+      assertEqual(cards[1].distBarWidthPct, 50);
+      assertEqual(cards[2].distBarWidthPct, 30);
 
       const kdCard = cards[1];
       assertEqual(kdCard.total, 4);
