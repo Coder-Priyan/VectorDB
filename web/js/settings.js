@@ -6,7 +6,8 @@
  */
 
 import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js";
-import { el, formatBytes, formatOllamaModels } from "./ui.js";
+import { el, formatBytes, createDropdown } from "./ui.js";
+import { createIcon } from "./icons.js";
 
 export function initSettingsTab() {
   const healthBox = document.getElementById("settings-health-box");
@@ -18,6 +19,36 @@ export function initSettingsTab() {
   const insertRandomBtn = document.getElementById("demo-insert-random-btn");
   const randomStatus = document.getElementById("settings-random-status");
   const footerVersionEl = document.getElementById("footer-version");
+  const statusTextEl = document.getElementById("settings-status-text");
+  const modelsChipsEl = document.getElementById("settings-models-chips");
+  const metricDropdownWrap = document.getElementById("demo-metric-dropdown-wrap");
+
+  // Mount custom dark dropdown for Metric selection
+  let metricDropdown = null;
+  if (metricDropdownWrap) {
+    metricDropdown = createDropdown(
+      [
+        { value: "cosine", label: "Cosine" },
+        { value: "euclidean", label: "Euclidean" },
+        { value: "manhattan", label: "Manhattan" }
+      ],
+      "cosine",
+      null,
+      { id: "demo-metric-select", ariaLabel: "Distance metric" }
+    );
+    metricDropdownWrap.replaceChildren(metricDropdown.element);
+  }
+
+  // Attach SVG icons to Documentation & Guides link buttons
+  const testsIconSlot = document.getElementById("settings-tests-icon");
+  if (testsIconSlot && testsIconSlot.children.length === 0) {
+    testsIconSlot.appendChild(createIcon("external", 14));
+  }
+
+  const tourIconSlot = document.getElementById("settings-tour-icon");
+  if (tourIconSlot && tourIconSlot.children.length === 0) {
+    tourIconSlot.appendChild(createIcon("arrowRight", 14));
+  }
 
   let resetStateTimer = null;
   let isResetPromptPending = false;
@@ -53,12 +84,20 @@ export function initSettingsTab() {
       const efcInput = document.getElementById("demo-efc-input");
 
       if (dimInput && config?.dimension) dimInput.value = config.dimension;
-      if (metricSelect && config?.metric) metricSelect.value = config.metric;
+      if (metricDropdown && config?.metric) {
+        metricDropdown.setValue(config.metric);
+      } else if (metricSelect && config?.metric) {
+        metricSelect.value = config.metric;
+      }
       if (mInput && config?.hnsw?.M) mInput.value = config.hnsw.M;
       if (efcInput && config?.hnsw?.efConstruction) efcInput.value = config.hnsw.efConstruction;
 
       if (footerVersionEl && health.version) {
         footerVersionEl.textContent = `v${health.version}`;
+      }
+
+      if (statusTextEl) {
+        statusTextEl.textContent = health.status || "ok";
       }
 
       // Update Persistence Status
@@ -80,55 +119,37 @@ export function initSettingsTab() {
         if (persisHintEl) persisHintEl.textContent = "Pass --data-dir <path> on startup to persist collections across restarts.";
       }
 
-      const modelChips = [];
-      if (!ollama || !ollama.reachable) {
-        modelChips.push(el("span", { className: "text-muted text-xs" }, "Ollama Offline"));
-      } else if (!ollama.models || ollama.models.length === 0) {
-        modelChips.push(el("span", { className: "text-muted text-xs" }, "None installed"));
-      } else {
-        ollama.models.forEach(m => {
-          modelChips.push(el("span", { className: "badge badge-neutral" }, m));
-        });
+      // Render Ollama Models chips
+      if (modelsChipsEl) {
+        if (!ollama || !ollama.reachable) {
+          modelsChipsEl.replaceChildren(el("span", { className: "text-muted text-xs" }, "Ollama offline"));
+        } else if (!ollama.models || ollama.models.length === 0) {
+          modelsChipsEl.replaceChildren(el("span", { className: "text-muted text-xs" }, "None installed"));
+        } else {
+          modelsChipsEl.replaceChildren(
+            ...ollama.models.map(m => el("span", { className: "settings-model-chip" }, m))
+          );
+        }
       }
 
+      // Helper to construct a single metric tile in the 8-metric strip
+      function makeMetricTile(label, value) {
+        return el("div", { className: "settings-metric-tile" },
+          el("span", { className: "settings-metric-label" }, label),
+          el("span", { className: "settings-metric-val" }, value)
+        );
+      }
+
+      // Render the 8 real server metrics in the strip
       healthBox.replaceChildren(
-        el("div", { className: "status-rail-list" },
-          el("div", { className: "status-rail-item" },
-            el("div", { className: "status-rail-label" }, "Server status"),
-            el("div", { className: "status-rail-value status-indicator" },
-              el("span", { className: "status-dot status-dot-healthy" }),
-              el("span", {}, health.status || "healthy")
-            )
-          ),
-          el("div", { className: "status-rail-item" },
-            el("div", { className: "status-rail-label" }, "Server version"),
-            el("div", { className: "status-rail-value" }, `v${health.version || "-"}`)
-          ),
-          el("div", { className: "status-rail-item" },
-            el("div", { className: "status-rail-label" }, "Dimension"),
-            el("div", { className: "status-rail-value" }, String(config.dimension ?? "-"))
-          ),
-          el("div", { className: "status-rail-item" },
-            el("div", { className: "status-rail-label" }, "Metric"),
-            el("div", { className: "status-rail-value" }, String(config.metric ?? "-"))
-          ),
-          el("div", { className: "status-rail-item" },
-            el("div", { className: "status-rail-label" }, "HNSW parameters"),
-            el("div", { className: "status-rail-value" }, `M=${config.hnsw?.M}, efC=${config.hnsw?.efConstruction}, efS=${config.hnsw?.efSearch}`)
-          ),
-          el("div", { className: "status-rail-item" },
-            el("div", { className: "status-rail-label" }, "Vectors count"),
-            el("div", { className: "status-rail-value" }, String(stats.count ?? 0))
-          ),
-          el("div", { className: "status-rail-item" },
-            el("div", { className: "status-rail-label" }, "Memory (approx)"),
-            el("div", { className: "status-rail-value" }, formatBytes(stats.memory_bytes || 0))
-          ),
-          el("div", { className: "status-rail-item" },
-            el("div", { className: "status-rail-label" }, "Ollama models"),
-            el("div", { className: "status-rail-chips" }, ...modelChips)
-          )
-        )
+        makeMetricTile("Version", `v${health.version || "-"}`),
+        makeMetricTile("Dimension", String(config?.dimension ?? "-")),
+        makeMetricTile("Metric", String(config?.metric ?? "-")),
+        makeMetricTile("M", String(config?.hnsw?.M ?? "-")),
+        makeMetricTile("efConstruction", String(config?.hnsw?.efConstruction ?? "-")),
+        makeMetricTile("efSearch", String(config?.hnsw?.efSearch ?? "-")),
+        makeMetricTile("Vectors", String(stats?.count ?? 0)),
+        makeMetricTile("Memory (approx)", formatBytes(stats?.memory_bytes || 0))
       );
     } catch (err) {
       healthBox.replaceChildren(
