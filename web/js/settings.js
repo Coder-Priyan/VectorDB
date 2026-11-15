@@ -8,6 +8,7 @@
 import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js";
 import { el, formatBytes, createDropdown } from "./ui.js";
 import { createIcon } from "./icons.js";
+import { getSettingsNextSectionIndex } from "./settings_helpers.js";
 
 export function initSettingsTab() {
   const healthBox = document.getElementById("settings-health-box");
@@ -20,8 +21,69 @@ export function initSettingsTab() {
   const randomStatus = document.getElementById("settings-random-status");
   const footerVersionEl = document.getElementById("footer-version");
   const statusTextEl = document.getElementById("settings-status-text");
+  const ollamaStatusTextEl = document.getElementById("settings-ollama-status-text");
   const modelsChipsEl = document.getElementById("settings-models-chips");
   const metricDropdownWrap = document.getElementById("demo-metric-dropdown-wrap");
+
+  // Settings Two-Pane Navigation (5 sections)
+  const SECTIONS = [
+    { id: "server", tabId: "settings-tab-server", panelId: "settings-section-server" },
+    { id: "collection", tabId: "settings-tab-collection", panelId: "settings-section-collection" },
+    { id: "storage", tabId: "settings-tab-storage", panelId: "settings-section-storage" },
+    { id: "data", tabId: "settings-tab-data", panelId: "settings-section-data" },
+    { id: "danger", tabId: "settings-tab-danger", panelId: "settings-section-danger" }
+  ];
+
+  let currentSectionIndex = 0;
+
+  function switchSection(index) {
+    if (index < 0 || index >= SECTIONS.length) return;
+    currentSectionIndex = index;
+
+    SECTIONS.forEach((sec, idx) => {
+      const tabEl = document.getElementById(sec.tabId);
+      const panelEl = document.getElementById(sec.panelId);
+      const isActive = idx === index;
+
+      if (tabEl) {
+        if (isActive) {
+          tabEl.classList.add("active");
+          tabEl.setAttribute("aria-selected", "true");
+          tabEl.setAttribute("tabindex", "0");
+          tabEl.focus();
+        } else {
+          tabEl.classList.remove("active");
+          tabEl.setAttribute("aria-selected", "false");
+          tabEl.setAttribute("tabindex", "-1");
+        }
+      }
+
+      if (panelEl) {
+        if (isActive) {
+          panelEl.classList.remove("hidden");
+        } else {
+          panelEl.classList.add("hidden");
+        }
+      }
+    });
+  }
+
+  SECTIONS.forEach((sec, idx) => {
+    const tabEl = document.getElementById(sec.tabId);
+    if (!tabEl) return;
+
+    tabEl.addEventListener("click", () => {
+      switchSection(idx);
+    });
+
+    tabEl.addEventListener("keydown", (e) => {
+      const nextIdx = getSettingsNextSectionIndex(currentSectionIndex, SECTIONS.length, e.key);
+      if (nextIdx !== currentSectionIndex) {
+        e.preventDefault();
+        switchSection(nextIdx);
+      }
+    });
+  });
 
   // Mount custom dark dropdown for Metric selection
   let metricDropdown = null;
@@ -97,7 +159,10 @@ export function initSettingsTab() {
       }
 
       if (statusTextEl) {
-        statusTextEl.textContent = health.status || "ok";
+        statusTextEl.textContent = health.status === "ok" ? "Server ok" : (health.status || "Server offline");
+      }
+      if (ollamaStatusTextEl) {
+        ollamaStatusTextEl.textContent = (ollama && ollama.reachable) ? "Ollama online" : "Ollama offline";
       }
 
       // Update Persistence Status
@@ -119,42 +184,48 @@ export function initSettingsTab() {
         if (persisHintEl) persisHintEl.textContent = "Pass --data-dir <path> on startup to persist collections across restarts.";
       }
 
-      // Render Ollama Models chips
+      // Render Ollama Models plain text list
       if (modelsChipsEl) {
         if (!ollama || !ollama.reachable) {
-          modelsChipsEl.replaceChildren(el("span", { className: "text-muted text-xs" }, "Ollama offline"));
+          modelsChipsEl.replaceChildren(el("p", { className: "text-muted text-sm" }, "Ollama offline"));
         } else if (!ollama.models || ollama.models.length === 0) {
-          modelsChipsEl.replaceChildren(el("span", { className: "text-muted text-xs" }, "None installed"));
+          modelsChipsEl.replaceChildren(el("p", { className: "text-muted text-sm" }, "None installed"));
         } else {
           modelsChipsEl.replaceChildren(
-            ...ollama.models.map(m => el("span", { className: "settings-model-chip" }, m))
+            el(
+              "ul",
+              { className: "settings-plain-list" },
+              ...ollama.models.map(m => el("li", { className: "settings-plain-list-item" }, m))
+            )
           );
         }
       }
 
-      // Helper to construct a single metric tile in the 8-metric strip
-      function makeMetricTile(label, value) {
-        return el("div", { className: "settings-metric-tile" },
-          el("span", { className: "settings-metric-label" }, label),
-          el("span", { className: "settings-metric-val" }, value)
+      // Helper to construct a definition list row (dt label, dd value)
+      function makeDefRow(label, value) {
+        return el("div", { className: "settings-def-row" },
+          el("dt", { className: "settings-def-label" }, label),
+          el("dd", { className: "settings-def-val" }, value)
         );
       }
 
-      // Render the 8 real server metrics in the strip
+      // Render the 8 real server metrics in the definition list
       healthBox.replaceChildren(
-        makeMetricTile("Version", `v${health.version || "-"}`),
-        makeMetricTile("Dimension", String(config?.dimension ?? "-")),
-        makeMetricTile("Metric", String(config?.metric ?? "-")),
-        makeMetricTile("M", String(config?.hnsw?.M ?? "-")),
-        makeMetricTile("efConstruction", String(config?.hnsw?.efConstruction ?? "-")),
-        makeMetricTile("efSearch", String(config?.hnsw?.efSearch ?? "-")),
-        makeMetricTile("Vectors", String(stats?.count ?? 0)),
-        makeMetricTile("Memory (approx)", formatBytes(stats?.memory_bytes || 0))
+        makeDefRow("Version", `v${health.version || "-"}`),
+        makeDefRow("Dimension", String(config?.dimension ?? "-")),
+        makeDefRow("Metric", String(config?.metric ?? "-")),
+        makeDefRow("M", String(config?.hnsw?.M ?? "-")),
+        makeDefRow("efConstruction", String(config?.hnsw?.efConstruction ?? "-")),
+        makeDefRow("efSearch", String(config?.hnsw?.efSearch ?? "-")),
+        makeDefRow("Vectors", String(stats?.count ?? 0)),
+        makeDefRow("Memory (approx)", formatBytes(stats?.memory_bytes || 0))
       );
     } catch (err) {
       healthBox.replaceChildren(
         el("p", { className: "text-muted" }, `Failed to load system status: ${err.message}`)
       );
+      if (statusTextEl) statusTextEl.textContent = "Server offline";
+      if (ollamaStatusTextEl) ollamaStatusTextEl.textContent = "Ollama unreachable";
     }
   }
 
