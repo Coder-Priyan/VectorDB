@@ -148,6 +148,28 @@ Last updated: 2026-11-16 by T-072 sync
 - **Communication Style**: Human writes Hinglish (Hindi in Roman letters), Brain replies in short Hinglish with one question at a time.
 - **Compare Status**: T-071 refined Compare results view under ADR-065. Visual verification by human screenshots ongoing. Do not merge until human approves design by screenshot.
 
+### ADR-075: Radical Full-Bleed Studio Transformation for Explore and HNSW Tabs (T-082)
+- **Context**: The user observed that despite previous micro-refinements, Explore and HNSW tabs still looked fundamentally unchanged due to the persistent 2-pane split (narrow canvas on the left, 380px vertical sidebar on the right). The user demanded major, radical structural changes inspired by the Ask and Settings studio theme.
+- **Decision**:
+  1. **Abolish 2-Pane Split**: Completely eradicated `.viz-sidebar` and the split column macro layout. Unified viewports across Explore, HNSW, Compare, and Settings to `max-width: 1180px; margin: 0 auto;`.
+  2. **Explore Tab Rebuild**:
+     - *Integrated Highway Toolbar* (`.explore-toolbar`): Houses Collection selector, inline query controls (k input, Random Query button, ID input, Search ID button, docs query form), refresh button, variance status badge, and reset view button.
+     - *Full-Bleed Coordinate Canvas* (`.explore-canvas-frame`): Full-width 900x420 DPR-safe 2D coordinate space with clear dark canvas contrast (`#09090b`), crosshair cursor, axes, and interactive PCA cluster projection.
+     - *Horizontal Studio Neighbor Deck* (`.explore-deck-section`): Nearest neighbor results rendered as sleek dark raised cards in a responsive CSS grid (`#explore-results-tbody`), displaying doc/vector icons, titles, and clean tabular distance/similarity metrics.
+  3. **HNSW Tab Rebuild**:
+     - *Top Layer Highway* (`.hnsw-toolbar`): Layer slider with live badge, collection selector, max edges dropdown, refresh, and graph edge summary.
+     - *Full-Bleed Graph Canvas* (`.hnsw-canvas-frame`): Full-width 900x420 graph canvas with multi-layer node/edge hierarchy, target highlights, and live step rings.
+     - *Xcode/QuickTime 3-Column Console Deck* (`.hnsw-console-deck`):
+       - Col 1 (Search Target Launcher): Target search inputs (k, ef, Random Query, Vector ID search).
+       - Col 2 (Playback Transport): Step counter, transport buttons (&larr;, Play/Pause, &rarr;, Reset), playback speed selector, and full timeline scrubber.
+       - Col 3 (Live Telemetry & Stats Bento): 3 step stat tiles (Current node, Distance, Layer) + 3 search telemetry tiles (Distance comps, Nodes visited, Visited layers).
+     - *Bottom Topology Summary Strip* (`.hnsw-topology-strip`): Nodes, Max level, Entry point summary bar.
+  4. **Strict Safety & Quality Invariants**:
+     - Ask tab, Settings tab, Compare tab, and C++ engine remain 100% frozen.
+     - Zero innerHTML, strict CSP, 0 box-shadow, !important <= 2, 0 hex colors outside `:root`.
+     - 118/118 C++ tests pass, 156/156 JS tests pass.
+
+
 
 
 
