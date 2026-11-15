@@ -1,6 +1,6 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by T-060
+Last updated: 2026-11-15 by T-061
 
 ## 1. Current Status
 
@@ -48,8 +48,11 @@ Task T-060 redesigned the Ask glass-box "How this was answered" from human-appro
 - **Commit `fb0bf01` (T-060 A)**: Slim summary strip (`--bg-raised`, 10px radius, NO border) with left chevron + "How this was answered" (`text-primary`, not amber) and right 3 real muted chips (`<n> sources`, total time e.g. "27.9 s", algorithm name e.g. "HNSW"). Expands into a compact panel with 3 underline tabs (`Sources`, `Latency`, `Algorithms`), stable 120px min-height to prevent layout jumps, max-height 260px with quiet scrollbar. Default active tab is Sources reusing existing chunk cards. Latency tab displays the 5 timing tiles with arrows or quiet empty text. Algorithms tab displays quiet empty state before running Compare, and 3 real benchmark rows (taupe/moss/amber) plus trace summary line after running. Shared footer actions (`Open Explore`, `Compare algorithms`, `Trace HNSW path`) visible under every tab; clicking Compare or Trace switches to Algorithms tab. Saved `algorithm` on assistant chat messages.
 - **Commit `0cf2d47` (T-060 B)**: Accessible tab navigation with `role="tablist"` / `"tab"` / `"tabpanel"`, roving tabindex, Arrow/Home/End keyboard navigation via pure helper `getTabNextIndex(current, count, key)` with 6 registered unit tests in `test_v2.js` (total 127 registered tests in code). Coordinated citation pill expand: clicking `[n]` on collapsed answer expands accordion, switches to Sources tab, and scrolls/highlights target card after 200ms ease-out transition.
 
+Task T-061 established equal-height tabs in the Ask glass-box (no size change when switching tabs) on branch `ui-redesign-v3` (ADR-055):
+- **Commit `19b2276` (T-061)**: Fixed tab height (`--glassbox-tab-h: 196px`), equal content-area height (220px with 24px vertical padding), fixed positions for footer buttons. Sources tab scrolls cleanly inside fixed 196px box if k > 3 rows. Latency tab stretches 5 tiles vertically to fill box height with centered content, larger numbers (`font-size: var(--text-lg)`), centered arrows, amber Total tile, and muted caption (`"Time spent in each stage of this answer."`); empty state centered vertically and horizontally. Algorithms tab spreads 3 benchmark rows evenly (`justify-content: space-evenly`), HNSW trace summary line sits inside the same box below rows without expanding height (total 135px <= 196px); empty state centered vertically and horizontally. Footer actions stay directly under the box in the exact same position for all tabs. Instant tab switching, 200ms accordion animation, ARIA tabs, keyboard navigation, and citations strictly preserved.
+
 ### Current Status by Tab (2026-11-15):
-- **Ask**: Human approved glass-box mockups on 2026-11-15; T-060 redesigned the glass-box into a calm borderless summary strip and 3-tab panel (Sources, Latency, Algorithms) with smooth 200ms open/close. Human confirmed drawer re-center and default collapsed glass-box accordion by screenshots on 2026-11-15. Still pending human screenshots: open dropdown popup, collapsed 56px sidebar rail; sample document is ingested twice (duplicate inventory, Chunk #3 shown twice), human will delete one; Compare tab mockups still waiting.
+- **Ask**: T-060 human-verified by terminal and screenshots on 2026-11-15 (127/127 in /tests.html, animation smooth); T-061 equal-height tabs implemented and verified via headless Chrome. Still pending human screenshots: open dropdown popup, collapsed 56px sidebar rail, citation-pill click expand, keyboard tab navigation; text size of strip/tabs may be raised in a later task (human has not decided); duplicate sample document still ingested twice (human will delete one); Compare tab mockups still waiting.
 - **Compare**: Brain gave the human a ChatGPT image prompt (results state first, then empty state); the human is generating the two images; WAITING for the images; then Brain reviews them and writes the Compare task, which will use the shared dropdown from T-058/T-059.
 - **Explore, HNSW, Settings**: Not started in this per-tab workflow.
 
@@ -143,6 +146,10 @@ Approved by the human; Antigravity builder executed on branch `ui-redesign-v3` i
 - `5d04dca`: docs: SYNC-007
 - `82e828c`: T-059 A: fix createDropdown recursion and add regression test
 - `f5e3609`: T-059 B: smooth accordion animation, clear stray hex literal
+- `fb0bf01`: T-060 A: Ask glass-box summary strip and 3-tab layout
+- `0cf2d47`: T-060 B: accordion animation, citation expand, tab keyboard support
+- `9123a14`: docs: T-060 sync
+- `19b2276`: T-061: equal-height glass-box tabs with filled content
 
 ### Verification Status Breakdown:
 - **Human-Confirmed (Real Browser & Terminal on 2026-11-15)**:
@@ -333,7 +340,7 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
   - `ui-redesign`: Base v2 platform + T-039 docs polish.
   - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
   - `ui-quiet-studio`: Quiet Studio branch through T-054 and SYNC-005.
-  - `ui-redesign-v3`: Active branch containing T-055, T-055b, T-055c, T-056, T-057 (human-verified), and T-058 commits `833a2ee` and `a557a53`.
+  - `ui-redesign-v3`: Active branch containing T-055, T-055b, T-055c, T-056, T-057 (human-verified), T-058, T-059, T-060, and T-061.
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
 - **Tracking Status**: Local branch `ui-redesign-v3` without upstream tracking (commits unpushed per protocol; nothing pushed to origin).
 - **Working Tree**: Clean tracked files; only untracked test logs in `results/logs/`.

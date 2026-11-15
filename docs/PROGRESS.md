@@ -1,6 +1,6 @@
 # Project Progress
 
-Last updated: 2026-11-15 by T-060
+Last updated: 2026-11-15 by T-061
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform (Task T-033 Complete across all 9 Phases P0-P8, Branch `ui-redesign-v3`)
 
@@ -57,8 +57,9 @@ Last updated: 2026-11-15 by T-060
 - **T-060**: Ask glass-box "How this was answered" redesign: summary strip, 3 tabs, smooth open/close on branch `ui-redesign-v3`. Commits `fb0bf01` (T-060 A), `0cf2d47` (T-060 B).
   - **Part A (`fb0bf01`)**: Redesigned glass-box accordion into a slim borderless summary strip (`--bg-raised`, 10px radius, NO border) with left chevron + "How this was answered" (staying `text-primary`, not amber) and right 3 real muted chips (`<n> sources`, total time e.g. "27.9 s", algorithm name e.g. "HNSW"). Expands into a compact panel with 3 underline tabs (`Sources`, `Latency`, `Algorithms`), stable 120px min-height to prevent layout jumps, max-height 260px with quiet scrollbar. Default active tab is Sources reusing existing chunk cards. Latency tab displays the 5 timing tiles with arrows or quiet empty text. Algorithms tab displays quiet empty state before running Compare, and 3 real benchmark rows (taupe/moss/amber) plus trace summary line after running. Shared footer actions (`Open Explore`, `Compare algorithms`, `Trace HNSW path`) visible under every tab; clicking Compare or Trace switches to Algorithms tab. Saved `algorithm` on assistant chat messages.
   - **Part B (`0cf2d47`)**: Accessible tab navigation with `role="tablist"` / `"tab"` / `"tabpanel"`, roving tabindex, Arrow/Home/End keyboard navigation via pure helper `getTabNextIndex(current, count, key)` with 6 registered unit tests in `test_v2.js`. Coordinated citation pill expand: clicking `[n]` on collapsed answer expands accordion, switches to Sources tab, and scrolls/highlights target card after 200ms ease-out transition.
+- **T-061**: Equal-height tabs in the Ask glass-box (no size change when switching tabs) on branch `ui-redesign-v3`. Commit `19b2276`. Defined fixed height token `--glassbox-tab-h: 196px` (exact measured height of Sources with 3 rows: 3 * 60px card + 2 * 8px gaps) and equal outer content-area height (220px with 24px vertical padding). Tab content area is locked to fixed height across Sources, Latency, and Algorithms tabs eliminating vertical layout shifts and jumps. Sources tab scrolls cleanly with quiet scrollbar when k > 3 rows. Latency tab stretches 5 tiles vertically to fill the box height with centered content, larger numbers (`font-size: var(--text-lg)`), centered arrows, amber Total tile, and muted caption (`"Time spent in each stage of this answer."`); empty state centered vertically and horizontally. Algorithms tab spreads 3 benchmark rows evenly (`justify-content: space-evenly`), HNSW trace summary line sits inside the same box below rows without expanding height (total 135px <= 196px); empty state centered vertically and horizontally. Footer actions stay directly under the box in the exact same position for all tabs. Instant tab switching, 200ms accordion animation, ARIA tabs, keyboard navigation, and citations strictly preserved.
 
-All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count 0, hex count outside colors.js 0. 127 browser unit tests registered in code. Whole-UI redesign v3 in progress on branch `ui-redesign-v3` (ADR-047, ADR-048, ADR-050, ADR-051, ADR-052, ADR-053, ADR-054).
+All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count 0, hex count outside colors.js 0. 127 browser unit tests registered in code. Whole-UI redesign v3 in progress on branch `ui-redesign-v3` (ADR-047, ADR-048, ADR-050, ADR-051, ADR-052, ADR-053, ADR-054, ADR-055).
 
 ---
 
