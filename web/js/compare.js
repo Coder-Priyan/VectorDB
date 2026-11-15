@@ -78,12 +78,11 @@ export function initCompareTab() {
   const progressBar = byId("compare-progress-fill");
   const emptyStateBox = byId("compare-empty-state");
   const resultsCard = byId("compare-results-card");
-  const lanesPanel = byId("compare-lanes-panel");
-  const lanesContent = byId("compare-lanes-content");
+  const cardsContainer = byId("compare-cards-container");
   const rankTooltipEl = byId("compare-rank-tooltip");
 
   function showTooltip(cell, cellData) {
-    if (!rankTooltipEl || !lanesPanel) return;
+    if (!rankTooltipEl || !resultsCard) return;
     const expectedText = cellData.expectedId !== null ? `#${cellData.expectedId}` : "-";
     const gotText = cellData.gotId !== null ? `#${cellData.gotId}` : "-";
 
@@ -95,9 +94,17 @@ export function initCompareTab() {
     );
 
     const cellRect = cell.getBoundingClientRect();
-    const panelRect = lanesPanel.getBoundingClientRect();
-    const x = cellRect.left - panelRect.left + (cellRect.width / 2);
-    const y = cellRect.top - panelRect.top - 28;
+    const containerRect = resultsCard.getBoundingClientRect();
+    let x = cellRect.left - containerRect.left + (cellRect.width / 2);
+    let y = cellRect.top - containerRect.top - 28;
+
+    if (y < 4) {
+      y = cellRect.bottom - containerRect.top + 6;
+    }
+
+    const minX = 70;
+    const maxX = Math.max(minX, containerRect.width - 70);
+    x = Math.max(minX, Math.min(maxX, x));
 
     rankTooltipEl.style.left = `${Math.round(x)}px`;
     rankTooltipEl.style.top = `${Math.round(y)}px`;
@@ -197,7 +204,7 @@ export function initCompareTab() {
   function resetCompareView() {
     lastReportData = null;
     hideTooltip();
-    lanesContent?.replaceChildren();
+    cardsContainer?.replaceChildren();
     if (statusNotice) statusNotice.textContent = "Ready to benchmark.";
     if (progressBar) {
       progressBar.classList.remove("running");
@@ -352,12 +359,12 @@ export function initCompareTab() {
     if (!report || !report.algorithms) return;
     lastReportData = { report, latencies };
     showResultsView();
-    renderLanes(report, latencies);
+    renderCards(report, latencies);
   }
 
-  function renderLanes(report, latencies) {
-    if (!lanesContent || !report || !report.algorithms) return;
-    lanesContent.replaceChildren();
+  function renderCards(report, latencies) {
+    if (!cardsContainer || !report || !report.algorithms) return;
+    cardsContainer.replaceChildren();
 
     const algs = report.algorithms;
     const stats = {
@@ -374,25 +381,6 @@ export function initCompareTab() {
     ]);
 
     const kVal = report.k || 10;
-
-    // Header row above the lanes
-    const rankHeaderCol = el("div", { className: "compare-header-rank-col" },
-      el("div", { className: "compare-header-rank-title" }, "Rank match vs ground truth"),
-      el("div", { className: "compare-header-rank-scale", "aria-hidden": "true" },
-        el("span", {}, "1"),
-        el("span", {}, String(kVal))
-      )
-    );
-
-    const headerRow = el("div", { className: "compare-lanes-header-row" },
-      el("div", {}, "Algorithm"),
-      el("div", {}, "Median latency"),
-      el("div", { className: "compare-header-dist-col" }, "Distance computations"),
-      rankHeaderCol,
-      el("div", { className: "compare-header-recall-col" }, "Recall")
-    );
-    lanesContent.appendChild(headerRow);
-
     const algKeys = ["brute", "kdtree", "hnsw"];
     const bruteResults = Array.isArray(algs.brute?.results) ? algs.brute.results : [];
 
@@ -403,35 +391,47 @@ export function initCompareTab() {
       const minMaxStr = formatRangeText(tStat.min, tStat.max);
       const latencyWidthPct = latencyScale.getBarWidthPercent(tStat.median);
 
-      // 1. Algorithm name column
-      const nameCol = el("div", { className: "compare-lane-name-col" },
-        el("span", { className: `compare-lane-dot bg-${alg}` }),
+      // Card Header: dot + algorithm name only (nothing else)
+      const headerEl = el("div", { className: "compare-card-header" },
+        el("span", { className: `compare-card-dot bg-${alg}` }),
         el("span", {}, ALGORITHM_LABELS[alg] || alg)
       );
 
-      // 2. Median latency column: 26px number + "µs", 4px pill bar, range text
-      const latBarEl = el("div", { className: `compare-lane-bar bg-${alg}` });
+      // Section a: Median latency
+      const latBarEl = el("div", { className: `compare-latency-bar bg-${alg}` });
       latBarEl.style.setProperty("width", `${latencyWidthPct}%`);
-      const latencyCol = el("div", { className: "compare-lane-latency-col" },
+      const latencySection = el("div", { className: "compare-card-section" },
+        el("span", { className: "compare-metric-label" }, "Median latency"),
         el("div", { className: "compare-latency-val-wrap" },
           el("span", { className: "compare-latency-num" }, String(medianUs)),
           el("span", { className: "compare-latency-unit" }, "µs")
         ),
-        el("div", { className: "compare-latency-track" }, latBarEl),
-        el("span", { className: "compare-lane-latency-range" }, `Range ${minMaxStr}`)
+        el("span", { className: "compare-latency-range" }, `Range ${minMaxStr}`),
+        el("div", { className: "compare-latency-track" }, latBarEl)
       );
 
-      // 3. Distance computations column: plain right-aligned number
+      // Section b: Distance computations (plain number, no bar)
       const distCount = aData.distance_computations ?? 0;
-      const distCol = el("div", { className: "compare-lane-dist-col" }, String(distCount));
+      const distSection = el("div", { className: "compare-card-section" },
+        el("span", { className: "compare-metric-label" }, "Distance computations"),
+        el("span", { className: "compare-dist-num" }, String(distCount))
+      );
 
-      // 4. Rank match column
-      const rankCol = el("div", { className: "compare-lane-rank-col" });
+      // Section c: Top-k rank match
+      const rankSection = el("div", { className: "compare-card-section" },
+        el("span", { className: "compare-metric-label" }, "Top-k rank match")
+      );
       if (alg === "brute") {
-        rankCol.appendChild(el("span", { className: "compare-rank-ref" }, "Reference for the other algorithms"));
+        rankSection.appendChild(
+          el("span", { className: "compare-rank-ref" }, "Reference for the other algorithms")
+        );
       } else {
         const strip = buildRankStrip(bruteResults, aData.results, kVal);
-        const stripEl = el("div", { className: "compare-rank-strip", role: "group", "aria-label": `${kVal} rank match indicators` });
+        const stripEl = el("div", {
+          className: "compare-rank-strip",
+          role: "group",
+          "aria-label": `${kVal} rank match indicators`
+        });
 
         for (const cellData of strip) {
           if (cellData.isMatch) {
@@ -460,33 +460,35 @@ export function initCompareTab() {
           }
         }
 
-        const stripWrap = el("div", { className: "compare-rank-strip-wrap" },
-          stripEl,
+        rankSection.appendChild(stripEl);
+        rankSection.appendChild(
           el("span", { className: "compare-rank-summary" }, `${strip.sameCount} of ${kVal} same rank`)
         );
-        rankCol.appendChild(stripWrap);
       }
 
-      // 5. Recall column: plain primary text color, regular weight, ~22px, right-aligned
+      // Section d: Recall (plain primary text number, regular weight, sans)
       const recallText = formatRecallPercent(aData.recall_at_k);
-      const recallCol = el("div", { className: "compare-lane-recall-col" }, recallText);
-
-      // Lane row
-      const laneRow = el("div", { className: "compare-lane-row" },
-        nameCol,
-        latencyCol,
-        distCol,
-        rankCol,
-        recallCol
+      const recallSection = el("div", { className: "compare-card-section" },
+        el("span", { className: "compare-metric-label" }, "Recall"),
+        el("span", { className: "compare-recall-num" }, recallText)
       );
-      lanesContent.appendChild(laneRow);
-    }
 
-    // Legend line pinned to bottom of panel
-    const legendEl = el("div", { className: "compare-lanes-legend" },
-      "Filled = same rank as ground truth. Latency: lower is better. Timings are indicative: official benchmarks come from the C++ tool."
-    );
-    lanesContent.appendChild(legendEl);
+      // Card Container
+      const cardEl = el("div", {
+        className: "compare-card",
+        "data-alg": alg,
+        role: "region",
+        "aria-label": ALGORITHM_LABELS[alg] || alg
+      },
+        headerEl,
+        latencySection,
+        distSection,
+        rankSection,
+        recallSection
+      );
+
+      cardsContainer.appendChild(cardEl);
+    }
   }
 
   // Event Handlers

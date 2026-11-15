@@ -616,16 +616,13 @@
         </div>
       </div>
 
-      <!-- Results: Single Algorithm lanes panel (Mutually exclusive with empty state) -->
+      <!-- Results: Three algorithm cards (Mutually exclusive with empty state) -->
       <div id="compare-results-card" class="compare-results-stack hidden">
-        <section id="compare-lanes-panel" class="compare-panel compare-lanes-card" aria-label="Algorithm lanes">
-          <div class="panel-header-with-subtitle">
-            <h2 class="section-title">Algorithm lanes</h2>
-            <p class="text-muted text-xs">Speed, work and accuracy against the ground truth.</p>
-          </div>
-          <div id="compare-lanes-content" class="compare-lanes-content"></div>
-          <div id="compare-rank-tooltip" class="compare-rank-tooltip hidden" role="tooltip" aria-hidden="true"></div>
-        </section>
+        <div id="compare-cards-container" class="compare-cards-container" role="region" aria-label="Algorithm comparison cards"></div>
+        <div id="compare-cards-legend" class="compare-cards-legend">
+          Filled = same rank as ground truth. Latency: lower is better. Timings are indicative: official benchmarks come from the C++ tool.
+        </div>
+        <div id="compare-rank-tooltip" class="compare-rank-tooltip hidden" role="tooltip" aria-hidden="true"></div>
       </div>
     </section>
 
