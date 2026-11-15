@@ -120,3 +120,32 @@ export function formatPipelineLatency(timings) {
   ];
 }
 
+/**
+ * Calculates the next tab index for keyboard navigation within a tablist.
+ * Supports ArrowRight/ArrowDown (next, wraps), ArrowLeft/ArrowUp (prev, wraps),
+ * Home (first), End (last), and returns current index for unhandled keys.
+ * Returns -1 if count <= 0.
+ *
+ * @param {number} current - Currently selected or focused 0-based index
+ * @param {number} count - Total number of tabs in the tablist
+ * @param {string} key - KeyboardEvent key value
+ * @returns {number} Next 0-based index to focus/select
+ */
+export function getTabNextIndex(current, count, key) {
+  if (typeof count !== "number" || count <= 0) return -1;
+  const cur = typeof current === "number" && current >= 0 ? current : 0;
+  if (key === "ArrowRight" || key === "ArrowDown") {
+    return (cur + 1) % count;
+  }
+  if (key === "ArrowLeft" || key === "ArrowUp") {
+    return (cur - 1 + count) % count;
+  }
+  if (key === "Home") {
+    return 0;
+  }
+  if (key === "End") {
+    return count - 1;
+  }
+  return cur;
+}
+

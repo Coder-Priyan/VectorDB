@@ -12,7 +12,7 @@ import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js
 import { readSseStream } from "./sse.js";
 import { el, formatBytes, formatDuration, formatSimilarity, parseCitations, showToast, createDropdown } from "./ui.js";
 import { createIcon } from "./icons.js";
-import { formatBenchmarkRows, formatTraceSummary, formatPipelineLatency } from "./ask_helpers.js";
+import { formatBenchmarkRows, formatTraceSummary, formatPipelineLatency, getTabNextIndex } from "./ask_helpers.js";
 
 const CHATS_INDEX_KEY = "vectordb:chats";
 const CHAT_PREFIX = "vectordb:chats:";
@@ -629,7 +629,7 @@ export function initAskTab() {
 
         // Glass-box explainability accordion
         if (msg.sources && msg.sources.length > 0) {
-          const glassBox = buildGlassBoxDetails(msg.sources, msg.timings, msg.question || "");
+          const glassBox = buildGlassBoxDetails(msg.sources, msg.timings, msg.question || "", msg.algorithm || "");
           bubble.appendChild(glassBox);
         }
 
@@ -674,7 +674,7 @@ export function initAskTab() {
           if (bubble) {
             const glassBox = bubble.querySelector(".glass-box-details");
             if (glassBox && typeof glassBox.expand === "function") {
-              glassBox.expand(scrollToCard);
+              glassBox.expand(scrollToCard, "sources");
               return;
             } else if (glassBox) {
               glassBox.open = true;
@@ -689,63 +689,146 @@ export function initAskTab() {
     });
   }
 
-  function buildGlassBoxDetails(sources, timings, question = "") {
-    const details = el("details", { className: "glass-box-details" });
-    const summary = el(
-      "summary",
-      { className: "glass-box-summary", "aria-expanded": "false" },
-      createIcon("chevronDown", 14, "glass-box-chevron"),
-      el("span", { className: "glass-box-summary-title" }, "How this was answered")
-    );
-    details.appendChild(summary);
+  let glassBoxCounter = 0;
 
-    const wrapper = el("div", { className: "glass-box-body-wrapper" });
-    const body = el("div", { className: "glass-box-body" });
-    body.setAttribute("inert", "");
-    wrapper.appendChild(body);
+  function formatAlgoChip(algo) {
+    if (!algo) return "";
+    const lower = String(algo).toLowerCase();
+    if (lower === "hnsw") return "HNSW";
+    if (lower === "kdtree") return "KD-Tree";
+    if (lower === "brute") return "Brute Force";
+    return String(algo);
+  }
 
-    // Panel A: Retrieved source chunks
-    const sourcesHeader = el("div", { className: "glass-sub-header" },
-      createIcon("document", 14),
-      el("span", {}, `Retrieved source chunks (${sources.length})`)
-    );
-    body.appendChild(sourcesHeader);
+  function buildGlassBoxDetails(sources, timings, question = "", algorithm = "") {
+    glassBoxCounter++;
+    const uid = `${Date.now()}-${glassBoxCounter}`;
 
-    const sourcesList = el("div", { className: "glass-box-sources-list" });
-    sources.forEach(src => {
-      const meterFill = el("div", { className: "meter-fill" });
-      meterFill.style.setProperty("width", `${Math.round((src.similarity || 0) * 100)}%`);
+    const details = el("div", { className: "glass-box-details" });
 
-      const card = el(
-        "div",
-        { id: `source-card-${src.n}`, className: "source-card" },
-        el("div", { className: "source-meta" },
-          createIcon("document", 14, "source-icon"),
-          el("div", { className: "source-title-group" },
-            el("span", { className: "source-doc-name" }, src.title || "document"),
-            el("span", { className: "source-chunk-idx" }, `Chunk #${src.chunk_index ?? src.n}`)
-          )
-        ),
-        el("div", { className: "source-sim-col" },
-          el("span", { className: "source-sim-val" }, formatSimilarity(src.similarity)),
-          el("div", { className: "similarity-meter" },
-            el("div", { className: "meter-track" }, meterFill)
-          )
-        ),
-        el("p", { className: "source-snippet" }, src.text || "")
-      );
-      sourcesList.appendChild(card);
+    // Collapsed strip button
+    const strip = el("button", {
+      type: "button",
+      className: "glass-box-strip",
+      "aria-expanded": "false"
     });
-    body.appendChild(sourcesList);
 
-    // Panel B: Latency (RAG pipeline)
-    if (timings && typeof timings === "object") {
-      const latencyHeader = el("div", { className: "glass-sub-header" },
-        createIcon("clock", 14),
-        el("span", {}, "Latency (RAG pipeline)")
-      );
-      body.appendChild(latencyHeader);
+    const stripLeft = el("div", { className: "glass-box-strip-left" },
+      createIcon("chevronDown", 14, "glass-box-chevron"),
+      el("span", { className: "glass-box-strip-title" }, "How this was answered")
+    );
+    strip.appendChild(stripLeft);
 
+    const stripChips = el("div", { className: "glass-box-strip-chips" });
+    if (Array.isArray(sources) && sources.length > 0) {
+      const srcText = `${sources.length} ${sources.length === 1 ? "source" : "sources"}`;
+      stripChips.appendChild(el("span", { className: "glass-box-chip" }, srcText));
+    }
+    if (timings && typeof timings.total_ms === "number" && timings.total_ms > 0) {
+      stripChips.appendChild(el("span", { className: "glass-box-chip" }, formatDuration(timings.total_ms)));
+    }
+    const algoChipText = formatAlgoChip(algorithm);
+    if (algoChipText) {
+      stripChips.appendChild(el("span", { className: "glass-box-chip" }, algoChipText));
+    }
+    strip.appendChild(stripChips);
+    details.appendChild(strip);
+
+    // Expandable wrapper and panel
+    const wrapper = el("div", { className: "glass-box-body-wrapper" });
+    const panel = el("div", { className: "glass-box-panel" });
+    panel.setAttribute("inert", "");
+    wrapper.appendChild(panel);
+
+    // Tab buttons
+    const tabBtns = [
+      el("button", {
+        type: "button",
+        id: `tab-sources-${uid}`,
+        className: "glass-tab-btn active",
+        role: "tab",
+        "aria-selected": "true",
+        "aria-controls": `panel-sources-${uid}`,
+        tabindex: "0"
+      }, "Sources"),
+      el("button", {
+        type: "button",
+        id: `tab-latency-${uid}`,
+        className: "glass-tab-btn",
+        role: "tab",
+        "aria-selected": "false",
+        "aria-controls": `panel-latency-${uid}`,
+        tabindex: "-1"
+      }, "Latency"),
+      el("button", {
+        type: "button",
+        id: `tab-algorithms-${uid}`,
+        className: "glass-tab-btn",
+        role: "tab",
+        "aria-selected": "false",
+        "aria-controls": `panel-algorithms-${uid}`,
+        tabindex: "-1"
+      }, "Algorithms")
+    ];
+
+    const tabList = el("div", {
+      className: "glass-tabs-list",
+      role: "tablist",
+      "aria-label": "Answer evidence tabs"
+    }, ...tabBtns);
+    panel.appendChild(tabList);
+
+    // Tab content area
+    const contentArea = el("div", { className: "glass-tab-content-area" });
+
+    // Panel 1: Sources (default active)
+    const sourcesPanel = el("div", {
+      id: `panel-sources-${uid}`,
+      className: "glass-tab-panel active",
+      role: "tabpanel",
+      "aria-labelledby": `tab-sources-${uid}`
+    });
+    if (Array.isArray(sources) && sources.length > 0) {
+      const sourcesList = el("div", { className: "glass-box-sources-list" });
+      sources.forEach(src => {
+        const meterFill = el("div", { className: "meter-fill" });
+        meterFill.style.setProperty("width", `${Math.round((src.similarity || 0) * 100)}%`);
+
+        const card = el(
+          "div",
+          { id: `source-card-${src.n}`, className: "source-card" },
+          el("div", { className: "source-meta" },
+            createIcon("document", 14, "source-icon"),
+            el("div", { className: "source-title-group" },
+              el("span", { className: "source-doc-name" }, src.title || "document"),
+              el("span", { className: "source-chunk-idx" }, `Chunk #${src.chunk_index ?? src.n}`)
+            )
+          ),
+          el("div", { className: "source-sim-col" },
+            el("span", { className: "source-sim-val" }, formatSimilarity(src.similarity)),
+            el("div", { className: "similarity-meter" },
+              el("div", { className: "meter-track" }, meterFill)
+            )
+          ),
+          el("p", { className: "source-snippet" }, src.text || "")
+        );
+        sourcesList.appendChild(card);
+      });
+      sourcesPanel.appendChild(sourcesList);
+    } else {
+      sourcesPanel.appendChild(el("div", { className: "glass-empty-text" }, "No sources retrieved."));
+    }
+    contentArea.appendChild(sourcesPanel);
+
+    // Panel 2: Latency
+    const latencyPanel = el("div", {
+      id: `panel-latency-${uid}`,
+      className: "glass-tab-panel",
+      role: "tabpanel",
+      "aria-labelledby": `tab-latency-${uid}`,
+      hidden: ""
+    });
+    if (timings && typeof timings === "object" && (timings.total_ms || timings.search_ms || timings.embed_ms)) {
       const items = formatPipelineLatency(timings);
       const flow = el("div", { className: "glass-box-timings-flow" });
       items.forEach((it, idx) => {
@@ -761,16 +844,77 @@ export function initAskTab() {
           )
         );
       });
-      body.appendChild(flow);
+      latencyPanel.appendChild(flow);
+    } else {
+      latencyPanel.appendChild(el("div", { className: "glass-empty-text" }, "No timing data for this answer."));
+    }
+    contentArea.appendChild(latencyPanel);
+
+    // Panel 3: Algorithms
+    const algoPanel = el("div", {
+      id: `panel-algorithms-${uid}`,
+      className: "glass-tab-panel",
+      role: "tabpanel",
+      "aria-labelledby": `tab-algorithms-${uid}`,
+      hidden: ""
+    });
+    const algoEmpty = el("div", { className: "glass-empty-text" }, "Run Compare algorithms to see how each index handled this query.");
+    const benchResults = el("div", { className: "glass-box-bench-results hidden" });
+    const traceResults = el("div", { className: "glass-box-trace-results hidden" });
+    algoPanel.appendChild(algoEmpty);
+    algoPanel.appendChild(benchResults);
+    algoPanel.appendChild(traceResults);
+    contentArea.appendChild(algoPanel);
+
+    panel.appendChild(contentArea);
+
+    // Tab switching logic & roving tabindex
+    const tabPanels = [sourcesPanel, latencyPanel, algoPanel];
+    const tabIds = ["sources", "latency", "algorithms"];
+
+    function switchTab(targetIndex) {
+      if (typeof targetIndex === "string") {
+        targetIndex = tabIds.indexOf(targetIndex);
+      }
+      if (targetIndex < 0 || targetIndex >= tabBtns.length) return;
+
+      tabBtns.forEach((btn, idx) => {
+        const isActive = (idx === targetIndex);
+        if (isActive) {
+          btn.classList.add("active");
+          btn.setAttribute("aria-selected", "true");
+          btn.setAttribute("tabindex", "0");
+          tabPanels[idx].classList.add("active");
+          tabPanels[idx].removeAttribute("hidden");
+        } else {
+          btn.classList.remove("active");
+          btn.setAttribute("aria-selected", "false");
+          btn.setAttribute("tabindex", "-1");
+          tabPanels[idx].classList.remove("active");
+          tabPanels[idx].setAttribute("hidden", "");
+        }
+      });
     }
 
-    // Panel C: Three action buttons (Open Explore, Compare algorithms, Trace HNSW path)
-    const actionsRow = el("div", { className: "glass-box-actions" });
+    tabBtns.forEach((btn, idx) => {
+      btn.addEventListener("click", () => switchTab(idx));
+      btn.addEventListener("keydown", (e) => {
+        const nextIdx = getTabNextIndex(idx, tabBtns.length, e.key);
+        if (nextIdx !== idx) {
+          e.preventDefault();
+          switchTab(nextIdx);
+          tabBtns[nextIdx].focus();
+        }
+      });
+    });
+
+    // Footer actions (visible under every tab)
+    const actionsRow = el("div", { className: "glass-box-footer-actions" });
 
     // 1. Open Explore
     const exploreBtn = el("button", {
       type: "button",
-      className: "btn btn-secondary",
+      className: "btn btn-ghost glass-action-btn",
       title: "Open Explore tab with Document Chunks and query prefilled"
     }, createIcon("external", 14), el("span", {}, "Open Explore"));
 
@@ -792,12 +936,12 @@ export function initAskTab() {
     // 2. Compare algorithms
     const compareBtn = el("button", {
       type: "button",
-      className: "btn btn-secondary",
+      className: "btn btn-ghost glass-action-btn",
       title: "Benchmark Brute Force vs KD-Tree vs HNSW on this question"
     }, createIcon("chart", 14), el("span", {}, "Compare algorithms"));
 
-    const benchResults = el("div", { className: "glass-box-bench-results hidden" });
     compareBtn.addEventListener("click", async () => {
+      switchTab("algorithms");
       compareBtn.disabled = true;
       const span = compareBtn.querySelector("span");
       if (span) span.textContent = "Benchmarking...";
@@ -828,6 +972,7 @@ export function initAskTab() {
             benchResults.appendChild(item);
           });
         }
+        algoEmpty.classList.add("hidden");
         benchResults.classList.remove("hidden");
       } catch (err) {
         showToast(`Benchmark error: ${err.message}`, "error");
@@ -837,6 +982,7 @@ export function initAskTab() {
         benchResults.appendChild(
           el("div", { className: "text-danger text-xs" }, `Benchmark error: ${err.message}`)
         );
+        algoEmpty.classList.add("hidden");
         benchResults.classList.remove("hidden");
       } finally {
         compareBtn.disabled = false;
@@ -848,12 +994,12 @@ export function initAskTab() {
     // 3. Trace HNSW path
     const traceBtn = el("button", {
       type: "button",
-      className: "btn btn-secondary",
+      className: "btn btn-ghost glass-action-btn",
       title: "Trace HNSW navigation hops on this question"
     }, createIcon("graph", 14), el("span", {}, "Trace HNSW path"));
 
-    const traceResults = el("div", { className: "glass-box-trace-results hidden" });
     traceBtn.addEventListener("click", async () => {
+      switchTab("algorithms");
       traceBtn.disabled = true;
       const span = traceBtn.querySelector("span");
       if (span) span.textContent = "Tracing...";
@@ -866,6 +1012,7 @@ export function initAskTab() {
         traceResults.appendChild(
           el("div", { className: "trace-summary-text" }, summary.summaryText)
         );
+        algoEmpty.classList.add("hidden");
         traceResults.classList.remove("hidden");
       } catch (err) {
         showToast(`Trace error: ${err.message}`, "error");
@@ -875,6 +1022,7 @@ export function initAskTab() {
         traceResults.appendChild(
           el("div", { className: "text-danger text-xs" }, `Trace error: ${err.message}`)
         );
+        algoEmpty.classList.add("hidden");
         traceResults.classList.remove("hidden");
       } finally {
         traceBtn.disabled = false;
@@ -883,12 +1031,10 @@ export function initAskTab() {
     });
     actionsRow.appendChild(traceBtn);
 
-    body.appendChild(actionsRow);
-    body.appendChild(benchResults);
-    body.appendChild(traceResults);
-
+    panel.appendChild(actionsRow);
     details.appendChild(wrapper);
 
+    // Accordion animation & state
     let isClosing = false;
     let isExpanding = false;
 
@@ -900,16 +1046,18 @@ export function initAskTab() {
       }
     }
 
-    function expand(onComplete) {
+    function expand(onComplete, targetTab) {
+      if (targetTab) {
+        switchTab(targetTab);
+      }
       if (details.classList.contains("is-open") && !isClosing) {
         if (typeof onComplete === "function") onComplete();
         return;
       }
       isClosing = false;
       isExpanding = true;
-      details.open = true;
-      summary.setAttribute("aria-expanded", "true");
-      body.removeAttribute("inert");
+      strip.setAttribute("aria-expanded", "true");
+      panel.removeAttribute("inert");
 
       if (isReducedMotion()) {
         details.classList.add("is-open");
@@ -943,17 +1091,16 @@ export function initAskTab() {
     }
 
     function collapse() {
-      if (!details.open || isClosing) return;
+      if (!details.classList.contains("is-open") || isClosing) return;
       isClosing = true;
       isExpanding = false;
-      summary.setAttribute("aria-expanded", "false");
+      strip.setAttribute("aria-expanded", "false");
       details.classList.remove("is-open");
       details.classList.add("is-closing");
 
       if (isReducedMotion()) {
-        details.open = false;
         details.classList.remove("is-closing");
-        body.setAttribute("inert", "");
+        panel.setAttribute("inert", "");
         isClosing = false;
         return;
       }
@@ -964,9 +1111,8 @@ export function initAskTab() {
         finished = true;
         wrapper.removeEventListener("transitionend", onTransitionEnd);
         if (isClosing) {
-          details.open = false;
           details.classList.remove("is-closing");
-          body.setAttribute("inert", "");
+          panel.setAttribute("inert", "");
           isClosing = false;
         }
       };
@@ -980,17 +1126,10 @@ export function initAskTab() {
       setTimeout(finish, 250);
     }
 
-    summary.addEventListener("click", (e) => {
-      e.preventDefault();
+    strip.addEventListener("click", () => {
       if (details.classList.contains("is-open") && !isClosing) {
         collapse();
       } else {
-        expand();
-      }
-    });
-
-    details.addEventListener("toggle", () => {
-      if (details.open && !details.classList.contains("is-open") && !isClosing && !isExpanding) {
         expand();
       }
     });
@@ -1156,7 +1295,8 @@ export function initAskTab() {
             timestamp: Date.now(),
             sources: retrievedSources,
             timings: timingStats,
-            question: question
+            question: question,
+            algorithm: algorithm
           });
           saveChatData(currentChat);
 

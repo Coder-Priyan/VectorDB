@@ -1532,81 +1532,54 @@ input[type="number"] {
   color: var(--text-primary);
 }
 
-/* Glass-box Details Accordion (matches 02-ask-results.png) */
+/* Glass-box Container: slim row, flat --bg-raised fill, radius 10px, NO border (T-060) */
 .glass-box-details {
   border-radius: var(--radius-md);
-  margin-top: var(--space-2);
-  transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
-}
-
-.glass-box-details:not([open]) {
-  background: transparent;
-  display: inline-block;
-}
-
-.glass-box-details[open] {
   background: var(--bg-raised);
-  border: 1px solid var(--border-hairline);
-  display: block;
+  margin-top: var(--space-2);
+  width: 100%;
+  overflow: hidden;
+  border: none;
 }
 
-.glass-box-summary {
-  display: inline-flex;
+/* Collapsed strip button */
+.glass-box-strip {
+  display: flex;
   align-items: center;
-  gap: var(--space-2);
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 14px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--text-normal);
   cursor: pointer;
   user-select: none;
-  list-style: none;
   font-family: inherit;
   font-size: var(--text-xs);
   font-weight: 500;
-  transition: background-color 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out;
+  text-align: left;
+  transition: background-color 0.15s ease-out;
 }
 
-.glass-box-details:not([open]) .glass-box-summary {
-  padding: 6px 12px;
-  background: var(--bg-raised);
-  border: 1px solid var(--border-hairline);
-  border-radius: var(--radius-sm);
-  color: var(--text-muted);
+.glass-box-strip:hover {
+  background: rgba(255, 255, 255, 0.03);
 }
 
-.glass-box-details:not([open]) .glass-box-summary:hover {
-  background: var(--bg-active);
-  color: var(--text-normal);
-  border-color: var(--border-subtle);
-}
-
-.glass-box-details:not([open]) .glass-box-summary-title {
-  color: var(--text-normal);
-}
-
-.glass-box-details[open] .glass-box-summary {
+.glass-box-strip-left {
   display: flex;
-  width: 100%;
-  padding: var(--space-3) var(--space-4);
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--border-hairline);
-  color: var(--accent);
-}
-
-.glass-box-details[open] .glass-box-summary:hover {
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.glass-box-summary::-webkit-details-marker {
-  display: none;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .glass-box-chevron {
-  color: var(--accent);
+  color: var(--text-muted);
   transition: transform 0.2s ease-out;
   transform: rotate(-90deg);
+  display: inline-flex;
 }
 
-.glass-box-details.is-open .glass-box-chevron,
-.glass-box-details[open]:not(.is-closing) .glass-box-chevron {
+.glass-box-details.is-open .glass-box-chevron {
   transform: rotate(0deg);
 }
 
@@ -1614,10 +1587,30 @@ input[type="number"] {
   transform: rotate(-90deg);
 }
 
-.glass-box-summary-title {
-  font-size: var(--text-sm);
-  font-weight: 600;
-  color: var(--accent);
+.glass-box-strip-title {
+  color: var(--text-normal);
+  font-size: var(--text-xs);
+  font-weight: 500;
+}
+
+/* Right muted chips on collapsed strip */
+.glass-box-strip-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.glass-box-details.is-open .glass-box-strip-chips {
+  display: none;
+}
+
+.glass-box-chip {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--bg-panel);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
 }
 
 /* Smooth Accordion Animation using CSS grid-template-rows 0fr -> 1fr */
@@ -1632,21 +1625,108 @@ input[type="number"] {
   grid-template-rows: 1fr;
 }
 
-.glass-box-body {
+.glass-box-panel {
   min-height: 0;
   overflow: hidden;
   opacity: 0;
   visibility: hidden;
-  padding: 0 var(--space-4) var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
   transition: opacity 0.2s ease-out, visibility 0.2s ease-out;
 }
 
-.glass-box-details.is-open .glass-box-body {
+.glass-box-details.is-open .glass-box-panel {
   opacity: 1;
   visibility: visible;
+}
+
+/* 3 Underline Tabs */
+.glass-tabs-list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: 0 14px;
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.glass-tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  padding: 8px 2px;
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: color 0.15s ease-out, border-color 0.15s ease-out;
+}
+
+.glass-tab-btn:hover {
+  color: var(--text-normal);
+}
+
+.glass-tab-btn.active,
+.glass-tab-btn[aria-selected="true"] {
+  color: var(--text-normal);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+/* Tab Content Area: stable min-height, scrollable up to ~260px with quiet scrollbar */
+.glass-tab-content-area {
+  min-height: 120px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.glass-tab-content-area::-webkit-scrollbar {
+  width: 4px;
+}
+
+.glass-tab-content-area::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.glass-tab-panel {
+  display: none;
+  width: 100%;
+}
+
+.glass-tab-panel.active {
+  display: block;
+}
+
+.glass-empty-text {
+  padding: var(--space-6) 0;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  text-align: center;
+}
+
+/* Footer Actions: hairline above */
+.glass-box-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px 14px;
+  border-top: 1px solid var(--border-hairline);
+}
+
+.glass-action-btn {
+  font-size: var(--text-xs);
+  padding: 4px 10px;
+  height: 28px;
+  color: var(--text-secondary);
+}
+
+.glass-action-btn:hover {
+  color: var(--text-normal);
 }
 
 .glass-sub-header {
@@ -2129,7 +2209,8 @@ input[type="number"] {
   .glass-box-details,
   .glass-box-chevron,
   .glass-box-body-wrapper,
-  .glass-box-body {
+  .glass-box-body,
+  .glass-box-panel {
     transition: none;
   }
 }
