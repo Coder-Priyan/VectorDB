@@ -784,7 +784,7 @@ export function initAskTab() {
     // Panel 1: Sources (default active)
     const sourcesPanel = el("div", {
       id: `panel-sources-${uid}`,
-      className: "glass-tab-panel active",
+      className: "glass-tab-panel glass-tab-panel-sources active",
       role: "tabpanel",
       "aria-labelledby": `tab-sources-${uid}`
     });
@@ -823,7 +823,7 @@ export function initAskTab() {
     // Panel 2: Latency
     const latencyPanel = el("div", {
       id: `panel-latency-${uid}`,
-      className: "glass-tab-panel",
+      className: "glass-tab-panel glass-tab-panel-latency",
       role: "tabpanel",
       "aria-labelledby": `tab-latency-${uid}`,
       hidden: ""
@@ -844,7 +844,9 @@ export function initAskTab() {
           )
         );
       });
+      const caption = el("div", { className: "glass-tab-caption" }, "Time spent in each stage of this answer.");
       latencyPanel.appendChild(flow);
+      latencyPanel.appendChild(caption);
     } else {
       latencyPanel.appendChild(el("div", { className: "glass-empty-text" }, "No timing data for this answer."));
     }
@@ -853,7 +855,7 @@ export function initAskTab() {
     // Panel 3: Algorithms
     const algoPanel = el("div", {
       id: `panel-algorithms-${uid}`,
-      className: "glass-tab-panel",
+      className: "glass-tab-panel glass-tab-panel-algo",
       role: "tabpanel",
       "aria-labelledby": `tab-algorithms-${uid}`,
       hidden: ""

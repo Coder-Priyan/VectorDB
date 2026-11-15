@@ -127,6 +127,9 @@
   --text-lg: 18px;
   --text-xl: 22px;
   --text-2xl: 26px;
+
+  /* Glass-box Tab Content Height (T-061: matches 3 source rows 60px * 3 + 8px * 2) */
+  --glassbox-tab-h: 196px;
 }
 
 * {
@@ -1674,21 +1677,25 @@ input[type="number"] {
   font-weight: 600;
 }
 
-/* Tab Content Area: stable min-height, scrollable up to ~260px with quiet scrollbar */
+/* Tab Content Area: fixed height matching 3 source rows, scrollable with quiet scrollbar (T-061) */
 .glass-tab-content-area {
-  min-height: 120px;
-  max-height: 260px;
-  overflow-y: auto;
+  height: calc(var(--glassbox-tab-h) + 24px);
+  min-height: calc(var(--glassbox-tab-h) + 24px);
+  max-height: calc(var(--glassbox-tab-h) + 24px);
+  box-sizing: border-box;
+  overflow: hidden;
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
 }
 
-.glass-tab-content-area::-webkit-scrollbar {
+.glass-tab-content-area::-webkit-scrollbar,
+.glass-tab-panel::-webkit-scrollbar {
   width: 4px;
 }
 
-.glass-tab-content-area::-webkit-scrollbar-thumb {
+.glass-tab-content-area::-webkit-scrollbar-thumb,
+.glass-tab-panel::-webkit-scrollbar-thumb {
   background: var(--border-subtle);
   border-radius: var(--radius-sm);
 }
@@ -1696,6 +1703,9 @@ input[type="number"] {
 .glass-tab-panel {
   display: none;
   width: 100%;
+  height: var(--glassbox-tab-h);
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .glass-tab-panel.active {
@@ -1703,10 +1713,105 @@ input[type="number"] {
 }
 
 .glass-empty-text {
-  padding: var(--space-6) 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
   color: var(--text-muted);
   font-size: var(--text-xs);
   text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+/* Latency tab: tiles stretch vertically to fill box height, content centered (T-061) */
+.glass-tab-panel-latency.active {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: var(--glassbox-tab-h);
+}
+
+.glass-tab-panel-latency .glass-box-timings-flow {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.glass-tab-panel-latency .glass-timing-item {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-panel);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-1);
+}
+
+.glass-tab-panel-latency .glass-timing-val {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.glass-tab-panel-latency .glass-timing-arrow {
+  align-self: center;
+  color: var(--text-muted);
+  opacity: 0.6;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.glass-tab-caption {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* Algorithms tab: 3 rows spread evenly, centered empty state (T-061) */
+.glass-tab-panel-algo.active {
+  display: flex;
+  flex-direction: column;
+  height: var(--glassbox-tab-h);
+  justify-content: space-between;
+}
+
+.glass-tab-panel-algo .glass-box-bench-results {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  padding: 8px 14px;
+  background: var(--bg-panel);
+  border-radius: var(--radius-md);
+  min-height: 0;
+}
+
+.glass-tab-panel-algo .glass-box-trace-results {
+  margin-top: 6px;
+  padding: 6px 14px;
+  background: var(--bg-panel);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.glass-tab-panel-algo .glass-box-bench-results.hidden,
+.glass-tab-panel-algo .glass-box-trace-results.hidden {
+  display: none;
+}
+
+.glass-tab-panel-algo:has(.glass-box-bench-results.hidden):has(.glass-box-trace-results:not(.hidden)) .glass-box-trace-results {
+  margin: auto 0;
 }
 
 /* Footer Actions: hairline above */
