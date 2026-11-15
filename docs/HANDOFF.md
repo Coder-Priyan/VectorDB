@@ -1,16 +1,32 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by T-065
+Last updated: 2026-11-15 by T-066
 
-> **NEXT STEP**: Human verifies T-065 (Compare results 3 algorithm cards) with full-window 1920x1080 100% screenshots, then Brain reviews them. Screenshots needed: Compare Demo results; a HNSW mismatch (empty) cell with its hover tooltip visible; Demo empty (0 vectors); Docs results; Docs empty; Options popover open; both dropdowns open; one at 125% zoom. Brain checks: (a) big latency, distance, recall numbers: sans with tabular numerals (not mono), (b) cards fill height evenly down to legend with no dead empty space, (c) tooltip not clipped, (d) 125% zoom fitting in one row, (e) Brute Force shows reference text once in rank match section only. After human verifies T-065: Settings tab redesign as T-066 (human-approved mockup of full-width rows: Server status metric strip, Demo collection, Insert random vectors, Persistence and storage, Chat history, Documentation and guides, Danger zone; keep two-step confirms and createDropdown).
+> **NEXT STEP**: Human verifies T-066 (Compare cards refinement v3.5) with full-window 1920x1080 100% screenshots and /tests.html count (expected 141/141). Brain reviews: (a) aligned rows across the 3 cards (same y position for latency, distance, rank, recall), (b) no gaps > 90px, (c) 40px big numbers in sans, (d) restored 6px distance bar on shared scale, (e) full-width rank strip without wrapping, (f) 141/141 passed in /tests.html. After verification, next tab is Settings (T-067, full-width rows layout from approved mockup), then Explore.
 >
-> **NEEDED FROM THE HUMAN**: (1) full-window 1920x1080 100% screenshots: Compare Demo results; a HNSW mismatch cell with hover tooltip; Demo empty; Docs results; Docs empty; Options popover open; both dropdowns open; one at 125% zoom; (2) terminal lines: `git log --oneline -5`, `git status -sb`, `.\build\vectordb_tests.exe`, `powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1`, CSS counts; (3) /tests.html count.
+> **NEEDED FROM THE HUMAN**: (1) full-window 1920x1080 100% screenshots: Compare Demo results, Docs results, Options popover open, both dropdowns open, one at 125% zoom; (2) /tests.html count; (3) terminal verification lines (`git log --oneline -5`, `git status -sb`, `.\build\vectordb_tests.exe`, `powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1`, CSS counts).
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
-- **/tests.html**: **137/137 passed**, human-confirmed on 2026-11-15 20:56 (after T-064; builder claim was 137, matched). Browser unit tests registered in code now expanded to **141** (54 in `test_compare.js`).
-- **Git State after T-065**: Commits `36de598` (T-065 A), `a34f44f` (T-065 B), and docs commit. Git history confirmed clean by human on 2026-11-15 (ISS-064 closed).
-- **Compare Visual Status**: Rebuilt under ADR-059 (T-065) from human-approved mockup `docs/mockups/14-compare-cards.png`. Visual verification by human screenshots pending. Compare empty-state keeps T-063 design.
-- **Workflow & Next Tab**: Human approved two mockups on 2026-11-15: Compare cards (`docs/mockups/14-compare-cards.png`, T-065) and Settings rows layout (planned as T-066, to follow human verification of T-065). Next free ADR is ADR-060.
+- **/tests.html**: /tests.html showed 1 failed, 140 passed of 141 after T-065, human-confirmed on 2026-11-15 (ISS-066); resolved in T-066 B (`web/js/tests/test_compare.js:917` asserted 64 not 112, 9 not 8; added distance bar asserts). Total 141 registered browser unit tests now pass in Node harness; human run on `/tests.html` expected to be 141/141.
+- **Git State after T-066**: Commits `a7fb01c` (T-066 A), `30190ca` (T-066 B), and docs sync commit.
+- **Compare Visual Status**: Refined under ADR-060 (T-066) with aligned rows, larger type scale, restored distance bar, and full-width rank strip. Visual verification by human screenshots pending. Compare empty-state keeps T-063 design.
+- **Workflow & Next Tab**: Next tab in workflow is Settings (T-067 rows layout from approved mockup), then Explore. Next free ADR is ADR-061.
+
+## T-066 summary (ADR-060; refines ADR-059 Compare cards)
+
+- **Row Alignment**: Replaced unconstrained flex justify-between with strict CSS Grid `grid-template-rows: auto 1fr 1fr 1fr 1fr; row-gap: var(--space-4);`. Card header is row 1; rows 2-5 are each `1fr` with top-aligned content, guaranteeing identical y-coordinates for Median latency, Distance computations, Top-k rank match, and Recall across all 3 cards with 0-1px tolerance.
+- **Filled Spacing**: Eliminated ~150px gaps. All sections sit compactly within their row slots (gaps between section text and bars <= 90px).
+- **Larger Type Scale**:
+  - Card header algorithm name: 20px font-size, line-height 1.2.
+  - Section labels: 13px font-size, line-height 1.3, text-muted.
+  - Big numbers (Median latency, Distance computations, Recall): 40px regular sans font (`var(--font-sans)`), tabular numerals, primary text color (`text-primary`), line-height 1.1.
+  - Unit "µs": 16px text-muted sitting directly on baseline with big number.
+  - Range text, summary text, and reference text: 13px text-muted.
+- **Restored Distance Bar**: 6px pill bar on faint track (`--bg-raised`) computed on a shared linear scale via `computeBarScale([brute.dist, kdtree.dist, hnsw.dist])` where largest distance = 100%.
+- **Latency Bar**: 6px pill bar on faint track on shared linear scale where slowest latency = 100%.
+- **Full-Width Rank Strip**: `.compare-rank-strip` spans full card content width (`width: 100%`) with `flex-wrap: nowrap`. Rank cells have `flex: 1 1 0; min-width: 0; height: 16px;` spreading evenly across the full ~480-530px card width without wrapping or overflowing even at $k=20$. Brute Force shows "Reference for the other algorithms" in rank match block with matching height.
+- **Fixed Browser Test (ISS-066)**: Fixed failing test `mapReportToCards maps real benchmark fixture to 3 algorithm cards with correct structure` in `web/js/tests/test_compare.js:917` by aligning assertions with real fixture data (HNSW distance computations = 64, same-rank count = 9). All 141 registered tests pass.
+- **Git**: commit A (`a7fb01c`), commit B (`30190ca`), docs commit.
 
 ## T-065 summary (ADR-059; supersedes ADR-058 5-column lanes panel)
 

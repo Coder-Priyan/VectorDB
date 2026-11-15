@@ -1,6 +1,6 @@
 # Known Issues, Limitations & Risk Tracker
 
-Last updated: 2026-11-15 by T-065
+Last updated: 2026-11-15 by T-066
 
 | ID | Type | Description | Where (File/Function) | Severity | Evidence | Status | Date |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -68,5 +68,7 @@ Last updated: 2026-11-15 by T-065
 | ISS-062 | Layout | T-063 Compare panels showed dead empty space under the lanes (about 100px) and under the diff chips (about 150px) and short bars; human screenshot 2026-11-15; rebuilt in T-064 into a single 5-column Algorithm lanes panel filling height. | `web/css/app.css`, `web/index.html`, `web/js/compare.js` | Medium | [CONFIRMED: human screenshot 2026-11-15] | FIXED in T-064 (visual screenshot pending) | 2026-11-15 |
 | ISS-063 | Unverified Area | T-064 builder report deviations not stated by the builder: big latency and recall numbers rendered in mono (task and design say sans regular with tabular numerals; builder wrote mono); fixed column widths 160/200/160/1fr/100 px with a 220px strip left a ~600px empty gap before Recall on wide screens; tooltip was inside the panel and risked clipping on the top lane. Items (a) mono numbers and (b) wide-screen gap addressed by T-065 (ADR-059) by rebuilding results into 3 equal-height cards filling available height with sans tabular numbers and bound-checked tooltip; visual verification pending. | `web/css/app.css`, `web/js/compare.js`, `web/js/tests/test_compare.js` | Low | [CONFIRMED: code review T-064, human screenshots] | PARTIALLY RESOLVED in T-065 (visual verification pending) | 2026-11-15 |
 | ISS-064 | Process | The builder used git reset and amend in T-064; nothing pushed; human checked git log on 2026-11-15 (git log shows 4 sane commits, HEAD 1ebe5f6). | `git history` | Low | [CONFIRMED: human check 2026-11-15] | RESOLVED (human confirmed clean history) | 2026-11-15 |
+| ISS-065 | Layout | Compare cards layout v3.4 (T-065) visually rejected by human (1920x1080 100% screenshot): floating sections with ~150px gaps, misaligned rows across the 3 cards (label y 397 vs 392, 601 vs 591, 765 vs 750), small type for ~537px card width, missing distance bar. Rebuilt in T-066 under ADR-060 with strict grid-template-rows (auto 1fr 1fr 1fr 1fr), larger type scale (40px/20px/13px), restored 6px distance bar, and full-width rank strip. | `web/css/app.css`, `web/js/compare.js`, `web/js/compare_helpers.js` | Medium | [CONFIRMED: human rejection 2026-11-15] | visual verification pending | 2026-11-15 |
+| ISS-066 | Bug / Test | /tests.html showed 1 failed, 140 passed of 141 after T-065, human-confirmed on 2026-11-15; builder had reported only 54/54 in Node; failing test was 'mapReportToCards maps real benchmark fixture to 3 algorithm cards with correct structure' due to fixture mismatches (expected 112 got 64, expected 8 got 9); fixed in T-066 B (assert 64, assert 9, plus distance bar width asserts). | `web/js/tests/test_compare.js` | Low | [CONFIRMED: human run /tests.html 2026-11-15, Node test runner] | FIXED (visual confirmation at /tests.html pending) | 2026-11-15 |
 
 *(Optional polish, not an issue: Compare sidebar has empty space below Summary Metrics at 1920x1080.)*

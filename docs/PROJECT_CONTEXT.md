@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-15 by SYNC-011
+Last updated: 2026-11-15 by T-066
 
 ## 1. Operating Model
 
@@ -184,6 +184,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 74. **Lesson (Mockup Proportions vs Real Data & Brain Verification)**: Mockup numbers and bar lengths are not proportional; always compute bars from real data on one shared scale (e.g. `computeBarScale`). The human sends terminal output and screenshots; Brain always verifies fonts (sans vs mono), 10 vs 9 cells, and scale proportionality in mockups before the builder task.
 75. **Lesson (Human Communication & Review-Only Signals)**: Human communication: Hinglish, short; "abhi koi prompt nhi dena, sirf dekho" means review only, do not write a task.
 76. **Human-Confirmed on 2026-11-15 (/tests.html 135/135 and 137/137)**: Human verified `/tests.html` showed 135/135 passed after T-063, and 137/137 passed on 2026-11-15 20:56 after T-064 (builder claim was 137, matched).
+77. **Lesson (Card Spacing & Row Alignment)**: Spec wording 'spread with even generous spacing' produced floating sections with ~150px gaps and misaligned rows across cards; for multi-card comparison layouts, always specify aligned rows (identical grid-template-rows) and a maximum gap between blocks (<= 90px).
 
 ---
 
