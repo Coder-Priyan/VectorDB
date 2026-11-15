@@ -1,8 +1,8 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-076 sync
+Last updated: 2026-11-16 by T-077 sync
 
-> **NEXT STEP**: Human verifies T-074 (Apple-Grade Renovation across Explore, HNSW, Compare, Settings), T-075 (Compare 3-Card List Layout Matching Approved Mockup 15), and T-076 (Settings Tab Rebuilt from Zero Inspired by Ask Studio Canvas & Compare Card Styling) in a real browser at 1920x1080 100% zoom across Explore, HNSW, Compare (Results view with benchmark completed, Empty state) and Settings (each of the 5 section panels: Server, Collection, Storage, Data and chats, Danger zone) and runs `/tests.html` (expect 156/156 passed); Brain reviews screenshots. Next free ADR is ADR-071. Next free ISS is ISS-077. Next task number is T-077.
+> **NEXT STEP**: Human verifies T-074 (Apple-Grade Renovation across Explore, HNSW, Compare, Settings), T-075 (Compare 3-Card List Layout Matching Approved Mockup 15), and T-077 (Settings Tab Rebuilt as Single-Screen Unified Bento Dashboard, Option A) in a real browser at 1920x1080 100% zoom across Explore, HNSW, Compare (Results view with benchmark completed, Empty state) and Settings (all cards visible simultaneously) and runs `/tests.html` (expect 156/156 passed); Brain reviews screenshots. Next free ADR is ADR-072. Next free ISS is ISS-078. Next task number is T-078.
 >
 > **NEEDED FROM THE HUMAN**: (1) Terminal verification on branch `ui-redesign-v4` (`git status -sb`, `git log --oneline -8`, `.\build\vectordb_tests.exe`, scanner, `/tests.html`); (2) Full-window 1920x1080 100% screenshots of Explore, HNSW, Compare, and Settings tabs.
 
@@ -12,14 +12,27 @@ Last updated: 2026-11-16 by T-076 sync
 - **Current UI State**:
   - Ask tab: COMPLETE, human-approved, and human-verified (100% frozen).
   - Compare tab: 3-card list layout restored to approved mockup (`docs/mockups/15-compare-rows.png`), `#compare-cards-container` with 3 equal-width content-sized cards on `--bg-panel` with 14px radius, hairline borders, aligned rows (Header with dot + title + Baseline badge, Median latency with range and colored progress bar, Distance computations, Top-k rank match with 10 algorithm-colored square cells and count, Recall), and legend footnote with info circle icon.
-  - Settings tab: Centered 860px studio canvas (`.settings-viewport`) matching Ask chat thread, horizontal segmented pill navigation bar (`.settings-segmented-bar`) on `--bg-panel`, grouped section cards on `--bg-panel` with 14px radius and hairline borders, and 4x2 grid of elevated stat tiles (`--bg-raised`, 8px radius, 11px uppercase label, 16px tabular semibold value).
+  - Settings tab: Single-screen unified Bento dashboard (`max-width: 1180px; margin: 0 auto;`), zero sub-tabs: Top full-width card for Server & Engine Health (4x2 metric grid and installed model chips), Bottom 2-column balanced grid (Left = Demo Collection form + Insert random vectors form; Right = Storage & Maintenance with persistence, chat history, docs links, and danger reset).
   - Explore tab: Dedicated studio viewport (`.explore-viewport`), macOS Inspector-style sidebar, card-style neighbor rows with hover highlight, accent-tinted similarity match percentages, `--bg-panel` canvas frame with hairline border.
   - HNSW tab: Dedicated studio viewport (`.hnsw-viewport`), segmented player transport cluster with ghost buttons, Apple stat tiles with uppercase labels and tabular numbers, bottom topology strip with 24px hairline dividers.
 - **Stale-Doc Watchlist**:
   - `docs/ARCHITECTURE.md`: Header reads "Last updated T-039"; directory tree predates v3/v4 design files.
   - `docs/PROGRESS.md`: Feature table item 109 updated to 156 registered tests.
   - `docs/DEMO_SCRIPT.md`: Steps 9-10 describe old Compare UI from v2/early v3.
-- **Workflow & Next Tab**: Next action is human screenshot verification of Explore, HNSW, Compare, and Settings on branch `ui-redesign-v4`. Next free ADR is ADR-071. Next free ISS is ISS-077. Next task is T-077.
+- **Workflow & Next Tab**: Next action is human screenshot verification of Explore, HNSW, Compare, and Settings on branch `ui-redesign-v4`. Next free ADR is ADR-072. Next free ISS is ISS-078. Next task is T-078.
+
+## T-077 summary (ADR-071; Settings single-screen unified Bento dashboard without sub-tabs)
+
+- **Goal & Motivation**: User requested: "option A ka saaath chalta haii acha sa apply krnaa issa chao suru ho jaaao". Eradicated sub-tab switching so that all settings and controls are directly visible on one single unified screen.
+- **Unified Bento Dashboard Architecture**:
+  - Viewport: centered at 1180px (`max-width: 1180px; margin: 0 auto;`).
+  - Top full-width card: "Server & Engine Health" with live status cluster, 4x2 grid of elevated stat tiles (`--bg-raised`), and installed Ollama model chips.
+  - Bottom 2-column balanced grid:
+    - Left column: "Demo Collection" card with 2x2 grid form (Dimension, Metric dropdown, M, efConstruction) + "Insert synthetic vectors" form with primary amber button.
+    - Right column: "Storage & Maintenance" card with disk persistence status/directory tiles, chat history with two-step confirm, documentation links, and danger zone collection reset.
+  - All 22 original Settings DOM IDs, both two-step confirms, and custom dropdown preserved.
+- **Strict Invariants**:
+  - Ask tab files and C++ engine 100% frozen. 156/156 unit tests passed, 118/118 C++ tests passed.
 
 ## T-076 summary (ADR-070; Settings tab rebuilt from zero inspired by Ask canvas & Compare cards)
 
