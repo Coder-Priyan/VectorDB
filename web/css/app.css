@@ -4087,303 +4087,253 @@ input[type="number"] {
   line-height: 1.5;
 }
 
-/* Results: Single Column Layout (Headline, Latency Race, Detail Table) */
+/* Results: 3 Cards comparison (ADR-061, ADR-063, Mockup 15) */
 .compare-results-view {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   position: relative;
   width: 100%;
-  max-width: 960px;
-  margin: 0;
+  max-width: 1120px;
+  margin: 0 auto;
   flex: none;
 }
 
-.compare-results-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  box-sizing: border-box;
-  width: 100%;
-}
-
-/* 1. Headline Block */
-.compare-headline-block {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  background: var(--bg-panel);
-  border: 1px solid var(--border-hairline);
-  border-radius: var(--radius-lg);
-  padding: 24px 28px;
-  box-sizing: border-box;
-  transition: border-color 0.15s ease;
-}
-
-.compare-headline-block:hover {
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-.compare-headline-text {
-  font-family: var(--font-sans);
-  font-size: 26px;
-  font-weight: 400;
-  line-height: 1.35;
-  color: var(--text-primary);
-  letter-spacing: -0.015em;
-  margin: 0;
-}
-
-.compare-headline-text .stat-emphasis {
-  font-weight: 600;
-  color: var(--accent);
-}
-
-.compare-headline-subline {
-  font-family: var(--font-sans);
-  font-size: 13.5px;
-  color: var(--text-muted);
-  line-height: 1.4;
-  margin: 0;
-}
-
-/* Section labels */
-.compare-section-label {
-  font-family: var(--font-sans);
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  margin-bottom: 16px;
-  line-height: 1.3;
-}
-
-/* 2. Latency Race */
-.compare-race-section {
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-panel);
-  border: 1px solid var(--border-hairline);
-  border-radius: var(--radius-lg);
-  padding: 24px 28px;
-  box-sizing: border-box;
-  transition: border-color 0.15s ease;
-}
-
-.compare-race-section:hover {
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-.compare-race-rows {
-  display: flex;
-  flex-direction: column;
+.compare-cards-container {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  align-items: start;
 }
 
-.compare-race-row {
+@media (max-width: 1099px) {
+  .compare-cards-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.compare-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px 20px 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.compare-card:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Card Header */
+.compare-card-header {
   display: flex;
   align-items: center;
-  gap: 20px;
-  width: 100%;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  min-height: 42px;
   box-sizing: border-box;
 }
 
-.compare-race-name-col {
+.compare-card-header-left {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 140px;
-  flex-shrink: 0;
-  font-family: var(--font-sans);
-  font-size: 14.5px;
-  color: var(--text-primary);
-  font-weight: 500;
 }
 
-.compare-race-dot {
+.compare-alg-dot {
   width: 10px;
   height: 10px;
   border-radius: var(--radius-full);
   flex-shrink: 0;
 }
 
-.compare-race-track {
-  flex: 1;
-  min-width: 0;
-  height: 12px;
-  background: var(--bg-raised);
+.compare-card-title-text {
+  font-family: var(--font-sans);
+  font-size: 18.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+.compare-badge-baseline {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2.5px 9px;
+  border-radius: 12px;
+  letter-spacing: 0.02em;
+}
+
+/* Card Rows */
+.compare-card-row {
+  display: flex;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-sizing: border-box;
+}
+
+.compare-row-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.compare-row-label-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.compare-metric-label {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.compare-metric-sublabel {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.compare-metric-value {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Row 1: Latency */
+.compare-row-latency {
+  flex-direction: column;
+  gap: 12px;
+}
+
+.compare-latency-bar-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
   border-radius: var(--radius-full);
   overflow: hidden;
 }
 
-.compare-race-bar {
+.compare-latency-bar-fill {
   height: 100%;
   border-radius: var(--radius-full);
   transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.compare-race-val-col {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  width: 130px;
-  flex-shrink: 0;
-  text-align: right;
+/* Row 2: Dist */
+.compare-row-dist {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.compare-race-val {
-  font-family: var(--font-sans);
-  font-size: 19px;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.2;
+/* Row 3: Rank match */
+.compare-row-rank {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 56px;
 }
 
-.compare-race-range {
-  font-family: var(--font-sans);
-  font-size: 11.5px;
-  color: var(--text-muted);
-  line-height: 1.3;
-  white-space: nowrap;
-}
-
-/* 3. Detail Table */
-.compare-table-section {
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-panel);
-  border: 1px solid var(--border-hairline);
-  border-radius: var(--radius-lg);
-  padding: 20px 24px;
-  box-sizing: border-box;
-  transition: border-color 0.15s ease;
-}
-
-.compare-table-section:hover {
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-.compare-table-wrap {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.compare-detail-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: var(--font-sans);
-}
-
-.compare-detail-table th {
-  text-align: left;
-  font-size: 11.5px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--border-hairline);
-  white-space: nowrap;
-}
-
-.compare-detail-table td {
-  height: 52px;
-  min-height: 52px;
-  padding: 8px 16px;
-  border-bottom: 1px solid var(--border-hairline);
-  box-sizing: border-box;
-  vertical-align: middle;
-}
-
-.compare-detail-table tbody tr {
-  transition: background 0.12s ease;
-}
-
-.compare-detail-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.compare-detail-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.compare-table-alg-cell {
+.compare-rank-strip {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--text-primary);
-  white-space: nowrap;
+  gap: 3.5px;
+  margin-top: 5px;
 }
 
-.compare-table-num-cell {
-  font-size: 16px;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-primary);
-  white-space: nowrap;
-}
-
-.compare-table-match-cell {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.compare-table-match-strip {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  max-width: 240px;
-  flex: 1;
-}
-
-.compare-table-match-cell .compare-rank-cell {
-  flex: 1 1 0;
-  min-width: 8px;
-  max-width: 22px;
-  height: 18px;
+.compare-rank-cell {
+  width: 13px;
+  height: 13px;
   border-radius: 3px;
   box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+  transition: transform 0.1s ease;
 }
 
-.compare-table-match-cell .compare-rank-cell.filled {
-  opacity: 0.8;
+.compare-rank-cell.filled {
   border: none;
 }
 
-.compare-table-match-cell .compare-rank-cell.empty {
+.compare-rank-cell.empty {
   border: 1px solid var(--accent);
-  opacity: 0.7;
-  background: transparent;
+  background: rgba(217, 164, 65, 0.15);
   cursor: pointer;
 }
 
-.compare-table-match-cell .compare-rank-cell.empty:hover,
-.compare-table-match-cell .compare-rank-cell.empty:focus-visible {
-  opacity: 1;
-  outline: 1px solid var(--accent);
-  outline-offset: 1px;
+.compare-rank-cell.empty:hover,
+.compare-rank-cell.empty:focus {
+  transform: scale(1.2);
+  outline: none;
 }
 
-.compare-table-match-count {
-  font-size: 14px;
-  color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
+/* Row 4: Recall */
+.compare-row-recall {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: none;
+  padding-bottom: 2px;
 }
 
-/* 4. Footnote */
+/* Algorithm colors */
+.dot-brute,
+.fill-brute {
+  background-color: var(--color-brute);
+}
+
+.dot-kdtree,
+.fill-kdtree {
+  background-color: var(--color-kdtree);
+}
+
+.dot-hnsw,
+.fill-hnsw {
+  background-color: var(--color-hnsw);
+}
+
+/* Footnote */
 .compare-footnote {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
   font-family: var(--font-sans);
   font-size: 13px;
   color: var(--text-muted);
   line-height: 1.4;
-  margin-top: -8px;
+}
+
+.compare-footnote-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 /* Rank Cell Tooltip */

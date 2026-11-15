@@ -24,7 +24,8 @@ import {
   formatRecallPercent,
   buildCompareHeadline,
   buildLatencyRaceRows,
-  buildDetailTableRows
+  buildDetailTableRows,
+  mapReportToCards
 } from "../compare_helpers.js";
 
 // Real raw benchmark response fixture captured from running server with 10 top-k items (ADR-036, docs/API.md sec 9)
@@ -1026,6 +1027,116 @@ export function registerCompareTests() {
 
       assertEqual(buildDetailTableRows(null).length, 0);
       assertEqual(buildDetailTableRows({}).length, 0);
+    });
+
+    it("mapReportToCards maps real benchmark fixture to 3 algorithm cards with correct structure", () => {
+      const cards = mapReportToCards(realBenchmarkFixture, {
+        brute: [120],
+        kdtree: [85],
+        hnsw: [42]
+      });
+
+      assertEqual(cards.length, 3);
+
+      // 1. Brute Force
+      const brute = cards[0];
+      assertEqual(brute.alg, "brute");
+      assertEqual(brute.label, "Brute Force");
+      assertEqual(brute.isBrute, true);
+      assertEqual(brute.medianUs, 120);
+      assertEqual(brute.rangeText, "120 - 120 µs");
+      assertEqual(brute.barWidthPct, 100);
+      assertEqual(brute.distanceComputations, 1000);
+      assertEqual(brute.rankStrip, null);
+      assertEqual(brute.recallPercent, "100.0%");
+
+      // 2. KD-Tree
+      const kd = cards[1];
+      assertEqual(kd.alg, "kdtree");
+      assertEqual(kd.label, "KD-Tree");
+      assertEqual(kd.isBrute, false);
+      assertEqual(kd.medianUs, 85);
+      assertEqual(kd.barWidthPct, 71);
+      assertEqual(kd.distanceComputations, 240);
+      assertEqual(kd.rankStrip.length, 10);
+      assertEqual(kd.sameCount, 10);
+      assertEqual(kd.total, 10);
+      assertEqual(kd.recallPercent, "100.0%");
+
+      // 3. HNSW
+      const hnsw = cards[2];
+      assertEqual(hnsw.alg, "hnsw");
+      assertEqual(hnsw.label, "HNSW");
+      assertEqual(hnsw.isBrute, false);
+      assertEqual(hnsw.medianUs, 42);
+      assertEqual(hnsw.barWidthPct, 35);
+      assertEqual(hnsw.distanceComputations, 64);
+      assertEqual(hnsw.rankStrip.length, 10);
+      assertEqual(hnsw.sameCount, 9);
+      assertEqual(hnsw.total, 10);
+      assertEqual(hnsw.recallPercent, "90.0%");
+    });
+
+    it("mapReportToCards handles missing or null latencies using latency_us fallback", () => {
+      const cards = mapReportToCards(realBenchmarkFixture, null);
+      assertEqual(cards.length, 3);
+      assertEqual(cards[0].medianUs, 120);
+      assertEqual(cards[1].medianUs, 85);
+      assertEqual(cards[2].medianUs, 32);
+    });
+
+    it("mapReportToCards handles null, empty, or invalid report gracefully", () => {
+      assertEqual(mapReportToCards(null).length, 0);
+      assertEqual(mapReportToCards(undefined).length, 0);
+      assertEqual(mapReportToCards({}).length, 0);
+      assertEqual(mapReportToCards("invalid").length, 0);
+    });
+
+    it("mapReportToCards supports custom k and mismatch detection in rank strip", () => {
+      const customReport = {
+        k: 4,
+        algorithms: {
+          brute: {
+            latency_us: 50,
+            distance_computations: 200,
+            recall_at_k: 1.0,
+            results: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }]
+          },
+          kdtree: {
+            latency_us: 40,
+            distance_computations: 100,
+            recall_at_k: 0.75,
+            results: [{ id: 1 }, { id: 99 }, { id: 3 }, { id: 4 }]
+          },
+          hnsw: {
+            latency_us: 20,
+            distance_computations: 60,
+            recall_at_k: 0.5,
+            results: [{ id: 1 }, { id: 2 }, { id: 88 }, { id: 77 }]
+          }
+        }
+      };
+
+      const cards = mapReportToCards(customReport);
+      assertEqual(cards.length, 3);
+
+      const kdCard = cards[1];
+      assertEqual(kdCard.total, 4);
+      assertEqual(kdCard.sameCount, 3);
+      assertEqual(kdCard.rankStrip.length, 4);
+      assertEqual(kdCard.rankStrip[0].isMatch, true);
+      assertEqual(kdCard.rankStrip[1].isMatch, false);
+      assertEqual(kdCard.rankStrip[1].expectedId, 2);
+      assertEqual(kdCard.rankStrip[1].gotId, 99);
+      assertEqual(kdCard.recallPercent, "75.0%");
+
+      const hnswCard = cards[2];
+      assertEqual(hnswCard.total, 4);
+      assertEqual(hnswCard.sameCount, 2);
+      assertEqual(hnswCard.rankStrip[2].isMatch, false);
+      assertEqual(hnswCard.rankStrip[2].expectedId, 3);
+      assertEqual(hnswCard.rankStrip[2].gotId, 88);
+      assertEqual(hnswCard.recallPercent, "50.0%");
     });
   });
 }
