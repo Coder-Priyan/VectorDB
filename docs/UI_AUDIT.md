@@ -203,12 +203,13 @@ Declared in [web/css/app.css:433-510](file:///f:/Desktop/vectordb/web/css/app.cs
 7. `web/index.html:301`: `#hnsw-trace-reset-btn` (`.btn .btn-sm .btn-outline`) - Reset trace player.
 - **Solid-amber primary buttons in HNSW**: **2** [CONFIRMED]
 
-#### Tab 4: Compare (Updated T-062 / ADR-056)
+#### Tab 4: Compare (Updated T-063 / ADR-057)
 1. `web/index.html`: `#compare-demo-random-btn` (`.btn .btn-sm .btn-primary`) - Primary solid-amber in Demo mode ("Benchmark Random Query").
-2. `web/index.html`: `#compare-demo-id-btn` (`.btn .btn-sm .btn-secondary`) - Secondary button ("Benchmark ID").
-3. `web/index.html`: `#compare-docs-run-btn` (`.btn .btn-sm .btn-primary`) - Primary solid-amber in Docs mode ("Run Benchmark").
-4. `web/index.html`: `#compare-initial-run-btn` (`.btn .btn-secondary .mt-3`) - Secondary button in empty state.
-- **Solid-amber primary buttons in Compare per visible view**: Strictly **1** in all 4 states (Demo results: 1; Demo empty: 1; Docs results: 1; Docs empty: 1) [CONFIRMED in T-062].
+2. `web/index.html`: `#compare-docs-run-btn` (`.btn .btn-sm .btn-primary`) - Primary solid-amber in Docs mode ("Run Benchmark").
+3. `web/index.html`: `#compare-options-btn` (`.btn .btn-sm .btn-ghost .compare-options-btn`) - Ghost options trigger with `sliders` icon.
+4. `web/index.html`: `#compare-demo-id-btn` (`.btn .btn-sm .btn-secondary`) - Secondary button inside `#compare-options-popover` ("Benchmark ID").
+5. `web/index.html`: `#compare-initial-run-btn` (`.btn .btn-secondary .mt-3`) - Secondary button in empty state.
+- **Solid-amber primary buttons in Compare per visible view**: Strictly **1** in all states (Demo results: 1; Demo empty: 1; Docs results: 1; Docs empty: 1; disabled when collection has 0 items) [CONFIRMED in T-063].
 
 #### Tab 5: Settings
 1. `web/index.html:483`: `#demo-insert-random-btn` (`.btn .btn-primary .w-100`) - **Primary solid-amber #1** ("Insert").

@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-15 by SYNC-009
+Last updated: 2026-11-15 by T-063
 
 ## 1. Operating Model
 
@@ -170,7 +170,10 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 60. **Mockup Review Rejected Fakes for Glass-Box**: Panel outline border, amber expanded title, side-by-side tab previews, full-width chat column, changed composer dropdown icon, invented snippet text, pre-filled algorithm rows.
 61. **Screenshots vs Animation Smoothness**: Screenshots show only final states; animation smoothness is judged by the human's own words.
 62. **Lesson (ChatGPT Copies Elements Across Tabs)**: ChatGPT copies the Ask composer bar (follow-up input, algorithm dropdown, k, Send) into other tabs' mockups; always put it in the STRICTLY DO NOT ADD list and review every mockup for it. In T-062 Compare mockup, it copied the bottom Ask composer bar, hallucinated fixed 10 recall squares and 10 matrix columns regardless of real k, wrong dot counts, a thick progress line, and filled bright green check circles. Brain reviews every mockup against real controls before a task is written.
-63. **Confirmation of ISS-057 (Full-Window Screenshots)**: Human full-window 1920x1080 100%-zoom screenshots of Compare (2026-11-15) confirmed ISS-057 is real: on Compare the "Compare" title and panels touch the sidebar edge (about x=264) and the right side clips (the "Timings are indicative..." text and the right panel run to the screen edge); 28px padding is not applied. Fix is part of T-062.
+63. **Confirmation of ISS-057 (Full-Window Screenshots)**: Human full-window 1920x1080 100%-zoom screenshots of Compare (2026-11-15) confirmed ISS-057 is real: on Compare the "Compare" title and panels touch the sidebar edge (about x=264) and the right side clips (the "Timings are indicative..." text and the right panel run to the screen edge); 28px padding was not applied. Root cause isolated in T-063: `.app-content` had `padding: 12px 24px` shared across all tabs. Resolved in T-063 via negative margin and explicit 28px padding on `#panel-compare`.
+64. **Lesson (Control Bar / Options Popover Pattern for Complex Parameter Sets)**: When a benchmarking view has many parameters (collection, repetitions, query, k, efSearch, vector ID), keep the primary control row slim and clean (collection, repeat, query, single primary action) and offload secondary parameters (k, efSearch, vector ID) to a ghost "Options" popover with line icon. This prevents horizontal wrapping, button crowding, and maintains the single-primary-button contract.
+65. **Lesson (Collapsed Rank Diff vs Full Rank Matrix)**: For multi-algorithm top-k comparison against ground truth, drawing a full 10-column or variable-k matrix across algorithms creates a spreadsheet feel, heavy bold ID repetition, floating check glyphs, and awkward empty space. Collapsing to "N of K same rank" with a small check glyph for full matches and compact pill chips for mismatches ("Rank R: expected #GT, got #ID") gives a calm, focused, and legible view that scales seamlessly from k=1 to k=20.
+66. **Lesson (Tab-Scoped Margin Compensation for Root Padding Discrepancy)**: When the global `.app-content` has padding (12px vertical, 24px horizontal) that does not match a tab's required 28px margins, do not override global padding; instead, apply negative margins and positive 28px padding with `box-sizing: border-box` scoped to that tab panel (e.g. `#panel-compare`). This eliminates left-edge touching and right-edge clipping (ISS-057) cleanly.
 
 ---
 
