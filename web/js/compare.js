@@ -8,12 +8,11 @@ import { createIcon } from "./icons.js";
 import {
   computeTimingStats,
   getCompareEmptyStateConfig,
-  computeDotScale,
-  computeDotCount,
+  computeBarScale,
   computeRecallSquares,
   computeLatencyScale,
   formatRangeText,
-  buildRankMatrix,
+  buildRankDiff,
   ALGORITHM_LABELS
 } from "./compare_helpers.js";
 
@@ -341,13 +340,12 @@ export function initCompareTab() {
       hnsw: stats.hnsw.median
     });
 
-    // Dot scale for distance computations
-    const maxComputations = Math.max(
+    // Shared linear scale for distance computation bars
+    const distScale = computeBarScale([
       algs.brute?.distance_computations || 0,
       algs.kdtree?.distance_computations || 0,
       algs.hnsw?.distance_computations || 0
-    );
-    const { scale: dotScale } = computeDotScale(maxComputations);
+    ]);
 
     // Header row above the first lane
     const headerRow = el("div", { className: "compare-lanes-header-row" },
@@ -366,7 +364,7 @@ export function initCompareTab() {
       const tStat = stats[alg];
       const medianUs = Math.round(tStat.median);
       const minMaxStr = formatRangeText(tStat.min, tStat.max);
-      const barWidthPct = latencyScale.getBarWidthPercent(tStat.median);
+      const latencyWidthPct = latencyScale.getBarWidthPercent(tStat.median);
 
       // 1. Name col
       const nameCol = el("div", { className: "compare-lane-name-col" },
@@ -374,37 +372,30 @@ export function initCompareTab() {
         el("span", {}, ALGORITHM_LABELS[alg] || alg)
       );
 
-      // 2. Latency col
-      const barEl = el("div", { className: `compare-lane-latency-bar bg-${alg}` });
-      barEl.style.setProperty("width", `${barWidthPct}%`);
+      // 2. Latency col: 6px pill bar, median in mono at end, range in 11px muted mono below
+      const latBarEl = el("div", { className: `compare-lane-bar bg-${alg}` });
+      latBarEl.style.setProperty("width", `${latencyWidthPct}%`);
       const latencyCol = el("div", { className: "compare-lane-latency-col" },
-        el("div", { className: "compare-lane-latency-bar-wrap" },
-          el("div", { className: "compare-lane-latency-track" }, barEl),
-          el("span", { className: "compare-lane-latency-val" }, `${medianUs} µs`)
+        el("div", { className: "compare-lane-bar-wrap" },
+          el("div", { className: "compare-lane-bar-track" }, latBarEl),
+          el("span", { className: "compare-lane-bar-val font-mono" }, `${medianUs} µs`)
         ),
-        el("span", { className: "compare-lane-latency-range" }, minMaxStr)
+        el("span", { className: "compare-lane-latency-range font-mono" }, minMaxStr)
       );
 
-      // 3. Distance computations col (dot matrix in rows of 25)
+      // 3. Distance computations col: 6px pill bar on shared linear scale, count in mono at end
       const distCount = aData.distance_computations ?? 0;
-      const numDots = computeDotCount(distCount, dotScale);
-      const dotsGrid = el("div", { className: "compare-lane-dots-grid" });
-      const numRows = Math.ceil(numDots / 25);
-      for (let r = 0; r < numRows; r++) {
-        const rowEl = el("div", { className: "compare-lane-dots-row" });
-        const dotsInRow = Math.min(25, numDots - (r * 25));
-        for (let d = 0; d < dotsInRow; d++) {
-          rowEl.appendChild(el("span", { className: `compare-lane-dot-unit bg-${alg}` }));
-        }
-        dotsGrid.appendChild(rowEl);
-      }
-
-      const dotsCol = el("div", { className: "compare-lane-dots-col" },
-        dotsGrid,
-        el("span", { className: "compare-lane-dots-total" }, String(distCount))
+      const distWidthPct = distScale.getBarWidthPercent(distCount);
+      const distBarEl = el("div", { className: `compare-lane-bar bg-${alg}` });
+      distBarEl.style.setProperty("width", `${distWidthPct}%`);
+      const distCol = el("div", { className: "compare-lane-dist-col" },
+        el("div", { className: "compare-lane-bar-wrap" },
+          el("div", { className: "compare-lane-bar-track" }, distBarEl),
+          el("span", { className: "compare-lane-bar-val font-mono" }, String(distCount))
+        )
       );
 
-      // 4. Recall squares col
+      // 4. Recall squares col: k rounded squares (10px, 4px gap, real k), filled in alg color, unfilled faint, recall % in mono
       const recallVal = aData.recall_at_k ?? 1.0;
       const recallSquares = computeRecallSquares(recallVal, kVal);
       const squaresWrap = el("div", { className: "compare-lane-squares-wrap" });
@@ -418,25 +409,23 @@ export function initCompareTab() {
       const recallPct = `${(recallVal * 100).toFixed(1)}%`;
       const recallCol = el("div", { className: "compare-lane-recall-col" },
         squaresWrap,
-        el("span", { className: "compare-lane-recall-val" }, recallPct)
+        el("span", { className: "compare-lane-recall-val font-mono" }, recallPct)
       );
 
       // Lane row
       const laneRow = el("div", { className: "compare-lane-row" },
         nameCol,
         latencyCol,
-        dotsCol,
+        distCol,
         recallCol
       );
       lanesContent.appendChild(laneRow);
     }
 
     // Legend line below lanes
-    let legendText = "Latency: lower is better. Dots: fewer is less work. Squares: filled = found in ground truth.";
-    if (dotScale > 1) {
-      legendText += ` (1 dot = ${dotScale} computations)`;
-    }
-    const legendEl = el("div", { className: "compare-lanes-legend" }, legendText);
+    const legendEl = el("div", { className: "compare-lanes-legend" },
+      "Latency: lower is better. Bars show work done. Squares: filled = found in ground truth. Timings are indicative: official benchmarks come from the C++ tool."
+    );
     lanesContent.appendChild(legendEl);
   }
 
@@ -444,66 +433,60 @@ export function initCompareTab() {
     if (!matrixContent || !report || !report.algorithms) return;
     matrixContent.replaceChildren();
 
-    const matrixData = buildRankMatrix(report);
-    const scrollContainer = el("div", { className: "compare-matrix-scroll", tabindex: "0", "aria-label": "Top-k Rank Matrix" });
-    const tableEl = el("table", { className: "compare-matrix-table" });
+    const diffData = buildRankDiff(report);
+    const nonBruteKeys = [
+      { key: "kdtree", label: ALGORITHM_LABELS.kdtree || "KD-Tree" },
+      { key: "hnsw", label: ALGORITHM_LABELS.hnsw || "HNSW" }
+    ];
 
-    // Table header row: Rank columns
-    const theadEl = el("thead", {});
-    const headerTr = el("tr", { className: "compare-matrix-header-row" },
-      el("th", { className: "compare-matrix-label-th" }, "Algorithm")
-    );
-    for (const rank of matrixData.columns) {
-      headerTr.appendChild(el("th", { className: "compare-matrix-col-th" }, `#${rank}`));
-    }
-    theadEl.appendChild(headerTr);
-    tableEl.appendChild(theadEl);
+    const listWrap = el("div", { className: "compare-diff-list" });
 
-    // Table body rows: Brute Force (GT), KD-Tree, HNSW
-    const tbodyEl = el("tbody", {});
-    for (const row of matrixData.rows) {
-      const tr = el("tr", { className: "compare-matrix-row" });
-      const labelTd = el("td", { className: "compare-matrix-label-td" },
-        el("span", { className: `compare-lane-dot bg-${row.algorithm} mr-2` }),
-        el("span", {}, row.label)
+    for (const { key, label } of nonBruteKeys) {
+      const data = diffData[key] || { sameCount: 0, total: 0, mismatches: [] };
+      const groupEl = el("div", { className: "compare-diff-group" });
+
+      const headerEl = el("div", { className: "compare-diff-header" },
+        el("span", { className: `compare-lane-dot bg-${key}` }),
+        el("span", { className: "compare-diff-label" }, label),
+        el("span", { className: "compare-diff-sep" }, "·"),
+        el("span", { className: "compare-diff-summary" }, `${data.sameCount} of ${data.total} same rank`)
       );
-      tr.appendChild(labelTd);
 
-      for (const cell of row.cells) {
-        const td = el("td", { className: "compare-matrix-td" });
-        if (cell.status === "missing") {
-          td.appendChild(el("span", { className: "compare-matrix-missing" }, "—"));
-        } else {
-          const idSpan = el("span", { className: "compare-matrix-id" }, `#${cell.id}`);
-          const distStr = cell.distance !== null && cell.distance !== undefined
-            ? Number(cell.distance).toFixed(4)
-            : "";
-          const distSpan = el("span", { className: "compare-matrix-dist" }, distStr);
-          const cellWrap = el("div", { className: "compare-matrix-cell" }, idSpan, distSpan);
-
-          if (cell.status === "match") {
-            const checkIcon = createIcon("check", 12, "compare-matrix-check");
-            cellWrap.appendChild(el("span", { className: "compare-matrix-glyph" }, checkIcon));
-          } else if (cell.status === "mismatch") {
-            const dashIcon = createIcon("dash", 12, "compare-matrix-dash");
-            cellWrap.appendChild(el("span", { className: "compare-matrix-glyph" }, dashIcon));
-          }
-
-          td.appendChild(cellWrap);
-        }
-        tr.appendChild(td);
+      if (data.total > 0 && data.sameCount === data.total) {
+        // Stroke-only muted-moss check glyph when all match, no chips
+        const checkIcon = createIcon("check", 14, "compare-diff-check-icon");
+        headerEl.appendChild(el("span", { className: "compare-diff-check-wrap" }, checkIcon));
       }
-      tbodyEl.appendChild(tr);
-    }
-    tableEl.appendChild(tbodyEl);
-    scrollContainer.appendChild(tableEl);
 
-    const legendEl = el("div", { className: "compare-matrix-legend" },
-      "Check = same vector at the same rank as the ground truth."
+      groupEl.appendChild(headerEl);
+
+      // If mismatches exist, display pill chips
+      if (data.mismatches && data.mismatches.length > 0) {
+        const chipsWrap = el("div", { className: "compare-diff-chips" });
+        for (const m of data.mismatches) {
+          const chipEl = el("div", { className: "compare-diff-chip" },
+            el("span", { className: "compare-mismatch-dot" }),
+            el("span", { className: "compare-diff-chip-text" },
+              `Rank ${m.rank}: expected `,
+              el("span", { className: "font-mono" }, `#${m.expected}`),
+              ", got ",
+              m.got !== null ? el("span", { className: "font-mono" }, `#${m.got}`) : "—"
+            )
+          );
+          chipsWrap.appendChild(chipEl);
+        }
+        groupEl.appendChild(chipsWrap);
+      }
+
+      listWrap.appendChild(groupEl);
+    }
+
+    const noteEl = el("div", { className: "compare-diff-note" },
+      "Matching ranks are not listed. Recall counts a hit at any rank; same rank is stricter."
     );
 
-    matrixContent.appendChild(scrollContainer);
-    matrixContent.appendChild(legendEl);
+    matrixContent.appendChild(listWrap);
+    matrixContent.appendChild(noteEl);
   }
 
   // Event Handlers
