@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-15 by SYNC-010
+Last updated: 2026-11-15 by T-064
 
 ## 1. Operating Model
 
@@ -178,10 +178,24 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 68. **Lesson (T-063 ISS-057 Compare-Scoped Workaround & Open Status)**: T-063 ISS-057 fix is a Compare-scoped workaround: `#panel-compare` uses negative margins (`calc(-1 * var(--space-3)) calc(-1 * var(--space-6))`), width `calc(100% + var(--space-6) * 2)` and padding `28px`, because the shared rule `.app-content` (`app.css:1216`, padding `var(--space-3) var(--space-6)`) was left untouched on purpose. Root cause per builder: `.app-content` padding is 12px 24px, not 28px. Builder claims are not proof: ISS-057 stays OPEN until the human's full-window 1920x1080 100% screenshot shows a visible gap to the sidebar and no clipping at the right edge. If the other tabs (Explore, HNSW, Settings) need the same 28px, fix the shared `.app-content` rule once in a later task instead of repeating negative-margin workarounds.
 69. **Lesson (T-063 Unmet / Unverified Behavioural Reporting)**: T-063 builder report was incomplete: the deviations list covered only the mockup, not unmet spec items; behaviours (Options popover Escape and focus return, controls disabled when the collection has 0 items, progress line amber only while running) were not reported. These are unverified until the human tests them.
 70. **Lesson (Builder Tool Execution Error)**: One tool error 'Model produced invalid output' appeared once in the T-063 builder log; final outputs were fine; noted only.
+71. **Lesson (ChatGPT Enlarges Sidebar)**: ChatGPT keeps enlarging the sidebar to about 324px and ignores the 264px rule; the builder must never copy sizes from the mockup.
+72. **Lesson (Human Taste on Visual Languages)**: Human taste confirmed on 2026-11-15: the human rejects 'table with makeup'; four different visual languages in one row (band, bar, squares, percent) feel noisy; a single panel with one strict grid, one visual language per column and a collapsed secondary detail (tooltip) feels right.
+73. **Lesson (Mockup Proportions vs Real Data)**: Mockup numbers and bar lengths are not proportional; always compute bars from real data on one shared scale (e.g. `computeBarScale`).
+74. **Human-Confirmed on 2026-11-15 (/tests.html 135/135)**: Human verified `/tests.html` showed 135/135 passed after T-063 (the earlier guess that the count would be lower was wrong).
 
 ---
 
 ## 7. Verification Status (as of 2026-11-15)
+
+- **Antigravity Terminal Verification after T-064**:
+  - Commits: `467c0cb` (T-064 A), `035eb9a` (T-064 B).
+  - C++ hermetic suite: 118/118 passed (529,813 assertions).
+  - Web safety automated scanner: 28 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
+  - CSS Quality metrics: `!important` count = 2 (<= 3), `box-shadow` count = 0, zero hex color literals in `web/js` outside `colors.js`.
+  - Git engine check: `git diff --stat ui-quiet-studio -- src include tests` strictly empty.
+  - Helper cleanup: `buildRankDiff` completely removed from `web/js/` (zero matches).
+  - Browser unit tests registered in code: 137 (Node harness CLAIM: 137; only human /tests.html is proof).
+  - Working tree: clean tracked files; only untracked `results/logs/` files (no `scratch/`).
 
 - **Human-Confirmed on 2026-11-15 (Terminal after T-063)**:
   - HEAD: `9e36e5a` (`docs: T-063 sync`), preceded by `63b96f4` (T-063 B) and `96c2495` (T-063 A), then `9e0bb7f` (docs: SYNC-009).
