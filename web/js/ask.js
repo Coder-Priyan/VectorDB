@@ -515,6 +515,9 @@ export function initAskTab() {
         createSuggestionChip("Summarize the key points from this document."),
         createSuggestionChip("What does the HNSW algorithm do?"),
         createSuggestionChip("How is vector search different from keyword search?")
+      ),
+      el("p", { className: "ask-empty-subtext text-muted" },
+        "Use your own documents or load a sample to try RAG with citations and retrieval details."
       )
     );
 
