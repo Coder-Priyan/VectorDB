@@ -3,8 +3,9 @@
  */
 import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js";
 import { Viewport2D, setupCanvasDpr } from "./canvas.js";
-import { el, formatSimilarity } from "./ui.js";
-import { getDocColor, computeBounds, findHitPoint, drawStar } from "./explore_helpers.js";
+import { el, formatSimilarity, createDropdown } from "./ui.js";
+import { createIcon } from "./icons.js";
+import { getDocColor, computeBounds, findHitPoint, drawStar, getExploreCanvasSubtitle, isExploreActionDisabled } from "./explore_helpers.js";
 import { isCanvasDrawable } from "./hnsw_helpers.js";
 import { THEME } from "./colors.js";
 
@@ -15,11 +16,29 @@ export function initExploreTab() {
   const ctx = canvas.getContext("2d");
   const byId = (id) => document.getElementById(id);
 
-  const collSelect = byId("explore-coll-select"), refreshBtn = byId("explore-refresh-btn");
+  const collDropdownWrap = byId("explore-coll-dropdown-wrap");
+  let collDropdown = null;
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get("coll") === "docs" && collSelect) {
-    collSelect.value = "docs";
+  const initialColl = urlParams.get("coll") === "docs" ? "docs" : "demo";
+
+  if (collDropdownWrap) {
+    collDropdown = createDropdown(
+      [
+        { value: "demo", label: "Demo Vectors" },
+        { value: "docs", label: "Document Chunks" }
+      ],
+      initialColl,
+      () => { loadData(); },
+      { id: "explore-coll-select", ariaLabel: "Select collection" }
+    );
+    collDropdownWrap.replaceChildren(collDropdown.element);
   }
+
+  const collSelect = byId("explore-coll-select");
+  if (collSelect && !collDropdown) {
+    collSelect.value = initialColl;
+  }
+  const refreshBtn = byId("explore-refresh-btn");
   const queryDocsForm = byId("explore-query-docs-form"), queryDocsInput = byId("explore-query-docs-input");
   const queryDocsK = byId("explore-query-docs-k"), queryDocsBtn = byId("explore-query-docs-btn");
   const queryDemoRandomBtn = byId("explore-demo-random-btn"), queryDemoIdInput = byId("explore-demo-id-input");
@@ -40,9 +59,14 @@ export function initExploreTab() {
     resultsTableBody?.replaceChildren();
     if (varianceNote) varianceNote.textContent = "";
 
-    const isDocs = collSelect.value === "docs";
+    const isDocs = collSelect ? collSelect.value === "docs" : false;
     byId("explore-docs-controls")?.classList.toggle("hidden", !isDocs);
     byId("explore-demo-controls")?.classList.toggle("hidden", isDocs);
+
+    const subtitleEl = document.getElementById("explore-canvas-subtitle") || document.querySelector("#panel-explore .canvas-panel-subtitle");
+    if (subtitleEl) {
+      subtitleEl.textContent = getExploreCanvasSubtitle(collSelect ? collSelect.value : "demo");
+    }
 
     try {
       const data = isDocs ? await api.getDocsPca(5000) : await api.getPca(5000);
@@ -50,12 +74,18 @@ export function initExploreTab() {
       explainedRatios = data.explained_ratio || [0, 0];
       currentDim = data.dim || 128;
 
-      if (currentPoints.length === 0) {
+      const count = currentPoints.length;
+      const actionsDisabled = isExploreActionDisabled(count);
+      if (queryDemoRandomBtn) queryDemoRandomBtn.disabled = actionsDisabled;
+      if (queryDemoIdBtn) queryDemoIdBtn.disabled = actionsDisabled;
+      if (queryDocsBtn) queryDocsBtn.disabled = isDocs && actionsDisabled;
+
+      if (count === 0) {
         showEmptyState(isDocs);
       } else {
         const bounds = computeBounds(currentPoints);
         viewport.fitBounds(bounds.minX, bounds.maxX, bounds.minY, bounds.maxY);
-        updateVarianceNotice(currentPoints.length, explainedRatios);
+        updateVarianceNotice(count, explainedRatios);
         updateLegend(isDocs, currentPoints);
       }
       render();
@@ -271,7 +301,7 @@ export function initExploreTab() {
       return el("tr", { className: "explore-neighbor-row" },
         el("td", { className: "neighbor-target-cell" },
           el("div", { className: "neighbor-target-meta" },
-            el("span", { className: "neighbor-icon", textContent: "📄" }),
+            createIcon(isDocs ? "document" : "database", 14, "neighbor-icon-svg"),
             el("div", { className: "neighbor-info" },
               el("span", { className: "neighbor-title" }, docTitle),
               el("span", { className: "neighbor-sub" }, chunkSub)

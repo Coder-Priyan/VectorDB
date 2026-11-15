@@ -109,3 +109,27 @@ export function drawStar(ctx, cx, cy, spikes = 5, outerRadius = 9, innerRadius =
   ctx.closePath();
 }
 
+/**
+ * Returns the descriptive subtitle for the 2D PCA canvas based on active collection.
+ * Pure function.
+ *
+ * @param {string} collection - "demo" | "docs"
+ * @returns {string}
+ */
+export function getExploreCanvasSubtitle(collection) {
+  return collection === "docs"
+    ? "Each point is a document chunk, projected to 2D using PCA."
+    : "Each point is a demo vector, projected to 2D using PCA.";
+}
+
+/**
+ * Determines whether query actions should be disabled based on vector count.
+ * Pure function.
+ *
+ * @param {number} count
+ * @returns {boolean}
+ */
+export function isExploreActionDisabled(count) {
+  return !count || count <= 0;
+}
+

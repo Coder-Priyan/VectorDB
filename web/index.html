@@ -237,11 +237,10 @@
       <div class="tab-toolbar">
         <div class="toolbar-left">
           <label for="explore-coll-select" class="toolbar-label">Collection</label>
-          <select id="explore-coll-select" class="input-select toolbar-select">
-            <option value="demo" selected>Demo Vectors</option>
-            <option value="docs">Document Chunks</option>
-          </select>
-          <button id="explore-refresh-btn" class="btn btn-sm btn-ghost">Refresh</button>
+          <div id="explore-coll-dropdown-wrap" class="toolbar-dropdown-wrap">
+            <input type="hidden" id="explore-coll-select" value="demo">
+          </div>
+          <button type="button" id="explore-refresh-btn" class="btn btn-sm btn-ghost">Refresh</button>
         </div>
         <div class="toolbar-right">
           <span id="explore-variance-note" class="text-muted font-mono text-xs">Loading variance...</span>
@@ -252,7 +251,7 @@
           <div class="canvas-frame">
             <div class="canvas-panel-header">
               <h2 class="canvas-panel-title">Vector Space (PCA, 2D)</h2>
-              <p class="canvas-panel-subtitle">Each point is a document chunk, projected to 2D using PCA.</p>
+              <p class="canvas-panel-subtitle" id="explore-canvas-subtitle">Each point is a demo vector, projected to 2D using PCA.</p>
             </div>
             <div class="canvas-wrapper">
               <canvas id="explore-canvas" width="680" height="460"></canvas>

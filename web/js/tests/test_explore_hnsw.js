@@ -3,7 +3,7 @@
  */
 import { describe, assert, assertEqual, assertNear } from "./framework.js";
 import { Viewport2D } from "../canvas.js";
-import { findHitPoint, getDocColor, computeBounds, DOC_COLOR_PALETTE } from "../explore_helpers.js";
+import { findHitPoint, getDocColor, computeBounds, DOC_COLOR_PALETTE, getExploreCanvasSubtitle, isExploreActionDisabled } from "../explore_helpers.js";
 import { DOC_FALLBACK_COLOR } from "../colors.js";
 import { getLayerColor, formatEdgeSummary, formatHnswTopologySummary, mapTraceToCoordinates, PlaybackController, LAYER_COLORS, isCanvasDrawable } from "../hnsw_helpers.js";
 
@@ -70,6 +70,20 @@ export function registerExploreHnswTests() {
       const b = computeBounds([]);
       assertEqual(b.minX, -1);
       assertEqual(b.maxX, 1);
+    });
+
+    it("getExploreCanvasSubtitle reflects active collection", () => {
+      assertEqual(getExploreCanvasSubtitle("docs"), "Each point is a document chunk, projected to 2D using PCA.");
+      assertEqual(getExploreCanvasSubtitle("demo"), "Each point is a demo vector, projected to 2D using PCA.");
+      assertEqual(getExploreCanvasSubtitle("other"), "Each point is a demo vector, projected to 2D using PCA.");
+    });
+
+    it("isExploreActionDisabled reports true only for empty collections", () => {
+      assertEqual(isExploreActionDisabled(0), true);
+      assertEqual(isExploreActionDisabled(null), true);
+      assertEqual(isExploreActionDisabled(undefined), true);
+      assertEqual(isExploreActionDisabled(1), false);
+      assertEqual(isExploreActionDisabled(500), false);
     });
   });
 
