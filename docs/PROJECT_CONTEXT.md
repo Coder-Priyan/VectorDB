@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-15 by SYNC-012
+Last updated: 2026-11-15 by T-071 sync
 
 ## 1. Operating Model
 
@@ -15,7 +15,7 @@ This project operates on a strict three-party workflow:
 
 - **Project Name**: VectorDB [CONFIRMED: CMakeLists.txt:2]
 - **Repository Remote URL**: `https://github.com/Coder-Priyan/VectorDB.git` [CONFIRMED: git remote -v]
-- **Current Active Branch**: `ui-redesign-v3` [CONFIRMED: git branch]
+- **Current Active Branch**: `ui-redesign-v4` [CONFIRMED: git branch]
 - **Fork Status**: Direct repository; not recorded as a git fork [CONFIRMED: git remote -v]
 - **License**: MIT (LICENSE file in repo root; copyright holder placeholder <YOUR NAME> still to be filled by human); third-party headers `httplib.h` and `nlohmann/json.hpp` are licensed under the MIT License [CONFIRMED: LICENSE:3, third_party/README.md:14,26]
 - **Last Commit Author**: Coder-Priyan `<230001938+Coder-Priyan@users.noreply.github.com.>` [CONFIRMED: git log -n 1]
@@ -193,7 +193,9 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 83. **Lesson (Attach Mockups to Builder Prompt - T-070 Settings)**: T-070 Settings was built WITHOUT the mockup attached (the human forgot to attach it; builder reported this honestly), so layout, input sizes and spacing differ from the approved mockup `VectorDB_Settings_Dashboard.png`. Always attach the mockup image to the builder prompt and confirm the builder saw it before execution.
 84. **Lesson (Builder Reporting Rigor Maintained)**: Builder reports must honestly state test runner exit codes and say 'not measured' when visual DOM bounding rects cannot be measured in a headless environment. T-069 and T-070 reports followed this strictly (reporting Node exit code 1 with 136/141 passed in Node stubs, 141 registered in code, and visual heights 'not measured').
 85. **Human-Confirmed on 2026-11-15 23:26 (Terminal & Screenshot after T-070)**: Human confirmed `/tests.html` 141/141 passed; HEAD `7352605` (`docs: T-070 sync`), preceded by `953421a` (T-070 B), `0a804dc` (T-070 A), `b7ee8da` (docs: T-069 sync), `386054b` (T-069), `3055786` (docs: T-068 sync); C++ hermetic suite 118/118 passed (529,813 assertions); web safety scanner 100% clean (28 files); `!important` count = 2; `box-shadow` count = 0; working tree has only untracked `results/logs/` files.
-86. **Browser Unit Test Count History**: 84 (P8/T-033) -> 88 (T-040) -> 99 (T-050/T-051) -> 105 (T-053) -> 113 (T-054) -> 114 (T-055c) -> 121 (T-058/T-059) -> 127 (T-060/T-061) -> 135 (T-063) -> 137 (T-064) -> 141 (T-065/T-066/T-067/T-068/T-069/T-070). Human-confirmed in real browser `/tests.html`: 141/141 on 2026-11-15 22:17 (after T-066), and 141/141 again at 23:26 (after T-070).
+86. **Browser Unit Test Count History**: 84 (P8/T-033) -> 88 (T-040) -> 99 (T-050/T-051) -> 105 (T-053) -> 113 (T-054) -> 114 (T-055c) -> 121 (T-058/T-059) -> 127 (T-060/T-061) -> 135 (T-063) -> 137 (T-064) -> 141 (T-065/T-066/T-067/T-068/T-069/T-070) -> 143 (T-071). Human-confirmed in real browser `/tests.html`: 141/141 on 2026-11-15 22:17 (after T-066), and 141/141 again at 23:26 (after T-070); 143 registered after T-071 (human check pending).
+87. **Lesson (Redesign v4 Full Design Delegation & Unified Architecture - T-071, ADR-065)**: Human granted full design permission for Explore, HNSW, Compare, and Settings. Avoided per-tab mockup cycles by establishing a unified design architecture: `.app-content` padding root-cause fix (set to 0), unified 24px 28px standard padding across Explore, HNSW, Compare, and Settings while preserving Ask's exact padding; 60px height `.tab-toolbar` on `--bg-raised` with 14px radius; replacement of all native selects with accessible `createDropdown` (`ui.js`); standardized button hierarchy (0 or 1 `.btn-primary` per view); Explore empty-state button guard & live subtitle; HNSW layer slider fixed width 120px; Compare baseline badge & unclipped dropdowns; Settings Demo collection rebuilt to 4-column grid with 40px inputs.
+88. **Browser Unit Test Count Expanded to 143 (T-071)**: Added 2 pure-logic tests in `web/js/tests/test_explore_hnsw.js` for `getExploreCanvasSubtitle` and `isExploreActionDisabled`, expanding registered browser tests from 141 to 143 (143/143 pass). Visual rendering judged strictly by human screenshots.
 
 ---
 

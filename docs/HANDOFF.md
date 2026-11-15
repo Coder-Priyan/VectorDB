@@ -1,20 +1,63 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by SYNC-012
+Last updated: 2026-11-15 by T-071 sync
 
-> **NEXT STEP**: Human brings his own new design for Compare and Settings (mockups or FINAL SPEC) in the next Brain chat. Brain must review the design against real controls and compare mockup size at 1920px scale BEFORE writing any task. The human must attach the mockup image to the builder prompt every time. After that, Explore (needs FINAL SPEC and mockups 12-explore-results.png and 13-explore-empty.png from the Design Chat), then HNSW. Next free ADR is ADR-065. Next free ISS is ISS-072. Next task number is T-071.
+> **NEXT STEP**: Human verifies T-071 (Redesign v4) in a real browser at 1920x1080 100% zoom across Explore, HNSW, Compare, and Settings tabs (both Demo and Docs modes, plus empty states) and runs `/tests.html` (expect 143/143 passed); Brain reviews screenshots. (Note: Human provided initial Compare v4 screenshot showing correct 28px margins, baseline badge, and unclipped dropdowns). Next free ADR is ADR-066. Next free ISS is ISS-072. Next task number is T-072.
 >
-> **NEEDED FROM THE HUMAN**: (1) Bring new design / mockups for Compare and Settings in the next Brain chat; (2) Always attach the mockup image to the builder prompt.
+> **NEEDED FROM THE HUMAN**: (1) Terminal verification on branch `ui-redesign-v4` (`git status -sb`, `git log --oneline -8`, `.\build\vectordb_tests.exe`, scanner, `/tests.html`); (2) Full-window 1920x1080 100% screenshots of Explore, HNSW, Compare, and Settings tabs.
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
-- **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Total registered browser unit tests remain **141** in code; all 54 compare tests pass.
-- **Git State**: Local branch `ui-redesign-v3`, clean working tree (only untracked `results/logs/`), commits unpushed per protocol.
+- **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Registered browser unit tests expanded to **143** in code after T-071 (143/143 pass in Node runner; human run at `/tests.html` pending).
+- **Git State**: Local branch `ui-redesign-v4`, clean working tree (only untracked `results/logs/`), commits unpushed per protocol.
 - **Current UI State**:
-  - Ask tab: COMPLETE and human-verified.
-  - Compare tab: T-069 implemented (ADR-063, 580px medium cards), human not satisfied (ISS-070).
-  - Settings tab: T-070 implemented (ADR-064, full-width rows), human not satisfied (ISS-070, ISS-071).
-  - Explore, HNSW tabs: not redesigned yet in v3.1.
-- **Workflow & Next Tab**: Next tab in workflow is Compare / Settings redesign from human's new design in next Brain chat, then Explore (needs FINAL SPEC and mockups 12/13 from Design Chat). Next free ADR is ADR-065. Next free ISS is ISS-072. Next task is T-071.
+  - Ask tab: COMPLETE, human-approved, and human-verified (100% frozen).
+  - Explore, HNSW, Compare, Settings tabs: Rebuilt under Redesign v4 (T-071, ADR-065) as a coherent instrument design system. Padding root-cause fixed (28px standard margins, ISS-057/071 resolved), native selects replaced with custom accessible dark dropdowns (`createDropdown`), button hierarchy enforced (0 or 1 `.btn-primary` per view), 60px raised toolbars, hairline borders, no shadows, no innerHTML.
+- **Stale-Doc Watchlist**:
+  - `docs/ARCHITECTURE.md`: Header reads "Last updated T-039"; directory tree predates v3/v4 design files.
+  - `docs/PROGRESS.md`: Feature table item 101 updated from 116 to 143 registered tests.
+  - `docs/DEMO_SCRIPT.md`: Steps 9-10 describe old Compare UI from v2/early v3.
+- **Workflow & Next Tab**: Next action is human screenshot verification of the 4 tabs on branch `ui-redesign-v4`. Next free ADR is ADR-066. Next free ISS is ISS-072. Next task is T-072.
+
+## T-071 summary (ADR-065; Redesign v4 across Explore, HNSW, Compare, Settings)
+
+- **Design Permission & Scope**: Full design delegation granted by human to establish an instrument-grade, calm, mature product UI across the 4 non-Ask tabs. Ask tab remains 100% frozen and untouched.
+- **Root-Cause Padding Fix (P0, commit `b569bf1`)**:
+  - Reset `.app-content` padding to 0.
+  - Preserved Ask's exact padding (`#panel-ask { padding: var(--space-3) var(--space-6); }`).
+  - Grouped `#panel-explore, #panel-hnsw, #panel-compare, #panel-settings` to share standard `padding: 24px 28px; box-sizing: border-box;`.
+  - Removed `#panel-compare` negative-margin hack. Resolves ISS-057 and ISS-071 left-edge touching and right-edge clipping.
+  - Unified `.page-header` and `.tab-toolbar` (60px height, 14px radius, `--bg-raised`, 1px hairline border, `0 20px` padding).
+  - Global `appearance: textfield;` disables native spinners; added `prefers-reduced-motion` block.
+- **Explore Redesign (P1, commit `8018f8a`)**:
+  - Replaced native select `#explore-coll-select` with `createDropdown` in `#explore-coll-dropdown-wrap`.
+  - Standardized collection labels to "Demo Vectors" / "Document Chunks".
+  - Subtitle updates dynamically via `getExploreCanvasSubtitle(collection)`.
+  - Query actions disabled when collection count === 0 via `isExploreActionDisabled(count)`.
+  - Replaced banned emoji with SVG line icons. Added 2 pure unit tests in `test_explore_hnsw.js` (total 143 tests).
+- **HNSW Redesign (P2, commit `328f429`)**:
+  - Replaced native selects (`#hnsw-coll-select`, `#hnsw-max-edges-select`, `#hnsw-trace-speed`) with `createDropdown`.
+  - Layer slider `#hnsw-layer-slider` given fixed width 120px with `flex-shrink: 0`, preventing toolbar wrapping.
+  - Trace buttons disabled when collection count === 0.
+- **Compare Redesign (P3, commit `dc778d3`)**:
+  - Added quiet "Baseline" badge on Brute Force card header.
+  - Fixed `#compare-coll-dropdown-wrap` min-width to 170px nowrap, preventing "Document Chunks" label clipping.
+  - Preserved medium 580px cards and 0.0px row top alignment across all 3 cards.
+- **Settings Redesign (P4, commit `59c0c83`)**:
+  - Rebuilt `.settings-demo-controls-form` into clean 4-column grid (`repeat(4, minmax(110px, 130px))`) with 40px inputs, resolving ISS-071.
+  - Hairline borders and 22px 28px padding.
+- **Consistency Sweep (P5, commit `e2ec407`)**:
+  - Verified all 119 DOM IDs statically present and functional.
+  - Exactly 0 or 1 `.btn-primary` per view across all states.
+  - Zero native selects on the 4 tabs.
+  - All 143 browser unit tests pass in Node. Web safety scanner 100% clean.
+  - `!important` count = 2, `box-shadow` count = 0, hex count outside `colors.js` = 0.
+- **Git Commits**:
+  - `b569bf1` - `T-071 P0: shared shell, padding root-cause fix and components`
+  - `8018f8a` - `T-071 P1: Explore redesign`
+  - `328f429` - `T-071 P2: HNSW redesign`
+  - `dc778d3` - `T-071 P3: Compare redesign`
+  - `59c0c83` - `T-071 P4: Settings redesign`
+  - `e2ec407` - `T-071 P5: consistency sweep`
 
 ## T-070 summary (ADR-064; supersedes ADR-041 & Settings layout of ADR-048)
 
