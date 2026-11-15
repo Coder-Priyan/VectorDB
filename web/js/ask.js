@@ -12,7 +12,7 @@ import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js
 import { readSseStream } from "./sse.js";
 import { el, formatBytes, formatDuration, formatSimilarity, parseCitations, showToast } from "./ui.js";
 import { createIcon } from "./icons.js";
-import { formatBenchmarkRows, formatTraceSummary } from "./ask_helpers.js";
+import { formatBenchmarkRows, formatTraceSummary, formatPipelineLatency } from "./ask_helpers.js";
 
 const CHATS_INDEX_KEY = "vectordb:chats";
 const CHAT_PREFIX = "vectordb:chats:";
@@ -698,23 +698,22 @@ export function initAskTab() {
       );
       body.appendChild(latencyHeader);
 
-      const items = [
-        { label: "Embed", ms: timings.embed_ms, isTotal: false },
-        { label: "Search", ms: timings.search_ms, isTotal: false },
-        { label: "First token", ms: timings.first_token_ms, isTotal: false },
-        { label: "Generate", ms: timings.generate_ms, isTotal: false },
-        { label: "Total", ms: timings.total_ms, isTotal: true }
-      ];
-
-      const timingsGrid = el("div", { className: "glass-box-timings-grid" },
-        ...items.map(it =>
+      const items = formatPipelineLatency(timings);
+      const flow = el("div", { className: "glass-box-timings-flow" });
+      items.forEach((it, idx) => {
+        if (idx > 0) {
+          flow.appendChild(
+            el("div", { className: "glass-timing-arrow" }, createIcon("arrowRight", 12))
+          );
+        }
+        flow.appendChild(
           el("div", { className: `glass-timing-item${it.isTotal ? " accent" : ""}` },
             el("span", { className: "glass-timing-label" }, it.label),
             el("span", { className: "glass-timing-val" }, formatDuration(it.ms))
           )
-        )
-      );
-      body.appendChild(timingsGrid);
+        );
+      });
+      body.appendChild(flow);
     }
 
     // Panel C: Three action buttons (Open Explore, Compare algorithms, Trace HNSW path)

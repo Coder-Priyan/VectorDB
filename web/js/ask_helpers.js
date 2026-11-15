@@ -100,3 +100,23 @@ export function formatTraceSummary(tRes) {
     summaryText
   };
 }
+
+/**
+ * Maps RAG pipeline timings response object to an ordered list of 5 flow items.
+ * Order: Embed, Search, First token, Generate, Total.
+ *
+ * @param {object} timings - Server timings { embed_ms, search_ms, first_token_ms, generate_ms, total_ms }
+ * @returns {Array<object>} Ordered array of { key, label, ms, isTotal }
+ */
+export function formatPipelineLatency(timings) {
+  if (!timings || typeof timings !== "object") return [];
+
+  return [
+    { key: "embed", label: "Embed", ms: typeof timings.embed_ms === "number" ? timings.embed_ms : 0, isTotal: false },
+    { key: "search", label: "Search", ms: typeof timings.search_ms === "number" ? timings.search_ms : 0, isTotal: false },
+    { key: "first_token", label: "First token", ms: typeof timings.first_token_ms === "number" ? timings.first_token_ms : 0, isTotal: false },
+    { key: "generate", label: "Generate", ms: typeof timings.generate_ms === "number" ? timings.generate_ms : 0, isTotal: false },
+    { key: "total", label: "Total", ms: typeof timings.total_ms === "number" ? timings.total_ms : 0, isTotal: true }
+  ];
+}
+

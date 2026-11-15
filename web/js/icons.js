@@ -111,6 +111,10 @@ const ICON_SPECS = {
     { tag: "line", attrs: { x1: "4", y1: "13.5", x2: "4", y2: "8.5" } },
     { tag: "line", attrs: { x1: "8", y1: "13.5", x2: "8", y2: "4.5" } },
     { tag: "line", attrs: { x1: "12", y1: "13.5", x2: "12", y2: "10.5" } }
+  ],
+  arrowRight: [
+    { tag: "line", attrs: { x1: "2.5", y1: "8", x2: "13.5", y2: "8" } },
+    { tag: "polyline", attrs: { points: "9.5 4 13.5 8 9.5 12" } }
   ]
 };
 

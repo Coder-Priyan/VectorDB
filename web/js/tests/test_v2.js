@@ -9,14 +9,14 @@ import { describe, assert, assertEqual } from "./framework.js";
 import { createIcon } from "../icons.js";
 import { EXPLAINERS } from "../learn_content.js";
 import { parseCitations } from "../ui.js";
-import { formatBenchmarkRows, formatTraceSummary } from "../ask_helpers.js";
+import { formatBenchmarkRows, formatTraceSummary, formatPipelineLatency } from "../ask_helpers.js";
 
 export function registerV2Tests() {
   describe("v2: SVG Icon Registry", (test) => {
     const requiredIcons = [
       "chat", "plus", "explore", "graph", "compare",
       "settings", "document", "trash", "search", "chevron",
-      "copy", "stop", "send", "info"
+      "copy", "stop", "send", "info", "arrowRight"
     ];
 
     test("All 14 required line icons instantiate valid SVG elements", () => {
@@ -268,5 +268,38 @@ export function registerV2Tests() {
       assertEqual(summaryEmpty.layersCount, 1);
     });
   });
+
+  describe("v2: Ask Pipeline Latency Flow Formatting", (test) => {
+    test("formatPipelineLatency maps server timings to 5 ordered tiles", () => {
+      const timings = {
+        embed_ms: 12.4,
+        search_ms: 1.8,
+        first_token_ms: 45.2,
+        generate_ms: 110.6,
+        total_ms: 170.0
+      };
+      const items = formatPipelineLatency(timings);
+      assertEqual(items.length, 5);
+      assertEqual(items[0].label, "Embed");
+      assertEqual(items[0].ms, 12.4);
+      assertEqual(items[0].isTotal, false);
+      assertEqual(items[1].label, "Search");
+      assertEqual(items[2].label, "First token");
+      assertEqual(items[3].label, "Generate");
+      assertEqual(items[4].label, "Total");
+      assertEqual(items[4].isTotal, true);
+      assertEqual(items[4].ms, 170.0);
+    });
+
+    test("formatPipelineLatency handles missing or empty timings gracefully", () => {
+      assertEqual(formatPipelineLatency(null).length, 0);
+      assertEqual(formatPipelineLatency(undefined).length, 0);
+      const empty = formatPipelineLatency({});
+      assertEqual(empty.length, 5);
+      assertEqual(empty[0].ms, 0);
+      assertEqual(empty[4].isTotal, true);
+    });
+  });
 }
+
 
