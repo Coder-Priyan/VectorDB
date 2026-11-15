@@ -1,6 +1,6 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by SYNC-006
+Last updated: 2026-11-15 by T-057
 
 ## 1. Current Status
 
@@ -32,7 +32,11 @@ Task T-056 executed the complete master build of Redesign v3 across 6 sequential
 - **Phase 4 (Commit `f45e51b`)**: Settings tab rebuild from `07-settings.png`. One-screen 3-column grid of content-sized filled surface panels with calm padding (eliminating hollow stretching): Col 1 Server status (live status dot, version, dimension/metric, HNSW params, models list, demo memory), Col 2 Demo collection form + Insert random (single primary amber button `+ Insert`), Col 3 Chat history, Documentation links, and quiet soft-red Danger zone.
 - **Phase 5 (Commit `1f5b093`)**: Consistency sweep across all 5 tabs. Verified strictly <= 1 primary amber button per view across all states, zero dead styles, `!important` count = 2 (<= 3), `box-shadow` count = 0, zero hex literals outside `:root` and `colors.js`, docs synchronized (ADR-048, ISS-049 fixed).
 
-### Complete Commits List for T-055 and T-056:
+Task T-057 executed the Ask tab redesign v3.1 from human-approved mockups (and shell status pill) on branch `ui-redesign-v3` (ADR-050):
+- **Commit `acb96a3` (T-057 A)**: Removed leftover `max-height: 50vh` cap on Ask message list (`.answer-box`), allowing message list to fill the viewport down to the composer without dead gap; chunk card similarity value formatted with `white-space: nowrap` and `min-width: 44px`; latency pipeline 5 tiles in left-to-right flow with `arrowRight` line icons between tiles and real timings; synchronized `web/samples/vectordb_intro.txt` with `samples/vectordb_intro.txt` (zero 'dot' matches); added 2 browser unit tests for `formatPipelineLatency` and `arrowRight` icon.
+- **Commit `b9fd372` (T-057 B)**: Verified Compare rows with taupe/moss/amber dots and real proportional bar lengths; custom CSS SVG chevron on composer algorithm select; quiet muted helper line added under empty-state suggestion chips; sidebar status pill ("Ollama online") formatted with `white-space: nowrap` and collapsed rail layout.
+
+### Complete Commits List for T-055 through T-057:
 - `7dc5cf6`: T-055 A: design tokens, shared components and app shell
 - `48dd7ab`: T-055 B: Ask tab empty and results state
 - `79693eb`: docs: T-055 sync
@@ -46,16 +50,29 @@ Task T-056 executed the complete master build of Redesign v3 across 6 sequential
 - `d9a4097`: T-056 P3: Compare tab from mockups 05 and 06
 - `f45e51b`: T-056 P4: Settings tab from mockup 07
 - `1f5b093`: T-056 P5: consistency sweep
+- `4ec9c1e`: docs: SYNC-006
+- `acb96a3`: T-057 A: Ask message area fill, chunk cards, pipeline latency
+- `b9fd372`: T-057 B: Ask compare rows, select chevron, empty helper, sidebar status pill
 
 ### Verification Status Breakdown:
-- **Human-Confirmed (Real Browser & Terminal)**:
+- **Human-Confirmed (Real Browser & Terminal on 2026-11-15)**:
   - C++ hermetic suite: 118/118 passed (529,813 assertions).
-  - Browser tests: `/tests.html` 114/114 passing (human confirmed on 2026-11-15 after T-055c).
+  - Browser tests: `/tests.html` 114/114 passing.
+  - Screenshots confirmed: Ask empty, Ask results, Documents drawer, Explore Demo PCA, HNSW L0 graph and trace, Compare empty and results, Settings 3-column grid.
   - Web safety automated scanner: 100% clean (zero innerHTML/outerHTML, strict CSP verified).
   - CSS metrics: `!important` count = 2, `box-shadow` count = 0, zero hex literals outside `:root` and `colors.js`.
   - Git state: clean tracked files on branch `ui-redesign-v3`.
 - **Builder-Reported (Visual States NOT YET TESTED)**:
-  - All visual UI rendering across all 5 tabs in Redesign v3 is reported as "not tested (visual)" pending human review and screenshot capture at 100% zoom. Builder claims of visual accuracy are never proof.
+  - All visual changes in T-057 are reported as "not tested (visual)" pending human review and screenshot capture at 100% zoom. Builder claims of visual accuracy are never proof.
+
+### Known Pending Items for Later Tab Tasks:
+1. Explore subtitle displays "document chunk" text on Demo Vectors.
+2. Explore empty state shows an active solid amber Random Query button (builder visual audit claim corrected).
+3. Compare select label clips.
+4. Compare empty Summary Metrics header clips with horizontal scrollbar.
+5. Collapsed sidebar (56px rail) not yet seen by screenshot.
+6. 125% browser zoom check not yet seen by screenshot.
+7. Docs-mode tabs (Explore Docs with document cluster legend; HNSW Docs notice) not yet seen by screenshot.
 
 ### T-056 decisions:
 - P0: Synced canvas text colors in `colors.js` to `:root` tokens `#f4f4f5`, `#a1a1aa`, `#71717a` because canvas rendered slightly warmer beige than HTML text.
@@ -97,15 +114,6 @@ Task T-056 executed the complete master build of Redesign v3 across 6 sequential
 | Settings | Mockup showed System panel (max context, chunk size/overlap) | Real RAG chunk settings belong in document ingest drawer; not global server settings |
 | Settings | Mockup showed Auto-save toggle & Export/Import | Real persistence is `--data-dir <path>` on server startup; no runtime toggle exists |
 | Settings | Mockup showed llama3.1:8b | Real server reports actual installed Ollama models via API (e.g. llama3.2:latest) |
-| :--- | :--- | :--- |
-| Explore | Mockup showed kb-computer-networks | Real collection select has "Demo Vectors" and "Document Chunks" |
-| Explore | Mockup showed 4 hardcoded cluster legends | Real Docs legend dynamically lists ingested document titles with chunk counts; Demo shows neutral amber swatch |
-| HNSW | Mockup showed kb-computer-networks | Real collection select has "Demo" and "Docs" |
-| Compare | Mockup showed Query Count & algorithm checkboxes | Real Compare uses Repetitions (1/3/5/10/20) and benchmarks all 3 algorithms simultaneously |
-| Compare | Mockup diff table showed query sentences and checkmarks | Real diff table shows ground truth Brute Force vs KD-Tree vs HNSW ID matches at ranks 1-10 with inline badges |
-| Settings | Mockup showed System panel (max context, chunk size/overlap) | Real RAG chunk settings belong in document ingest drawer; not global server settings |
-| Settings | Mockup showed Auto-save toggle & Export/Import | Real persistence is `--data-dir <path>` on server startup; no runtime toggle exists |
-| Settings | Mockup showed llama3.1:8b | Real server reports actual installed Ollama models via API (e.g. llama3.2:latest) |
 
 - **Key Collaboration & Process Lessons**:
   - **Full Product-Level Redesign (ADR-047)**: Human approved 7 AI mockups saved in `docs/mockups/` representing one coherent design direction for the entire app. T-048 (Settings content-sized panels) is CANCELLED (superseded by ADR-047). Redesign v3 proceeds tab-by-tab with human screenshots after each task.
@@ -118,14 +126,14 @@ Task T-056 executed the complete master build of Redesign v3 across 6 sequential
   - `ui-redesign`: Base v2 platform through T-039.
   - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
   - `ui-quiet-studio`: Quiet Studio branch through T-054 and SYNC-005.
-  - `ui-redesign-v3`: Active branch containing T-055, T-055b, T-055c, and full T-056 master build (P0-P5).
+  - `ui-redesign-v3`: Active branch containing T-055, T-055b, T-055c, T-056 master build, and T-057 Ask tab redesign v3.1.
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
   - *Nothing pushed to remote origin.*
 - **Human Verification Status**:
   - **Terminal**: C++ 118/118 (529,813 assertions, 117 run + 1 opt-in live-Ollama test skipped), scanner pass, CSS `!important` count 2, `box-shadow` count 0, zero hex color literals outside `:root` and `colors.js`.
-  - **Browser Pure-Logic Tests**: `/tests.html` 114/114 passed [CONFIRMED: human real-browser run 2026-11-15 after T-055c].
-  - **Screenshots (Historic / Quiet Studio)**: `/tests.html` 94/94 (after T-043); Compare results state seen after T-052 and T-054 and looked close to mockup.
-  - **Redesign v3 Visual States**: All 5 tabs and app shell in Redesign v3 are reported as "not tested (visual)" pending human review and screenshot capture at 100% zoom.
+  - **Browser Pure-Logic Tests**: `/tests.html` 114/114 passed [CONFIRMED: human real-browser run 2026-11-15 after T-055c]; 116 registered in code after T-057.
+  - **Screenshots (Historic / Quiet Studio & v3)**: `/tests.html` 94/94 (after T-043); Compare results state seen after T-052 and T-054; Ask empty/results, Documents drawer, Explore Demo PCA, HNSW L0, Compare empty/results, and Settings seen on 2026-11-15.
+  - **Redesign v3.1 Visual States**: All visual changes in T-057 are reported as "not tested (visual)" pending human review and screenshot capture at 100% zoom.
 - **T-050 to T-054 Commits on `ui-quiet-studio`**:
   - `c89aa04`, `17986e9`, `96170df`: T-050 Compare tab rebuild
   - `ee9cd78`, `cb04a73`, `231370e`: T-051 Compare diff table, badge, metric fixes
@@ -134,7 +142,7 @@ Task T-056 executed the complete master build of Redesign v3 across 6 sequential
   - `846c5a1`, `1b46ad2`: T-054 Compare new chart design (header, axis, ticks)
 - **Automated Tests**:
   - C++ unit and integration tests: 118 / 118 passed (529,813 assertions).
-  - Browser unit tests: 114 registered tests (`http://127.0.0.1:8080/tests.html`), 114/114 passing.
+  - Browser unit tests: 116 registered tests (`http://127.0.0.1:8080/tests.html`), 116/116 passing in node harness.
   - Web security scan: 28 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
 - **Design System ("Redesign v3" / ADR-047) Principles Enforced**:
   - **Hairlines Only in Tables, Metric Strips, and Sidebar Dividers**: All card borders, panel outlines, and button borders eliminated.
@@ -231,7 +239,7 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
   - `ui-redesign`: Base v2 platform + T-039 docs polish.
   - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
   - `ui-quiet-studio`: Quiet Studio branch through T-054 and SYNC-005.
-  - `ui-redesign-v3`: Active branch containing T-055 (foundation + shell + Ask tab).
+  - `ui-redesign-v3`: Active branch containing T-055, T-055b, T-055c, T-056 master build, and T-057 Ask tab redesign v3.1.
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
 - **Tracking Status**: Local branch `ui-redesign-v3` without upstream tracking (commits unpushed per protocol; nothing pushed to origin).
 - **Working Tree**: Clean tracked files; only untracked test logs in `results/logs/`.
@@ -241,17 +249,8 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ## 5. Pending Human Actions
 
-1. **Verify `/tests.html` in real browser**: Open `http://127.0.0.1:8080/tests.html` at 100% browser zoom and verify 114/114 tests pass.
-2. **Screenshots review**: Capture screenshots at 100% browser zoom (1920x1080) for all 5 tabs and shell states:
-   - Ask tab empty state (`01-ask-empty.png`)
-   - Ask tab results state (`02-ask-results.png`)
-   - Explore tab (`03-explore.png`)
-   - HNSW tab (`04-hnsw.png`)
-   - Compare tab empty state (`06-compare-empty.png`)
-   - Compare tab results state (`05-compare-results.png`)
-   - Settings tab (`07-settings.png`)
-   - Sidebar collapsed (56px icon rail)
-   - 125% zoom layout check across tabs
+1. **Verify `/tests.html` in real browser**: Open `http://127.0.0.1:8080/tests.html` at 100% browser zoom and verify 116/116 tests pass.
+2. **Screenshots review**: Capture screenshots at 100% browser zoom (1920x1080) for Ask tab after T-057 (both empty and answered states), collapsed sidebar (56px rail), and 125% zoom layout check.
 3. **License copyright name**: Fill `<YOUR NAME>` placeholder in `LICENSE`.
 4. **Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
 5. **No merge and no push**: Do NOT merge `ui-redesign-v3` into `main` and do NOT push to remote origin until approved.
@@ -261,12 +260,17 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 ## 6. Open Follow-ups & Roadmap
 
 ### Open Follow-ups
-- **Redesign v3 verification (ADR-047, ADR-048)**:
-  - T-055 (Foundation, app shell, Ask tab): Complete on `ui-redesign-v3`.
-  - T-055b / T-055c (Null-safety, top-k & palette button restore, colors sync): Complete on `ui-redesign-v3`.
-  - T-056 (Master build across P0-P5: Ask polish, Explore, HNSW, Compare, Settings, Consistency): Complete on `ui-redesign-v3`.
-  - Pending: Human screenshot review against `docs/mockups/`. Brain will review screenshots and write ONE batched fix task if any visual adjustments are needed.
-- **T-048**: CANCELLED (superseded by ADR-047).
+- **Redesign v3.1 per-tab rollout (ADR-050)**:
+  - Ask tab: COMPLETE (T-057).
+  - Compare tab: NEXT (redesign v3.1 from human-approved mockup).
+  - Explore tab: PENDING (redesign v3.1 from human-approved mockup).
+  - HNSW tab: PENDING (redesign v3.1 from human-approved mockup).
+  - Settings tab: PENDING (redesign v3.1 from human-approved mockup).
+- **Known Pending Items for Later Tab Tasks**:
+  - Explore subtitle displays "document chunk" text on Demo Vectors.
+  - Explore empty state shows an active solid amber Random Query button.
+  - Compare select label clips.
+  - Compare empty Summary Metrics header clips with horizontal scrollbar.
 - Optional C++ unit test for ISS-006 ingest rollback.
 
 ### Roadmap (Not Started)
@@ -279,10 +283,11 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ## 7. Recommended Next Step
 
-1. Human opens `http://127.0.0.1:8080/tests.html` in browser at 100% zoom and confirms 114/114 passing.
-2. Human captures 100% zoom screenshots (1920x1080) of all 5 tabs (both empty and results where applicable), collapsed sidebar, and 125% zoom check.
-3. Brain compares the screenshots with `docs/mockups/` and batches any visual fixes into ONE task.
-4. No merge of `ui-redesign-v3` to `main` and no push to origin.
+1. Human opens `http://127.0.0.1:8080/tests.html` in browser at 100% zoom and confirms 116/116 passing.
+2. Human captures 100% zoom screenshots (1920x1080) of Ask tab after T-057 (empty and answered states).
+3. Order of tab rebuilds from human-approved mockups per ADR-050: Ask (T-057 DONE), Compare, Explore, HNSW, Settings.
+4. Next build task: Compare tab redesign v3.1 from human-approved mockup.
+5. No merge of `ui-redesign-v3` to `main` and no push to origin.
 
 ---
 

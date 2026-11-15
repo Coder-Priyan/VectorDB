@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-15 by SYNC-006
+Last updated: 2026-11-15 by T-057
 
 ## 1. Operating Model
 
@@ -155,45 +155,37 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 45. **mapChartRows Caller Scope**: `mapChartRows` has no production caller (only tests call it); the null-latencies crash was reachable only in tests. `web/js/compare.js` calls `extractChartMetrics` directly.
 46. **Canvas vs CSS Text Color Sync**: Canvas colors in `web/js/colors.js` differed from CSS `:root` text tokens (`#f0ede6` vs `#f4f4f5`, `#827e77` vs `#71717a`) causing a warmer tint on canvas; synchronized in T-056 P0.
 47. **Standard Terminal Verification Commands**: Brain asked the human to verify with terminal commands after each task (`git log`, `git status`, `git diff --stat ui-quiet-studio -- src include tests`, `!important` count, scanner, `/tests.html`). Keep doing this.
-48. **Verification State Post-T-055c/T-056**: Human confirmed `/tests.html` 114/114, C++ 118/118 and git state by terminal on 2026-11-15 (after T-055c). Ask empty/results, top-k control, palette button, collapsed sidebar and all other tabs in the new shell are NOT yet seen by screenshot.
+48. **Verification State Post-T-055c/T-056**: Human confirmed `/tests.html` 114/114, C++ 118/118 and git state by terminal on 2026-11-15 (after T-055c).
+49. **Builder Visual Audits Are Claims Only (Explore Primary Button)**: The T-056 primary-button audit reported Explore empty = 0 primary buttons, but human screenshot on 2026-11-15 showed an active solid amber Random Query button there. Builder visual audits are claims only; judge UI strictly by human screenshots.
+50. **Known Pending Items for Later Tab Tasks**: Visual defects identified from human screenshots on 2026-11-15 to be addressed in their respective tab tasks: Explore subtitle shows "document chunk" text on Demo Vectors; Explore empty state has active Random Query; Compare select label clips; Compare empty Summary Metrics header clips with horizontal scrollbar.
 
 ---
 
 ## 7. Verification Status (as of 2026-11-15)
 
-- **Verification State after T-055c and T-056 master build**:
+- **Verification State after T-057**:
   - C++ hermetic suite: 118/118 passed (529,813 assertions).
-  - Browser pure-logic unit test suite: 114 registered unit tests, all 114 passing in Node harness (ISS-049 resolved).
+  - Browser pure-logic unit test suite: 116 registered unit tests in code (added `formatPipelineLatency` and `arrowRight` icon tests in T-057).
   - Web safety automated scanner: 28 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
   - CSS Quality metrics: `!important` count = 2 (<= 3), `box-shadow` count = 0, zero hex color literals outside `:root` and `web/js/colors.js`.
-  - Max primary buttons per view: strictly 1 primary amber button (`.btn-primary`) per view in every state across all 5 tabs.
+  - Max primary buttons per view: strictly 1 primary amber button (`.btn-primary`) in Ask across all states (empty, results, drawer-open).
   - All visual UI states reported as "not tested (visual)" pending human review and screenshot capture in browser at 100% zoom.
 
-- **Human-confirmed after T-046 by terminal**: C++ 118/118 (529,813 assertions, 117 run + 1 opt-in live-Ollama test skipped), scanner pass, CSS `!important` count 3.
-- **NOT yet human-confirmed after T-047/T-049/T-050/T-051/T-052/T-053/T-054**: `/tests.html` count (last confirmed 94/94 after T-043; 113 registered in T-054), C++ tests, scanner.
-- **Human-confirmed by screenshots on 2026-11-14**: `/tests.html` 94/94 (after T-043), 5 tabs at 1920x1080, Ask chat flow, Explore Docs PCA, Open Explore deep link, Compare in Ask (3 rows), Trace (6 nodes), Settings new sections, footer removed, Explore toolbar 1 row, Compare 3 side-by-side charts, Compare summary table 5 columns unclipped, Settings font larger and persistence status in sans.
-- **Compare Verification State**: Compare results state was seen by the human in screenshots after T-052 and T-054 and looks close to the mockup; Compare EMPTY state after T-053 NOT yet seen by screenshot.
-- **Still human-reported only (no screenshots)**: `--data-dir` persistence restart, Ctrl K, sidebar collapse, guided tour.
-- **Pending Human Screenshots**:
-  1. Ask tab empty state (`01-ask-empty.png`)
-  2. Ask tab results state (`02-ask-results.png`)
-  3. Explore tab (`03-explore.png`)
-  4. HNSW tab (`04-hnsw.png`)
-  5. Compare tab empty state (`06-compare-empty.png`)
-  6. Compare tab results state (`05-compare-results.png`)
-  7. Settings tab (`07-settings.png`)
-  8. Sidebar collapsed (56px rail)
-  9. 125% zoom layout check across tabs
-  10. `/tests.html` at 100% zoom (expecting 114/114 passed)
+- **Human-confirmed by screenshots on 2026-11-15**:
+  - `/tests.html`: 114/114 passed.
+  - Ask tab: empty state, results state with citations and glass-box accordion, documents drawer.
+  - Explore tab: Demo vectors PCA canvas and nearest neighbors sidebar.
+  - HNSW tab: Layer 0 graph topology canvas, step playback, search path trace sidebar.
+  - Compare tab: empty state (with contextual title), results state with 3 stacked bar charts and 10 diff rows.
+  - Settings tab: 3-column content-sized panel grid.
+- **NOT yet seen by screenshot**:
+  - Sidebar collapsed (56px icon rail).
+  - 125% zoom layout check across tabs.
+  - Docs-mode tabs (Explore Docs with document cluster legend; HNSW Docs notice).
 - **Pending Human Actions**:
-  - Open `/tests.html` and verify 114/114 in real browser.
-  - Capture 100% zoom screenshots (1920x1080) for all tabs.
   - Fill `<YOUR NAME>` placeholder in `LICENSE`.
   - Decide Linux/macOS support tier & release timing.
   - DO NOT merge `ui-redesign-v3` into `main` and DO NOT push to remote origin until visual approval.
-- **Tasks Paused / Superseded**:
-  - T-048 (Settings content-sized panels) is CANCELLED (superseded by ADR-047/ADR-048).
-  - T-054 optional chart polish (larger tick labels, more spacing) is NOT done.
 - **Not verified**: 1366x768 layout, Ask New chat empty-state guided card.
 
 Tasks verified and completed on branch `ui-redesign` (T-017 through T-038), and `ui-polish-2026` (T-040):

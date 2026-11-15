@@ -1,6 +1,6 @@
 # Known Issues, Limitations & Risk Tracker
 
-Last updated: 2026-11-15 by SYNC-006
+Last updated: 2026-11-15 by T-057
 
 | ID | Type | Description | Where (File/Function) | Severity | Evidence | Status | Date |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -54,5 +54,6 @@ Last updated: 2026-11-15 by SYNC-006
 | ISS-048 | UX | Human feedback: product works but lacks product-level UI/feel; whole-UI redesign planned (ADR-046) | `web/` | Medium | [CONFIRMED: human instruction in chat] | IN PROGRESS (ADR-047, T-055, T-056 master build complete across P0-P5) | 2026-11-14 |
 | ISS-049 | Unverified Area | T-055 human check on 2026-11-15: /tests.html showed 111/113; 2 mapChartRows tests failed with 'realBenchmarkFixture is not defined' (T-054 tests, never human-run before). Lesson: builder-reported test counts are claims; the human's /tests.html is the proof. Cause: realBenchmarkFixture was local to the T-050 suite (since T-054), plus null latencies in extractChartMetrics. Fixed in T-055b (fixture moved to module scope) and T-055c (extractChartMetrics normalizes null/undefined latencies to empty object, white from colors.js, 114 registered tests). | `web/js/tests/test_compare.js`, `web/js/compare_helpers.js` | Low | [CONFIRMED: human real-browser test 2026-11-15] | FIXED (human-confirmed: /tests.html 114/114 on 2026-11-15) | 2026-11-15 |
 | ISS-050 | Layout | Ask tab deviations from mockups 01/02 observed at T-055c: chip wording ("Summarize the key points from this document.", "What does the HNSW algorithm do?", "How is vector search different from keyword search?"), page-header subtitle ("Chat with your documents using RAG (local, offline)."), and glass-box accordion title ("How this was answered"). | `web/js/ask.js`, `web/index.html` | Low | [CONFIRMED: Brain review of mockups, T-055c] | FIXED in T-056 P0 (commit 515ff77) | 2026-11-15 |
+| ISS-051 | Layout & Visual | Ask visual defects found in human screenshots on 2026-11-15: message area leftover height cap (max-height: 50vh) causing dead gap above composer and cut-off glass-box; chunk card similarity value wrapping; sidebar footer status pill ("Ollama online") wrapping to 2 lines; composer algorithm select missing custom chevron. Fixed in T-057: removed 50vh cap allowing message list to fill and scroll; similarity nowrap; status pill nowrap and collapsed rail layout; custom CSS SVG chevron. | `web/css/app.css`, `web/js/ask.js`, `web/index.html` | Medium | [CONFIRMED: human screenshot 2026-11-15] | FIXED (visual screenshot pending) | 2026-11-15 |
 
 *(Optional polish, not an issue: Compare sidebar has empty space below Summary Metrics at 1920x1080.)*
