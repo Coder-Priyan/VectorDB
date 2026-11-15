@@ -3754,7 +3754,7 @@ input[type="number"] {
   display: flex;
   align-items: center;
   gap: 4px;
-  background: var(--bg-panel);
+  background: var(--bg-raised);
   border: 1px solid var(--border-hairline);
   border-radius: var(--radius-md);
   padding: 4px 6px;
@@ -3792,17 +3792,18 @@ input[type="number"] {
 }
 
 .hnsw-stat-tile {
-  background: var(--bg-panel);
+  background: var(--bg-raised);
   border: 1px solid var(--border-hairline);
   border-radius: var(--radius-md);
   padding: 10px 14px;
   display: flex;
   flex-direction: column;
   gap: 3px;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
 .hnsw-stat-tile:hover {
+  background: var(--bg-active);
   border-color: rgba(255, 255, 255, 0.14);
 }
 
@@ -3830,13 +3831,42 @@ input[type="number"] {
 .hnsw-topology-strip {
   display: flex;
   align-items: center;
-  background: var(--bg-raised);
+  background: var(--bg-panel);
   border: 1px solid var(--border-hairline);
   border-radius: var(--radius-lg);
-  padding: 12px 24px;
+  padding: 14px 24px;
   gap: var(--space-5);
   flex-shrink: 0;
   box-sizing: border-box;
+}
+
+/* HNSW Toolbar & Header */
+.hnsw-toolbar {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.hnsw-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-full);
+  padding: 4px 14px;
+}
+
+.hnsw-edge-summary {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
 }
 
 .strip-label-col {

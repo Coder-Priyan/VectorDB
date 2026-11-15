@@ -344,7 +344,7 @@
           <span id="hnsw-info-slot"></span>
         </div>
       </div>
-      <div class="tab-toolbar">
+      <div class="tab-toolbar hnsw-toolbar">
         <div class="toolbar-left">
           <label for="hnsw-coll-select" class="toolbar-label">Collection</label>
           <div id="hnsw-coll-dropdown-wrap" class="toolbar-dropdown-wrap">
@@ -361,7 +361,10 @@
           <button type="button" id="hnsw-refresh-btn" class="btn btn-sm btn-ghost">Refresh</button>
         </div>
         <div class="toolbar-right">
-          <span id="hnsw-edge-summary" class="text-muted font-mono text-xs"></span>
+          <div class="hnsw-status-badge">
+            <span class="status-dot status-dot-healthy"></span>
+            <span id="hnsw-edge-summary" class="hnsw-edge-summary font-mono text-xs"></span>
+          </div>
           <span id="hnsw-edge-warn-badge" class="badge badge-warning hidden">Truncated</span>
         </div>
       </div>
