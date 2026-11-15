@@ -602,8 +602,13 @@
           </div>
         </div>
 
-        <!-- Status text on right side of control row (shared for both modes) -->
-        <div id="compare-progress-status" class="compare-progress-status text-muted text-xs" aria-live="polite">Ready to benchmark.</div>
+        <!-- Status cluster on right side of control row -->
+        <div class="compare-status-cluster">
+          <div class="compare-status-badge">
+            <span class="status-dot status-dot-healthy"></span>
+            <span id="compare-progress-status" class="compare-progress-status" aria-live="polite">Ready to benchmark.</span>
+          </div>
+        </div>
 
         <!-- 2px Progress Line on Bottom Edge -->
         <div id="compare-progress-track" class="compare-progress-track">
