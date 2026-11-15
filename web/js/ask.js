@@ -61,9 +61,19 @@ export function initAskTab() {
   // ---------------------------------------------------------------------------
   // 1. Documents Drawer: Collapse / Expand & Sample Loading
   // ---------------------------------------------------------------------------
+  function syncDrawerLayoutState(isOpen) {
+    const layout = docDrawer?.closest(".ask-layout");
+    if (layout) {
+      layout.classList.toggle("drawer-open", isOpen);
+    }
+  }
+
   const isDrawerOpen = localStorage.getItem(DOCS_DRAWER_KEY) !== "false";
   if (!isDrawerOpen && docDrawer) {
     docDrawer.classList.add("collapsed");
+    syncDrawerLayoutState(false);
+  } else if (docDrawer) {
+    syncDrawerLayoutState(true);
   }
 
   toggleDocsDrawerBtn?.addEventListener("click", () => {
@@ -71,6 +81,7 @@ export function initAskTab() {
     docDrawer.classList.toggle("collapsed");
     const open = !docDrawer.classList.contains("collapsed");
     localStorage.setItem(DOCS_DRAWER_KEY, String(open));
+    syncDrawerLayoutState(open);
   });
 
   // Populate static icons for Ask shell & composer
@@ -103,6 +114,7 @@ export function initAskTab() {
       if (docDrawer?.classList.contains("collapsed")) {
         docDrawer.classList.remove("collapsed");
         localStorage.setItem(DOCS_DRAWER_KEY, "true");
+        syncDrawerLayoutState(true);
       }
     } catch (err) {
       showGlobalError("sample_load_error", err.message);
@@ -633,7 +645,14 @@ export function initAskTab() {
         }, `[${seg.n}]`);
 
         pill.addEventListener("click", () => {
-          const card = document.getElementById(`source-card-${seg.n}`);
+          const bubble = pill.closest(".chat-msg-bubble");
+          if (bubble) {
+            const glassBox = bubble.querySelector(".glass-box-details");
+            if (glassBox) {
+              glassBox.open = true;
+            }
+          }
+          const card = (bubble && bubble.querySelector(`#source-card-${seg.n}`)) || document.getElementById(`source-card-${seg.n}`);
           if (card) {
             card.scrollIntoView({ behavior: "smooth", block: "center" });
             card.classList.add("highlighted");
@@ -648,11 +667,11 @@ export function initAskTab() {
   }
 
   function buildGlassBoxDetails(sources, timings, question = "") {
-    const details = el("details", { className: "glass-box-details", open: "true" });
+    const details = el("details", { className: "glass-box-details" });
     const summary = el(
       "summary",
       { className: "glass-box-summary" },
-      createIcon("chevronUp", 14, "glass-box-chevron"),
+      createIcon("chevronDown", 14, "glass-box-chevron"),
       el("span", { className: "glass-box-summary-title" }, "How this was answered")
     );
     details.appendChild(summary);
