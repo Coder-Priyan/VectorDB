@@ -1,6 +1,6 @@
 # Project Progress
 
-Last updated: 2026-11-15 by T-059
+Last updated: 2026-11-15 by T-060
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform (Task T-033 Complete across all 9 Phases P0-P8, Branch `ui-redesign-v3`)
 
@@ -54,8 +54,11 @@ Last updated: 2026-11-15 by T-059
 - **T-059**: Fix failing createDropdown test, smooth accordion animation, clear stray hex literal on branch `ui-redesign-v3`. Commits `82e828c` (T-059 A), `f5e3609` (T-059 B).
   - **Part A (`82e828c`)**: Resolved `Maximum call stack size exceeded` in `createDropdown` caused by `hiddenInput.value = newVal` recursively invoking custom property setter defined on `hiddenInput`. Fixed by directly calling native property descriptor setter (`inputDesc.set.call(hiddenInput, newVal)`), guarding updates with `isUpdating`, and adding comprehensive regression test asserting: initial value set, hidden input value matches, `onChange` NOT called at init, and user option selection invokes `onChange` exactly once.
   - **Part B (`f5e3609`)**: Smooth glass-box "How this was answered" accordion open/close in 200ms using CSS `grid-template-rows: 0fr -> 1fr` plus opacity fade, smooth chevron rotation (-90deg to 0deg), screen-reader hidden/inert attributes when collapsed, instant execution under `prefers-reduced-motion`, and citation pill click `transitionend` coordination (expands smoothly first, then scrolls to and highlights target source card). Cleared false-positive hex literal comment in `web/js/explore.js:226` restoring hex literal count to strictly 0.
+- **T-060**: Ask glass-box "How this was answered" redesign: summary strip, 3 tabs, smooth open/close on branch `ui-redesign-v3`. Commits `fb0bf01` (T-060 A), `0cf2d47` (T-060 B).
+  - **Part A (`fb0bf01`)**: Redesigned glass-box accordion into a slim borderless summary strip (`--bg-raised`, 10px radius, NO border) with left chevron + "How this was answered" (staying `text-primary`, not amber) and right 3 real muted chips (`<n> sources`, total time e.g. "27.9 s", algorithm name e.g. "HNSW"). Expands into a compact panel with 3 underline tabs (`Sources`, `Latency`, `Algorithms`), stable 120px min-height to prevent layout jumps, max-height 260px with quiet scrollbar. Default active tab is Sources reusing existing chunk cards. Latency tab displays the 5 timing tiles with arrows or quiet empty text. Algorithms tab displays quiet empty state before running Compare, and 3 real benchmark rows (taupe/moss/amber) plus trace summary line after running. Shared footer actions (`Open Explore`, `Compare algorithms`, `Trace HNSW path`) visible under every tab; clicking Compare or Trace switches to Algorithms tab. Saved `algorithm` on assistant chat messages.
+  - **Part B (`0cf2d47`)**: Accessible tab navigation with `role="tablist"` / `"tab"` / `"tabpanel"`, roving tabindex, Arrow/Home/End keyboard navigation via pure helper `getTabNextIndex(current, count, key)` with 6 registered unit tests in `test_v2.js`. Coordinated citation pill expand: clicking `[n]` on collapsed answer expands accordion, switches to Sources tab, and scrolls/highlights target card after 200ms ease-out transition.
 
-All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count 0, hex count outside colors.js 0. 121 browser unit tests registered in code. Whole-UI redesign v3 in progress on branch `ui-redesign-v3` (ADR-047, ADR-048, ADR-050, ADR-051, ADR-052, ADR-053).
+All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count 0, hex count outside colors.js 0. 127 browser unit tests registered in code. Whole-UI redesign v3 in progress on branch `ui-redesign-v3` (ADR-047, ADR-048, ADR-050, ADR-051, ADR-052, ADR-053, ADR-054).
 
 ---
 

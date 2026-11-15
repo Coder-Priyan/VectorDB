@@ -1,6 +1,6 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by T-059
+Last updated: 2026-11-15 by T-060
 
 ## 1. Current Status
 
@@ -44,8 +44,12 @@ Task T-059 resolved the createDropdown recursion bug and implemented smooth acco
 - **Commit `82e828c` (T-059 A)**: Resolved `Maximum call stack size exceeded` in `createDropdown` by using native prototype descriptor setter directly, guarding updates with `isUpdating`, and adding comprehensive regression test asserting: initial value set, hidden input value matches, `onChange` NOT called at init, and option selection invokes `onChange` exactly once.
 - **Commit `f5e3609` (T-059 B)**: Smooth 200ms ease-out glass-box accordion animation using `grid-template-rows: 0fr -> 1fr` and opacity fade, smooth chevron rotation (-90deg to 0deg), screen-reader hidden/inert attributes when collapsed, instant execution under `prefers-reduced-motion`, and citation pill click `transitionend` coordination (expands first, then scrolls to and highlights target source card). Cleared false-positive hex literal comment in `web/js/explore.js:226` restoring hex literal count to strictly 0.
 
+Task T-060 redesigned the Ask glass-box "How this was answered" from human-approved mockups into a calm summary strip and 3-tab panel on branch `ui-redesign-v3` (ADR-054):
+- **Commit `fb0bf01` (T-060 A)**: Slim summary strip (`--bg-raised`, 10px radius, NO border) with left chevron + "How this was answered" (`text-primary`, not amber) and right 3 real muted chips (`<n> sources`, total time e.g. "27.9 s", algorithm name e.g. "HNSW"). Expands into a compact panel with 3 underline tabs (`Sources`, `Latency`, `Algorithms`), stable 120px min-height to prevent layout jumps, max-height 260px with quiet scrollbar. Default active tab is Sources reusing existing chunk cards. Latency tab displays the 5 timing tiles with arrows or quiet empty text. Algorithms tab displays quiet empty state before running Compare, and 3 real benchmark rows (taupe/moss/amber) plus trace summary line after running. Shared footer actions (`Open Explore`, `Compare algorithms`, `Trace HNSW path`) visible under every tab; clicking Compare or Trace switches to Algorithms tab. Saved `algorithm` on assistant chat messages.
+- **Commit `0cf2d47` (T-060 B)**: Accessible tab navigation with `role="tablist"` / `"tab"` / `"tabpanel"`, roving tabindex, Arrow/Home/End keyboard navigation via pure helper `getTabNextIndex(current, count, key)` with 6 registered unit tests in `test_v2.js` (total 127 registered tests in code). Coordinated citation pill expand: clicking `[n]` on collapsed answer expands accordion, switches to Sources tab, and scrolls/highlights target card after 200ms ease-out transition.
+
 ### Current Status by Tab (2026-11-15):
-- **Ask**: Mockups approved by the human; T-057 implemented and human-verified (terminal + screenshots). T-058 implemented drawer re-centering, default collapsed glass-box accordion, and shared custom dark dropdown `createDropdown`. Human confirmed by screenshots on 2026-11-15 that the Documents drawer re-centers the chat and the glass-box is collapsed by default and expands on click. T-059 resolved the recursive `Maximum call stack size exceeded` in `createDropdown` via native property descriptor setter (T-059 A), and added smooth 200ms ease-out accordion open/close animation with `grid-template-rows 0fr -> 1fr`, chevron rotation, `prefers-reduced-motion` support, and citation pill `transitionend` scroll coordination (T-059 B).
+- **Ask**: Human approved glass-box mockups on 2026-11-15; T-060 redesigned the glass-box into a calm borderless summary strip and 3-tab panel (Sources, Latency, Algorithms) with smooth 200ms open/close. Human confirmed drawer re-center and default collapsed glass-box accordion by screenshots on 2026-11-15. Still pending human screenshots: open dropdown popup, collapsed 56px sidebar rail; sample document is ingested twice (duplicate inventory, Chunk #3 shown twice), human will delete one; Compare tab mockups still waiting.
 - **Compare**: Brain gave the human a ChatGPT image prompt (results state first, then empty state); the human is generating the two images; WAITING for the images; then Brain reviews them and writes the Compare task, which will use the shared dropdown from T-058/T-059.
 - **Explore, HNSW, Settings**: Not started in this per-tab workflow.
 
@@ -212,14 +216,14 @@ Approved by the human; Antigravity builder executed on branch `ui-redesign-v3` i
   - `ui-redesign`: Base v2 platform through T-039.
   - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
   - `ui-quiet-studio`: Quiet Studio branch through T-054 and SYNC-005.
-  - `ui-redesign-v3`: Active branch containing T-055, T-055b, T-055c, T-056 master build, and T-057 Ask tab redesign v3.1.
+  - `ui-redesign-v3`: Active branch containing T-055, T-055b, T-055c, T-056 master build, T-057, T-058, T-059, and T-060 Ask glass-box redesign.
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
   - *Nothing pushed to remote origin.*
 - **Human Verification Status**:
   - **Terminal**: C++ 118/118 (529,813 assertions, 117 run + 1 opt-in live-Ollama test skipped), scanner pass, CSS `!important` count 2, `box-shadow` count 0, zero hex color literals outside `:root` and `colors.js`.
-  - **Browser Pure-Logic Tests**: `/tests.html` 114/114 passed [CONFIRMED: human real-browser run 2026-11-15 after T-055c]; 116 registered in code after T-057.
+  - **Browser Pure-Logic Tests**: `/tests.html` 121/121 passed [CONFIRMED: human real-browser run 2026-11-15 after T-059 A]; 127 registered in code after T-060 B.
   - **Screenshots (Historic / Quiet Studio & v3)**: `/tests.html` 94/94 (after T-043); Compare results state seen after T-052 and T-054; Ask empty/results, Documents drawer, Explore Demo PCA, HNSW L0, Compare empty/results, and Settings seen on 2026-11-15.
-  - **Redesign v3.1 Visual States**: All visual changes in T-057 are reported as "not tested (visual)" pending human review and screenshot capture at 100% zoom.
+  - **Redesign v3.1 Visual States**: All visual changes in T-057, T-058, T-059, and T-060 are reported as "not tested (visual)" pending human review and screenshot capture at 100% zoom.
 - **T-050 to T-054 Commits on `ui-quiet-studio`**:
   - `c89aa04`, `17986e9`, `96170df`: T-050 Compare tab rebuild
   - `ee9cd78`, `cb04a73`, `231370e`: T-051 Compare diff table, badge, metric fixes
@@ -228,7 +232,7 @@ Approved by the human; Antigravity builder executed on branch `ui-redesign-v3` i
   - `846c5a1`, `1b46ad2`: T-054 Compare new chart design (header, axis, ticks)
 - **Automated Tests**:
   - C++ unit and integration tests: 118 / 118 passed (529,813 assertions).
-  - Browser unit tests: 116 registered tests (`http://127.0.0.1:8080/tests.html`), 116/116 passing in node harness.
+  - Browser unit tests: 127 registered tests (`http://127.0.0.1:8080/tests.html`), 127/127 passing in pure-logic suite.
   - Web security scan: 28 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
 - **Design System ("Redesign v3" / ADR-047) Principles Enforced**:
   - **Hairlines Only in Tables, Metric Strips, and Sidebar Dividers**: All card borders, panel outlines, and button borders eliminated.
