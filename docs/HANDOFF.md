@@ -1,8 +1,8 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-079 sync
+Last updated: 2026-11-16 by T-081 sync
 
-> **NEXT STEP**: Human verifies T-074 (Apple-Grade Renovation across Explore, HNSW, Compare, Settings), T-075 (Compare 3-Card List Layout Matching Approved Mockup 15), T-077 (Settings Tab Rebuilt as Single-Screen Unified Bento Dashboard, Option A), and T-079 (Compare Tab Rebuilt as Apple-Grade Spec Sheet Comparison Matrix, Option 1) in a real browser at 1920x1080 100% zoom across Explore, HNSW, Compare (Results view with benchmark completed, Empty state) and Settings (all cards visible simultaneously) and runs `/tests.html` (expect 156/156 passed); Brain reviews screenshots. Next free ADR is ADR-074. Next free ISS is ISS-080. Next task number is T-080.
+> **NEXT STEP**: Human verifies T-074 (Apple-Grade Renovation across Explore, HNSW, Compare, Settings), T-075 (Compare 3-Card List Layout Matching Approved Mockup 15), T-077 (Settings Tab Rebuilt as Single-Screen Unified Bento Dashboard, Option A), T-079 (Compare Tab Rebuilt as Apple-Grade Spec Sheet Comparison Matrix, Option 1), T-080 (Explore Tab Rebuilt as Vector Space Studio), and T-081 (HNSW Tab Rebuilt as Graph Debugger & Playback Studio) in a real browser at 1920x1080 100% zoom across Explore, HNSW, Compare (Results view with benchmark completed, Empty state) and Settings (all cards visible simultaneously) and runs `/tests.html` (expect 156/156 passed); Brain reviews screenshots. Next free ADR is ADR-075. Next free ISS is ISS-081. Next task number is T-082.
 >
 > **NEEDED FROM THE HUMAN**: (1) Terminal verification on branch `ui-redesign-v4` (`git status -sb`, `git log --oneline -8`, `.\build\vectordb_tests.exe`, scanner, `/tests.html`); (2) Full-window 1920x1080 100% screenshots of Explore, HNSW, Compare, and Settings tabs.
 
@@ -13,13 +13,34 @@ Last updated: 2026-11-16 by T-079 sync
   - Ask tab: COMPLETE, human-approved, and human-verified (100% frozen).
   - Compare tab: Rebuilt as Apple-grade Spec Sheet Comparison Matrix (Option 1, T-079). Completely eliminated separate floating cards; replaced with a unified hardware comparison sheet on `--bg-panel` with hairline vertical dividers (`rgba(255,255,255,0.06)`), 28px tabular hero latency values, speedup tags (`3.8x faster`), distance computations with pruning tags (`93.6% pruned`), and interactive rank match cells. Topped by a Hero Callout Banner (`.compare-hero-banner`) with dynamic headline and 3 pill chips (Winner, Speedup, Recall).
   - Settings tab: Single-screen unified Bento dashboard (`max-width: 1180px; margin: 0 auto;`), zero sub-tabs: Top full-width card for Server & Engine Health (4x2 metric grid and installed model chips), Bottom 2-column balanced grid (Left = Demo Collection form + Insert random vectors form; Right = Storage & Maintenance with persistence, chat history, docs links, and danger reset).
-  - Explore tab: Dedicated studio viewport (`.explore-viewport`), macOS Inspector-style sidebar, card-style neighbor rows with hover highlight, accent-tinted similarity match percentages, `--bg-panel` canvas frame with hairline border.
-  - HNSW tab: Dedicated studio viewport (`.hnsw-viewport`), segmented player transport cluster with ghost buttons, Apple stat tiles with uppercase labels and tabular numbers, bottom topology strip with 24px hairline dividers.
+  - Explore tab: Rebuilt as Apple-grade Vector Space Studio & Neighbor Inspector (T-080). Dedicated `.explore-toolbar` on `--bg-panel` with collection selector, hairline divider, ghost Refresh, and live status badge with `.status-dot-healthy` green dot and variance note. Reset Zoom action button (`#explore-reset-view-btn`) on canvas header. Inspector sidebar (`.viz-sidebar`) on `--bg-panel` with Query Parameters controls and Nearest Neighbours cards on `--bg-raised` with similarity badges and hover feedback.
+  - HNSW tab: Rebuilt as Apple-grade Graph Debugger & Playback Studio (T-081). Dedicated `.hnsw-toolbar` on `--bg-panel` with collection selector, smooth layer slider, max edges dropdown, and edge summary status badge. Upgraded Inspector sidebar with QuickTime-style player transport console (`#hnsw-trace-prev-btn`, `#hnsw-trace-play-btn`, `#hnsw-trace-next-btn`, `#hnsw-trace-reset-btn`, speed dropdown), current step stat tiles on `--bg-raised`, and search statistics tiles. Upgraded bottom topology summary strip (`.hnsw-topology-strip`) on `--bg-panel` with 14px radius and hairline stat items.
 - **Stale-Doc Watchlist**:
   - `docs/ARCHITECTURE.md`: Header reads "Last updated T-039"; directory tree predates v3/v4 design files.
   - `docs/PROGRESS.md`: Feature table item 109 updated to 156 registered tests.
   - `docs/DEMO_SCRIPT.md`: Steps 9-10 describe old Compare UI from v2/early v3.
-- **Workflow & Next Tab**: Next action is human screenshot verification of Explore, HNSW, Compare, and Settings on branch `ui-redesign-v4`. Next free ADR is ADR-074. Next free ISS is ISS-080. Next task is T-080.
+- **Workflow & Next Tab**: Next action is human screenshot verification of Explore, HNSW, Compare, and Settings on branch `ui-redesign-v4`. Next free ADR is ADR-075. Next free ISS is ISS-081. Next task is T-082.
+
+## T-081 summary (ADR-074; HNSW tab rebuilt as Apple-grade Graph Debugger & Playback Studio)
+
+- **Goal & Motivation**: Rebuilt HNSW tab from ground zero inspired by Apple Xcode Instruments and QuickTime Pro debugger aesthetics.
+- **Studio Architecture**:
+  - Dedicated `.hnsw-toolbar` on `--bg-panel` with collection dropdown, smooth layer slider, max edges selector, and live status badge with `.status-dot-healthy` green dot and edge summary.
+  - Canvas studio frame on `--bg-panel` with layer graph rendering and legend chips.
+  - Inspector sidebar on `--bg-panel` with QuickTime-style player transport console (`#hnsw-trace-prev-btn`, `#hnsw-trace-play-btn`, `#hnsw-trace-next-btn`, `#hnsw-trace-reset-btn`, speed dropdown), current step stat tiles on `--bg-raised`, and search statistics tiles.
+  - Bottom topology summary strip (`.hnsw-topology-strip`) on `--bg-panel` with 14px radius and hairline stat items.
+- **Strict Invariants**:
+  - Ask, Settings, and Compare tabs 100% frozen. C++ engine 100% frozen. 156/156 unit tests pass, 118/118 C++ tests pass, scanner clean.
+
+## T-080 summary (ADR-074; Explore tab rebuilt as Apple-grade Vector Space Studio & Neighbor Inspector)
+
+- **Goal & Motivation**: Rebuilt Explore tab from ground zero inspired by Apple Pro Studio (Xcode / Final Cut) coordinate canvas and inspector aesthetics.
+- **Studio Architecture**:
+  - Dedicated `.explore-toolbar` on `--bg-panel` with collection selector, hairline divider, ghost Refresh, and live status badge with `.status-dot-healthy` green dot and variance note.
+  - Canvas studio frame on `--bg-panel` with Reset Zoom action button (`#explore-reset-view-btn`) and DPR-safe coordinate rendering.
+  - Inspector sidebar on `--bg-panel` with Query Parameters controls and Nearest Neighbours cards on `--bg-raised` with similarity badges and hover feedback.
+- **Strict Invariants**:
+  - Ask, Settings, and Compare tabs 100% frozen. C++ engine 100% frozen. 156/156 unit tests pass, 118/118 C++ tests pass, scanner clean.
 
 ## T-079 summary (ADR-073; Compare tab rebuilt as Apple-grade Spec Sheet Comparison Matrix, Option 1)
 
