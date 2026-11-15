@@ -235,24 +235,31 @@
           <span id="explore-info-slot"></span>
         </div>
       </div>
-      <div class="tab-toolbar">
+      <div class="tab-toolbar explore-toolbar">
         <div class="toolbar-left">
           <label for="explore-coll-select" class="toolbar-label">Collection</label>
           <div id="explore-coll-dropdown-wrap" class="toolbar-dropdown-wrap">
             <input type="hidden" id="explore-coll-select" value="demo">
           </div>
+          <div class="toolbar-divider" aria-hidden="true"></div>
           <button type="button" id="explore-refresh-btn" class="btn btn-sm btn-ghost">Refresh</button>
         </div>
         <div class="toolbar-right">
-          <span id="explore-variance-note" class="text-muted font-mono text-xs">Loading variance...</span>
+          <div class="explore-status-badge">
+            <span class="status-dot status-dot-healthy"></span>
+            <span id="explore-variance-note" class="explore-variance-note font-mono text-xs">Loading variance...</span>
+          </div>
         </div>
       </div>
       <div class="viz-layout">
         <div class="viz-main">
           <div class="canvas-frame">
             <div class="canvas-panel-header">
-              <h2 class="canvas-panel-title">Vector Space (PCA, 2D)</h2>
-              <p class="canvas-panel-subtitle" id="explore-canvas-subtitle">Each point is a demo vector, projected to 2D using PCA.</p>
+              <div>
+                <h2 class="canvas-panel-title">Vector Space (PCA, 2D)</h2>
+                <p class="canvas-panel-subtitle" id="explore-canvas-subtitle">Each point is a demo vector, projected to 2D using PCA.</p>
+              </div>
+              <button type="button" id="explore-reset-view-btn" class="btn btn-sm btn-ghost canvas-reset-btn" title="Reset View (Double-click canvas)">Reset Zoom</button>
             </div>
             <div class="canvas-wrapper">
               <canvas id="explore-canvas" width="680" height="460"></canvas>
@@ -264,7 +271,7 @@
         </div>
         <aside class="viz-sidebar">
           <div id="explore-docs-controls" class="hidden">
-            <h3 class="section-title">Query</h3>
+            <h3 class="section-title">Query Parameters</h3>
             <form id="explore-query-docs-form" class="form-stack mt-2">
               <div class="form-group">
                 <textarea id="explore-query-docs-input" class="textarea-field" rows="3" placeholder="What is the HNSW algorithm and how does it work in a vector database?" required></textarea>
@@ -284,7 +291,7 @@
             </form>
           </div>
           <div id="explore-demo-controls">
-            <h3 class="section-title">Query</h3>
+            <h3 class="section-title">Query Parameters</h3>
             <div class="form-stack mt-2">
               <div class="form-row">
                 <div class="form-group flex-1">
@@ -306,7 +313,8 @@
               </div>
             </div>
           </div>
-          <div class="viz-results-section mt-4">
+          <div class="explore-sidebar-divider" aria-hidden="true"></div>
+          <div class="viz-results-section">
             <h3 class="section-title" id="explore-results-heading">Nearest neighbours (k = 3)</h3>
             <div class="explore-neighbors-list" id="explore-neighbors-list">
               <table class="info-table explore-neighbors-table">

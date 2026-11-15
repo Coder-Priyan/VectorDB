@@ -342,6 +342,13 @@ export function initExploreTab() {
     } else { tooltip?.classList.add("hidden"); }
   });
 
+  const resetViewBtn = byId("explore-reset-view-btn");
+  resetViewBtn?.addEventListener("click", () => {
+    const b = computeBounds(currentPoints);
+    viewport.fitBounds(b.minX, b.maxX, b.minY, b.maxY);
+    render();
+  });
+
   canvas.addEventListener("dblclick", () => {
     const b = computeBounds(currentPoints);
     viewport.fitBounds(b.minX, b.maxX, b.minY, b.maxY);
