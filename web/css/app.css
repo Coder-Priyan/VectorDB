@@ -1354,27 +1354,16 @@ input[type="number"] {
   display: none !important;
 }
 
-#panel-ask {
+#panel-ask,
+#panel-explore,
+#panel-hnsw,
+#panel-compare,
+#panel-settings {
   height: 100%;
   min-height: 0;
   overflow: hidden;
   padding: var(--space-3) var(--space-6);
   box-sizing: border-box;
-}
-
-#panel-explore,
-#panel-hnsw,
-#panel-compare,
-#panel-settings {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 24px 28px;
-  gap: var(--space-4);
-  overflow: hidden;
 }
 
 #panel-explore > .page-header,
@@ -1384,6 +1373,43 @@ input[type="number"] {
   padding: 0;
   margin: 0;
   flex-shrink: 0;
+}
+
+.explore-viewport,
+.hnsw-viewport {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+  gap: var(--space-3);
+  overflow: hidden;
+}
+
+.compare-viewport {
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: var(--space-6);
+}
+
+.settings-viewport {
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: var(--space-6);
 }
 
 /* ==========================================================================
@@ -2638,9 +2664,9 @@ input[type="number"] {
   box-sizing: border-box;
 }
 
-/* LEFT PANE: 240px fixed navigation */
+/* LEFT PANE: 220px fixed navigation */
 .settings-nav-pane {
-  width: 240px;
+  width: 220px;
   flex-shrink: 0;
   border-right: 1px solid var(--border-hairline);
   padding-right: var(--space-4);
@@ -2650,7 +2676,7 @@ input[type="number"] {
 .settings-nav-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .settings-nav-item {
@@ -2682,7 +2708,7 @@ input[type="number"] {
   color: var(--text-primary);
   font-weight: 500;
   border-left-color: var(--accent);
-  background: var(--bg-raised);
+  background: var(--bg-panel);
 }
 
 .settings-nav-item.text-danger {
@@ -2692,27 +2718,31 @@ input[type="number"] {
 .settings-nav-item.text-danger:hover,
 .settings-nav-item.text-danger:focus-visible {
   color: var(--danger);
+  background: var(--bg-raised);
 }
 
 .settings-nav-item.text-danger.active {
   color: var(--danger);
   border-left-color: var(--danger);
+  background: var(--bg-panel);
 }
 
-/* RIGHT PANE: Active Section Content (max-width 760px) */
+/* RIGHT PANE: Active Section Content */
 .settings-content-pane {
   flex: 1;
-  max-width: 760px;
-  min-height: 0;
-  overflow-y: auto;
+  min-width: 0;
   box-sizing: border-box;
-  padding-right: var(--space-4);
 }
 
 .settings-section-panel {
   display: flex;
   flex-direction: column;
   animation: settingsFadeIn 0.2s ease-out;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  box-sizing: border-box;
 }
 
 @keyframes settingsFadeIn {
@@ -3040,7 +3070,8 @@ input[type="number"] {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  background: var(--bg-panel);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-hairline);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
   box-sizing: border-box;
@@ -3063,13 +3094,15 @@ input[type="number"] {
 }
 
 .explore-neighbor-row {
-  background: var(--bg-raised);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
   border-radius: var(--radius-md);
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .explore-neighbor-row:hover {
   background: var(--bg-active);
+  border-color: rgba(255, 255, 255, 0.14);
 }
 
 .explore-neighbor-row td {
@@ -3158,6 +3191,7 @@ input[type="number"] {
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
   padding: var(--space-4);
   box-sizing: border-box;
   display: flex;
@@ -3193,6 +3227,7 @@ input[type="number"] {
   border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--bg-canvas);
+  border: 1px solid var(--border-hairline);
   padding: 0;
 }
 
@@ -3212,6 +3247,7 @@ input[type="number"] {
   border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
   padding: var(--space-3);
   box-sizing: border-box;
 }
@@ -3233,6 +3269,7 @@ input[type="number"] {
   position: fixed;
   background: var(--bg-raised);
   color: var(--text-primary);
+  border: 1px solid var(--border-hairline);
   border-radius: var(--radius-sm);
   padding: 6px 10px;
   font-size: var(--text-xs);
@@ -3245,11 +3282,12 @@ input[type="number"] {
 .legend-row {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3);
+  gap: var(--space-2);
   font-size: var(--text-xs);
   flex-shrink: 0;
   max-height: 80px;
   overflow-y: auto;
+  padding-top: var(--space-1);
 }
 
 .legend-item {
@@ -3257,6 +3295,13 @@ input[type="number"] {
   align-items: center;
   gap: 6px;
   color: var(--text-secondary);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-size: 12px;
+  font-family: var(--font-sans);
+  line-height: 1;
 }
 
 .legend-swatch {
@@ -3473,6 +3518,10 @@ input[type="number"] {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  padding: 6px 10px;
 }
 
 .step-slider-row {
@@ -3498,9 +3547,10 @@ input[type="number"] {
 }
 
 .hnsw-stat-tile {
-  background: var(--bg-raised);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
   border-radius: var(--radius-md);
-  padding: 8px 10px;
+  padding: 8px 12px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -3519,15 +3569,17 @@ input[type="number"] {
   font-size: var(--text-sm);
   font-weight: 500;
   color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
 }
 
 /* Bottom Topology Summary Strip */
 .hnsw-topology-strip {
   display: flex;
   align-items: center;
-  background: var(--bg-panel);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-hairline);
   border-radius: var(--radius-lg);
-  padding: var(--space-3) var(--space-5);
+  padding: 12px 20px;
   gap: var(--space-5);
   flex-shrink: 0;
   box-sizing: border-box;
@@ -3629,15 +3681,16 @@ input[type="number"] {
    Compare Tab: Algorithm Cards & Benchmark Controls
    ========================================================================== */
 
-/* Control Row: raised surface (~76px, 14px radius, --bg-raised, no border) */
+/* Control Row: floating raised surface (~64px, 14px radius, --bg-raised, hairline border) */
 .compare-control-row {
   display: flex;
   align-items: center;
-  min-height: 76px;
-  height: 76px;
+  min-height: 64px;
+  height: 64px;
   background: var(--bg-raised);
+  border: 1px solid var(--border-hairline);
   border-radius: var(--radius-lg);
-  padding: 0 var(--space-6);
+  padding: 0 var(--space-5);
   position: relative;
   box-sizing: border-box;
   flex-shrink: 0;
@@ -3849,12 +3902,13 @@ input[type="number"] {
   flex: 1;
   min-height: 0;
   background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
   border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 24px;
+  padding: 48px 32px;
   box-sizing: border-box;
 }
 
@@ -3904,7 +3958,7 @@ input[type="number"] {
 .compare-results-container {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 20px;
   box-sizing: border-box;
   width: 100%;
 }
@@ -3914,6 +3968,11 @@ input[type="number"] {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
+  padding: 22px 28px;
+  box-sizing: border-box;
 }
 
 .compare-headline-text {
@@ -3951,6 +4010,11 @@ input[type="number"] {
 .compare-race-section {
   display: flex;
   flex-direction: column;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
+  padding: 22px 28px;
+  box-sizing: border-box;
 }
 
 .compare-race-rows {
@@ -4030,6 +4094,11 @@ input[type="number"] {
 .compare-table-section {
   display: flex;
   flex-direction: column;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
+  padding: 18px 24px;
+  box-sizing: border-box;
 }
 
 .compare-table-wrap {
