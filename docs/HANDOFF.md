@@ -36,7 +36,11 @@ Task T-057 executed the Ask tab redesign v3.1 from human-approved mockups (and s
 - **Commit `acb96a3` (T-057 A)**: Removed leftover `max-height: 50vh` cap on Ask message list (`.answer-box`), allowing message list to fill the viewport down to the composer without dead gap; chunk card similarity value formatted with `white-space: nowrap` and `min-width: 44px`; latency pipeline 5 tiles in left-to-right flow with `arrowRight` line icons between tiles and real timings; synchronized `web/samples/vectordb_intro.txt` with `samples/vectordb_intro.txt` (zero 'dot' matches); added 2 browser unit tests for `formatPipelineLatency` and `arrowRight` icon.
 - **Commit `b9fd372` (T-057 B)**: Verified Compare rows with taupe/moss/amber dots and real proportional bar lengths; custom CSS SVG chevron on composer algorithm select; quiet muted helper line added under empty-state suggestion chips; sidebar status pill ("Ollama online") formatted with `white-space: nowrap` and collapsed rail layout.
 
-### Complete Commits List for T-055 through T-057:
+Task T-058 executed Ask tab UX refinements and shared UI dropdown on branch `ui-redesign-v3` (ADR-051):
+- **Commit `833a2ee` (T-058 A)**: Documents drawer re-centers chat column: when `#doc-drawer` opens, `.ask-chat-viewport` applies `margin-right: 380px` via a 200ms cubic-bezier transition, centering the 860px column precisely in the remaining space (`viewport - 380px`), returning to center when closed; disabled under `prefers-reduced-motion`; responsive fallback below 1280px maintains drawer overlay. "How this was answered" glass-box accordion collapsed by default for all answers (latest, streaming, restored) with compact ghost toggle pill header (`[ > How this was answered ]`); clicking any `[n]` citation pill auto-expands the accordion, scrolls smoothly to and flashes highlight on the source card.
+- **Commit `a557a53` (T-058 B)**: Replaced native composer `<select>` with reusable accessible dark dropdown component (`createDropdown` in `web/js/ui.js`) with `--bg-raised`, 10px radius, zero box-shadow, upward popup (`.dropup`) near viewport bottom, amber checkmark indicator, keyboard navigation (ArrowUp/Down, Enter, Space, Escape, Tab), pure helper `getDropdownNextIndex`, and hidden input maintaining the `#ask-algo-select` ID contract. Added 5 unit tests in `test_v2.js` bringing registered test count to 121.
+
+### Complete Commits List for T-055 through T-058:
 - `7dc5cf6`: T-055 A: design tokens, shared components and app shell
 - `48dd7ab`: T-055 B: Ask tab empty and results state
 - `79693eb`: docs: T-055 sync
@@ -53,11 +57,14 @@ Task T-057 executed the Ask tab redesign v3.1 from human-approved mockups (and s
 - `4ec9c1e`: docs: SYNC-006
 - `acb96a3`: T-057 A: Ask message area fill, chunk cards, pipeline latency
 - `b9fd372`: T-057 B: Ask compare rows, select chevron, empty helper, sidebar status pill
+- `4f82c21`: docs: T-057 sync
+- `833a2ee`: T-058 A: drawer re-centers chat, glass-box collapsed by default
+- `a557a53`: T-058 B: shared dark dropdown component, Ask algorithm select
 
 ### Verification Status Breakdown:
 - **Human-Confirmed (Real Browser & Terminal on 2026-11-15)**:
   - C++ hermetic suite: 118/118 passed (529,813 assertions).
-  - Browser tests: `/tests.html` 114/114 passing.
+  - Browser tests: `/tests.html` 114/114 passing (121 registered tests now in code).
   - Screenshots confirmed: Ask empty, Ask results, Documents drawer, Explore Demo PCA, HNSW L0 graph and trace, Compare empty and results, Settings 3-column grid.
   - Web safety automated scanner: 100% clean (zero innerHTML/outerHTML, strict CSP verified).
   - CSS metrics: `!important` count = 2, `box-shadow` count = 0, zero hex literals outside `:root` and `colors.js`.
@@ -155,10 +162,14 @@ Task T-057 executed the Ask tab redesign v3.1 from human-approved mockups (and s
 
 > [!NOTE]
 > Verification status:
-> - **Human-confirmed by terminal on 2026-11-15**: C++ 118/118, scanner ALL CHECKS PASSED, `/tests.html` 114/114 passed, CSS `!important` count = 2, `box-shadow` count = 0, zero hex literals outside `:root` and `colors.js`.
-> - **Redesign v3 Screenshots Pending**:
+> - **Human-confirmed by terminal on 2026-11-15**: C++ 118/118, scanner ALL CHECKS PASSED, `/tests.html` 114/114 passed (121 registered unit tests now in code), CSS `!important` count = 2, `box-shadow` count = 0, zero hex literals outside `:root` and `colors.js`.
+> - **Redesign v3 Screenshots & Human Verification Pending**:
 >   - Ask tab empty state (`01-ask-empty.png`)
 >   - Ask tab results state (`02-ask-results.png`)
+>   - Ask tab with Documents drawer open (chat column shifts left and re-centers smoothly)
+>   - Ask tab glass-box accordion collapsed by default; click citation pill `[n]` auto-expands and highlights source card
+>   - Ask composer custom dark dropdown (upward popup, keyboard cycling, checkmark)
+>   - Small blue dot seen once above composer check
 >   - Explore tab (`03-explore.png`)
 >   - HNSW tab (`04-hnsw.png`)
 >   - Compare tab empty state (`06-compare-empty.png`)

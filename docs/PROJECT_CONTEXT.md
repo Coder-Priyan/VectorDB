@@ -158,14 +158,15 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 48. **Verification State Post-T-055c/T-056**: Human confirmed `/tests.html` 114/114, C++ 118/118 and git state by terminal on 2026-11-15 (after T-055c).
 49. **Builder Visual Audits Are Claims Only (Explore Primary Button)**: The T-056 primary-button audit reported Explore empty = 0 primary buttons, but human screenshot on 2026-11-15 showed an active solid amber Random Query button there. Builder visual audits are claims only; judge UI strictly by human screenshots.
 50. **Known Pending Items for Later Tab Tasks**: Visual defects identified from human screenshots on 2026-11-15 to be addressed in their respective tab tasks: Explore subtitle shows "document chunk" text on Demo Vectors; Explore empty state has active Random Query; Compare select label clips; Compare empty Summary Metrics header clips with horizontal scrollbar.
+51. **T-058 Ask UX Refinements & Reusable Dropdown**: Documents drawer re-centers chat column using margin-right transition on `.ask-chat-viewport` with responsive fallback (<1280px); glass-box accordion collapsed by default with ghost pill toggle, and auto-expands on citation pill click; reusable dark dropdown component `createDropdown` in `web/js/ui.js` solves OS light select styling on dark background while preserving consumer ID contracts.
 
 ---
 
 ## 7. Verification Status (as of 2026-11-15)
 
-- **Verification State after T-057**:
+- **Verification State after T-058**:
   - C++ hermetic suite: 118/118 passed (529,813 assertions).
-  - Browser pure-logic unit test suite: 116 registered unit tests in code (added `formatPipelineLatency` and `arrowRight` icon tests in T-057).
+  - Browser pure-logic unit test suite: 121 registered unit tests in code (added 5 unit tests for `getDropdownNextIndex` and `createDropdown` in T-058).
   - Web safety automated scanner: 28 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
   - CSS Quality metrics: `!important` count = 2 (<= 3), `box-shadow` count = 0, zero hex color literals outside `:root` and `web/js/colors.js`.
   - Max primary buttons per view: strictly 1 primary amber button (`.btn-primary`) in Ask across all states (empty, results, drawer-open).
