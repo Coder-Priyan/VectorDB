@@ -324,6 +324,7 @@ export function createDropdown(options, initialValue, onChange, config = {}) {
     type: "hidden",
     value: currentValue
   });
+  hiddenInput.value = currentValue;
   if (config.id) {
     hiddenInput.id = config.id;
   }
@@ -368,7 +369,7 @@ export function createDropdown(options, initialValue, onChange, config = {}) {
       e.stopPropagation();
       selectValue(opt.value);
       close();
-      btn.focus();
+      btn.focus?.();
     });
 
     optEl.addEventListener("mouseenter", () => {
@@ -420,26 +421,43 @@ export function createDropdown(options, initialValue, onChange, config = {}) {
     document.removeEventListener("keydown", onKeyDown);
   }
 
+  let inputDesc = null;
+  try {
+    inputDesc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
+  } catch (_) {}
+
+  let isUpdating = false;
+
   function selectValue(newVal, triggerChange = true) {
-    currentValue = newVal;
-    hiddenInput.value = newVal;
-
-    const selectedOpt = normalizedOptions.find(o => o.value === newVal);
-    labelSpan.textContent = selectedOpt ? selectedOpt.label : newVal;
-
-    optionEls.forEach((optEl, i) => {
-      const isSel = normalizedOptions[i].value === newVal;
-      optEl.classList.toggle("selected", isSel);
-      optEl.setAttribute("aria-selected", String(isSel));
-      const check = optEl.querySelector(".custom-dropdown-check");
-      if (check) check.classList.toggle("hidden", !isSel);
-    });
-
-    if (triggerChange) {
-      hiddenInput.dispatchEvent(new Event("change", { bubbles: true }));
-      if (typeof onChange === "function") {
-        onChange(newVal);
+    if (isUpdating) return;
+    isUpdating = true;
+    try {
+      currentValue = newVal;
+      if (inputDesc && inputDesc.set) {
+        inputDesc.set.call(hiddenInput, newVal);
+      } else {
+        hiddenInput.value = newVal;
       }
+
+      const selectedOpt = normalizedOptions.find(o => o.value === newVal);
+      labelSpan.textContent = selectedOpt ? selectedOpt.label : newVal;
+
+      optionEls.forEach((optEl, i) => {
+        const isSel = normalizedOptions[i].value === newVal;
+        optEl.classList.toggle("selected", isSel);
+        optEl.setAttribute("aria-selected", String(isSel));
+        const check = optEl.querySelector(".custom-dropdown-check");
+        if (check) check.classList.toggle("hidden", !isSel);
+      });
+
+      if (triggerChange) {
+        hiddenInput.dispatchEvent(new Event("change", { bubbles: true }));
+        if (typeof onChange === "function") {
+          onChange(newVal);
+        }
+      }
+    } finally {
+      isUpdating = false;
     }
   }
 
@@ -454,7 +472,7 @@ export function createDropdown(options, initialValue, onChange, config = {}) {
     if (e.key === "Escape") {
       e.preventDefault();
       close();
-      btn.focus();
+      btn.focus?.();
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
       const next = getDropdownNextIndex(highlightedIndex, 1, normalizedOptions.length);
@@ -469,7 +487,7 @@ export function createDropdown(options, initialValue, onChange, config = {}) {
         selectValue(normalizedOptions[highlightedIndex].value);
       }
       close();
-      btn.focus();
+      btn.focus?.();
     } else if (e.key === "Tab") {
       close();
     }
@@ -488,20 +506,20 @@ export function createDropdown(options, initialValue, onChange, config = {}) {
     }
   });
 
-  try {
-    const desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
-    if (desc) {
+  if (inputDesc && inputDesc.get && inputDesc.set) {
+    try {
       Object.defineProperty(hiddenInput, "value", {
         get() {
-          return desc.get.call(this);
+          return inputDesc.get.call(this);
         },
         set(v) {
-          desc.set.call(this, v);
+          if (v === currentValue) return;
+          inputDesc.set.call(this, v);
           selectValue(v, false);
         }
       });
-    }
-  } catch (_) {}
+    } catch (_) {}
+  }
 
   return {
     element: container,

@@ -325,21 +325,42 @@ export function registerV2Tests() {
     });
 
     test("createDropdown initializes with correct initial value and hidden input contract", () => {
+      let changeCount = 0;
+      let lastVal = null;
+      const onChange = (val) => {
+        changeCount++;
+        lastVal = val;
+      };
+
       const dd = createDropdown([
         { value: "hnsw", label: "HNSW" },
         { value: "kdtree", label: "KD-Tree" },
         { value: "brute", label: "Brute" }
-      ], "hnsw", null, { id: "test-algo-select" });
+      ], "hnsw", onChange, { id: "test-algo-select" });
 
+      // Regression checks: onChange must not fire during initialization
+      assertEqual(changeCount, 0, "onChange must NOT fire during initialization");
       assertEqual(dd.getValue(), "hnsw");
       const hiddenInput = dd.element.querySelector("input[type='hidden']");
       assert(hiddenInput !== null, "Must contain hidden input for ID contract");
       assertEqual(hiddenInput.id, "test-algo-select");
       assertEqual(hiddenInput.value, "hnsw");
 
-      dd.setValue("kdtree");
+      // Option selection invokes onChange exactly once
+      const kdtreeOption = dd.element.querySelector(".custom-dropdown-option[data-value='kdtree']");
+      assert(kdtreeOption !== null, "Option element for kdtree must exist");
+      kdtreeOption.click();
+
+      assertEqual(changeCount, 1, "Selecting an option must fire onChange exactly once");
+      assertEqual(lastVal, "kdtree");
       assertEqual(dd.getValue(), "kdtree");
       assertEqual(hiddenInput.value, "kdtree");
+
+      // Programmatic setValue updates both component and hidden input
+      dd.setValue("brute");
+      assertEqual(changeCount, 2, "setValue fires onChange");
+      assertEqual(dd.getValue(), "brute");
+      assertEqual(hiddenInput.value, "brute");
     });
   });
 }
