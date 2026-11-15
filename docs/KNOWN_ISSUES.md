@@ -1,6 +1,6 @@
 # Known Issues, Limitations & Risk Tracker
 
-Last updated: 2026-11-15 by T-068
+Last updated: 2026-11-15 by T-069
 
 | ID | Type | Description | Where (File/Function) | Severity | Evidence | Status | Date |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -72,5 +72,6 @@ Last updated: 2026-11-15 by T-068
 | ISS-066 | Bug / Test | /tests.html showed 1 failed, 140 passed of 141 after T-065, human-confirmed on 2026-11-15; builder had reported only 54/54 in Node; failing test was 'mapReportToCards maps real benchmark fixture to 3 algorithm cards with correct structure' due to fixture mismatches (expected 112 got 64, expected 8 got 9); fixed in T-066 B (assert 64, assert 9); distance bar asserts removed in T-067 B. | `web/js/tests/test_compare.js` | Low | [CONFIRMED: human run /tests.html 2026-11-15, Node test runner] | FIXED (human-confirmed /tests.html 141/141 on 2026-11-15 22:17) | 2026-11-15 |
 | ISS-067 | Layout | Compare cards v3.5 (T-066) visual: about 100px empty band under Recall and uneven gaps of about 100-120px, human screenshot 2026-11-15 22:17; row alignment itself was fixed and human-confirmed; rebuilt in T-067 under ADR-061 as a calm list-style rows layout with faint hairlines, content vertically centered in stretched rows, filling full height. | `web/css/app.css`, `web/js/compare.js` | Medium | [CONFIRMED: human screenshot 2026-11-15 22:17] | visual verification pending | 2026-11-15 |
 | ISS-068 | Layout | T-067 cards too tall (~740px, rows ~150px with large gaps between label and value), human screenshot 2026-11-15 22:40; fixed in T-068 under ADR-062 by removing flex fill and locking content-sized rows (490px total card height: 72px/130px/84px/118px/86px), legend directly under cards with ~20px gap; visual verification pending. | `web/css/app.css` | Medium | [CONFIRMED: human screenshot 2026-11-15 22:40] | visual verification pending | 2026-11-15 |
+| ISS-069 | Layout | T-068 look rejected, human screenshot 2026-11-15 22:52 ('poora look pasand nahi': cards 490px felt too small, labels 15px dim, rank cells dull 55% opacity, control row thin); row tops aligned and human-visible OK. Rebuilt in T-069 under ADR-063 with medium content-sized 580px cards (80px/150px/105px/140px/105px), 17px secondary labels, 24px primary values, 22px header, 80% opacity rank cells, and larger 76px raised control row with 14px labels and 40px primary button; visual verification pending. | `web/css/app.css`, `web/index.html` | Medium | [CONFIRMED: human rejection and screenshot 2026-11-15 22:52] | visual verification pending | 2026-11-15 |
 
 *(Optional polish, not an issue: Compare sidebar has empty space below Summary Metrics at 1920x1080.)*

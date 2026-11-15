@@ -1,16 +1,31 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by T-068
+Last updated: 2026-11-15 by T-069
 
-> **NEXT STEP**: Human verifies T-068 (Compare compact content-sized cards) with full-window 1920x1080 100% screenshots. Screenshots needed: Compare Demo results (verifying compact 490px cards, tight rows <= 130px, legend directly under cards with ~20px gap, empty space below); a HNSW mismatch cell with hover tooltip; Demo empty (0 vectors); Docs results; Docs empty; Options popover open; both dropdowns open; one at 125% zoom. After human verifies T-068: next tab is Settings (T-069, full-width rows mockup), then Explore. Next free ADR is ADR-063.
+> **NEXT STEP**: Human verifies T-069 (Compare medium cards, type scale, larger control row) with full-window 1920x1080 100% screenshots. Screenshots needed: Compare Demo results (verifying medium 580px cards, 17px secondary labels, 24px primary values, 22px header, 80% opacity rank cells, 76px raised control row with Collection/Repetitions labels, 40px primary button, legend directly under cards with 24px gap); a HNSW mismatch cell with hover tooltip; Demo empty (0 vectors); Docs results; Docs empty; Options popover open; both dropdowns open; one at 125% zoom. After human verifies T-069: next tab is Settings (T-070, full-width rows mockup), then Explore. Next free ADR is ADR-065 (ADR-064 reserved for T-070).
 >
 > **NEEDED FROM THE HUMAN**: (1) full-window 1920x1080 100% screenshots: Compare Demo results, Docs results, Options popover open, both dropdowns open, one at 125% zoom; (2) terminal verification lines (`git log --oneline -5`, `git status -sb`, `.\build\vectordb_tests.exe`, `powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1`, CSS counts).
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
 - **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066). Total registered browser unit tests remain **141** in code; all 54 compare tests pass.
-- **Git State after T-068**: Commits `6b0d979` (`T-068: Compare compact content-sized cards`), and docs sync commit.
-- **Compare Visual Status**: Rebuilt under ADR-062 (T-068) to be compact and content-sized (~490px tall at 1920x1080: 72px / 130px / 84px / 118px / 86px), removing height stretching and 150px rows; legend sits directly under cards with 20px gap; empty space below accepted; registered browser unit tests remain 141 (54 in `test_compare.js`). Visual verification pending. Compare empty-state keeps T-063 design.
-- **Workflow & Next Tab**: Next tab in workflow is Settings (T-069 rows layout from approved mockup), then Explore. Next free ADR is ADR-063.
+- **Git State after T-069**: Commit `386054b` (`T-069: Compare medium cards, type scale, larger control row`), and docs sync commit.
+- **Compare Visual Status**: Rebuilt under ADR-063 (T-069) to medium content-sized cards (580px tall at 1920x1080: 80px / 150px / 105px / 140px / 105px) with 17px secondary labels, 24px tabular sans values, 22px header, 80% opacity rank cells, larger 76px raised control row with 14px labels and 40px primary button; legend directly under cards with 24px gap; registered browser unit tests remain 141 (54 in `test_compare.js`). Visual verification pending. Compare empty-state keeps T-063 design.
+- **Workflow & Next Tab**: Next tab in workflow is Settings (T-070 rows layout from approved mockup; ADR-064 reserved for T-070), then Explore. Next free ADR is ADR-065.
+
+## T-069 summary (ADR-063; supersedes ADR-062 card sizing & type scale)
+
+- **Medium Content-Sized Cards**: Replaced 490px cards with medium content-sized 580px cards ($\in [560, 600]\text{px}$) matching mockup proportions at 1920x1080 scale ($581\text{px}$). Locked `.compare-card` to `grid-template-rows: 80px 150px 105px 140px 105px;` with 0.0px variance across all row tops across all 3 cards.
+- **Row Padding & Symmetry**: Single-tier rows (Distance and Recall) are 105px with vertically centered content; two-tier rows (Latency and Rank match) get fixed vertical padding of 26px (`padding: 26px var(--space-5); justify-content: space-between;`), giving balanced, calm gaps.
+- **Aesthetic Type Scale**:
+  - Header algorithm name: 22px medium (`--text-xl`, 500).
+  - Row metric labels: 17px in `--text-secondary` (clearly brighter, NOT `--text-muted`).
+  - Row values: 24px regular, tabular numerals, primary text colour (`--text-primary`), right-aligned.
+  - Unit "µs": 15px muted on the same baseline.
+  - Helper lines ("Range min – max µs", "N / K", "Reference for the other algorithms"): 14px muted (`--text-base`).
+- **Rank Strip & Match Cells**: Real-k flat cells expanded to 22px height, full row width; matched cells colored with algorithm palette at **80% opacity** (clearly visible, calm, not dull or glowing); mismatch cells keep 1px accent outline with hover/focus tooltip; Brute Force shows "Reference for the other algorithms" once.
+- **Larger Control Row**: Raised bar height increased to 76px (`min-height: 76px; height: 76px; border-radius: var(--radius-lg); padding: 0 var(--space-6);`). Visible 14px muted labels ("Collection", "Repetitions"), 16px medium primary selected values, 40px height primary button with 15px text, 15px ghost Options button (40px height), 14px muted status text, and Options popover opening cleanly below the 76px bar. All original controls, IDs, and event handlers preserved.
+- **Legend Gap**: Positioned directly under cards with 24px gap (`margin-top: var(--space-6);`), 13px muted text; dark space below accepted.
+- **Git**: commit `386054b` (`T-069: Compare medium cards, type scale, larger control row`), docs commit.
 
 ## T-068 summary (ADR-062; supersedes ADR-061 card sizing)
 
@@ -127,8 +142,8 @@ Task T-064 executed the Compare tab redesign v3.3 (single "Algorithm lanes" pane
 
 ### Current Status by Tab (2026-11-15):
 - **Ask**: COMPLETE & HUMAN-VERIFIED (T-057, T-058, T-059, T-060, T-061). Drawer re-center, collapsed-by-default glass-box, 3 tabs (Sources, Latency, Algorithms) with equal fixed height (`--glassbox-tab-h: 196px`), smooth animation confirmed by human ("satisfied now with the work" after T-061).
-- **Compare**: COMPLETE (T-068, ADR-062). Compact content-sized cards (490px tall: 72px / 130px / 84px / 118px / 86px), locked CSS Grid rows, aligned across cards, legend directly below with 20px gap. Awaiting human screenshots (Demo results, Demo empty, Docs results, full window 100% zoom) and /tests.html verification.
-- **Settings**: NEXT (T-069, full-width rows mockup).
+- **Compare**: COMPLETE (T-069, ADR-063). Medium content-sized cards (580px tall: 80px / 150px / 105px / 140px / 105px), 17px secondary labels, 24px primary values, 22px header, 80% opacity rank cells, 76px raised control row with 14px labels and 40px primary button, 24px legend gap. Awaiting human screenshots (Demo results, Demo empty, Docs results, full window 100% zoom) and /tests.html verification.
+- **Settings**: NEXT (T-070, full-width rows mockup; ADR-064 reserved).
 - **Explore, HNSW**: Next in defined order after Settings.
 
 ### Human-Confirmed on 2026-11-15 (Terminal after T-061):
