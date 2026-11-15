@@ -1,8 +1,18 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by T-062
+Last updated: 2026-11-15 by SYNC-009
 
-> **NEXT STEP**: Human verifies Compare tab by screenshots (results Demo, empty Demo, Docs mode results/empty, 100% and 125% zoom, full window). Then next tab = Explore per ADR-050 (needs human screenshots of current Explore).
+> **NEXT STEP**: Execute T-062 (Compare redesign v3.1), then review the REPORT FOR BRAIN, then the human verifies Compare by screenshots, then next tab = Explore per ADR-050.
+>
+> **NEEDED FROM THE HUMAN**: (1) run T-062 in Antigravity and paste the REPORT FOR BRAIN into the new Brain chat together with the T-062 prompt text; (2) terminal lines: git log --oneline -4, git status -sb, last 3 lines of .\build\vectordb_tests.exe, /tests.html count; (3) screenshots, full window 100% zoom: Compare results (Demo), Compare empty (Demo), one Docs-mode screenshot; (4) save the two approved ChatGPT Compare mockups into docs/mockups/ as 08-compare-results.png and 09-compare-empty.png.
+
+## T-062 summary (Brain wrote it; full text is in the human's chat)
+
+- **Layout**: page header -> toolbar (label "Collection", createDropdown "Demo Vectors" / "Document Chunks"; repetitions 1/3/5/10/20 with warmup wording; timings note) -> slim raised run bar (~60px, inputs + amber primary button + right status + 2px bottom progress line) -> results container (lanes panel + rank matrix panel) OR centered empty-state panel with secondary button.
+- **Lanes spec**: 3 lanes (Brute Force taupe, KD-Tree moss, HNSW amber). Each lane has: name + badge; horizontal median latency bar on a shared linear scale across the 3 algorithms with min-max range text; distance-computation dot matrix (dynamic scale N = ceil(max/125), rows of 25 dots, muted grey unfilled + solid algorithm-colored filled); top-k recall squares (k real, up to 20, 10x10px, stroke-only empty + filled algorithm color).
+- **Rank matrix spec**: 3 rows (Brute Force, KD-Tree, HNSW), k columns (Rank 1 .. Rank k, real k up to 20). Cell: vector ID in mono, distance below in muted mono, stroke-only 12px check in muted moss for same-rank match; mismatch = muted amber dash with ID in primary text; missing = em dash. Header hairline only.
+- **Rules**: one primary amber button per view in every state; zero box-shadows; zero hex outside colors.js; hairlines only where permitted; 28px main padding applied; real data only (no mockup fake text/controls).
+- **Git**: commit A (toolbar, run bar, empty state, dropdown, padding), commit B (lanes, rank matrix, helpers, tests), docs commit.
 
 ## 1. Current Status
 
