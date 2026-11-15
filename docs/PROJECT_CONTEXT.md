@@ -169,6 +169,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 59. **Lesson (No Trade-off Empty Space)**: The human does not accept "trade-off" empty space; fixed-height areas must be filled (content stretched/centered), not left blank.
 60. **Mockup Review Rejected Fakes for Glass-Box**: Panel outline border, amber expanded title, side-by-side tab previews, full-width chat column, changed composer dropdown icon, invented snippet text, pre-filled algorithm rows.
 61. **Screenshots vs Animation Smoothness**: Screenshots show only final states; animation smoothness is judged by the human's own words.
+62. **Lesson (ChatGPT Copies Elements Across Tabs)**: ChatGPT copies the Ask composer bar into other tabs; always put it in STRICTLY DO NOT ADD list. In T-062 Compare mockup, it copied the bottom Ask composer bar, hallucinated fixed 10 recall squares and 10 matrix columns regardless of real k, wrong dot counts, a thick progress line, and filled bright green check circles. Brain reviews every mockup against real controls before a task is written.
 
 ---
 

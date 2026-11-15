@@ -1,10 +1,8 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by SYNC-008
+Last updated: 2026-11-15 by T-062
 
-> **NEXT STEP**: Compare tab redesign per ADR-050.
-> **NEEDED FROM THE HUMAN**: Two screenshots of the CURRENT Compare tab (empty state and results state, full browser window, 100% zoom).
-> Then the new Brain writes a ChatGPT image prompt (1920x1080, results first, then empty state; real controls only: repetitions 1/3/5/10/20, collection labels "Demo Vectors" / "Document Chunks", latency in microseconds, 10-row Top-k ground truth diff, algorithm colors Brute Force taupe `#9c8269`, KD-Tree moss `#708a78`, HNSW amber `#d9a441`, STRICTLY DO NOT ADD list, shell footer pill on one line, 28px main padding), the human generates both mockups, Brain reviews them against real controls, then writes ONE builder task that MUST use the shared `createDropdown` from `web/js/ui.js` for the collection and repetitions selects.
+> **NEXT STEP**: Human verifies Compare tab by screenshots (results Demo, empty Demo, Docs mode results/empty, 100% and 125% zoom, full window). Then next tab = Explore per ADR-050 (needs human screenshots of current Explore).
 
 ## 1. Current Status
 
@@ -55,10 +53,15 @@ Task T-060 redesigned the Ask glass-box "How this was answered" from human-appro
 Task T-061 established equal-height tabs in the Ask glass-box (no size change when switching tabs) on branch `ui-redesign-v3` (ADR-055):
 - **Commit `19b2276` (T-061)**: Fixed tab height (`--glassbox-tab-h: 196px`), equal content-area height (220px with 24px vertical padding), fixed positions for footer buttons. Sources tab scrolls cleanly inside fixed 196px box if k > 3 rows. Latency tab stretches 5 tiles vertically to fill box height with centered content, larger numbers (`font-size: var(--text-lg)`), centered arrows, amber Total tile, and muted caption (`"Time spent in each stage of this answer."`); empty state centered vertically and horizontally. Algorithms tab spreads 3 benchmark rows evenly (`justify-content: space-evenly`), HNSW trace summary line sits inside the same box below rows without expanding height (total 135px <= 196px); empty state centered vertically and horizontally. Footer actions stay directly under the box in the exact same position for all tabs. Instant tab switching, 200ms accordion animation, ARIA tabs, keyboard navigation, and citations strictly preserved.
 
+Task T-062 executed the Compare tab redesign v3.1 (lane sheet + rank matrix) from human-approved mockups on branch `ui-redesign-v3` (ADR-056):
+- **Commit `316a325` (T-062 A)**: Replaced old 3-column Studio grid and bar charts with modern run bar + stacked panels architecture. Toolbar row uses shared `createDropdown` from `web/js/ui.js` for Collection ("Demo Vectors" / "Document Chunks", unclipped) and Repetitions (1/3/5/10/20 with warmup labels), and unclipped timings note. Run bar is a slim raised surface (~60px, 14px radius, `--bg-raised`) with Demo inputs (k=10, efSearch=50, primary amber "Benchmark Random Query", divider, Stored ID input, secondary "Benchmark ID") and Docs controls (query text, k=5, efSearch=50, primary amber "Run Benchmark"), right-aligned status text, and a 2px bottom progress line (amber fill). Calm centered empty-state panel with activity pulse-line icon and single secondary action button. Strictly at most ONE `.btn-primary` per visible view across all 4 states.
+- **Commit `8fb4fc4` (T-062 B)**: Algorithm lanes panel ("Speed, work and accuracy for the same query.") with 3 lanes (Brute Force taupe `#9c8269`, KD-Tree moss `#708a78`, HNSW amber `#d9a441`), low-contrast hairlines, shared linear median latency bars with min-max range text in µs, distance-computations dot matrix in rows of 25 with dynamic scale $N = \lceil \max / 125 \rceil$, and top-k recall squares for real $k$. Top-k ground truth diff panel with rank matrix: equal-width rank columns up to $k=20$, vector ID + distance, stroke-only 12px check glyph in muted moss for matches, muted amber dash for mismatches, and "—" for missing. Pure helpers in `compare_helpers.js` (`computeDotScale`, `computeDotCount`, `computeRecallSquares`, `computeLatencyScale`, `formatRangeText`, `buildRankMatrix`) with 8 new unit tests in `test_compare.js` using module-scope fixtures.
+
 ### Current Status by Tab (2026-11-15):
 - **Ask**: COMPLETE & HUMAN-VERIFIED (T-057, T-058, T-059, T-060, T-061). Drawer re-center, collapsed-by-default glass-box, 3 tabs (Sources, Latency, Algorithms) with equal fixed height (`--glassbox-tab-h: 196px`), smooth animation confirmed by human ("satisfied now with the work" after T-061). Pending human screenshots: open algorithm dropdown popup, sidebar collapsed 56px rail, `[n]` citation pill click expand & scroll, keyboard tab navigation (ArrowLeft/Right), 125% zoom, Docs-mode tabs. Open human decision: raise text size of glass-box strip title and tabs (Brain proposed strip title 14px, tabs 14px, chunk subtitle and footer buttons 13px; human has NOT decided; do not start without instruction). Duplicate sample doc to be deleted by human in Documents drawer (causes duplicate Chunk rows in Sources).
-- **Compare**: NEXT per ADR-050. Awaiting human screenshots of current empty and results states (1920x1080, 100% zoom) to write ChatGPT image prompt.
-- **Explore, HNSW, Settings**: Not started in this per-tab workflow.
+- **Compare**: COMPLETE (T-062, ADR-056). Run bar, lane sheet, rank matrix, createDropdown, empty state, strictly <= 1 primary button per view, 107 browser unit tests registered. Awaiting human screenshots (Demo results, Demo empty, Docs results, Docs empty, full window 100% zoom).
+- **Explore**: NEXT per ADR-050. Needs human screenshots of current Explore tab (empty and populated) to write ChatGPT image prompt.
+- **HNSW, Settings**: Next in defined order after Explore.
 
 ### Human-Confirmed on 2026-11-15 (Terminal after T-061):
 - HEAD: `60d2123` (`docs: T-061 sync`), preceded by `19b2276`, `9123a14`, `0cf2d47`, `fb0bf01`.
@@ -337,7 +340,7 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
   - `ui-redesign`: Base v2 platform + T-039 docs polish.
   - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
   - `ui-quiet-studio`: Quiet Studio branch through T-054 and SYNC-005.
-  - `ui-redesign-v3`: Active branch containing T-055, T-055b, T-055c, T-056, T-057 (human-verified), T-058, T-059, T-060, and T-061.
+  - `ui-redesign-v3`: Active branch containing T-055, T-055b, T-055c, T-056, T-057 (human-verified), T-058, T-059, T-060, T-061, and T-062.
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
 - **Tracking Status**: Local branch `ui-redesign-v3` without upstream tracking (commits unpushed per protocol; nothing pushed to origin).
 - **Working Tree**: Clean tracked files; only untracked test logs in `results/logs/`.
@@ -347,12 +350,13 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ## 5. Pending Human Actions
 
-1. **Send Compare tab screenshots**: Take two screenshots of the CURRENT Compare tab (empty state and results state, full browser window, 100% zoom) and send them to Brain.
-2. **Delete duplicate document**: Delete one of the two duplicate "VectorDB Intro" documents in the Documents drawer (causes duplicate Chunk rows in Sources).
-3. **Decide glass-box text size**: Decide whether to raise text size of glass-box strip title and tabs (Brain proposed strip title 14px, tabs 14px, chunk subtitle and footer buttons 13px; human has NOT decided; do not start without instruction).
-4. **License copyright name**: Fill `<YOUR NAME>` placeholder in `LICENSE`.
-5. **Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
-6. **No merge and no push**: Do NOT merge `ui-redesign-v3` into `main` and do NOT push to remote origin until approved.
+1. **Verify Compare tab by screenshots**: Take screenshots of Compare tab (results Demo, empty Demo, Docs mode results/empty, 100% and 125% zoom, full window) to visually verify T-062.
+2. **Send Explore tab screenshots**: Take screenshots of current Explore tab (empty state and populated state, full browser window, 100% zoom) for the upcoming Explore redesign task.
+3. **Delete duplicate document**: Delete one of the two duplicate "VectorDB Intro" documents in the Documents drawer (causes duplicate Chunk rows in Sources).
+4. **Decide glass-box text size**: Decide whether to raise text size of glass-box strip title and tabs (Brain proposed strip title 14px, tabs 14px, chunk subtitle and footer buttons 13px; human has NOT decided; do not start without instruction).
+5. **License copyright name**: Fill `<YOUR NAME>` placeholder in `LICENSE`.
+6. **Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
+7. **No merge and no push**: Do NOT merge `ui-redesign-v3` into `main` and do NOT push to remote origin until approved.
 
 ---
 
@@ -361,15 +365,10 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 ### Open Follow-ups
 - **Redesign v3.1 per-tab rollout (ADR-050)**:
   - Ask tab: COMPLETE & HUMAN-VERIFIED (T-057 through T-061: drawer re-center, collapsed-by-default glass-box, 3 tabs with equal fixed height `--glassbox-tab-h: 196px`, 200ms smooth animation, `/tests.html` 127/127; human said "satisfied now with the work" after T-061).
-  - Compare tab: NEXT (WAITING for human's two screenshots of current Compare tab to write ChatGPT prompt).
-  - Explore tab: PENDING (redesign v3.1 from human-approved mockup).
+  - Compare tab: COMPLETE (T-062; visual verification pending). Rebuilt with run bar + lane sheet + rank matrix, `createDropdown`, 2px progress line, empty state, strictly <= 1 primary button per view, 107 browser unit tests.
+  - Explore tab: NEXT per ADR-050. Pending human screenshots of current Explore tab.
   - HNSW tab: PENDING (redesign v3.1 from human-approved mockup).
   - Settings tab: PENDING (redesign v3.1 from human-approved mockup).
-- **Compare Known Issues to Fix in Upcoming Task**:
-  - Collection select label clips ("Demo Collection (Random/Vectors") and must use labels "Demo Vectors" / "Document Chunks" like Explore.
-  - Empty-state Summary Metrics header is clipped (`Distai...`, `Recall@k` missing) with a horizontal scrollbar.
-  - Possible zero left padding and clipped right edge in 1794px crops (needs a full-window 100% screenshot to confirm whether real).
-  - Native selects to be replaced by `createDropdown` from `web/js/ui.js` (ADR-051).
 - **Pending Human Screenshots (Not Yet Seen)**:
   - Open algorithm dropdown popup visual.
   - Sidebar collapsed 56px rail.
@@ -394,11 +393,10 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ## 7. Recommended Next Step
 
-1. **Human sends two screenshots of the CURRENT Compare tab** (empty state and results state, full browser window, 100% zoom).
-2. **New Brain writes a ChatGPT image prompt** (1920x1080, results first, then empty state; real controls only: repetitions 1/3/5/10/20, collection labels "Demo Vectors" / "Document Chunks", latency in microseconds, 10-row Top-k ground truth diff, algorithm colors Brute Force taupe `#9c8269`, KD-Tree moss `#708a78`, HNSW amber `#d9a441`, STRICTLY DO NOT ADD list, shell footer pill on one line, 28px main padding).
-3. **Human generates both mockups** and sends them to Brain.
-4. **Brain reviews them against real controls** (rejecting hallucinations and unbacked engine controls).
-5. **Brain writes ONE builder task** that MUST use the shared `createDropdown` from `web/js/ui.js` for the collection and repetitions selects and addresses Compare known issues (clipped collection select label, clipped empty summary metrics header, padding).
+1. **Human verifies Compare tab by screenshots** (results Demo, empty Demo, Docs mode results/empty, 100% and 125% zoom, full window).
+2. **Human sends screenshots of current Explore tab** (empty and populated).
+3. **Brain writes ChatGPT image prompt for Explore** (matching unified design system: 3 dark surfaces `#09090b`, `#121215`, `#18181c`, amber accent `#d9a441`, IBM Plex Sans, radii 6/10/14, 28px main padding, real PCA 2D scatter and nearest neighbours list cards).
+4. **Human generates Explore mockup**, Brain reviews it against real controls, then writes ONE builder task for Explore redesign.
 
 ---
 
