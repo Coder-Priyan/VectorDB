@@ -647,129 +647,166 @@
         </div>
       </div>
 
-      <!-- Settings Two-Pane Layout -->
-      <div class="settings-two-pane-container">
-        <!-- LEFT PANE: Section List (240px fixed) -->
-        <nav class="settings-nav-pane" aria-label="Settings sections">
-          <div class="settings-nav-list" role="tablist" aria-orientation="vertical">
-            <button type="button" class="settings-nav-item active" role="tab" id="settings-tab-server" aria-selected="true" aria-controls="settings-section-server" tabindex="0">Server</button>
-            <button type="button" class="settings-nav-item" role="tab" id="settings-tab-collection" aria-selected="false" aria-controls="settings-section-collection" tabindex="-1">Collection</button>
-            <button type="button" class="settings-nav-item" role="tab" id="settings-tab-storage" aria-selected="false" aria-controls="settings-section-storage" tabindex="-1">Storage</button>
-            <button type="button" class="settings-nav-item" role="tab" id="settings-tab-data" aria-selected="false" aria-controls="settings-section-data" tabindex="-1">Data and chats</button>
-            <button type="button" class="settings-nav-item text-danger" role="tab" id="settings-tab-danger" aria-selected="false" aria-controls="settings-section-danger" tabindex="-1">Danger zone</button>
-          </div>
-        </nav>
+      <!-- Segmented Tab Bar (Ask Tab style) -->
+      <div class="settings-segmented-nav">
+        <div class="settings-segmented-bar" role="tablist" aria-label="Settings categories">
+          <button type="button" class="settings-nav-item active" role="tab" id="settings-tab-server" aria-selected="true" aria-controls="settings-section-server" tabindex="0">Server</button>
+          <button type="button" class="settings-nav-item" role="tab" id="settings-tab-collection" aria-selected="false" aria-controls="settings-section-collection" tabindex="-1">Collection</button>
+          <button type="button" class="settings-nav-item" role="tab" id="settings-tab-storage" aria-selected="false" aria-controls="settings-section-storage" tabindex="-1">Storage</button>
+          <button type="button" class="settings-nav-item" role="tab" id="settings-tab-data" aria-selected="false" aria-controls="settings-section-data" tabindex="-1">Data and chats</button>
+          <button type="button" class="settings-nav-item text-danger" role="tab" id="settings-tab-danger" aria-selected="false" aria-controls="settings-section-danger" tabindex="-1">Danger zone</button>
+        </div>
+      </div>
 
-        <!-- RIGHT PANE: Active Section Content (max-width 760px) -->
-        <div class="settings-content-pane">
-          <!-- SECTION 1: SERVER -->
-          <div id="settings-section-server" class="settings-section-panel" role="tabpanel" aria-labelledby="settings-tab-server">
-            <div class="settings-section-header">
-              <h2 class="settings-section-title">Server status</h2>
-              <p class="settings-section-desc">Local services and model runtime.</p>
+      <!-- Settings Cards Container -->
+      <div class="settings-card-container">
+        <!-- SECTION 1: SERVER -->
+        <div id="settings-section-server" class="settings-card settings-section-panel" role="tabpanel" aria-labelledby="settings-tab-server">
+          <div class="settings-card-header">
+            <div class="settings-card-header-left">
+              <h2 class="settings-card-title">Server status</h2>
+              <p class="settings-card-desc">Local services and model runtime.</p>
             </div>
-            <div class="settings-server-status-line">
+            <div class="settings-server-status-cluster">
               <div class="settings-status-badge">
                 <span class="status-dot status-dot-healthy"></span>
                 <span id="settings-status-text">Server ok</span>
               </div>
-              <span id="settings-ollama-status-text" class="text-muted text-sm">Ollama online</span>
-            </div>
-            <!-- 2-column definition list (label left 14px muted, value right 16px tabular sans, hairline between) -->
-            <dl id="settings-health-box" class="settings-def-list" aria-label="Server status metrics">
-              <!-- Rendered by settings.js -->
-            </dl>
-            <!-- Installed Ollama models as plain text list -->
-            <div class="settings-models-section">
-              <h3 class="settings-models-title">Installed Ollama models</h3>
-              <div id="settings-models-chips" class="settings-models-list"></div>
+              <span id="settings-ollama-status-text" class="settings-pill-chip">Ollama online</span>
             </div>
           </div>
 
-          <!-- SECTION 2: COLLECTION -->
-          <div id="settings-section-collection" class="settings-section-panel hidden" role="tabpanel" aria-labelledby="settings-tab-collection">
-            <div class="settings-section-header">
-              <h2 class="settings-section-title">Demo collection</h2>
-              <p class="settings-section-desc">Configure dimension, distance metric, and HNSW graph parameters.</p>
+          <div class="settings-card-divider"></div>
+
+          <div class="settings-card-body">
+            <div class="settings-overline">System Metrics</div>
+            <dl id="settings-health-box" class="settings-def-list" aria-label="Server status metrics">
+              <!-- Rendered by settings.js -->
+            </dl>
+
+            <div class="settings-card-divider"></div>
+
+            <div class="settings-overline">Installed Ollama Models</div>
+            <div id="settings-models-chips" class="settings-models-list"></div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: COLLECTION -->
+        <div id="settings-section-collection" class="settings-card settings-section-panel hidden" role="tabpanel" aria-labelledby="settings-tab-collection">
+          <div class="settings-card-header">
+            <div class="settings-card-header-left">
+              <h2 class="settings-card-title">Demo collection</h2>
+              <p class="settings-card-desc">Configure vector dimension, distance metric, and HNSW graph parameters.</p>
             </div>
-            <form id="settings-reset-demo-form" class="settings-form-vertical">
-              <div class="form-group">
-                <label for="demo-dim-input" class="control-label">Dimension</label>
-                <input type="number" id="demo-dim-input" class="input-text settings-input-field" value="128" min="1" max="4096" required>
+          </div>
+
+          <div class="settings-card-divider"></div>
+
+          <div class="settings-card-body">
+            <form id="settings-reset-demo-form" class="settings-grid-form">
+              <div class="settings-form-field">
+                <label for="demo-dim-input" class="settings-field-label">Dimension</label>
+                <span class="settings-field-hint">Vector embedding length</span>
+                <input type="number" id="demo-dim-input" class="input-text settings-input" value="128" min="1" max="4096" required>
               </div>
-              <div class="form-group">
-                <label for="demo-metric-select" class="control-label">Distance metric</label>
+              <div class="settings-form-field">
+                <label for="demo-metric-select" class="settings-field-label">Distance metric</label>
+                <span class="settings-field-hint">Similarity computation</span>
                 <div id="demo-metric-dropdown-wrap" class="settings-dropdown-wrap">
                   <input type="hidden" id="demo-metric-select" value="cosine">
                 </div>
               </div>
-              <div class="form-group">
-                <label for="demo-m-input" class="control-label">M (Max edges per node)</label>
-                <input type="number" id="demo-m-input" class="input-text settings-input-field" value="16" min="2" max="128">
+              <div class="settings-form-field">
+                <label for="demo-m-input" class="settings-field-label">M (Max edges per node)</label>
+                <span class="settings-field-hint">Bidirectional links per node</span>
+                <input type="number" id="demo-m-input" class="input-text settings-input" value="16" min="2" max="128">
               </div>
-              <div class="form-group">
-                <label for="demo-efc-input" class="control-label">efConstruction</label>
-                <input type="number" id="demo-efc-input" class="input-text settings-input-field" value="200" min="4" max="1000">
+              <div class="settings-form-field">
+                <label for="demo-efc-input" class="settings-field-label">efConstruction</label>
+                <span class="settings-field-hint">Index construction beam width</span>
+                <input type="number" id="demo-efc-input" class="input-text settings-input" value="200" min="4" max="1000">
               </div>
             </form>
 
-            <div class="settings-form-spacer"></div>
+            <div class="settings-card-divider"></div>
 
-            <div class="settings-section-header">
-              <h2 class="settings-section-title">Insert random vectors</h2>
-              <p class="settings-section-desc">Generate synthetic Gaussian vectors for search benchmarking.</p>
+            <div class="settings-sub-header">
+              <h3 class="settings-sub-title">Insert random vectors</h3>
+              <p class="settings-card-desc">Generate synthetic Gaussian vectors for search benchmarking.</p>
             </div>
-            <form id="settings-random-demo-form" class="settings-random-form-vertical">
-              <div class="form-group">
-                <label for="demo-random-count" class="control-label">Vector count</label>
-                <input type="number" id="demo-random-count" class="input-text settings-input-field" value="100" min="1" max="20000" aria-label="Insert random vectors count">
+
+            <form id="settings-random-demo-form" class="settings-random-inline-form">
+              <div class="settings-inline-field">
+                <label for="demo-random-count" class="settings-field-label">Vector count</label>
+                <input type="number" id="demo-random-count" class="input-text settings-input-sm" value="100" min="1" max="20000" aria-label="Insert random vectors count">
               </div>
-              <button type="submit" id="demo-insert-random-btn" class="btn btn-primary">+ Insert</button>
+              <button type="submit" id="demo-insert-random-btn" class="btn btn-primary">+ Insert Vectors</button>
             </form>
             <div id="settings-random-status" class="settings-inline-msg notice-success hidden" role="status"></div>
           </div>
+        </div>
 
-          <!-- SECTION 3: STORAGE -->
-          <div id="settings-section-storage" class="settings-section-panel hidden" role="tabpanel" aria-labelledby="settings-tab-storage">
-            <div class="settings-section-header">
-              <h2 class="settings-section-title">Persistence and storage</h2>
-              <p class="settings-section-desc">Engine snapshot and disk persistence status across restarts.</p>
+        <!-- SECTION 3: STORAGE -->
+        <div id="settings-section-storage" class="settings-card settings-section-panel hidden" role="tabpanel" aria-labelledby="settings-tab-storage">
+          <div class="settings-card-header">
+            <div class="settings-card-header-left">
+              <h2 class="settings-card-title">Persistence and storage</h2>
+              <p class="settings-card-desc">Engine snapshot and disk persistence status across restarts.</p>
             </div>
-            <div class="settings-storage-fields">
-              <div class="settings-readonly-row">
-                <span class="settings-field-label">Persistence status</span>
-                <span id="settings-persistence-status" class="settings-field-val text-primary">Checking...</span>
-              </div>
-              <div class="settings-readonly-row">
-                <span class="settings-field-label">Data directory</span>
-                <span id="settings-persistence-dir" class="settings-field-val text-muted font-mono">--</span>
-              </div>
-            </div>
-            <p id="settings-persistence-hint" class="settings-hint-text text-muted mt-3">Pass --data-dir &lt;path&gt; on startup to persist collections across restarts.</p>
           </div>
 
-          <!-- SECTION 4: DATA AND CHATS -->
-          <div id="settings-section-data" class="settings-section-panel hidden" role="tabpanel" aria-labelledby="settings-tab-data">
-            <div class="settings-section-header">
-              <h2 class="settings-section-title">Data and chats</h2>
-              <p class="settings-section-desc">Clear local conversation threads and manage offline resources.</p>
+          <div class="settings-card-divider"></div>
+
+          <div class="settings-card-body">
+            <div class="settings-storage-grid">
+              <div class="settings-storage-tile">
+                <span class="settings-overline">Persistence Status</span>
+                <span id="settings-persistence-status" class="settings-storage-val text-primary">Checking...</span>
+              </div>
+              <div class="settings-storage-tile">
+                <span class="settings-overline">Data Directory</span>
+                <span id="settings-persistence-dir" class="settings-storage-val font-mono">--</span>
+              </div>
             </div>
-            <div class="settings-action-block">
-              <h3 class="settings-sub-title">Chat history</h3>
-              <p class="settings-sub-desc text-muted text-sm">Clear local conversation threads stored in this browser.</p>
-              <div class="settings-confirm-actions mt-2">
+
+            <div class="settings-callout-card">
+              <p id="settings-persistence-hint" class="settings-hint-text">Pass --data-dir &lt;path&gt; on startup to persist collections across restarts.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 4: DATA AND CHATS -->
+        <div id="settings-section-data" class="settings-card settings-section-panel hidden" role="tabpanel" aria-labelledby="settings-tab-data">
+          <div class="settings-card-header">
+            <div class="settings-card-header-left">
+              <h2 class="settings-card-title">Data and chats</h2>
+              <p class="settings-card-desc">Clear local conversation threads and manage offline resources.</p>
+            </div>
+          </div>
+
+          <div class="settings-card-divider"></div>
+
+          <div class="settings-card-body">
+            <div class="settings-row-block">
+              <div class="settings-row-info">
+                <h3 class="settings-sub-title">Chat history</h3>
+                <p class="settings-card-desc">Clear local conversation threads stored in this browser.</p>
+              </div>
+              <div class="settings-confirm-actions">
                 <button type="button" id="settings-clear-chats-cancel-btn" class="btn btn-sm btn-secondary hidden">Cancel</button>
                 <button type="button" id="settings-clear-chats-btn" class="btn btn-sm btn-secondary">Clear Chat History</button>
               </div>
-              <div id="settings-clear-chats-status" class="settings-inline-msg notice-success hidden mt-2" role="status"></div>
             </div>
+            <div id="settings-clear-chats-status" class="settings-inline-msg notice-success hidden" role="status"></div>
 
-            <div class="settings-form-spacer"></div>
+            <div class="settings-card-divider"></div>
 
-            <div class="settings-action-block">
-              <h3 class="settings-sub-title">Documentation and guides</h3>
-              <p class="settings-sub-desc text-muted text-sm">Offline educational guides and interactive walkthroughs.</p>
-              <div class="settings-doc-buttons mt-2">
+            <div class="settings-row-block">
+              <div class="settings-row-info">
+                <h3 class="settings-sub-title">Documentation and guides</h3>
+                <p class="settings-card-desc">Offline educational guides and interactive walkthroughs.</p>
+              </div>
+              <div class="settings-doc-buttons">
                 <a href="/tests.html" target="_blank" class="btn btn-secondary settings-doc-link-btn" title="Open Interactive Test Suite">
                   <span>Interactive Test Suite</span>
                   <span id="settings-tests-icon" class="settings-btn-icon"></span>
@@ -781,15 +818,22 @@
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- SECTION 5: DANGER ZONE -->
-          <div id="settings-section-danger" class="settings-section-panel hidden" role="tabpanel" aria-labelledby="settings-tab-danger">
-            <div class="settings-section-header">
-              <h2 class="settings-section-title text-danger">Danger zone</h2>
-              <p class="settings-section-desc">Clears all demo vectors and resets the index.</p>
+        <!-- SECTION 5: DANGER ZONE -->
+        <div id="settings-section-danger" class="settings-card settings-card-danger settings-section-panel hidden" role="tabpanel" aria-labelledby="settings-tab-danger">
+          <div class="settings-card-header">
+            <div class="settings-card-header-left">
+              <h2 class="settings-card-title text-danger">Danger zone</h2>
+              <p class="settings-card-desc">Clears all demo vectors and resets the index.</p>
             </div>
-            <p class="text-secondary text-sm">Resetting the Demo collection drops all synthetic vectors and rebuilds the indexes from the active parameters. This action cannot be undone.</p>
-            <div class="settings-confirm-actions mt-3">
+          </div>
+
+          <div class="settings-card-divider"></div>
+
+          <div class="settings-card-body">
+            <p class="settings-danger-warning">Resetting the Demo collection drops all synthetic vectors and rebuilds the indexes from the active parameters. This action cannot be undone.</p>
+            <div class="settings-confirm-actions mt-4">
               <button type="button" id="demo-reset-cancel-btn" class="btn btn-sm btn-secondary hidden">Cancel</button>
               <button type="button" id="demo-reset-btn" class="btn btn-sm btn-danger">Reset Demo Collection</button>
             </div>
