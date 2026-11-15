@@ -1,6 +1,6 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by SYNC-007
+Last updated: 2026-11-15 by T-059
 
 ## 1. Current Status
 
@@ -36,9 +36,17 @@ Task T-057 executed the Ask tab redesign v3.1 from human-approved mockups (and s
 - **Commit `acb96a3` (T-057 A)**: Removed leftover `max-height: 50vh` cap on Ask message list (`.answer-box`), allowing message list to fill the viewport down to the composer without dead gap; chunk card similarity value formatted with `white-space: nowrap` and `min-width: 44px`; latency pipeline 5 tiles in left-to-right flow with `arrowRight` line icons between tiles and real timings; synchronized `web/samples/vectordb_intro.txt` with `samples/vectordb_intro.txt` (zero 'dot' matches); added 2 browser unit tests for `formatPipelineLatency` and `arrowRight` icon.
 - **Commit `b9fd372` (T-057 B)**: Verified Compare rows with taupe/moss/amber dots and real proportional bar lengths; custom CSS SVG chevron on composer algorithm select; quiet muted helper line added under empty-state suggestion chips; sidebar status pill ("Ollama online") formatted with `white-space: nowrap` and collapsed rail layout.
 
+Task T-058 executed the Ask tab UX refinements and reusable custom dark dropdown component on branch `ui-redesign-v3` (ADR-051):
+- **Commit `833a2ee` (T-058 A)**: Documents drawer re-centers chat column via 200ms cubic-bezier margin transition, disabled under `prefers-reduced-motion` and falling back to overlay on viewports < 1280px; "How this was answered" glass-box accordion collapsed by default for all answers with ghost toggle pill; clicking citation `[n]` pill auto-expands the accordion.
+- **Commit `a557a53` (T-058 B)**: Reusable accessible dark dropdown component `createDropdown` in `web/js/ui.js` replacing native select `#ask-algo-select` while preserving ID and value contract; keyboard navigation and ARIA attributes; registered 5 new unit tests.
+
+Task T-059 resolved the createDropdown recursion bug and implemented smooth accordion animation on branch `ui-redesign-v3` (ADR-053):
+- **Commit `82e828c` (T-059 A)**: Resolved `Maximum call stack size exceeded` in `createDropdown` by using native prototype descriptor setter directly, guarding updates with `isUpdating`, and adding comprehensive regression test asserting: initial value set, hidden input value matches, `onChange` NOT called at init, and option selection invokes `onChange` exactly once.
+- **Commit `f5e3609` (T-059 B)**: Smooth 200ms ease-out glass-box accordion animation using `grid-template-rows: 0fr -> 1fr` and opacity fade, smooth chevron rotation (-90deg to 0deg), screen-reader hidden/inert attributes when collapsed, instant execution under `prefers-reduced-motion`, and citation pill click `transitionend` coordination (expands first, then scrolls to and highlights target source card). Cleared false-positive hex literal comment in `web/js/explore.js:226` restoring hex literal count to strictly 0.
+
 ### Current Status by Tab (2026-11-15):
-- **Ask**: Mockups approved by the human; T-057 implemented and human-verified (terminal + screenshots). Ask refinements = T-058 approved by the human, execution not confirmed by Brain (see Section "T-058 (approved, execution not confirmed)" below; in git history, commits `833a2ee` and `a557a53` are committed on `ui-redesign-v3`).
-- **Compare**: Brain gave the human a ChatGPT image prompt (results state first, then empty state); the human is generating the two images; WAITING for the images; then Brain reviews them and writes the Compare task, which must use the shared dropdown from T-058.
+- **Ask**: Mockups approved by the human; T-057 implemented and human-verified (terminal + screenshots). T-058 implemented drawer re-centering, default collapsed glass-box accordion, and shared custom dark dropdown `createDropdown`. Human confirmed by screenshots on 2026-11-15 that the Documents drawer re-centers the chat and the glass-box is collapsed by default and expands on click. T-059 resolved the recursive `Maximum call stack size exceeded` in `createDropdown` via native property descriptor setter (T-059 A), and added smooth 200ms ease-out accordion open/close animation with `grid-template-rows 0fr -> 1fr`, chevron rotation, `prefers-reduced-motion` support, and citation pill `transitionend` scroll coordination (T-059 B).
+- **Compare**: Brain gave the human a ChatGPT image prompt (results state first, then empty state); the human is generating the two images; WAITING for the images; then Brain reviews them and writes the Compare task, which will use the shared dropdown from T-058/T-059.
 - **Explore, HNSW, Settings**: Not started in this per-tab workflow.
 
 ### Human-Confirmed on 2026-11-15 (Terminal after T-057):
@@ -50,7 +58,7 @@ Task T-057 executed the Ask tab redesign v3.1 from human-approved mockups (and s
 - Engine diff: `git diff --stat ui-quiet-studio -- src include tests` strictly empty.
 
 ### Human-Confirmed on 2026-11-15 (Real Browser Screenshots):
-- `/tests.html`: 116/116 passed.
+- `/tests.html`: 116/116 passed after T-057. (Before T-059 A, human's `/tests.html` showed 120 passed, 1 failed on createDropdown init out of 121; fixed in T-059 A).
 - Ask empty state: shows the new helper line and the algorithm select chevron.
 - Sidebar footer: "Ollama online" pill is strictly on one line.
 - Ask answer view: fills down to the composer with no dead gap.
@@ -59,13 +67,16 @@ Task T-057 executed the Ask tab redesign v3.1 from human-approved mockups (and s
 - Latency tiles: show arrows between them.
 - Compare algorithms block: uses taupe/moss/amber dots and real proportional bars (first run showed KD-Tree 19.71 ms as a cold-start tree build, so its bar was full length; second run all in microseconds; this is real engine behaviour, not a UI bug; the human may decide later whether to warm up the KD-Tree first).
 - Latency numbers add up: Embed 90.3 ms + First token 16.53 s, Generate 22.30 s, Total 22.39 s.
+- Documents drawer: opening the Documents drawer smoothly shifts and re-centers the chat column in the remaining space without obscuring messages or composer.
+- Glass-box accordion: "How this was answered" defaults to collapsed with ghost toggle pill and expands when clicked.
+- Note on documents: The sample document was ingested twice in the human's environment (duplicate inventory, showing Chunk #3 twice in retrieved chunks); human will delete one in their own workflow.
 
 ### Earlier Human Screenshots 2026-11-15 (before T-057):
 - Explore (empty and with 1000 vectors), HNSW layer L0 (13,562 edges), Compare (empty and results), Settings (1000 and 1100 vectors, memory 507.8 KB then 558.6 KB) all rendered; numbers consistent.
 
 ### NOT Yet Seen by the Human:
 - Sidebar collapsed (56px rail).
-- Documents drawer layout after T-057.
+- Open dropdown popup visual.
 - 125% zoom layout check across tabs.
 - Explore/HNSW/Compare in Docs mode.
 - Compare and Settings at full 1920x1080 window (the crops the human sent were about 1794px wide and showed content touching the sidebar and the right edge; unverified whether real).
@@ -104,7 +115,7 @@ Approved by the human; Antigravity builder executed on branch `ui-redesign-v3` i
 
 ---
 
-### Complete Commits List for T-055 through T-058:
+### Complete Commits List for T-055 through T-059:
 - `7dc5cf6`: T-055 A: design tokens, shared components and app shell
 - `48dd7ab`: T-055 B: Ask tab empty and results state
 - `79693eb`: docs: T-055 sync
@@ -124,17 +135,21 @@ Approved by the human; Antigravity builder executed on branch `ui-redesign-v3` i
 - `4f82c21`: docs: T-057 sync
 - `833a2ee`: T-058 A: drawer re-centers chat, glass-box collapsed by default
 - `a557a53`: T-058 B: shared dark dropdown component, Ask algorithm select
+- `4ce2dd0`: docs: T-058 sync
+- `5d04dca`: docs: SYNC-007
+- `82e828c`: T-059 A: fix createDropdown recursion and add regression test
+- `f5e3609`: T-059 B: smooth accordion animation, clear stray hex literal
 
 ### Verification Status Breakdown:
 - **Human-Confirmed (Real Browser & Terminal on 2026-11-15)**:
   - C++ hermetic suite: 118/118 passed (529,813 assertions).
-  - Browser tests: `/tests.html` 114/114 passing (121 registered tests now in code).
-  - Screenshots confirmed: Ask empty, Ask results, Documents drawer, Explore Demo PCA, HNSW L0 graph and trace, Compare empty and results, Settings 3-column grid.
+  - Browser tests: `/tests.html` 116/116 passing after T-057. (Before T-059 A, human's `/tests.html` showed 120 passed, 1 failed on createDropdown init; fixed in T-059 A; 121 registered tests now in code).
+  - Screenshots confirmed: Ask empty, Ask results, Documents drawer re-centering, "How this was answered" default collapsed & expand, Explore Demo PCA, HNSW L0 graph and trace, Compare empty and results, Settings 3-column grid.
   - Web safety automated scanner: 100% clean (zero innerHTML/outerHTML, strict CSP verified).
   - CSS metrics: `!important` count = 2, `box-shadow` count = 0, zero hex literals outside `:root` and `colors.js`.
   - Git state: clean tracked files on branch `ui-redesign-v3`.
 - **Builder-Reported (Visual States NOT YET TESTED)**:
-  - All visual changes in T-057 are reported as "not tested (visual)" pending human review and screenshot capture at 100% zoom. Builder claims of visual accuracy are never proof.
+  - All visual animation changes in T-059 B (200ms accordion smooth expand/collapse, chevron rotation, citation-pill transitionend scroll) and T-058 dropdown open visual are reported as "not tested (visual)" pending human review and screenshot capture at 100% zoom. Builder claims of visual accuracy are never proof.
 
 ### Known Pending Items for Later Tab Tasks:
 1. Explore subtitle displays "document chunk" text on Demo Vectors.
