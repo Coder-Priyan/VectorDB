@@ -527,14 +527,18 @@
         </div>
       </div>
 
-      <!-- Control row: one slim raised-surface row (~56px, 14px radius, --bg-raised, no border) -->
+      <!-- Control row: raised surface (~76px, 14px radius, --bg-raised, no border) -->
       <div class="compare-control-row">
         <div class="compare-control-left">
-          <label for="compare-coll-select" class="toolbar-label sr-only">Collection</label>
-          <div id="compare-coll-dropdown-wrap" class="compare-dropdown-wrap"></div>
+          <div class="compare-control-group">
+            <label for="compare-coll-select" class="compare-control-label">Collection</label>
+            <div id="compare-coll-dropdown-wrap" class="compare-dropdown-wrap"></div>
+          </div>
 
-          <label for="compare-repeat-select" class="toolbar-label sr-only">Repetitions</label>
-          <div id="compare-repeat-dropdown-wrap" class="compare-dropdown-wrap"></div>
+          <div class="compare-control-group">
+            <label for="compare-repeat-select" class="compare-control-label">Repetitions</label>
+            <div id="compare-repeat-dropdown-wrap" class="compare-dropdown-wrap"></div>
+          </div>
 
           <!-- Docs Mode Query Input (inline, flex-grow) -->
           <div id="compare-docs-query-wrap" class="compare-query-wrap hidden">
