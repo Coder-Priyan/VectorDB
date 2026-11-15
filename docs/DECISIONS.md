@@ -169,6 +169,21 @@ Last updated: 2026-11-16 by T-072 sync
      - Zero innerHTML, strict CSP, 0 box-shadow, !important <= 2, 0 hex colors outside `:root`.
      - 118/118 C++ tests pass, 156/156 JS tests pass.
 
+### ADR-076: True Zero-Scroll Single-Screen Workspace Architecture (T-083)
+- **Context**: The user observed that while the Ask tab felt exceptionally calm, premium, and satisfying because it fit completely onto a single screen with zero page scrolling (`overflow: hidden`), the subsequent tabs (Explore, HNSW, Compare, Settings) behaved like long scrollable web pages with `overflow-y: auto`, requiring vertical scrolling to view controls, canvases, and results. The user requested: "ask tab single screen hai usma scroll nhi krna padhta kuch reveal krna ka liya... huma uss tarika sa bna na hai kii single screen mai sab aa jaay without off lgaa... aur apple ka design hee lena jaroori nhi haii koi bhi design la skta ho bss best ui hona chaiyaa".
+- **Decision**:
+  1. **Zero-Scroll Viewports**: Converted `.explore-viewport, .hnsw-viewport, .compare-viewport, .settings-viewport` to `overflow: hidden; height: 100%; max-width: 1240px; margin: 0 auto; gap: var(--space-2); padding-bottom: 0;`.
+  2. **Ultra-Compact Page Headers**: Consolidated page headers across all four tabs to `padding: 0 0 2px 0; margin: 0;` with 19px titles and 12px concise descriptions, saving ~40px of vertical space per tab.
+  3. **Adaptive Flex Canvases (Explore & HNSW)**: Removed hardcoded `420px` canvas wrapper heights. Styled `.explore-canvas-section` and `.hnsw-canvas-section` with `flex: 1 1 0; min-height: 180px; overflow: hidden;`. The inner `.canvas-wrapper` flexes dynamically to occupy 100% of available viewport space, and the existing `ResizeObserver` re-renders high-DPI coordinates automatically.
+  4. **Compact Studio Decks (Explore & HNSW)**:
+     - Explore Neighbor Deck: Styled as a fixed 108px compact horizontal strip (`#explore-results-tbody` uses `grid-auto-flow: column; grid-auto-columns: minmax(210px, 260px); overflow-x: auto; overflow-y: hidden;`). Multiple neighbor cards scroll horizontally within the deck, leaving the main viewport rock-solid.
+     - HNSW Console Deck: Sized to a sleek 130px height with 3 compact cards (Launcher, VCR Player, Telemetry Bento) and a 28px bottom topology summary strip.
+  5. **Compare & Settings Fit-to-Screen**:
+     - Compare: Control row reduced to 40px, hero banner reduced to 42px, and spec sheet set to `flex: 1 1 0; min-height: 0; overflow-y: auto;` so it fits on 1080p and laptop screens.
+     - Settings: Bento grid set to `flex: 1 1 0; min-height: 0; overflow-y: auto;` with compact card padding (12px 16px) and 10px divider margins.
+  6. **Safety & Invariants**: Ask tab and C++ engine 100% frozen. 118/118 C++ tests pass, 156/156 JS unit tests pass, zero web safety violations.
+
+
 
 
 

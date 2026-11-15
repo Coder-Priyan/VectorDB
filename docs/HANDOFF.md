@@ -1,8 +1,8 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-082 sync
+Last updated: 2026-11-16 by T-083 sync
 
-> **NEXT STEP**: Human verifies T-079 (Compare Spec Sheet Comparison Matrix), T-082 (Radical Studio Rebuild of Explore and HNSW Tabs: Full-Bleed Spatial Canvas, Integrated Highway Toolbar, Neighbor Card Deck, and 3-Column QuickTime Console Deck) in a real browser at 1920x1080 100% zoom across Explore, HNSW, Compare, and Settings and runs `/tests.html` (expect 156/156 passed); Brain reviews screenshots. Next free ADR is ADR-076. Next free ISS is ISS-082. Next task number is T-083.
+> **NEXT STEP**: Human verifies T-083 (True Zero-Scroll Single-Screen Workspace Architecture across Explore, HNSW, Compare, and Settings) in a real browser at 1920x1080 100% zoom across Explore, HNSW, Compare, and Settings and runs `/tests.html` (expect 156/156 passed); Brain reviews screenshots. Next free ADR is ADR-077. Next free ISS is ISS-083. Next task number is T-084.
 >
 > **NEEDED FROM THE HUMAN**: (1) Terminal verification on branch `ui-redesign-v4` (`git status -sb`, `git log --oneline -8`, `.\build\vectordb_tests.exe`, scanner, `/tests.html`); (2) Full-window 1920x1080 100% screenshots of Explore, HNSW, Compare, and Settings tabs.
 
