@@ -616,11 +616,15 @@
         </div>
       </div>
 
-      <!-- Results: Three algorithm cards (Mutually exclusive with empty state) -->
-      <div id="compare-results-card" class="compare-results-stack hidden">
-        <div id="compare-cards-container" class="compare-cards-container" role="region" aria-label="Algorithm comparison cards"></div>
-        <div id="compare-cards-legend" class="compare-cards-legend">
-          Filled = same rank as ground truth. Latency: lower is better. Timings are indicative: official benchmarks come from the C++ tool.
+      <!-- Results: Headline, Latency race, Detail table (Mutually exclusive with empty state) -->
+      <div id="compare-results-view" class="compare-results-view hidden">
+        <div id="compare-results-container" class="compare-results-container" role="region" aria-label="Benchmark comparison results">
+          <div id="compare-headline-block" class="compare-headline-block"></div>
+          <div id="compare-race-section" class="compare-race-section"></div>
+          <div id="compare-table-section" class="compare-table-section"></div>
+          <div id="compare-footnote" class="compare-footnote">
+            Filled = same rank as ground truth. Latency: lower is better. Timings are indicative: official benchmarks come from the C++ tool.
+          </div>
         </div>
         <div id="compare-rank-tooltip" class="compare-rank-tooltip hidden" role="tooltip" aria-hidden="true"></div>
       </div>

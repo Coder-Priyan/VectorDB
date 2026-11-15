@@ -7,7 +7,9 @@ import { el, createDropdown } from "./ui.js";
 import { createIcon } from "./icons.js";
 import {
   getCompareEmptyStateConfig,
-  mapReportToCards
+  buildCompareHeadline,
+  buildLatencyRaceRows,
+  buildDetailTableRows
 } from "./compare_helpers.js";
 
 export function initCompareTab() {
@@ -72,12 +74,14 @@ export function initCompareTab() {
   const statusNotice = byId("compare-progress-status");
   const progressBar = byId("compare-progress-fill");
   const emptyStateBox = byId("compare-empty-state");
-  const resultsCard = byId("compare-results-card");
-  const cardsContainer = byId("compare-cards-container");
+  const resultsView = byId("compare-results-view");
+  const headlineBlock = byId("compare-headline-block");
+  const raceSection = byId("compare-race-section");
+  const tableSection = byId("compare-table-section");
   const rankTooltipEl = byId("compare-rank-tooltip");
 
   function showTooltip(cell, cellData) {
-    if (!rankTooltipEl || !resultsCard) return;
+    if (!rankTooltipEl || !resultsView) return;
     const expectedText = cellData.expectedId !== null ? `#${cellData.expectedId}` : "-";
     const gotText = cellData.gotId !== null ? `#${cellData.gotId}` : "-";
 
@@ -89,7 +93,7 @@ export function initCompareTab() {
     );
 
     const cellRect = cell.getBoundingClientRect();
-    const containerRect = resultsCard.getBoundingClientRect();
+    const containerRect = resultsView.getBoundingClientRect();
     let x = cellRect.left - containerRect.left + (cellRect.width / 2);
     let y = cellRect.top - containerRect.top - 28;
 
@@ -176,12 +180,12 @@ export function initCompareTab() {
 
   function showResultsView() {
     emptyStateBox?.classList.add("hidden");
-    resultsCard?.classList.remove("hidden");
+    resultsView?.classList.remove("hidden");
   }
 
   function showEmptyView() {
     emptyStateBox?.classList.remove("hidden");
-    resultsCard?.classList.add("hidden");
+    resultsView?.classList.add("hidden");
   }
 
   function updateCollectionVisibility() {
@@ -199,7 +203,9 @@ export function initCompareTab() {
   function resetCompareView() {
     lastReportData = null;
     hideTooltip();
-    cardsContainer?.replaceChildren();
+    headlineBlock?.replaceChildren();
+    raceSection?.replaceChildren();
+    tableSection?.replaceChildren();
     if (statusNotice) statusNotice.textContent = "Ready to benchmark.";
     if (progressBar) {
       progressBar.classList.remove("running");
@@ -278,7 +284,7 @@ export function initCompareTab() {
 
   async function runBenchmarkSuite(getPayloadFn, isDocs) {
     clearGlobalError();
-    resultsCard?.classList.add("hidden");
+    resultsView?.classList.add("hidden");
     if (progressBar) {
       progressBar.classList.add("running");
       progressBar.style.setProperty("width", "0%");
@@ -354,84 +360,121 @@ export function initCompareTab() {
     if (!report || !report.algorithms) return;
     lastReportData = { report, latencies };
     showResultsView();
-    renderCards(report, latencies);
+    renderHeadline(report, latencies);
+    renderLatencyRace(report, latencies);
+    renderDetailTable(report);
   }
 
-  function renderCards(report, latencies) {
-    if (!cardsContainer || !report || !report.algorithms) return;
-    cardsContainer.replaceChildren();
+  function renderHeadline(report, latencies) {
+    if (!headlineBlock) return;
+    headlineBlock.replaceChildren();
 
-    const cardModels = mapReportToCards(report, latencies);
+    const isDocs = collDropdown.getValue() === "docs";
+    const kInput = isDocs ? docsKInput : demoKInput;
+    const kVal = parseInt(kInput?.value || String(report.k || 10), 10);
+    const repCount = parseInt(repeatDropdown.getValue() || "5", 10);
 
-    for (const card of cardModels) {
-      const alg = card.alg;
+    const headlineData = buildCompareHeadline(report, latencies, {
+      k: kVal,
+      repetitions: repCount,
+      collection: collDropdown.getValue()
+    });
 
-      // Card Header: dot + algorithm name + optional Baseline badge on Brute Force
-      const titleGroup = el("div", { className: "compare-card-title-group" },
-        el("span", { className: `compare-card-dot bg-${alg}` }),
-        el("span", {}, card.label)
+    const headlineP = el("p", { className: "compare-headline-text" });
+    if (headlineData.parts && headlineData.parts.length > 0) {
+      for (const part of headlineData.parts) {
+        if (part.isEmphasis) {
+          headlineP.appendChild(el("span", { className: "stat-emphasis" }, part.text));
+        } else {
+          headlineP.appendChild(document.createTextNode(part.text));
+        }
+      }
+    } else {
+      headlineP.textContent = headlineData.text;
+    }
+
+    const sublineP = el("p", { className: "compare-headline-subline" }, headlineData.subline);
+    headlineBlock.append(headlineP, sublineP);
+  }
+
+  function renderLatencyRace(report, latencies) {
+    if (!raceSection) return;
+    raceSection.replaceChildren();
+
+    const rows = buildLatencyRaceRows(report, latencies);
+    const labelEl = el("div", { className: "compare-section-label" }, "Median latency");
+    const rowsContainer = el("div", { className: "compare-race-rows" });
+
+    for (const row of rows) {
+      const nameCol = el("div", { className: "compare-race-name-col" },
+        el("span", { className: `compare-race-dot bg-${row.alg}` }),
+        el("span", {}, row.label)
       );
-      const headerEl = el("div", { className: "compare-card-header" },
-        titleGroup,
-        card.isBrute ? el("span", { className: "badge badge-neutral compare-baseline-badge" }, "Baseline") : null
+
+      const barEl = el("div", { className: `compare-race-bar bg-${row.alg}` });
+      barEl.style.setProperty("width", `${row.barWidthPct}%`);
+      const trackEl = el("div", { className: "compare-race-track" }, barEl);
+
+      const valCol = el("div", { className: "compare-race-val-col" },
+        el("span", { className: `compare-race-val ${row.valueClass}` }, `${row.medianUs} µs`),
+        el("span", { className: "compare-race-range" }, `Range ${row.rangeText}`)
       );
 
-      // Row 2: Median latency
-      const latBarEl = el("div", { className: `compare-latency-bar bg-${alg}` });
-      latBarEl.style.setProperty("width", `${card.barWidthPct}%`);
-      const latencyRow = el("div", { className: "compare-card-row compare-row-latency" },
-        el("div", { className: "compare-row-top" },
-          el("div", { className: "compare-row-label-group" },
-            el("span", { className: "compare-metric-label" }, "Median latency"),
-            el("span", { className: "compare-latency-range" }, `Range ${card.rangeText}`)
-          ),
-          el("div", { className: "compare-metric-val-wrap" },
-            el("span", { className: "compare-metric-num" }, String(card.medianUs)),
-            el("span", { className: "compare-metric-unit" }, "µs")
-          )
-        ),
-        el("div", { className: "compare-latency-track" }, latBarEl)
-      );
+      const rowEl = el("div", { className: "compare-race-row" }, nameCol, trackEl, valCol);
+      rowsContainer.appendChild(rowEl);
+    }
 
-      // Row 3: Distance computations (no bar)
-      const distRow = el("div", { className: "compare-card-row compare-row-dist" },
-        el("div", { className: "compare-row-single" },
-          el("span", { className: "compare-metric-label" }, "Distance computations"),
-          el("span", { className: "compare-metric-num" }, String(card.distanceComputations))
+    raceSection.append(labelEl, rowsContainer);
+  }
+
+  function renderDetailTable(report) {
+    if (!tableSection) return;
+    tableSection.replaceChildren();
+
+    const rows = buildDetailTableRows(report);
+    const labelEl = el("div", { className: "compare-section-label" }, "Accuracy and work");
+
+    const thead = el("thead", {},
+      el("tr", {},
+        el("th", {}, "Algorithm"),
+        el("th", {}, "Distance computations"),
+        el("th", {}, "Recall@k"),
+        el("th", {}, "Top-k match vs Brute Force")
+      )
+    );
+
+    const tbody = el("tbody", {});
+
+    for (const row of rows) {
+      const algCell = el("td", {},
+        el("div", { className: "compare-table-alg-cell" },
+          el("span", { className: `compare-race-dot bg-${row.alg}` }),
+          el("span", {}, row.label)
         )
       );
 
-      // Row 4: Top-k rank match
-      const rankRow = el("div", { className: "compare-card-row compare-row-rank" });
-      if (card.isBrute) {
-        rankRow.appendChild(
-          el("div", { className: "compare-row-top" },
-            el("span", { className: "compare-metric-label" }, "Top-k rank match")
-          )
-        );
-        rankRow.appendChild(
-          el("span", { className: "compare-rank-ref" }, "Reference for the other algorithms")
-        );
-      } else {
-        rankRow.appendChild(
-          el("div", { className: "compare-row-top" },
-            el("span", { className: "compare-metric-label" }, "Top-k rank match"),
-            el("span", {
-              className: "compare-rank-count",
-              "aria-label": `${card.sameCount} of ${card.total} same rank`
-            }, `${card.sameCount} / ${card.total}`)
-          )
-        );
+      const distCell = el("td", {},
+        el("span", { className: "compare-table-num-cell" }, String(row.distanceComputations))
+      );
 
+      const recallCell = el("td", {},
+        el("span", { className: "compare-table-num-cell" }, row.recallPercent)
+      );
+
+      const matchTd = el("td", {});
+      if (row.isBrute) {
+        matchTd.appendChild(el("span", { className: "text-muted" }, "Ground truth"));
+      } else {
+        const matchWrap = el("div", { className: "compare-table-match-cell" });
         const stripEl = el("div", {
-          className: "compare-rank-strip",
+          className: "compare-table-match-strip",
           role: "group",
-          "aria-label": `${card.total} rank match indicators`
+          "aria-label": `${row.total} rank match indicators`
         });
 
-        for (const cellData of (card.rankStrip || [])) {
+        for (const cellData of (row.rankStrip || [])) {
           if (cellData.isMatch) {
-            stripEl.appendChild(el("span", { className: `compare-rank-cell filled bg-${alg}` }));
+            stripEl.appendChild(el("span", { className: `compare-rank-cell filled bg-${row.alg}` }));
           } else {
             const expectedText = cellData.expectedId !== null ? `#${cellData.expectedId}` : "-";
             const gotText = cellData.gotId !== null ? `#${cellData.gotId}` : "-";
@@ -456,33 +499,22 @@ export function initCompareTab() {
           }
         }
 
-        rankRow.appendChild(stripEl);
+        const countEl = el("span", {
+          className: "compare-table-match-count",
+          "aria-label": `${row.sameCount} of ${row.total} same rank`
+        }, `${row.sameCount} / ${row.total}`);
+
+        matchWrap.append(stripEl, countEl);
+        matchTd.appendChild(matchWrap);
       }
 
-      // Row 5: Recall (plain primary text number, regular weight, sans)
-      const recallRow = el("div", { className: "compare-card-row compare-row-recall" },
-        el("div", { className: "compare-row-single" },
-          el("span", { className: "compare-metric-label" }, "Recall"),
-          el("span", { className: "compare-metric-num" }, card.recallPercent)
-        )
-      );
-
-      // Card Container
-      const cardEl = el("div", {
-        className: "compare-card",
-        "data-alg": alg,
-        role: "region",
-        "aria-label": card.label
-      },
-        headerEl,
-        latencyRow,
-        distRow,
-        rankRow,
-        recallRow
-      );
-
-      cardsContainer.appendChild(cardEl);
+      tbody.appendChild(el("tr", {}, algCell, distCell, recallCell, matchTd));
     }
+
+    const tableEl = el("table", { className: "compare-detail-table" }, thead, tbody);
+    const tableWrap = el("div", { className: "compare-table-wrap" }, tableEl);
+
+    tableSection.append(labelEl, tableWrap);
   }
 
   // Event Handlers

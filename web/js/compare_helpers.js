@@ -936,6 +936,238 @@ export function buildRankStrip(groundTruthResults, candidateResults, k) {
 }
 
 /**
+ * Builds the single-sentence comparison headline and metadata subline.
+ *
+ * @param {Object} report
+ * @param {Object} [latencies]
+ * @param {Object} [options]
+ * @returns {{
+ *   text: string,
+ *   subline: string,
+ *   fastestKey: string,
+ *   fastestLabel: string,
+ *   medianUs: number,
+ *   ratioVsBrute: number,
+ *   ratioText: string,
+ *   recallPercent: string,
+ *   isBruteFastest: boolean,
+ *   vectorCount: number,
+ *   k: number,
+ *   repetitions: number,
+ *   parts: Array<{ text: string, isEmphasis: boolean }>
+ * }}
+ */
+export function buildCompareHeadline(report, latencies, options = {}) {
+  if (!report || typeof report !== "object" || !report.algorithms) {
+    return {
+      text: "",
+      subline: "",
+      fastestKey: "",
+      fastestLabel: "",
+      medianUs: 0,
+      ratioVsBrute: 1.0,
+      ratioText: "1.0x",
+      recallPercent: "0.0%",
+      isBruteFastest: false,
+      vectorCount: 0,
+      k: 10,
+      repetitions: 1,
+      parts: []
+    };
+  }
+
+  const algs = report.algorithms;
+  const stats = {
+    brute: computeTimingStats(latencies?.brute || [algs.brute?.latency_us || 0]),
+    kdtree: computeTimingStats(latencies?.kdtree || [algs.kdtree?.latency_us || 0]),
+    hnsw: computeTimingStats(latencies?.hnsw || [algs.hnsw?.latency_us || 0])
+  };
+
+  const bruteMed = Math.round(stats.brute.median);
+  const kdMed = Math.round(stats.kdtree.median);
+  const hnswMed = Math.round(stats.hnsw.median);
+
+  // Candidate order prioritizes Brute Force on ties
+  const candidates = [
+    { key: "brute", label: "Brute Force", median: bruteMed, recall: algs.brute?.recall_at_k ?? 1.0 },
+    { key: "kdtree", label: "KD-Tree", median: kdMed, recall: algs.kdtree?.recall_at_k ?? 1.0 },
+    { key: "hnsw", label: "HNSW", median: hnswMed, recall: algs.hnsw?.recall_at_k ?? 1.0 }
+  ];
+
+  let fastest = candidates[0];
+  for (let i = 1; i < candidates.length; i++) {
+    if (candidates[i].median < fastest.median) {
+      fastest = candidates[i];
+    }
+  }
+
+  const isBruteFastest = (fastest.key === "brute");
+  const kVal = Math.max(1, Math.round(Number(options.k || report.k) || 10));
+  const vectorCount = Math.max(0, Math.round(Number(report.count) || 0));
+  const reps = Math.max(1, Math.round(Number(options.repetitions || latencies?.brute?.length || report.repetitions || 1)));
+
+  const recallPercent = formatRecallPercent(fastest.recall);
+  const ratio = (fastest.median > 0 && bruteMed > 0) ? (bruteMed / fastest.median) : 1.0;
+  const ratioFormatted = (Math.round(ratio * 10) / 10).toFixed(1);
+  const ratioText = `${ratioFormatted}x`;
+
+  let text = "";
+  let parts = [];
+  if (isBruteFastest) {
+    text = `Brute Force was fastest on this collection (${vectorCount} vectors) at ${fastest.median} µs; graph and tree indexes pay off at larger sizes.`;
+    parts = [
+      { text: "Brute Force", isEmphasis: true },
+      { text: " was fastest on this collection (" },
+      { text: `${vectorCount} vectors`, isEmphasis: true },
+      { text: ") at " },
+      { text: `${fastest.median} µs`, isEmphasis: true },
+      { text: "; graph and tree indexes pay off at larger sizes." }
+    ];
+  } else {
+    text = `${fastest.label} was fastest at ${fastest.median} µs (${ratioText} faster than Brute Force) with ${recallPercent} recall.`;
+    parts = [
+      { text: fastest.label, isEmphasis: true },
+      { text: " was fastest at " },
+      { text: `${fastest.median} µs`, isEmphasis: true },
+      { text: " (" },
+      { text: `${ratioText} faster than Brute Force`, isEmphasis: true },
+      { text: ") with " },
+      { text: recallPercent, isEmphasis: true },
+      { text: " recall." }
+    ];
+  }
+
+  const repWord = reps === 1 ? "repetition" : "repetitions";
+  const subline = `k = ${kVal}, ${vectorCount} vectors, ${reps} ${repWord}, median of runs.`;
+
+  return {
+    text,
+    subline,
+    fastestKey: fastest.key,
+    fastestLabel: fastest.label,
+    medianUs: fastest.median,
+    ratioVsBrute: ratio,
+    ratioText,
+    recallPercent,
+    isBruteFastest,
+    vectorCount,
+    k: kVal,
+    repetitions: reps,
+    parts
+  };
+}
+
+/**
+ * Builds the view-models for the 3-row latency race.
+ *
+ * @param {Object} report
+ * @param {Object} [latencies]
+ * @returns {Array<{
+ *   alg: "brute"|"kdtree"|"hnsw",
+ *   label: string,
+ *   medianUs: number,
+ *   minUs: number,
+ *   maxUs: number,
+ *   rangeText: string,
+ *   barWidthPct: number,
+ *   isFastest: boolean,
+ *   valueClass: string
+ * }>}
+ */
+export function buildLatencyRaceRows(report, latencies) {
+  if (!report || typeof report !== "object" || !report.algorithms) {
+    return [];
+  }
+
+  const algs = report.algorithms;
+  const stats = {
+    brute: computeTimingStats(latencies?.brute || [algs.brute?.latency_us || 0]),
+    kdtree: computeTimingStats(latencies?.kdtree || [algs.kdtree?.latency_us || 0]),
+    hnsw: computeTimingStats(latencies?.hnsw || [algs.hnsw?.latency_us || 0])
+  };
+
+  const algOrder = ["brute", "kdtree", "hnsw"];
+  const medians = algOrder.map(k => stats[k].median);
+  const scale = computeBarScale(medians);
+  const minMedian = Math.min(...medians);
+
+  return algOrder.map(alg => {
+    const s = stats[alg];
+    const medianUs = Math.round(s.median);
+    const minUs = Math.round(s.min);
+    const maxUs = Math.round(s.max);
+    const isFastest = (s.median === minMedian);
+    const barWidthPct = scale.getBarWidthPercent(s.median);
+
+    return {
+      alg,
+      label: ALGORITHM_LABELS[alg] || alg,
+      medianUs,
+      minUs,
+      maxUs,
+      rangeText: formatRangeText(minUs, maxUs),
+      barWidthPct,
+      isFastest,
+      valueClass: isFastest ? "text-primary" : "text-secondary"
+    };
+  });
+}
+
+/**
+ * Builds the view-models for the 3x4 accuracy and work detail table.
+ *
+ * @param {Object} report
+ * @returns {Array<{
+ *   alg: "brute"|"kdtree"|"hnsw",
+ *   label: string,
+ *   isBrute: boolean,
+ *   distanceComputations: number,
+ *   recallPercent: string,
+ *   rankStrip: Array|null,
+ *   sameCount: number,
+ *   total: number
+ * }>}
+ */
+export function buildDetailTableRows(report) {
+  if (!report || typeof report !== "object" || !report.algorithms) {
+    return [];
+  }
+
+  const algs = report.algorithms;
+  const kVal = Math.max(1, Math.round(Number(report.k) || 10));
+  const bruteResults = Array.isArray(algs.brute?.results) ? algs.brute.results : [];
+  const algOrder = ["brute", "kdtree", "hnsw"];
+
+  return algOrder.map(alg => {
+    const aData = algs[alg] || {};
+    const isBrute = (alg === "brute");
+    const distanceComputations = Math.max(0, Math.round(Number(aData.distance_computations) || 0));
+    const recallPercent = formatRecallPercent(aData.recall_at_k);
+
+    let rankStrip = null;
+    let sameCount = 0;
+    let total = kVal;
+
+    if (!isBrute) {
+      rankStrip = buildRankStrip(bruteResults, aData.results, kVal);
+      sameCount = rankStrip.sameCount;
+      total = rankStrip.total;
+    }
+
+    return {
+      alg,
+      label: ALGORITHM_LABELS[alg] || alg,
+      isBrute,
+      distanceComputations,
+      recallPercent,
+      rankStrip,
+      sameCount,
+      total
+    };
+  });
+}
+
+/**
  * Maps a benchmark report and latencies into 3 card view-models (brute, kdtree, hnsw).
  *
  * @param {Object} report
