@@ -1,6 +1,10 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by T-061
+Last updated: 2026-11-15 by SYNC-008
+
+> **NEXT STEP**: Compare tab redesign per ADR-050.
+> **NEEDED FROM THE HUMAN**: Two screenshots of the CURRENT Compare tab (empty state and results state, full browser window, 100% zoom).
+> Then the new Brain writes a ChatGPT image prompt (1920x1080, results first, then empty state; real controls only: repetitions 1/3/5/10/20, collection labels "Demo Vectors" / "Document Chunks", latency in microseconds, 10-row Top-k ground truth diff, algorithm colors Brute Force taupe `#9c8269`, KD-Tree moss `#708a78`, HNSW amber `#d9a441`, STRICTLY DO NOT ADD list, shell footer pill on one line, 28px main padding), the human generates both mockups, Brain reviews them against real controls, then writes ONE builder task that MUST use the shared `createDropdown` from `web/js/ui.js` for the collection and repetitions selects.
 
 ## 1. Current Status
 
@@ -52,21 +56,21 @@ Task T-061 established equal-height tabs in the Ask glass-box (no size change wh
 - **Commit `19b2276` (T-061)**: Fixed tab height (`--glassbox-tab-h: 196px`), equal content-area height (220px with 24px vertical padding), fixed positions for footer buttons. Sources tab scrolls cleanly inside fixed 196px box if k > 3 rows. Latency tab stretches 5 tiles vertically to fill box height with centered content, larger numbers (`font-size: var(--text-lg)`), centered arrows, amber Total tile, and muted caption (`"Time spent in each stage of this answer."`); empty state centered vertically and horizontally. Algorithms tab spreads 3 benchmark rows evenly (`justify-content: space-evenly`), HNSW trace summary line sits inside the same box below rows without expanding height (total 135px <= 196px); empty state centered vertically and horizontally. Footer actions stay directly under the box in the exact same position for all tabs. Instant tab switching, 200ms accordion animation, ARIA tabs, keyboard navigation, and citations strictly preserved.
 
 ### Current Status by Tab (2026-11-15):
-- **Ask**: T-060 human-verified by terminal and screenshots on 2026-11-15 (127/127 in /tests.html, animation smooth); T-061 equal-height tabs implemented and verified via headless Chrome. Still pending human screenshots: open dropdown popup, collapsed 56px sidebar rail, citation-pill click expand, keyboard tab navigation; text size of strip/tabs may be raised in a later task (human has not decided); duplicate sample document still ingested twice (human will delete one); Compare tab mockups still waiting.
-- **Compare**: Brain gave the human a ChatGPT image prompt (results state first, then empty state); the human is generating the two images; WAITING for the images; then Brain reviews them and writes the Compare task, which will use the shared dropdown from T-058/T-059.
+- **Ask**: COMPLETE & HUMAN-VERIFIED (T-057, T-058, T-059, T-060, T-061). Drawer re-center, collapsed-by-default glass-box, 3 tabs (Sources, Latency, Algorithms) with equal fixed height (`--glassbox-tab-h: 196px`), smooth animation confirmed by human ("satisfied now with the work" after T-061). Pending human screenshots: open algorithm dropdown popup, sidebar collapsed 56px rail, `[n]` citation pill click expand & scroll, keyboard tab navigation (ArrowLeft/Right), 125% zoom, Docs-mode tabs. Open human decision: raise text size of glass-box strip title and tabs (Brain proposed strip title 14px, tabs 14px, chunk subtitle and footer buttons 13px; human has NOT decided; do not start without instruction). Duplicate sample doc to be deleted by human in Documents drawer (causes duplicate Chunk rows in Sources).
+- **Compare**: NEXT per ADR-050. Awaiting human screenshots of current empty and results states (1920x1080, 100% zoom) to write ChatGPT image prompt.
 - **Explore, HNSW, Settings**: Not started in this per-tab workflow.
 
-### Human-Confirmed on 2026-11-15 (Terminal after T-057):
-- HEAD: `4f82c21` (`docs: T-057 sync`), preceded by `b9fd372`, `acb96a3`.
+### Human-Confirmed on 2026-11-15 (Terminal after T-061):
+- HEAD: `60d2123` (`docs: T-061 sync`), preceded by `19b2276`, `9123a14`, `0cf2d47`, `fb0bf01`.
 - C++ hermetic suite: 118/118 passed (529,813 assertions).
-- Web safety automated scanner: 100% clean (28 files).
+- Web safety automated scanner: 100% clean (28 files scanned).
 - CSS Quality metrics: `!important` count = 2, `box-shadow` count = 0, zero hex color literals in `web/js` outside `colors.js`.
 - No match for "dot" in either `vectordb_intro.txt` (`samples/vectordb_intro.txt` and `web/samples/vectordb_intro.txt`).
 - Engine diff: `git diff --stat ui-quiet-studio -- src include tests` strictly empty.
 
 ### Human-Confirmed on 2026-11-15 (Real Browser Screenshots):
-- `/tests.html`: 116/116 passed after T-057. (Before T-059 A, human's `/tests.html` showed 120 passed, 1 failed on createDropdown init out of 121; fixed in T-059 A).
-- Ask empty state: shows the new helper line and the algorithm select chevron.
+- `/tests.html`: 127/127 passed (after T-060 B).
+- Ask empty state: shows the helper line and the algorithm select chevron.
 - Sidebar footer: "Ollama online" pill is strictly on one line.
 - Ask answer view: fills down to the composer with no dead gap.
 - Chunk similarity: (e.g. 70.0%) is on one line.
@@ -75,15 +79,18 @@ Task T-061 established equal-height tabs in the Ask glass-box (no size change wh
 - Compare algorithms block: uses taupe/moss/amber dots and real proportional bars (first run showed KD-Tree 19.71 ms as a cold-start tree build, so its bar was full length; second run all in microseconds; this is real engine behaviour, not a UI bug; the human may decide later whether to warm up the KD-Tree first).
 - Latency numbers add up: Embed 90.3 ms + First token 16.53 s, Generate 22.30 s, Total 22.39 s.
 - Documents drawer: opening the Documents drawer smoothly shifts and re-centers the chat column in the remaining space without obscuring messages or composer.
-- Glass-box accordion: "How this was answered" defaults to collapsed with ghost toggle pill and expands when clicked.
+- Glass-box accordion: "How this was answered" defaults to collapsed with ghost toggle pill and expands smoothly (200ms ease-out animation judged smooth by human).
+- Glass-box 3 tabs: Sources, Latency, Algorithms with equal fixed height (`--glassbox-tab-h: 196px`), no height shift on tab switch; human confirmed "satisfied now with the work" after T-061.
 - Note on documents: The sample document was ingested twice in the human's environment (duplicate inventory, showing Chunk #3 twice in retrieved chunks); human will delete one in their own workflow.
 
 ### Earlier Human Screenshots 2026-11-15 (before T-057):
 - Explore (empty and with 1000 vectors), HNSW layer L0 (13,562 edges), Compare (empty and results), Settings (1000 and 1100 vectors, memory 507.8 KB then 558.6 KB) all rendered; numbers consistent.
 
 ### NOT Yet Seen by the Human:
+- Open algorithm dropdown popup visual.
 - Sidebar collapsed (56px rail).
-- Open dropdown popup visual.
+- `[n]` citation pill click expanding the panel and scrolling to the card.
+- Keyboard tab navigation (ArrowLeft/Right).
 - 125% zoom layout check across tabs.
 - Explore/HNSW/Compare in Docs mode.
 - Compare and Settings at full 1920x1080 window (the crops the human sent were about 1794px wide and showed content touching the sidebar and the right edge; unverified whether real).
@@ -110,19 +117,7 @@ For each tab in the order Ask, Compare, Explore, HNSW, Settings:
 
 ---
 
-## T-058 (approved, execution not confirmed)
-
-Approved by the human; Antigravity builder executed on branch `ui-redesign-v3` in commits `833a2ee` (T-058 A) and `a557a53` (T-058 B), with 121 browser unit tests registered in code. Pending human confirmation and verification in the next chat. Requirements:
-
-1. **Documents drawer**: When opened, the chat column (header, thread, composer) shifts left and re-centers in the free space between the sidebar and the drawer so nothing is covered; returns to normal centered position when closed; 200ms transition, none under `prefers-reduced-motion`; header, thread and composer move together and keep the same width; narrow widths (<1280px) fall back to overlay.
-2. **"How this was answered"**: Collapsed by default for every answer (new, latest, restored from chat history), stays collapsed during streaming; a ghost toggle with chevron expands it; each answer keeps its own state; clicking a `[n]` citation pill auto-expands that answer's panel, then scrolls to and highlights the source card.
-3. **Algorithm select**: Replace native select `#ask-algo-select` with a custom dark dropdown (button + popup list, flat `--bg-raised` surface, radius 10px, no shadow, options HNSW, KD-Tree, Brute Force, amber check on the selected one, opens upward near the bottom, full keyboard support and ARIA: `aria-haspopup="listbox"`, `role="listbox"`, `role="option"`, `aria-selected`). Keep id `#ask-algo-select` on the element exposing the value (hidden input). Built as reusable helper `createDropdown(options, value, onChange)` in `web/js/ui.js` with `createElement` only. Other tabs' selects are NOT changed in T-058.
-4. **Pure-logic browser tests**: Registered unit tests for the dropdown selection/keyboard-index helper (`getDropdownNextIndex`) and the accordion default-collapsed helper.
-5. **Acceptance criteria**: Exactly one `.btn-primary` (Send) in Ask in every state; no new hex literals outside `:root` and `web/js/colors.js`; `!important` <= 3; `box-shadow` = 0; scanner pass; C++ 118/118; `git diff --stat ui-quiet-studio -- src include tests` empty. Commits: `"T-058 A: drawer re-centers chat, glass-box collapsed by default"`, `"T-058 B: shared dark dropdown component, Ask algorithm select"`, `"docs: T-058 sync"`. No push.
-
----
-
-### Complete Commits List for T-055 through T-059:
+### Complete Commits List for T-055 through T-061:
 - `7dc5cf6`: T-055 A: design tokens, shared components and app shell
 - `48dd7ab`: T-055 B: Ask tab empty and results state
 - `79693eb`: docs: T-055 sync
@@ -146,21 +141,23 @@ Approved by the human; Antigravity builder executed on branch `ui-redesign-v3` i
 - `5d04dca`: docs: SYNC-007
 - `82e828c`: T-059 A: fix createDropdown recursion and add regression test
 - `f5e3609`: T-059 B: smooth accordion animation, clear stray hex literal
+- `1df744b`: docs: T-059 sync
 - `fb0bf01`: T-060 A: Ask glass-box summary strip and 3-tab layout
 - `0cf2d47`: T-060 B: accordion animation, citation expand, tab keyboard support
 - `9123a14`: docs: T-060 sync
 - `19b2276`: T-061: equal-height glass-box tabs with filled content
+- `60d2123`: docs: T-061 sync
 
 ### Verification Status Breakdown:
 - **Human-Confirmed (Real Browser & Terminal on 2026-11-15)**:
   - C++ hermetic suite: 118/118 passed (529,813 assertions).
-  - Browser tests: `/tests.html` 116/116 passing after T-057. (Before T-059 A, human's `/tests.html` showed 120 passed, 1 failed on createDropdown init; fixed in T-059 A; 121 registered tests now in code).
-  - Screenshots confirmed: Ask empty, Ask results, Documents drawer re-centering, "How this was answered" default collapsed & expand, Explore Demo PCA, HNSW L0 graph and trace, Compare empty and results, Settings 3-column grid.
-  - Web safety automated scanner: 100% clean (zero innerHTML/outerHTML, strict CSP verified).
+  - Browser tests: `/tests.html` 127/127 passing (human-confirmed on 2026-11-15 after T-060 B).
+  - Screenshots confirmed: Ask empty, Ask results, Documents drawer re-centering, "How this was answered" default collapsed & 200ms smooth expand, equal-height tabs (`--glassbox-tab-h: 196px`), Explore Demo PCA, HNSW L0 graph and trace, Compare empty and results, Settings 3-column grid.
+  - Web safety automated scanner: 100% clean (28 files, zero innerHTML/outerHTML, strict CSP verified).
   - CSS metrics: `!important` count = 2, `box-shadow` count = 0, zero hex literals outside `:root` and `colors.js`.
   - Git state: clean tracked files on branch `ui-redesign-v3`.
 - **Builder-Reported (Visual States NOT YET TESTED)**:
-  - All visual animation changes in T-059 B (200ms accordion smooth expand/collapse, chevron rotation, citation-pill transitionend scroll) and T-058 dropdown open visual are reported as "not tested (visual)" pending human review and screenshot capture at 100% zoom. Builder claims of visual accuracy are never proof.
+  - Open algorithm dropdown popup visual, collapsed 56px sidebar rail, `[n]` citation pill click expand and scroll, keyboard tab navigation (ArrowLeft/Right), 125% zoom layout check across tabs, Docs-mode tabs. Builder claims of visual accuracy are never proof.
 
 ### Known Pending Items for Later Tab Tasks:
 1. Explore subtitle displays "document chunk" text on Demo Vectors.
@@ -350,10 +347,12 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ## 5. Pending Human Actions
 
-1. **License copyright name**: Fill `<YOUR NAME>` placeholder in `LICENSE`.
-2. **Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
-3. **No merge and no push**: Do NOT merge `ui-redesign-v3` into `main` and do NOT push to remote origin until approved.
-4. **Sample reload procedure**: After loading a corrected sample document the human must delete the old "VectorDB Intro" in the Documents drawer and press Sample again (the server keeps ingested documents in memory unless `--data-dir` is used).
+1. **Send Compare tab screenshots**: Take two screenshots of the CURRENT Compare tab (empty state and results state, full browser window, 100% zoom) and send them to Brain.
+2. **Delete duplicate document**: Delete one of the two duplicate "VectorDB Intro" documents in the Documents drawer (causes duplicate Chunk rows in Sources).
+3. **Decide glass-box text size**: Decide whether to raise text size of glass-box strip title and tabs (Brain proposed strip title 14px, tabs 14px, chunk subtitle and footer buttons 13px; human has NOT decided; do not start without instruction).
+4. **License copyright name**: Fill `<YOUR NAME>` placeholder in `LICENSE`.
+5. **Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
+6. **No merge and no push**: Do NOT merge `ui-redesign-v3` into `main` and do NOT push to remote origin until approved.
 
 ---
 
@@ -361,17 +360,26 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ### Open Follow-ups
 - **Redesign v3.1 per-tab rollout (ADR-050)**:
-  - Ask tab: COMPLETE & HUMAN-VERIFIED (T-057). T-058 approved (execution not confirmed by Brain; code committed on branch).
-  - Compare tab: NEXT (WAITING for human's two ChatGPT mockup images).
+  - Ask tab: COMPLETE & HUMAN-VERIFIED (T-057 through T-061: drawer re-center, collapsed-by-default glass-box, 3 tabs with equal fixed height `--glassbox-tab-h: 196px`, 200ms smooth animation, `/tests.html` 127/127; human said "satisfied now with the work" after T-061).
+  - Compare tab: NEXT (WAITING for human's two screenshots of current Compare tab to write ChatGPT prompt).
   - Explore tab: PENDING (redesign v3.1 from human-approved mockup).
   - HNSW tab: PENDING (redesign v3.1 from human-approved mockup).
   - Settings tab: PENDING (redesign v3.1 from human-approved mockup).
-- **Known Pending Items for Later Tab Tasks**:
+- **Compare Known Issues to Fix in Upcoming Task**:
+  - Collection select label clips ("Demo Collection (Random/Vectors") and must use labels "Demo Vectors" / "Document Chunks" like Explore.
+  - Empty-state Summary Metrics header is clipped (`Distai...`, `Recall@k` missing) with a horizontal scrollbar.
+  - Possible zero left padding and clipped right edge in 1794px crops (needs a full-window 100% screenshot to confirm whether real).
+  - Native selects to be replaced by `createDropdown` from `web/js/ui.js` (ADR-051).
+- **Pending Human Screenshots (Not Yet Seen)**:
+  - Open algorithm dropdown popup visual.
+  - Sidebar collapsed 56px rail.
+  - `[n]` citation pill click expanding the panel and scrolling to the card.
+  - Keyboard tab navigation (ArrowLeft/Right).
+  - 125% zoom layout check across tabs.
+  - Docs-mode tabs (Explore Docs with document cluster legend; HNSW Docs notice).
+- **Other Tab Items**:
   - Explore subtitle displays "document chunk" text on Demo Vectors (must depend on collection).
   - Explore empty state shows an active solid amber Random Query button that cannot work when empty (must be disabled).
-  - Compare collection select text clips ("Demo Collection (Random/Vectors") and should use the labels "Demo Vectors" / "Document Chunks" like Explore.
-  - Compare empty-state Summary Metrics header is clipped (`Distai...`, `Recall@k` missing) with a horizontal scrollbar.
-  - Compare and Settings possible zero left padding and clipped right edge in 1794px crops (verify with full-window screenshot).
   - Settings title alignment differs from other tabs (verify).
   - Ask "Compare algorithms" can show a cold-start KD-Tree outlier.
 - Optional C++ unit test for ISS-006 ingest rollback.
@@ -386,10 +394,11 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ## 7. Recommended Next Step
 
-1. **If T-058 has not been run**: The human sends T-058 to Antigravity.
-2. **Human verifies after T-058 by terminal and screenshots**: drawer open, new answer collapsed then expanded, dropdown open, sidebar collapsed 56px, `[n]` pill click opens panel.
-3. **Human sends the two Compare mockup images** (results state first, then empty state from Brain's prompt).
-4. **Brain reviews them and writes the Compare task** (which must use the shared dropdown from T-058).
+1. **Human sends two screenshots of the CURRENT Compare tab** (empty state and results state, full browser window, 100% zoom).
+2. **New Brain writes a ChatGPT image prompt** (1920x1080, results first, then empty state; real controls only: repetitions 1/3/5/10/20, collection labels "Demo Vectors" / "Document Chunks", latency in microseconds, 10-row Top-k ground truth diff, algorithm colors Brute Force taupe `#9c8269`, KD-Tree moss `#708a78`, HNSW amber `#d9a441`, STRICTLY DO NOT ADD list, shell footer pill on one line, 28px main padding).
+3. **Human generates both mockups** and sends them to Brain.
+4. **Brain reviews them against real controls** (rejecting hallucinations and unbacked engine controls).
+5. **Brain writes ONE builder task** that MUST use the shared `createDropdown` from `web/js/ui.js` for the collection and repetitions selects and addresses Compare known issues (clipped collection select label, clipped empty summary metrics header, padding).
 
 ---
 

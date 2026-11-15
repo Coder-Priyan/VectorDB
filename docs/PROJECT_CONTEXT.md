@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-15 by T-057
+Last updated: 2026-11-15 by SYNC-008
 
 ## 1. Operating Model
 
@@ -163,24 +163,32 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 53. **Human Screenshot Cropping & Scaling**: Screenshots the human sends can be cropped or scaled (e.g. ~1794px wide); ask for the full browser window at 100% zoom before judging padding or edges.
 54. **In-Memory Persistence of Ingested Documents**: A corrected sample file (e.g. `vectordb_intro.txt`) does not update documents already ingested in server memory. To reload, delete the document in the Documents drawer and press Sample again (the server keeps ingested documents in memory unless `--data-dir` is used).
 55. **Human Terminal Verification Commands Set**: The human's standard terminal verification set after each task: `git status -sb`; `git log --oneline -4`; `git diff --stat ui-quiet-studio -- src include tests`; `.\build\vectordb_tests.exe`; `powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1`; `(Select-String -Path web\css\app.css -Pattern '!important').Count`; `(Select-String -Path web\css\app.css -Pattern 'box-shadow').Count`; `(Select-String -Path web\js\*.js -Pattern '#[0-9a-fA-F]{3,8}' | Where-Object { $_.Path -notmatch 'colors\.js' }).Count`; `/tests.html` count.
+56. **Human-Confirmed on 2026-11-15 by Terminal**: HEAD `60d2123`, C++ 118/118 (529,813 assertions), scanner pass, `!important` = 2, `box-shadow` = 0, hex literals outside `colors.js` = 0, engine diff empty; `/tests.html` 127/127 (human screenshot after T-060).
+57. **Lesson (ISS-059 - Builder Test Claims vs Real Tests)**: T-058 builder claimed 121 browser tests; the human's real `/tests.html` showed 120 passed, 1 failed (createDropdown init test, "Maximum call stack size exceeded"); fixed in T-059 A; human confirmed 121/121, later 127/127. Builder test counts are claims; only the human's `/tests.html` is proof.
+58. **Lesson (Fixed Equal-Height Tabs vs Variable min-height)**: Brain's T-060 spec used a 120px min-height for tab content, which was too small and made the panel height change between tabs; T-061 fixed it with one fixed height token (`--glassbox-tab-h: 196px`, derived from 3 source rows). When the human says a size or transition feels "off", check that the content areas have equal heights.
+59. **Lesson (No Trade-off Empty Space)**: The human does not accept "trade-off" empty space; fixed-height areas must be filled (content stretched/centered), not left blank.
+60. **Mockup Review Rejected Fakes for Glass-Box**: Panel outline border, amber expanded title, side-by-side tab previews, full-width chat column, changed composer dropdown icon, invented snippet text, pre-filled algorithm rows.
+61. **Screenshots vs Animation Smoothness**: Screenshots show only final states; animation smoothness is judged by the human's own words.
 
 ---
 
 ## 7. Verification Status (as of 2026-11-15)
 
-- **Human-Confirmed on 2026-11-15 (Terminal after T-057)**:
-  - HEAD: `4f82c21` (`docs: T-057 sync`), preceded by `b9fd372`, `acb96a3`.
+- **Human-Confirmed on 2026-11-15 (Terminal after T-061)**:
+  - HEAD: `60d2123` (`docs: T-061 sync`), preceded by `19b2276`, `9123a14`, `0cf2d47`, `fb0bf01`.
   - C++ hermetic suite: 118/118 passed (529,813 assertions).
   - Web safety automated scanner: 28 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
   - CSS Quality metrics: `!important` count = 2 (<= 3), `box-shadow` count = 0, zero hex color literals in `web/js` outside `colors.js`.
-  - No match for "dot" in either `vectordb_intro.txt` (`samples/vectordb_intro.txt` and `web/samples/vectordb_intro.txt`).
   - Git engine check: `git diff --stat ui-quiet-studio -- src include tests` strictly empty.
 
 - **Human-Confirmed on 2026-11-15 (Real Browser Screenshots)**:
-  - `/tests.html`: 116/116 passed.
-  - Ask empty state: shows the new helper line and the algorithm select chevron.
+  - `/tests.html`: 127/127 passed (after T-060 B).
+  - Ask empty state: shows the helper line and algorithm select chevron.
   - Sidebar footer: "Ollama online" pill is strictly on one line.
-  - Ask answer view: fills down to the composer with no dead gap.
+  - Ask answer view: fills down to composer with no dead gap.
+  - Documents drawer: re-centers chat column smoothly without covering content.
+  - "How this was answered" glass-box: collapsed by default, expands smoothly (200ms ease-out animation judged smooth by human).
+  - Glass-box 3 tabs: Sources, Latency, Algorithms with equal fixed height (`--glassbox-tab-h: 196px`), no height shift on tab switch; human confirmed "satisfied now with the work" after T-061.
   - Chunk similarity: (e.g. 70.0%) is on one line.
   - Citation `[1]`: amber pill.
   - Latency tiles: show arrows between them.
