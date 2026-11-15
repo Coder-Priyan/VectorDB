@@ -6,13 +6,8 @@ import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js
 import { el, createDropdown } from "./ui.js";
 import { createIcon } from "./icons.js";
 import {
-  computeTimingStats,
   getCompareEmptyStateConfig,
-  computeBarScale,
-  formatRangeText,
-  buildRankStrip,
-  formatRecallPercent,
-  ALGORITHM_LABELS
+  mapReportToCards
 } from "./compare_helpers.js";
 
 export function initCompareTab() {
@@ -366,74 +361,52 @@ export function initCompareTab() {
     if (!cardsContainer || !report || !report.algorithms) return;
     cardsContainer.replaceChildren();
 
-    const algs = report.algorithms;
-    const stats = {
-      brute: computeTimingStats(latencies?.brute || [algs.brute?.latency_us || 0]),
-      kdtree: computeTimingStats(latencies?.kdtree || [algs.kdtree?.latency_us || 0]),
-      hnsw: computeTimingStats(latencies?.hnsw || [algs.hnsw?.latency_us || 0])
-    };
+    const cardModels = mapReportToCards(report, latencies);
 
-    // Shared linear scale for latency bars: max lane = 100%
-    const latencyScale = computeBarScale([
-      stats.brute.median,
-      stats.kdtree.median,
-      stats.hnsw.median
-    ]);
-
-    const kVal = report.k || 10;
-    const algKeys = ["brute", "kdtree", "hnsw"];
-    const bruteResults = Array.isArray(algs.brute?.results) ? algs.brute.results : [];
-
-    for (const alg of algKeys) {
-      const aData = algs[alg] || {};
-      const tStat = stats[alg];
-      const medianUs = Math.round(tStat.median);
-      const minMaxStr = formatRangeText(tStat.min, tStat.max);
-      const latencyWidthPct = latencyScale.getBarWidthPercent(tStat.median);
+    for (const card of cardModels) {
+      const alg = card.alg;
 
       // Card Header: dot + algorithm name only (nothing else)
       const headerEl = el("div", { className: "compare-card-header" },
         el("span", { className: `compare-card-dot bg-${alg}` }),
-        el("span", {}, ALGORITHM_LABELS[alg] || alg)
+        el("span", {}, card.label)
       );
 
       // Section a: Median latency
       const latBarEl = el("div", { className: `compare-latency-bar bg-${alg}` });
-      latBarEl.style.setProperty("width", `${latencyWidthPct}%`);
+      latBarEl.style.setProperty("width", `${card.barWidthPct}%`);
       const latencySection = el("div", { className: "compare-card-section" },
         el("span", { className: "compare-metric-label" }, "Median latency"),
         el("div", { className: "compare-latency-val-wrap" },
-          el("span", { className: "compare-latency-num" }, String(medianUs)),
+          el("span", { className: "compare-latency-num" }, String(card.medianUs)),
           el("span", { className: "compare-latency-unit" }, "µs")
         ),
-        el("span", { className: "compare-latency-range" }, `Range ${minMaxStr}`),
+        el("span", { className: "compare-latency-range" }, `Range ${card.rangeText}`),
         el("div", { className: "compare-latency-track" }, latBarEl)
       );
 
       // Section b: Distance computations (plain number, no bar)
-      const distCount = aData.distance_computations ?? 0;
       const distSection = el("div", { className: "compare-card-section" },
         el("span", { className: "compare-metric-label" }, "Distance computations"),
-        el("span", { className: "compare-dist-num" }, String(distCount))
+        el("span", { className: "compare-dist-num" }, String(card.distanceComputations))
       );
 
       // Section c: Top-k rank match
       const rankSection = el("div", { className: "compare-card-section" },
         el("span", { className: "compare-metric-label" }, "Top-k rank match")
       );
-      if (alg === "brute") {
+      if (card.isBrute) {
         rankSection.appendChild(
           el("span", { className: "compare-rank-ref" }, "Reference for the other algorithms")
         );
       } else {
-        const strip = buildRankStrip(bruteResults, aData.results, kVal);
         const stripEl = el("div", {
           className: "compare-rank-strip",
           role: "group",
-          "aria-label": `${kVal} rank match indicators`
+          "aria-label": `${card.total} rank match indicators`
         });
 
-        for (const cellData of strip) {
+        for (const cellData of (card.rankStrip || [])) {
           if (cellData.isMatch) {
             stripEl.appendChild(el("span", { className: `compare-rank-cell filled bg-${alg}` }));
           } else {
@@ -462,15 +435,14 @@ export function initCompareTab() {
 
         rankSection.appendChild(stripEl);
         rankSection.appendChild(
-          el("span", { className: "compare-rank-summary" }, `${strip.sameCount} of ${kVal} same rank`)
+          el("span", { className: "compare-rank-summary" }, `${card.sameCount} of ${card.total} same rank`)
         );
       }
 
       // Section d: Recall (plain primary text number, regular weight, sans)
-      const recallText = formatRecallPercent(aData.recall_at_k);
       const recallSection = el("div", { className: "compare-card-section" },
         el("span", { className: "compare-metric-label" }, "Recall"),
-        el("span", { className: "compare-recall-num" }, recallText)
+        el("span", { className: "compare-recall-num" }, card.recallPercent)
       );
 
       // Card Container
@@ -478,7 +450,7 @@ export function initCompareTab() {
         className: "compare-card",
         "data-alg": alg,
         role: "region",
-        "aria-label": ALGORITHM_LABELS[alg] || alg
+        "aria-label": card.label
       },
         headerEl,
         latencySection,
