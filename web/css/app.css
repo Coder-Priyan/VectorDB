@@ -3230,42 +3230,33 @@ input[type="number"] {
 }
 
 /* ==========================================================================
-   Compare Tab: Lane Sheet & Rank Matrix Layout (Redesign v3.1 / ADR-056)
+   Compare Tab: Soft Lanes & Collapsed Top-k Diff Layout (Redesign v3.2 / ADR-057)
    ========================================================================== */
 #panel-compare {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: calc(100% + var(--space-3) * 2);
   min-height: 0;
   overflow: hidden;
   box-sizing: border-box;
-  gap: var(--space-3);
-  width: 100%;
+  margin: calc(-1 * var(--space-3)) calc(-1 * var(--space-6));
+  padding: 28px;
+  width: calc(100% + var(--space-6) * 2);
+  gap: var(--space-4);
 }
 
-.compare-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
+#panel-compare > .page-header {
+  padding: 0;
+  margin-bottom: 0;
   flex-shrink: 0;
 }
 
-.compare-dropdown-wrap {
-  display: inline-flex;
-  align-items: center;
-}
-
-.compare-toolbar-note {
-  white-space: nowrap;
-}
-
-/* Run bar: raised surface (~60-64px, 14px radius), 2px bottom progress line */
-.compare-run-bar {
+/* Control Row: one slim raised surface (~56px, 14px radius, --bg-raised, no border) */
+.compare-control-row {
   display: flex;
   align-items: center;
-  min-height: 60px;
-  height: 60px;
+  min-height: 56px;
+  height: 56px;
   background: var(--bg-raised);
   border-radius: var(--radius-lg);
   padding: 0 var(--space-4);
@@ -3273,26 +3264,40 @@ input[type="number"] {
   box-sizing: border-box;
   flex-shrink: 0;
   gap: var(--space-3);
+  justify-content: space-between;
 }
 
-.compare-run-controls {
+.compare-control-left {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   min-width: 0;
+  flex: 1;
 }
 
-.compare-param-group {
+.compare-dropdown-wrap {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.compare-query-wrap {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  flex: 1 1 240px;
+  min-width: 240px;
 }
 
-.compare-param-group .control-label {
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-  font-weight: 500;
-  white-space: nowrap;
+.compare-query-input {
+  width: 100%;
+  height: 32px;
+  padding: 4px 10px;
+  font-size: var(--text-sm);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  outline: none;
 }
 
 .compare-num-input {
@@ -3304,25 +3309,78 @@ input[type="number"] {
 }
 
 .compare-id-input {
-  width: 76px;
+  width: 90px;
   height: 32px;
   padding: 4px 8px;
   font-size: var(--text-sm);
 }
 
-.compare-query-input {
-  width: 280px;
-  height: 32px;
-  padding: 4px 10px;
-  font-size: var(--text-sm);
+.compare-options-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
 }
 
-.compare-bar-divider {
-  width: 1px;
-  height: 22px;
+.compare-options-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+}
+
+.compare-options-btn:hover {
+  color: var(--text-primary);
+}
+
+.compare-options-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  background: var(--bg-raised);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-hairline);
+  padding: var(--space-4);
+  z-index: 50;
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  outline: none;
+}
+
+.compare-options-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.compare-options-row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+}
+
+.compare-options-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.compare-options-field label {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.compare-options-divider {
+  height: 1px;
   background: var(--border-hairline);
-  margin: 0 var(--space-1);
-  flex-shrink: 0;
+  margin: 2px 0;
+}
+
+.compare-options-warmup {
+  line-height: 1.4;
 }
 
 .compare-progress-status {
@@ -3330,6 +3388,10 @@ input[type="number"] {
   font-size: var(--text-xs);
   color: var(--text-muted);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .compare-progress-track {
@@ -3347,8 +3409,18 @@ input[type="number"] {
 .compare-progress-fill {
   height: 100%;
   width: 0%;
-  background: var(--accent);
+  background: rgba(255, 255, 255, 0.1);
   transition: width 0.15s ease;
+}
+
+.compare-progress-fill.running {
+  background: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .compare-progress-fill {
+    transition: none;
+  }
 }
 
 /* Empty State Panel (Mutually exclusive with results stack) */
@@ -3361,7 +3433,7 @@ input[type="number"] {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: var(--space-6);
+  padding: 24px;
   box-sizing: border-box;
 }
 
@@ -3370,7 +3442,7 @@ input[type="number"] {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  max-width: 440px;
+  max-width: 480px;
   width: 100%;
 }
 
@@ -3752,14 +3824,14 @@ input[type="number"] {
     overflow-y: auto;
   }
 
-  .compare-run-bar {
+  .compare-control-row {
     height: auto;
-    min-height: 60px;
+    min-height: 56px;
     padding: var(--space-3) var(--space-4);
     flex-wrap: wrap;
   }
 
-  .compare-run-controls {
+  .compare-control-left {
     flex-wrap: wrap;
   }
 

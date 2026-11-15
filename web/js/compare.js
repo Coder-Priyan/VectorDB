@@ -43,11 +43,11 @@ export function initCompareTab() {
 
   const repeatDropdown = createDropdown(
     [
-      { value: "1", label: "1 (Single run)" },
-      { value: "3", label: "3 (Warmup + 3 runs)" },
-      { value: "5", label: "5 (Warmup + 5 runs)" },
-      { value: "10", label: "10 (Warmup + 10 runs)" },
-      { value: "20", label: "20 (Warmup + 20 runs)" }
+      { value: "1", label: "1 run" },
+      { value: "3", label: "3 runs" },
+      { value: "5", label: "5 runs" },
+      { value: "10", label: "10 runs" },
+      { value: "20", label: "20 runs" }
     ],
     "5",
     null,
@@ -58,16 +58,21 @@ export function initCompareTab() {
   const collSelect = byId("compare-coll-select");
   const repeatSelect = byId("compare-repeat-select");
 
-  const demoControls = byId("compare-demo-controls");
-  const docsControls = byId("compare-docs-controls");
+  const docsQueryWrap = byId("compare-docs-query-wrap");
+  const docsQueryInput = byId("compare-docs-query-input");
   const demoRandomBtn = byId("compare-demo-random-btn");
+  const docsRunBtn = byId("compare-docs-run-btn");
+
+  const optionsBtn = byId("compare-options-btn");
+  const optionsPopover = byId("compare-options-popover");
+  const demoOptions = byId("compare-demo-options");
+  const docsOptions = byId("compare-docs-options");
+
   const demoIdInput = byId("compare-demo-id-input");
   const demoIdBtn = byId("compare-demo-id-btn");
   const demoKInput = byId("compare-k-input");
   const demoEfInput = byId("compare-ef-input");
 
-  const docsQueryInput = byId("compare-docs-query-input");
-  const docsRunBtn = byId("compare-docs-run-btn");
   const docsKInput = byId("compare-docs-k-input");
   const docsEfInput = byId("compare-docs-ef-input");
 
@@ -77,6 +82,50 @@ export function initCompareTab() {
   const resultsCard = byId("compare-results-card");
   const lanesContent = byId("compare-lanes-content");
   const matrixContent = byId("compare-matrix-content");
+
+  // Populate Options button icons
+  const optionsIconSlot = optionsBtn?.querySelector(".compare-options-icon-slot");
+  const optionsChevronSlot = optionsBtn?.querySelector(".compare-options-chevron-slot");
+  if (optionsIconSlot && !optionsIconSlot.hasChildNodes()) {
+    optionsIconSlot.appendChild(createIcon("sliders", 14));
+  }
+  if (optionsChevronSlot && !optionsChevronSlot.hasChildNodes()) {
+    optionsChevronSlot.appendChild(createIcon("chevronDown", 12));
+  }
+
+  function toggleOptions(open) {
+    if (!optionsPopover || !optionsBtn) return;
+    const shouldOpen = open !== undefined ? open : optionsPopover.classList.contains("hidden");
+    if (shouldOpen) {
+      optionsPopover.classList.remove("hidden");
+      optionsBtn.setAttribute("aria-expanded", "true");
+      const isDocs = collDropdown.getValue() === "docs";
+      const firstInput = isDocs ? docsKInput : demoKInput;
+      firstInput?.focus();
+    } else {
+      optionsPopover.classList.add("hidden");
+      optionsBtn.setAttribute("aria-expanded", "false");
+    }
+  }
+
+  optionsBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleOptions();
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!optionsPopover || optionsPopover.classList.contains("hidden")) return;
+    if (!optionsPopover.contains(e.target) && !optionsBtn?.contains(e.target)) {
+      toggleOptions(false);
+    }
+  });
+
+  optionsPopover?.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      toggleOptions(false);
+      optionsBtn?.focus();
+    }
+  });
 
   const emptyIconSlot = byId("compare-empty-icon");
   if (emptyIconSlot && !emptyIconSlot.hasChildNodes()) {
@@ -102,8 +151,11 @@ export function initCompareTab() {
 
   function updateCollectionVisibility() {
     const isDocs = collDropdown.getValue() === "docs";
-    demoControls?.classList.toggle("hidden", isDocs);
-    docsControls?.classList.toggle("hidden", !isDocs);
+    demoRandomBtn?.classList.toggle("hidden", isDocs);
+    docsRunBtn?.classList.toggle("hidden", !isDocs);
+    docsQueryWrap?.classList.toggle("hidden", !isDocs);
+    demoOptions?.classList.toggle("hidden", isDocs);
+    docsOptions?.classList.toggle("hidden", !isDocs);
     if (initialRunBtn) {
       initialRunBtn.textContent = isDocs ? "Benchmark Document Chunks" : "Benchmark Demo Vectors";
     }
@@ -114,7 +166,10 @@ export function initCompareTab() {
     lanesContent?.replaceChildren();
     matrixContent?.replaceChildren();
     if (statusNotice) statusNotice.textContent = "Ready to benchmark.";
-    if (progressBar) progressBar.style.setProperty("width", "0%");
+    if (progressBar) {
+      progressBar.classList.remove("running");
+      progressBar.style.setProperty("width", "0%");
+    }
   }
 
   function showDefaultEmptyState(title, desc) {
@@ -174,7 +229,11 @@ export function initCompareTab() {
     demoRandomBtn?.setAttribute("disabled", "true");
     demoIdBtn?.setAttribute("disabled", "true");
     docsRunBtn?.setAttribute("disabled", "true");
-    if (progressBar) progressBar.style.setProperty("width", "0%");
+    if (statusNotice) statusNotice.textContent = "Ready to benchmark.";
+    if (progressBar) {
+      progressBar.classList.remove("running");
+      progressBar.style.setProperty("width", "0%");
+    }
     showEmptyView();
   }
 
@@ -185,9 +244,15 @@ export function initCompareTab() {
   async function runBenchmarkSuite(getPayloadFn, isDocs) {
     clearGlobalError();
     resultsCard?.classList.add("hidden");
-    if (progressBar) progressBar.style.setProperty("width", "0%");
+    if (progressBar) {
+      progressBar.classList.add("running");
+      progressBar.style.setProperty("width", "0%");
+    }
     const ready = await checkCollectionStats();
-    if (!ready) return;
+    if (!ready) {
+      progressBar?.classList.remove("running");
+      return;
+    }
 
     const repeatCount = parseInt(repeatDropdown.getValue() || "5", 10);
     const latencies = { brute: [], kdtree: [], hnsw: [] };
@@ -231,10 +296,21 @@ export function initCompareTab() {
       }
       if (progressBar) progressBar.style.setProperty("width", "100%");
 
+      // Return progress line to muted when finished (no permanent amber)
+      setTimeout(() => {
+        if (progressBar) {
+          progressBar.classList.remove("running");
+          progressBar.style.setProperty("width", "0%");
+        }
+      }, 350);
+
       renderReport(lastReport, latencies);
     } catch (err) {
       if (statusNotice) statusNotice.textContent = "Benchmark failed.";
-      if (progressBar) progressBar.style.setProperty("width", "0%");
+      if (progressBar) {
+        progressBar.classList.remove("running");
+        progressBar.style.setProperty("width", "0%");
+      }
       showGlobalError(err.code, err.message);
     }
   }

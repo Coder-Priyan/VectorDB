@@ -124,6 +124,12 @@ const ICON_SPECS = {
   ],
   dash: [
     { tag: "line", attrs: { x1: "3.5", y1: "8", x2: "12.5", y2: "8" } }
+  ],
+  sliders: [
+    { tag: "line", attrs: { x1: "2.5", y1: "5", x2: "13.5", y2: "5" } },
+    { tag: "line", attrs: { x1: "5.5", y1: "3", x2: "5.5", y2: "7" } },
+    { tag: "line", attrs: { x1: "2.5", y1: "11", x2: "13.5", y2: "11" } },
+    { tag: "line", attrs: { x1: "10.5", y1: "9", x2: "10.5", y2: "13" } }
   ]
 };
 

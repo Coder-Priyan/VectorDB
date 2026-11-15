@@ -527,61 +527,81 @@
         </div>
       </div>
 
-      <div class="tab-toolbar compare-toolbar">
-        <div class="toolbar-left">
-          <label for="compare-coll-select" class="toolbar-label">Collection</label>
+      <!-- Control row: one slim raised-surface row (~56px, 14px radius, --bg-raised, no border) -->
+      <div class="compare-control-row">
+        <div class="compare-control-left">
+          <label for="compare-coll-select" class="toolbar-label sr-only">Collection</label>
           <div id="compare-coll-dropdown-wrap" class="compare-dropdown-wrap"></div>
-          <label for="compare-repeat-select" class="toolbar-label ml-3">Repetitions</label>
+
+          <label for="compare-repeat-select" class="toolbar-label sr-only">Repetitions</label>
           <div id="compare-repeat-dropdown-wrap" class="compare-dropdown-wrap"></div>
-        </div>
-        <div class="toolbar-right">
-          <span class="text-muted text-xs compare-toolbar-note">Timings are indicative: official benchmarks come from the C++ tool.</span>
-        </div>
-      </div>
 
-      <!-- Run bar: slim raised surface (~60-64px, 14px radius), 2px bottom progress line -->
-      <div class="compare-run-bar">
-        <!-- Demo Controls -->
-        <div id="compare-demo-controls" class="compare-run-controls">
-          <div class="compare-param-group">
-            <label for="compare-k-input" class="control-label">k</label>
-            <input type="number" id="compare-k-input" class="input-text input-sm compare-num-input" value="10" min="1" max="100">
+          <!-- Docs Mode Query Input (inline, flex-grow) -->
+          <div id="compare-docs-query-wrap" class="compare-query-wrap hidden">
+            <input type="text" id="compare-docs-query-input" class="input-text input-sm compare-query-input" value="What is vector search?" placeholder="Enter semantic query..." aria-label="Query text">
           </div>
-          <div class="compare-param-group">
-            <label for="compare-ef-input" class="control-label">efSearch</label>
-            <input type="number" id="compare-ef-input" class="input-text input-sm compare-num-input" value="50" min="1" max="500">
-          </div>
+
+          <!-- Primary Actions (ONE primary amber button visible per mode) -->
           <button type="button" id="compare-demo-random-btn" class="btn btn-sm btn-primary">Benchmark Random Query</button>
-          <div class="compare-bar-divider" aria-hidden="true"></div>
-          <div class="compare-param-group flex-row align-center">
-            <label for="compare-demo-id-input" class="control-label">Stored Vector ID</label>
-            <input type="number" id="compare-demo-id-input" class="input-text input-sm compare-id-input" placeholder="e.g. 1" min="1">
+          <button type="button" id="compare-docs-run-btn" class="btn btn-sm btn-primary hidden">Run Benchmark</button>
+
+          <!-- Options Popover Trigger & Popover -->
+          <div class="compare-options-container">
+            <button type="button" id="compare-options-btn" class="btn btn-sm btn-ghost compare-options-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="compare-options-popover">
+              <span class="compare-options-icon-slot"></span>
+              <span>Options</span>
+              <span class="compare-options-chevron-slot"></span>
+            </button>
+
+            <!-- Options Popover -->
+            <div id="compare-options-popover" class="compare-options-popover hidden" role="dialog" aria-label="Benchmark options" tabindex="-1">
+              <!-- Demo Options Content -->
+              <div id="compare-demo-options" class="compare-options-content">
+                <div class="compare-options-row">
+                  <div class="compare-options-field">
+                    <label for="compare-k-input" class="control-label">k</label>
+                    <input type="number" id="compare-k-input" class="input-text input-sm compare-num-input" value="10" min="1" max="100">
+                  </div>
+                  <div class="compare-options-field">
+                    <label for="compare-ef-input" class="control-label">efSearch</label>
+                    <input type="number" id="compare-ef-input" class="input-text input-sm compare-num-input" value="50" min="1" max="500">
+                  </div>
+                </div>
+                <div class="compare-options-divider" aria-hidden="true"></div>
+                <div class="compare-options-row">
+                  <div class="compare-options-field flex-1">
+                    <label for="compare-demo-id-input" class="control-label">Stored Vector ID</label>
+                    <input type="number" id="compare-demo-id-input" class="input-text input-sm compare-id-input" placeholder="e.g. 1" min="1">
+                  </div>
+                  <button type="button" id="compare-demo-id-btn" class="btn btn-sm btn-secondary align-self-end">Benchmark ID</button>
+                </div>
+              </div>
+
+              <!-- Docs Options Content (hidden by default) -->
+              <div id="compare-docs-options" class="compare-options-content hidden">
+                <div class="compare-options-row">
+                  <div class="compare-options-field">
+                    <label for="compare-docs-k-input" class="control-label">k</label>
+                    <input type="number" id="compare-docs-k-input" class="input-text input-sm compare-num-input" value="5" min="1" max="20">
+                  </div>
+                  <div class="compare-options-field">
+                    <label for="compare-docs-ef-input" class="control-label">efSearch</label>
+                    <input type="number" id="compare-docs-ef-input" class="input-text input-sm compare-num-input" value="50" min="1" max="500">
+                  </div>
+                </div>
+              </div>
+
+              <div class="compare-options-divider" aria-hidden="true"></div>
+              <p class="compare-options-warmup text-muted text-xs">One warm-up pass is discarded before the timed runs.</p>
+            </div>
           </div>
-          <button type="button" id="compare-demo-id-btn" class="btn btn-sm btn-secondary">Benchmark ID</button>
         </div>
 
-        <!-- Docs Controls (hidden by default) -->
-        <div id="compare-docs-controls" class="compare-run-controls hidden">
-          <div class="compare-param-group compare-query-group">
-            <label for="compare-docs-query-input" class="control-label">Query Text</label>
-            <input type="text" id="compare-docs-query-input" class="input-text input-sm compare-query-input" value="What is vector search?" placeholder="Enter semantic query...">
-          </div>
-          <div class="compare-param-group">
-            <label for="compare-docs-k-input" class="control-label">k</label>
-            <input type="number" id="compare-docs-k-input" class="input-text input-sm compare-num-input" value="5" min="1" max="20">
-          </div>
-          <div class="compare-param-group">
-            <label for="compare-docs-ef-input" class="control-label">efSearch</label>
-            <input type="number" id="compare-docs-ef-input" class="input-text input-sm compare-num-input" value="50" min="1" max="500">
-          </div>
-          <button type="button" id="compare-docs-run-btn" class="btn btn-sm btn-primary">Run Benchmark</button>
-        </div>
-
-        <!-- Status text on right side of run bar (shared for both modes) -->
-        <div id="compare-progress-status" class="compare-progress-status text-muted text-xs ml-auto" aria-live="polite">Ready to benchmark.</div>
+        <!-- Status text on right side of control row (shared for both modes) -->
+        <div id="compare-progress-status" class="compare-progress-status text-muted text-xs" aria-live="polite">Ready to benchmark.</div>
 
         <!-- 2px Progress Line on Bottom Edge -->
-        <div class="compare-progress-track">
+        <div id="compare-progress-track" class="compare-progress-track">
           <div id="compare-progress-fill" class="compare-progress-fill"></div>
         </div>
       </div>
