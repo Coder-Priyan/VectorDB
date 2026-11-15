@@ -1,16 +1,42 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by T-069
+Last updated: 2026-11-15 by T-070
 
-> **NEXT STEP**: Human verifies T-069 (Compare medium cards, type scale, larger control row) with full-window 1920x1080 100% screenshots. Screenshots needed: Compare Demo results (verifying medium 580px cards, 17px secondary labels, 24px primary values, 22px header, 80% opacity rank cells, 76px raised control row with Collection/Repetitions labels, 40px primary button, legend directly under cards with 24px gap); a HNSW mismatch cell with hover tooltip; Demo empty (0 vectors); Docs results; Docs empty; Options popover open; both dropdowns open; one at 125% zoom. After human verifies T-069: next tab is Settings (T-070, full-width rows mockup), then Explore. Next free ADR is ADR-065 (ADR-064 reserved for T-070).
+> **NEXT STEP**: Human verifies T-070 (Settings full-width rows layout) and T-069 (Compare medium cards) with full-window 1920x1080 100% screenshots. Screenshots needed: Settings view (verifying left-aligned header, Server status panel with 8-metric strip and real Ollama model chips, 6 full-width rows, + Insert as the single primary button, custom Metric dropdown, and danger zone); two-step confirms (Clear Chat History, Reset Demo Collection); Settings at 125% zoom; responsive view under 1100px. Next tab is Explore (needs FINAL SPEC and mockups 12/13 from the Design Chat). Next free ADR is ADR-065.
 >
-> **NEEDED FROM THE HUMAN**: (1) full-window 1920x1080 100% screenshots: Compare Demo results, Docs results, Options popover open, both dropdowns open, one at 125% zoom; (2) terminal verification lines (`git log --oneline -5`, `git status -sb`, `.\build\vectordb_tests.exe`, `powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1`, CSS counts).
+> **NEEDED FROM THE HUMAN**: (1) full-window 1920x1080 100% screenshots: Settings view, two-step confirms, 125% zoom, Compare Demo results, Docs results; (2) terminal verification lines (`git log --oneline -5`, `git status -sb`, `.\build\vectordb_tests.exe`, `powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1`, CSS counts).
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
 - **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066). Total registered browser unit tests remain **141** in code; all 54 compare tests pass.
-- **Git State after T-069**: Commit `386054b` (`T-069: Compare medium cards, type scale, larger control row`), and docs sync commit.
+- **Git State after T-070**: Commit `0a804dc` (`T-070 A: Settings full-width rows layout`), `953421a` (`T-070 B: settings.js render, cleanup, tests`), and docs sync commit.
+- **Settings Visual Status**: Rebuilt under ADR-064 (T-070) into calm full-width rows (label left, controls right) with left-aligned header, Server status panel with real 8-metric strip and real Ollama model chips, single primary button (+ Insert), custom Metric dropdown, and preserved two-step confirms. Visual verification pending.
 - **Compare Visual Status**: Rebuilt under ADR-063 (T-069) to medium content-sized cards (580px tall at 1920x1080: 80px / 150px / 105px / 140px / 105px) with 17px secondary labels, 24px tabular sans values, 22px header, 80% opacity rank cells, larger 76px raised control row with 14px labels and 40px primary button; legend directly under cards with 24px gap; registered browser unit tests remain 141 (54 in `test_compare.js`). Visual verification pending. Compare empty-state keeps T-063 design.
-- **Workflow & Next Tab**: Next tab in workflow is Settings (T-070 rows layout from approved mockup; ADR-064 reserved for T-070), then Explore. Next free ADR is ADR-065.
+- **Workflow & Next Tab**: Next tab in workflow is Explore (needs FINAL SPEC and mockups 12/13 from Design Chat). Next free ADR is ADR-065.
+
+## T-070 summary (ADR-064; supersedes ADR-041 & Settings layout of ADR-048)
+
+- **Layout**: Rebuilt Settings from the old 3-column panel grid (which left ~250px dead bottom space and had a centered title) into a left-aligned page header followed by calm, full-width rows (label left, controls right), matching the aesthetic of the new Compare cards.
+- **Server Status Panel**: Full-width panel (`--bg-panel`, 14px radius, no border, no shadow) with title "Server status", status dot + "ok" badge, description "Local services and model runtime.", and real Ollama model chips on the right.
+- **Real 8-Metric Strip**: Grid of 8 real server metric tiles on `--bg-raised` with hairline borders:
+  1. Version: `v${health.version || "-"}`
+  2. Dimension: `String(config.dimension ?? "-")`
+  3. Metric: `String(config.metric ?? "-")`
+  4. M: `String(config.hnsw?.M ?? "-")`
+  5. efConstruction: `String(config.hnsw?.efConstruction ?? "-")`
+  6. efSearch: `String(config.hnsw?.efSearch ?? "-")`
+  7. Vectors: `String(stats.count ?? 0)`
+  8. Memory (approx): `formatBytes(stats.memory_bytes || 0)`
+  Labels are 13px muted; values are 22px regular/medium tabular sans (no mono).
+- **Settings Rows**:
+  - **Row a (Demo collection)**: Dimension (`#demo-dim-input`), Metric (`createDropdown` from `ui.js` with hidden input `#demo-metric-select`), M (`#demo-m-input`), efConstruction (`#demo-efc-input`). Form applies identically via `#demo-reset-btn` two-step confirm without inventing an Apply button.
+  - **Row b (Insert random vectors)**: Count input (`#demo-random-count`) + the single primary amber button "+ Insert" (`#demo-insert-random-btn`, `.btn-primary`).
+  - **Row c (Persistence and storage)**: Read-only fields for Persistence status (`#settings-persistence-status`) and Data directory (`#settings-persistence-dir`) with hint (`#settings-persistence-hint`).
+  - **Row d (Chat history)**: "Clear Chat History" (`#settings-clear-chats-btn`) with existing two-step confirm (`#settings-clear-chats-cancel-btn`).
+  - **Row e (Documentation and guides)**: Interactive Test Suite link (`/tests.html`) with external icon and Start Guided Tour button (`#settings-start-tour-btn`) with arrowRight icon.
+  - **Row f (Danger zone)**: Soft-red styling with description "Clears all demo vectors and resets the index." and Reset Demo Collection button (`#demo-reset-btn`) with existing two-step confirm (`#demo-reset-cancel-btn`).
+- **DOM & Behavior Invariants**: All 22 original Settings DOM IDs and both two-step confirms strictly preserved. Exactly ONE `.btn-primary` on Settings view.
+- **Viewport Fit**: Content-sized rows with 20px 24px padding fit comfortably at 1920x1080 100% without page scroll. Responsive stacking below 1100px.
+- **Git**: commits `0a804dc` (T-070 A), `953421a` (T-070 B), and docs commit.
 
 ## T-069 summary (ADR-063; supersedes ADR-062 card sizing & type scale)
 

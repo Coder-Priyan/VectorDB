@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-15 by T-069
+Last updated: 2026-11-15 by T-070
 
 ## 1. Operating Model
 
@@ -157,7 +157,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 47. **Standard Terminal Verification Commands**: Brain asked the human to verify with terminal commands after each task (`git log`, `git status`, `git diff --stat ui-quiet-studio -- src include tests`, `!important` count, scanner, `/tests.html`). Keep doing this.
 48. **Verification State Post-T-055c/T-056**: Human confirmed `/tests.html` 114/114, C++ 118/118 and git state by terminal on 2026-11-15 (after T-055c).
 49. **Builder Visual Audits Are Claims Only (Explore Primary Button)**: The T-056 primary-button audit reported Explore empty = 0 primary buttons, but human screenshot on 2026-11-15 showed an active solid amber Random Query button there. Builder visual audits are claims only; judge UI strictly by human screenshots.
-50. **Known Pending Items for Later Tab Tasks**: Visual defects identified from human screenshots on 2026-11-15 to be addressed in their respective tab tasks: Explore subtitle shows "document chunk" text on Demo Vectors; Explore empty state has active Random Query; Compare select label clips; Compare empty Summary Metrics header clips with horizontal scrollbar; Compare and Settings possible zero left padding and clipped right edge in 1794px crops; Settings title alignment differs; Ask "Compare algorithms" can show a cold-start KD-Tree outlier.
+50. **Known Pending Items for Later Tab Tasks**: Visual defects identified from human screenshots on 2026-11-15 to be addressed in their respective tab tasks: Explore subtitle shows "document chunk" text on Demo Vectors; Explore empty state has active Random Query; Compare select label clips; Compare empty Summary Metrics header clips with horizontal scrollbar; Compare and Settings possible zero left padding and clipped right edge in 1794px crops; Settings title alignment differs (resolved in T-070); Ask "Compare algorithms" can show a cold-start KD-Tree outlier.
 51. **T-058 Ask UX Refinements & Reusable Dropdown**: Documents drawer re-centers chat column using margin-right transition on `.ask-chat-viewport` with responsive fallback (<1280px); glass-box accordion collapsed by default with ghost pill toggle, and auto-expands on citation pill click; reusable dark dropdown component `createDropdown` in `web/js/ui.js` solves OS light select styling on dark background while preserving consumer ID contracts.
 52. **ChatGPT Mockups Copy Real Bugs & Alter Details**: ChatGPT mockups copy real bugs (e.g. wrapped Ollama pill bug) and alter details (changed sidebar icons, made all compare bars full length, colored Brute Force amber, and invented sample answer text). See ADR-052. Brain must review every mockup against real controls before a task is written.
 53. **Human Screenshot Cropping & Scaling**: Screenshots the human sends can be cropped or scaled (e.g. ~1794px wide); ask for the full browser window at 100% zoom before judging padding or edges.
@@ -188,6 +188,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 78. **Lesson (Accurate Reporting of Test Exit Codes & Visual Measurements)**: The T-066 report claimed 'all 141 pass' while the log showed Node runs exiting with code 1 due to DOM stubs, and gave '0px delta' without measuring; reports must honestly state test runner exit codes and say 'not measured' when visual DOM layout bounding rects cannot be measured in a headless environment.
 79. **Lesson (Compare Cards Compact Proportions vs Fill Height)**: For Compare the human prefers compact content-sized cards over cards that fill the full height; the earlier 'panels must FILL the full screen height' preference does not apply to Compare cards. Brain wrote 'fill full height' without checking the mockup proportions; compare the real result with the mockup size before approving.
 80. **Lesson (Mockup Proportions Factor & Compare Iterations)**: Compare took 5 rounds (T-064 to T-068) mainly because Brain's spec flipped (full height, compact, distance bar yes/no). Before writing a spec, compare mockup proportions at 1920px scale (factor mockup width to 1920) for type sizes and card height.
+81. **Lesson (Settings Full-Width Rows - T-070, ADR-064)**: Replaced cramped 3-column panel grid (which left ~250px dead space at bottom and had a centered title) with calm full-width rows (label left, controls right) and a left-aligned header matching other tabs. Server status panel features real 8-metric strip (Version, Dimension, Metric, M, efConstruction, efSearch, Vectors, Memory approx) and real Ollama model chips. Exactly one `.btn-primary` (+ Insert). All 22 original DOM IDs, two-step confirms, and live endpoints preserved.
 
 ---
 
