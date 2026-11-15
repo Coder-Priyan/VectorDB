@@ -1,31 +1,34 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by SYNC-011
+Last updated: 2026-11-15 by T-065
 
-> **NEXT STEP**: Human verifies T-064 (Compare single lanes panel) with full-window 1920x1080 100% screenshots, then Brain reviews them. Screenshots needed: Compare Demo results; a HNSW mismatch (empty) cell with its hover tooltip visible; Demo empty (0 vectors); Docs results; Docs empty; Options popover open; both dropdowns open; one at 125% zoom. Brain checks first: (a) latency and recall big numbers: sans or mono (design says regular sans with tabular numerals; builder wrote mono), (b) gap between the rank strip (fixed 220px) and the Recall column on a wide screen, (c) tooltip clipped by the panel on the top lane, (d) any empty band under the last lane, (e) ISS-057 left gap and right edge. After that: Explore, which needs the FINAL SPEC and approved mockups 12-explore-results.png and 13-explore-empty.png from the Design Chat; Brain must not write the Explore task before that.
+> **NEXT STEP**: Human verifies T-065 (Compare results 3 algorithm cards) with full-window 1920x1080 100% screenshots, then Brain reviews them. Screenshots needed: Compare Demo results; a HNSW mismatch (empty) cell with its hover tooltip visible; Demo empty (0 vectors); Docs results; Docs empty; Options popover open; both dropdowns open; one at 125% zoom. Brain checks: (a) big latency, distance, recall numbers: sans with tabular numerals (not mono), (b) cards fill height evenly down to legend with no dead empty space, (c) tooltip not clipped, (d) 125% zoom fitting in one row, (e) Brute Force shows reference text once in rank match section only. After human verifies T-065: Settings tab redesign as T-066 (human-approved mockup of full-width rows: Server status metric strip, Demo collection, Insert random vectors, Persistence and storage, Chat history, Documentation and guides, Danger zone; keep two-step confirms and createDropdown).
 >
-> **NEEDED FROM THE HUMAN**: (1) full-window 1920x1080 100% screenshots: Compare Demo results; a HNSW mismatch (empty) cell with its hover tooltip visible; Demo empty (0 vectors); Docs results; Docs empty; Options popover open; both dropdowns open; one at 125% zoom; (2) terminal lines: `git log --oneline -4`, `git status -sb`, `.\build\vectordb_tests.exe`, `powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1`, CSS counts (the human has not yet re-run these after T-064; lines in the T-064 report are builder-reported); (3) Explore design work in the Design Chat (send screenshots of current Explore tab).
+> **NEEDED FROM THE HUMAN**: (1) full-window 1920x1080 100% screenshots: Compare Demo results; a HNSW mismatch cell with hover tooltip; Demo empty; Docs results; Docs empty; Options popover open; both dropdowns open; one at 125% zoom; (2) terminal lines: `git log --oneline -5`, `git status -sb`, `.\build\vectordb_tests.exe`, `powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1`, CSS counts; (3) /tests.html count.
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
-- **/tests.html**: **137/137 passed**, human-confirmed on 2026-11-15 20:56 (after T-064; builder claim was 137, matched). Earlier today: 135/135 after T-063 (human screenshot).
-- **Git State after T-064**: HEAD per builder report = `d8e4970` (`docs: T-064 sync`), preceded by `035eb9a` (T-064 B), `467c0cb` (T-064 A), `d6feb3c` (docs: SYNC-010). The human has NOT yet re-run `git status`/`log`/C++ tests/scanner after T-064 (those lines in the T-064 report are builder-reported). Builder ran git reset and amend during T-064 (nothing pushed).
-- **Compare Visual Status**: NOT yet verified by human screenshots; visual review of T-064 pending. Note: Compare empty-state mockup was NOT regenerated; the T-063 empty state is kept unchanged.
+- **/tests.html**: **137/137 passed**, human-confirmed on 2026-11-15 20:56 (after T-064; builder claim was 137, matched). Browser unit tests registered in code now expanded to **141** (54 in `test_compare.js`).
+- **Git State after T-065**: Commits `36de598` (T-065 A), `a34f44f` (T-065 B), and docs commit. Git history confirmed clean by human on 2026-11-15 (ISS-064 closed).
+- **Compare Visual Status**: Rebuilt under ADR-059 (T-065) from human-approved mockup `docs/mockups/14-compare-cards.png`. Visual verification by human screenshots pending. Compare empty-state keeps T-063 design.
+- **Workflow & Next Tab**: Human approved two mockups on 2026-11-15: Compare cards (`docs/mockups/14-compare-cards.png`, T-065) and Settings rows layout (planned as T-066, to follow human verification of T-065). Next free ADR is ADR-060.
 
-## T-064 summary (Brain wrote it; supersedes T-063 two-panel layout per ADR-058)
+## T-065 summary (ADR-059; supersedes ADR-058 5-column lanes panel)
 
-- **Layout**: Rebuilt Compare results view into ONE calm panel "Algorithm lanes" (`#compare-lanes-panel`, `--bg-panel`, 14px radius, no border, no shadow) filling ALL remaining height under the control row down to the bottom padding. Removed separate "Top-k ground truth diff" panel (`#compare-matrix-panel`) and its DOM/JS/CSS.
-- **5-Column Grid**: Strict shared CSS grid (`Algorithm | Median latency | Distance computations | Rank match vs ground truth | Recall`). Header row is small muted text; numeric columns (Distance computations, Recall) right-aligned with tabular numerals.
-- **Lanes**: Exactly 3 lanes (Brute Force taupe `#9c8269`, KD-Tree moss `#708a78`, HNSW amber `#d9a441`) with identical height that fill the panel (`flex: 1 1 0`, content vertically centered, no empty band under the last lane, 1px faint hairline between lanes).
-- **Columns**:
-  1. Algorithm: colored dot + name, medium weight.
-  2. Median latency: 26px regular-weight number with muted "µs" on same baseline, 4px pill bar on faint track (shared scale across the 3 medians where max lane = 100%), and muted range line `Range <min> - <max> µs`.
-  3. Distance computations: plain regular-weight number, right-aligned, tabular numerals.
-  4. Rank match: Brute Force shows quiet muted text "Reference for the other algorithms"; KD-Tree and HNSW show a 220px rank strip of real $k$ cells (filled at 55% alg opacity for match, empty with 1px muted-amber outline for mismatch/missing) + summary `N of K same rank`. Header has tiny "1" aligned to left and "${kVal}" aligned to right end of strip.
-  5. Recall: plain primary text color (NOT algorithm colored), ~22px regular weight with "%", right-aligned.
-- **Tooltip**: Small interactive tooltip on hover (`mouseenter`) and keyboard focus (`tabindex="0"`) for empty cells: `"Rank R: expected #GT, got #ID"` or `"got -"` if missing, with mono IDs. Closes on `mouseleave`, `blur`, `Escape`.
-- **Legend line**: Small muted legend line pinned to bottom of panel.
-- **Pure Helpers & Tests**: Added `buildRankStrip(gtResults, candResults, k)` and `formatRecallPercent(recall)` in `web/js/compare_helpers.js`. Removed dead helper `buildRankDiff`. Registered browser unit tests expanded to 137 in code (50 tests in `test_compare.js`).
-- **Git**: commit A (`467c0cb`), commit B (`035eb9a`), docs commit.
+- **Layout**: Replaced single 5-column lanes panel with three equal-height algorithm cards side by side (`#compare-cards-container`, `.compare-card`) filling ALL remaining height under the control row down to the legend line. Eliminated wide-screen ~600px dead gap and dead bottom bands.
+- **Cards**:
+  1. Brute Force (taupe `#9c8269` dot + name)
+  2. KD-Tree (moss `#708a78` dot + name)
+  3. HNSW (amber `#d9a441` dot + name)
+- **Sections per card**:
+  - **Median latency**: Muted label, 28px regular sans number with tabular numerals (NOT mono) + muted "µs" on same baseline, 11px muted range text, 5px pill bar on faint track (shared scale across the 3 medians where slowest = 100%).
+  - **Distance computations**: Muted label, 26px regular sans number with tabular numerals (NOT mono). NO bar (Brain decision: fewer visual languages).
+  - **Top-k rank match**: Muted label. Brute Force shows quiet text "Reference for the other algorithms" in this section only. KD-Tree and HNSW show real-k flat cells (55% algorithm opacity for match, 1px muted-amber outline for mismatch with hover/focus tooltip) + summary `N of K same rank`.
+  - **Recall**: Muted label, 26px regular sans number with "%" in primary text color (NOT algorithm colored).
+- **Tooltip**: Bound-checked tooltip for empty rank cells ("Rank R: expected #GT, got #ID" with IDs in mono). Flips below cell if near container top; clamped horizontally; not clipped by cards.
+- **Legend**: Muted line pinned under cards: "Filled = same rank as ground truth. Latency: lower is better. Timings are indicative: official benchmarks come from the C++ tool."
+- **Responsive**: 3 equal columns >= 1100px (and at 125% zoom on 1080p); stacks to 1 column below 1100px with tab scroll.
+- **Pure Helpers & Tests**: Added `mapReportToCards(report, latencies)` in `web/js/compare_helpers.js`. Registered browser unit tests expanded to 141 in code (54 tests in `test_compare.js`).
+- **Git**: commit A (`36de598`), commit B (`a34f44f`), docs commit.
 
 ## 1. Current Status
 
