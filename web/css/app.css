@@ -4170,57 +4170,6 @@ input[type="number"] {
     min-height: 100%;
   }
 
-  .settings-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-4);
-  }
-
-  .settings-row-info {
-    max-width: 100%;
-  }
-
-  .settings-row-controls {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .settings-demo-controls-form {
-    flex-wrap: wrap;
-    width: 100%;
-  }
-
-  .settings-persistence-controls {
-    align-items: flex-start;
-    width: 100%;
-  }
-
-  .settings-persistence-fields {
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: var(--space-4);
-  }
-
-  .settings-readonly-field {
-    align-items: flex-start;
-  }
-
-  .settings-hint-text {
-    text-align: left;
-  }
-
-  .settings-models-wrap {
-    align-items: flex-start;
-  }
-
-  .settings-models-chips {
-    justify-content: flex-start;
-  }
-
-  .settings-metric-strip {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
   #panel-compare {
     height: auto;
     min-height: 100%;
@@ -4272,24 +4221,6 @@ input[type="number"] {
   }
 }
 
-@media (max-width: 640px) {
-  .settings-metric-strip {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-height: 800px) and (min-width: 1101px) {
-  .settings-panel {
-    padding: var(--space-4) var(--space-5);
-  }
-
-  .settings-row {
-    padding: 14px 20px;
-  }
-
-  .settings-rows-container {
-    gap: var(--space-3);
-  }
 }
 
 /* Responsive Small-Screen Fallback */

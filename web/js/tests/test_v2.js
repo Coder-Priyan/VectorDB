@@ -10,6 +10,7 @@ import { createIcon } from "../icons.js";
 import { EXPLAINERS } from "../learn_content.js";
 import { parseCitations, getDropdownNextIndex, createDropdown } from "../ui.js";
 import { formatBenchmarkRows, formatTraceSummary, formatPipelineLatency, getTabNextIndex } from "../ask_helpers.js";
+import { getSettingsNextSectionIndex } from "../settings_helpers.js";
 
 export function registerV2Tests() {
   describe("v2: SVG Icon Registry", (test) => {
@@ -401,6 +402,46 @@ export function registerV2Tests() {
     test("count <= 0 returns -1 without throwing", () => {
       assertEqual(getTabNextIndex(0, 0, "ArrowRight"), -1);
       assertEqual(getTabNextIndex(0, -1, "Home"), -1);
+    });
+  });
+
+  describe("T-072: Settings Two-Pane Navigation (getSettingsNextSectionIndex)", (test) => {
+    test("ArrowRight and ArrowDown advance to next section and wrap at end", () => {
+      assertEqual(getSettingsNextSectionIndex(0, 5, "ArrowDown"), 1);
+      assertEqual(getSettingsNextSectionIndex(1, 5, "ArrowDown"), 2);
+      assertEqual(getSettingsNextSectionIndex(4, 5, "ArrowDown"), 0, "ArrowDown wraps to 0");
+      assertEqual(getSettingsNextSectionIndex(0, 5, "ArrowRight"), 1);
+      assertEqual(getSettingsNextSectionIndex(4, 5, "ArrowRight"), 0, "ArrowRight wraps to 0");
+    });
+
+    test("ArrowLeft and ArrowUp retreat to previous section and wrap at start", () => {
+      assertEqual(getSettingsNextSectionIndex(4, 5, "ArrowUp"), 3);
+      assertEqual(getSettingsNextSectionIndex(1, 5, "ArrowUp"), 0);
+      assertEqual(getSettingsNextSectionIndex(0, 5, "ArrowUp"), 4, "ArrowUp wraps to last index");
+      assertEqual(getSettingsNextSectionIndex(4, 5, "ArrowLeft"), 3);
+      assertEqual(getSettingsNextSectionIndex(0, 5, "ArrowLeft"), 4, "ArrowLeft wraps to last index");
+    });
+
+    test("Home key returns first section index 0", () => {
+      assertEqual(getSettingsNextSectionIndex(0, 5, "Home"), 0);
+      assertEqual(getSettingsNextSectionIndex(3, 5, "Home"), 0);
+    });
+
+    test("End key returns last section index totalCount - 1", () => {
+      assertEqual(getSettingsNextSectionIndex(0, 5, "End"), 4);
+      assertEqual(getSettingsNextSectionIndex(2, 5, "End"), 4);
+      assertEqual(getSettingsNextSectionIndex(4, 5, "End"), 4);
+    });
+
+    test("Unknown keys return current index unchanged", () => {
+      assertEqual(getSettingsNextSectionIndex(2, 5, "Tab"), 2);
+      assertEqual(getSettingsNextSectionIndex(2, 5, "Enter"), 2);
+      assertEqual(getSettingsNextSectionIndex(3, 5, "Escape"), 3);
+    });
+
+    test("totalCount <= 0 returns 0 without throwing", () => {
+      assertEqual(getSettingsNextSectionIndex(0, 0, "ArrowDown"), 0);
+      assertEqual(getSettingsNextSectionIndex(2, -1, "Home"), 0);
     });
   });
 }
