@@ -80,7 +80,6 @@ export function initCompareTab() {
   const emptyStateBox = byId("compare-empty-state");
   const resultsCard = byId("compare-results-card");
   const lanesContent = byId("compare-lanes-content");
-  const matrixContent = byId("compare-matrix-content");
 
   // Populate Options button icons
   const optionsIconSlot = optionsBtn?.querySelector(".compare-options-icon-slot");
@@ -163,7 +162,6 @@ export function initCompareTab() {
   function resetCompareView() {
     lastReportData = null;
     lanesContent?.replaceChildren();
-    matrixContent?.replaceChildren();
     if (statusNotice) statusNotice.textContent = "Ready to benchmark.";
     if (progressBar) {
       progressBar.classList.remove("running");
@@ -319,7 +317,6 @@ export function initCompareTab() {
     lastReportData = { report, latencies };
     showResultsView();
     renderLanes(report, latencies);
-    renderRankMatrix(report);
   }
 
   function renderLanes(report, latencies) {
@@ -333,31 +330,35 @@ export function initCompareTab() {
       hnsw: computeTimingStats(latencies?.hnsw || [algs.hnsw?.latency_us || 0])
     };
 
-    // Shared scale for latency bars
-    const latencyScale = computeLatencyScale({
-      brute: stats.brute.median,
-      kdtree: stats.kdtree.median,
-      hnsw: stats.hnsw.median
-    });
-
-    // Shared linear scale for distance computation bars
-    const distScale = computeBarScale([
-      algs.brute?.distance_computations || 0,
-      algs.kdtree?.distance_computations || 0,
-      algs.hnsw?.distance_computations || 0
+    // Shared linear scale for latency bars: max lane = 100%
+    const latencyScale = computeBarScale([
+      stats.brute.median,
+      stats.kdtree.median,
+      stats.hnsw.median
     ]);
 
-    // Header row above the first lane
+    const kVal = report.k || 10;
+
+    // Header row above the lanes
+    const rankHeaderCol = el("div", { className: "compare-header-rank-col" },
+      el("div", { className: "compare-header-rank-title" }, "Rank match vs ground truth"),
+      el("div", { className: "compare-header-rank-scale", "aria-hidden": "true" },
+        el("span", {}, "1"),
+        el("span", {}, String(kVal))
+      )
+    );
+
     const headerRow = el("div", { className: "compare-lanes-header-row" },
       el("div", {}, "Algorithm"),
-      el("div", {}, "Latency (median, µs)"),
-      el("div", {}, "Distance computations"),
-      el("div", {}, "Top-k recall")
+      el("div", {}, "Median latency"),
+      el("div", { className: "compare-header-dist-col" }, "Distance computations"),
+      rankHeaderCol,
+      el("div", { className: "compare-header-recall-col" }, "Recall")
     );
     lanesContent.appendChild(headerRow);
 
-    const kVal = report.k || 10;
     const algKeys = ["brute", "kdtree", "hnsw"];
+    const bruteResults = Array.isArray(algs.brute?.results) ? algs.brute.results : [];
 
     for (const alg of algKeys) {
       const aData = algs[alg] || {};
@@ -366,127 +367,85 @@ export function initCompareTab() {
       const minMaxStr = formatRangeText(tStat.min, tStat.max);
       const latencyWidthPct = latencyScale.getBarWidthPercent(tStat.median);
 
-      // 1. Name col
+      // 1. Algorithm name column
       const nameCol = el("div", { className: "compare-lane-name-col" },
         el("span", { className: `compare-lane-dot bg-${alg}` }),
         el("span", {}, ALGORITHM_LABELS[alg] || alg)
       );
 
-      // 2. Latency col: 6px pill bar, median in mono at end, range in 11px muted mono below
+      // 2. Median latency column: 26px number + "µs", 4px pill bar, range text
       const latBarEl = el("div", { className: `compare-lane-bar bg-${alg}` });
       latBarEl.style.setProperty("width", `${latencyWidthPct}%`);
       const latencyCol = el("div", { className: "compare-lane-latency-col" },
-        el("div", { className: "compare-lane-bar-wrap" },
-          el("div", { className: "compare-lane-bar-track" }, latBarEl),
-          el("span", { className: "compare-lane-bar-val font-mono" }, `${medianUs} µs`)
+        el("div", { className: "compare-latency-val-wrap" },
+          el("span", { className: "compare-latency-num" }, String(medianUs)),
+          el("span", { className: "compare-latency-unit" }, "µs")
         ),
-        el("span", { className: "compare-lane-latency-range font-mono" }, minMaxStr)
+        el("div", { className: "compare-latency-track" }, latBarEl),
+        el("span", { className: "compare-lane-latency-range" }, `Range ${minMaxStr}`)
       );
 
-      // 3. Distance computations col: 6px pill bar on shared linear scale, count in mono at end
+      // 3. Distance computations column: plain right-aligned number
       const distCount = aData.distance_computations ?? 0;
-      const distWidthPct = distScale.getBarWidthPercent(distCount);
-      const distBarEl = el("div", { className: `compare-lane-bar bg-${alg}` });
-      distBarEl.style.setProperty("width", `${distWidthPct}%`);
-      const distCol = el("div", { className: "compare-lane-dist-col" },
-        el("div", { className: "compare-lane-bar-wrap" },
-          el("div", { className: "compare-lane-bar-track" }, distBarEl),
-          el("span", { className: "compare-lane-bar-val font-mono" }, String(distCount))
-        )
-      );
+      const distCol = el("div", { className: "compare-lane-dist-col" }, String(distCount));
 
-      // 4. Recall squares col: k rounded squares (10px, 4px gap, real k), filled in alg color, unfilled faint, recall % in mono
-      const recallVal = aData.recall_at_k ?? 1.0;
-      const recallSquares = computeRecallSquares(recallVal, kVal);
-      const squaresWrap = el("div", { className: "compare-lane-squares-wrap" });
-      for (let s = 0; s < recallSquares.filled; s++) {
-        squaresWrap.appendChild(el("span", { className: `compare-lane-square filled bg-${alg}` }));
-      }
-      for (let s = 0; s < recallSquares.unfilled; s++) {
-        squaresWrap.appendChild(el("span", { className: "compare-lane-square unfilled" }));
+      // 4. Rank match column
+      const rankCol = el("div", { className: "compare-lane-rank-col" });
+      if (alg === "brute") {
+        rankCol.appendChild(el("span", { className: "compare-rank-ref" }, "Reference for the other algorithms"));
+      } else {
+        const candResults = Array.isArray(aData.results) ? aData.results : [];
+        let sameCount = 0;
+        const stripEl = el("div", { className: "compare-rank-strip", role: "group", "aria-label": `${kVal} rank match indicators` });
+
+        for (let i = 0; i < kVal; i++) {
+          const rank = i + 1;
+          const expectedId = bruteResults[i]?.id ?? null;
+          const gotId = candResults[i]?.id ?? null;
+          const isMatch = (expectedId !== null && gotId !== null && expectedId === gotId);
+
+          if (isMatch) {
+            sameCount++;
+            stripEl.appendChild(el("span", { className: `compare-rank-cell filled bg-${alg}` }));
+          } else {
+            const emptyCell = el("span", {
+              className: "compare-rank-cell empty",
+              tabIndex: 0,
+              "aria-label": `Rank ${rank}: expected #${expectedId ?? "-"}, got ${gotId !== null ? `#${gotId}` : "-"}`
+            });
+            stripEl.appendChild(emptyCell);
+          }
+        }
+
+        const stripWrap = el("div", { className: "compare-rank-strip-wrap" },
+          stripEl,
+          el("span", { className: "compare-rank-summary" }, `${sameCount} of ${kVal} same rank`)
+        );
+        rankCol.appendChild(stripWrap);
       }
 
-      const recallPct = `${(recallVal * 100).toFixed(1)}%`;
-      const recallCol = el("div", { className: "compare-lane-recall-col" },
-        squaresWrap,
-        el("span", { className: "compare-lane-recall-val font-mono" }, recallPct)
-      );
+      // 5. Recall column: plain primary text color, regular weight, ~22px, right-aligned
+      const rawRecall = aData.recall_at_k ?? 1.0;
+      const clampedRecall = Math.max(0, Math.min(1, Number(rawRecall) || 0));
+      const recallText = `${(clampedRecall * 100).toFixed(1)}%`;
+      const recallCol = el("div", { className: "compare-lane-recall-col" }, recallText);
 
       // Lane row
       const laneRow = el("div", { className: "compare-lane-row" },
         nameCol,
         latencyCol,
         distCol,
+        rankCol,
         recallCol
       );
       lanesContent.appendChild(laneRow);
     }
 
-    // Legend line below lanes
+    // Legend line pinned to bottom of panel
     const legendEl = el("div", { className: "compare-lanes-legend" },
-      "Latency: lower is better. Bars show work done. Squares: filled = found in ground truth. Timings are indicative: official benchmarks come from the C++ tool."
+      "Filled = same rank as ground truth. Latency: lower is better. Timings are indicative: official benchmarks come from the C++ tool."
     );
     lanesContent.appendChild(legendEl);
-  }
-
-  function renderRankMatrix(report) {
-    if (!matrixContent || !report || !report.algorithms) return;
-    matrixContent.replaceChildren();
-
-    const diffData = buildRankDiff(report);
-    const nonBruteKeys = [
-      { key: "kdtree", label: ALGORITHM_LABELS.kdtree || "KD-Tree" },
-      { key: "hnsw", label: ALGORITHM_LABELS.hnsw || "HNSW" }
-    ];
-
-    const listWrap = el("div", { className: "compare-diff-list" });
-
-    for (const { key, label } of nonBruteKeys) {
-      const data = diffData[key] || { sameCount: 0, total: 0, mismatches: [] };
-      const groupEl = el("div", { className: "compare-diff-group" });
-
-      const headerEl = el("div", { className: "compare-diff-header" },
-        el("span", { className: `compare-lane-dot bg-${key}` }),
-        el("span", { className: "compare-diff-label" }, label),
-        el("span", { className: "compare-diff-sep" }, "·"),
-        el("span", { className: "compare-diff-summary" }, `${data.sameCount} of ${data.total} same rank`)
-      );
-
-      if (data.total > 0 && data.sameCount === data.total) {
-        // Stroke-only muted-moss check glyph when all match, no chips
-        const checkIcon = createIcon("check", 14, "compare-diff-check-icon");
-        headerEl.appendChild(el("span", { className: "compare-diff-check-wrap" }, checkIcon));
-      }
-
-      groupEl.appendChild(headerEl);
-
-      // If mismatches exist, display pill chips
-      if (data.mismatches && data.mismatches.length > 0) {
-        const chipsWrap = el("div", { className: "compare-diff-chips" });
-        for (const m of data.mismatches) {
-          const chipEl = el("div", { className: "compare-diff-chip" },
-            el("span", { className: "compare-mismatch-dot" }),
-            el("span", { className: "compare-diff-chip-text" },
-              `Rank ${m.rank}: expected `,
-              el("span", { className: "font-mono" }, `#${m.expected}`),
-              ", got ",
-              m.got !== null ? el("span", { className: "font-mono" }, `#${m.got}`) : "—"
-            )
-          );
-          chipsWrap.appendChild(chipEl);
-        }
-        groupEl.appendChild(chipsWrap);
-      }
-
-      listWrap.appendChild(groupEl);
-    }
-
-    const noteEl = el("div", { className: "compare-diff-note" },
-      "Matching ranks are not listed. Recall counts a hit at any rank; same rank is stricter."
-    );
-
-    matrixContent.appendChild(listWrap);
-    matrixContent.appendChild(noteEl);
   }
 
   // Event Handlers

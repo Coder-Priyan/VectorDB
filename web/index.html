@@ -616,24 +616,15 @@
         </div>
       </div>
 
-      <!-- Results Stack: Two stacked panels (Mutually exclusive with empty state) -->
+      <!-- Results: Single Algorithm lanes panel (Mutually exclusive with empty state) -->
       <div id="compare-results-card" class="compare-results-stack hidden">
-        <!-- Panel 1: Algorithm lanes -->
         <section id="compare-lanes-panel" class="compare-panel compare-lanes-card" aria-label="Algorithm lanes">
           <div class="panel-header-with-subtitle">
             <h2 class="section-title">Algorithm lanes</h2>
-            <p class="text-muted text-xs">Speed, work and accuracy for the same query.</p>
+            <p class="text-muted text-xs">Speed, work and accuracy against the ground truth.</p>
           </div>
           <div id="compare-lanes-content" class="compare-lanes-content"></div>
-        </section>
-
-        <!-- Panel 2: Top-k ground truth diff -->
-        <section id="compare-matrix-panel" class="compare-panel compare-matrix-card" aria-label="Top-k ground truth diff">
-          <div class="panel-header-with-subtitle">
-            <h2 class="section-title">Top-k ground truth diff</h2>
-            <p class="text-muted text-xs">Compare retrieved top-k results with the ground truth.</p>
-          </div>
-          <div id="compare-matrix-content" class="compare-matrix-content"></div>
+          <div id="compare-rank-tooltip" class="compare-rank-tooltip hidden" role="tooltip" aria-hidden="true"></div>
         </section>
       </div>
     </section>

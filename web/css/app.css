@@ -3468,13 +3468,12 @@ input[type="number"] {
   line-height: 1.5;
 }
 
-/* Results Stack & Panels */
+/* Results: Single Algorithm lanes panel */
 .compare-results-stack {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
   box-sizing: border-box;
 }
 
@@ -3492,40 +3491,69 @@ input[type="number"] {
 }
 
 .compare-lanes-card {
-  flex: 55 1 0;
-}
-
-.compare-matrix-card {
-  flex: 45 1 0;
+  flex: 1 1 0;
+  height: 100%;
+  position: relative;
 }
 
 /* Algorithm Lanes Content & Rows */
 .compare-lanes-content {
+  flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
   width: 100%;
   margin-top: var(--space-2);
+  overflow-x: auto;
 }
 
 .compare-lanes-header-row {
   display: grid;
-  grid-template-columns: 160px 1.2fr 1.2fr 1fr;
+  grid-template-columns: 160px 200px 160px 1fr 100px;
   gap: var(--space-4);
-  padding: 0 var(--space-3) var(--space-2);
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
   border-bottom: 1px solid var(--border-hairline);
   font-size: var(--text-xs);
   color: var(--text-muted);
   box-sizing: border-box;
+  min-width: 860px;
+  flex-shrink: 0;
+}
+
+.compare-header-dist-col,
+.compare-header-recall-col {
+  text-align: right;
+  justify-self: end;
+}
+
+.compare-header-rank-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.compare-header-rank-scale {
+  width: 220px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  line-height: 1;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
 }
 
 .compare-lane-row {
   display: grid;
-  grid-template-columns: 160px 1.2fr 1.2fr 1fr;
-  align-items: center;
+  grid-template-columns: 160px 200px 160px 1fr 100px;
   gap: var(--space-4);
-  padding: var(--space-3);
+  align-items: center;
+  padding: 0 var(--space-4);
   border-bottom: 1px solid var(--border-hairline);
   box-sizing: border-box;
+  min-width: 860px;
+  flex: 1 1 0;
+  min-height: 0;
 }
 
 .compare-lane-row:last-of-type {
@@ -3549,18 +3577,38 @@ input[type="number"] {
   flex-shrink: 0;
 }
 
-/* Lane Pill Bars (shared by Latency & Distance) */
-.compare-lane-bar-wrap {
+/* Median Latency Column */
+.compare-lane-latency-col {
   display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  width: 100%;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
 
-.compare-lane-bar-track {
-  flex: 1;
-  max-width: 140px;
-  height: 6px;
+.compare-latency-val-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.compare-latency-num {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.compare-latency-unit {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.compare-latency-track {
+  width: 140px;
+  height: 4px;
   background: var(--bg-raised);
   border-radius: var(--radius-full);
   overflow: hidden;
@@ -3572,22 +3620,6 @@ input[type="number"] {
   transition: width 0.2s ease;
 }
 
-.compare-lane-bar-val {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  color: var(--text-primary);
-  white-space: nowrap;
-}
-
-/* Latency Column */
-.compare-lane-latency-col {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-
 .compare-lane-latency-range {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -3597,138 +3629,119 @@ input[type="number"] {
 
 /* Distance Computations Column */
 .compare-lane-dist-col {
-  display: flex;
-  align-items: center;
-  min-width: 0;
+  text-align: right;
+  justify-self: end;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  white-space: nowrap;
 }
 
-/* Recall Squares Column */
-.compare-lane-recall-col {
+/* Rank Match Column */
+.compare-lane-rank-col {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   min-width: 0;
 }
 
-.compare-lane-squares-wrap {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-wrap: wrap;
+.compare-rank-ref {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  white-space: nowrap;
 }
 
-.compare-lane-square {
-  width: 10px;
+.compare-rank-strip-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.compare-rank-strip {
+  width: 220px;
   height: 10px;
-  border-radius: 2px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
   flex-shrink: 0;
 }
 
-.compare-lane-square.unfilled {
-  background: var(--bg-raised);
+.compare-rank-cell {
+  flex: 1 1 0;
+  min-width: 6px;
+  height: 100%;
+  border-radius: 3px;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  transition: opacity 0.15s ease;
 }
 
-.compare-lane-recall-val {
-  font-family: var(--font-mono);
+.compare-rank-cell.filled {
+  opacity: 0.55;
+  border: none;
+}
+
+.compare-rank-cell.empty {
+  border: 1px solid var(--accent);
+  opacity: 0.7;
+  background: transparent;
+  cursor: pointer;
+}
+
+.compare-rank-cell.empty:hover,
+.compare-rank-cell.empty:focus-visible {
+  opacity: 1;
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.compare-rank-summary {
   font-size: var(--text-xs);
-  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Recall Column */
+.compare-lane-recall-col {
+  text-align: right;
+  justify-self: end;
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
   color: var(--text-primary);
   white-space: nowrap;
+  line-height: 1;
 }
 
 .compare-lanes-legend {
   font-size: var(--text-xs);
   color: var(--text-muted);
-  margin-top: var(--space-3);
-  padding: 0 var(--space-3);
+  margin-top: auto;
+  padding: var(--space-3) var(--space-4) 0;
   line-height: 1.4;
-}
-
-/* Top-k Ground Truth Diff Panel */
-.compare-matrix-content {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  margin-top: var(--space-2);
-}
-
-.compare-diff-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.compare-diff-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.compare-diff-header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.compare-diff-sep {
-  color: var(--text-muted);
-}
-
-.compare-diff-summary {
-  color: var(--text-secondary);
-  font-size: var(--text-xs);
-}
-
-.compare-diff-check-wrap {
-  display: inline-flex;
-  align-items: center;
-  color: var(--color-kdtree);
-  margin-left: 2px;
-}
-
-.compare-diff-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  padding-left: 16px;
-}
-
-.compare-diff-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  background: var(--bg-raised);
-  border-radius: var(--radius-full);
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-hairline);
-}
-
-.compare-mismatch-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: var(--radius-full);
-  background: var(--accent);
   flex-shrink: 0;
 }
 
-.compare-diff-chip-text {
+/* Rank Cell Tooltip */
+.compare-rank-tooltip {
+  position: absolute;
+  background: var(--bg-raised);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  pointer-events: none;
+  z-index: 20;
   white-space: nowrap;
+  border: none;
 }
 
-.compare-diff-note {
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-  margin-top: auto;
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--border-hairline);
-  line-height: 1.4;
+.compare-rank-tooltip.hidden {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
