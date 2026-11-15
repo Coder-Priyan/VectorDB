@@ -879,46 +879,59 @@ export function formatRangeText(min, max) {
 }
 
 /**
- * Compares candidate algorithm ranks against Brute Force ground truth ranks.
- * Returns structured rank diff for non-brute algorithms (KD-Tree, HNSW).
+ * Formats recall_at_k as a percentage string with one decimal place.
+ * Clamped between 0.0% and 100.0%. Fallback "0.0%".
  *
- * @param {object} report - Raw benchmark report from server
- * @returns {{
- *   kdtree: { sameCount: number, total: number, mismatches: Array<{ rank: number, expected: number|null, got: number|null }> },
- *   hnsw: { sameCount: number, total: number, mismatches: Array<{ rank: number, expected: number|null, got: number|null }> }
- * }}
+ * @param {number} recall
+ * @returns {string}
  */
-export function buildRankDiff(report) {
-  const algs = report?.algorithms || {};
-  const bruteRes = Array.isArray(algs.brute?.results) ? algs.brute.results : [];
-  const total = bruteRes.length;
+export function formatRecallPercent(recall) {
+  if (typeof recall !== "number" || !Number.isFinite(recall)) {
+    return "0.0%";
+  }
+  const clamped = Math.max(0, Math.min(1, recall));
+  return `${(clamped * 100).toFixed(1)}%`;
+}
 
-  const buildForCandidate = (candResults) => {
-    const candList = Array.isArray(candResults) ? candResults : [];
-    let sameCount = 0;
-    const mismatches = [];
+/**
+ * Builds rank strip descriptors comparing candidate results against ground truth.
+ *
+ * @param {Array<{id: number|string}>} groundTruthResults
+ * @param {Array<{id: number|string}>} candidateResults
+ * @param {number} k
+ * @returns {Array<{ rank: number, isMatch: boolean, expectedId: number|string|null, gotId: number|string|null }> & { sameCount: number, total: number, cells: Array }}
+ */
+export function buildRankStrip(groundTruthResults, candidateResults, k) {
+  const safeK = Math.max(1, Math.min(100, Math.round(Number(k) || 10)));
+  const gtList = Array.isArray(groundTruthResults) ? groundTruthResults.slice(0, safeK) : [];
+  const candList = Array.isArray(candidateResults) ? candidateResults.slice(0, safeK) : [];
 
-    for (let i = 0; i < total; i++) {
-      const rank = i + 1;
-      const expected = bruteRes[i]?.id ?? null;
-      const candItem = candList[i];
-      const got = (candItem && candItem.id !== undefined && candItem.id !== null)
-        ? candItem.id
-        : null;
+  let sameCount = 0;
+  const cells = [];
 
-      if (expected !== null && got === expected) {
-        sameCount++;
-      } else {
-        mismatches.push({ rank, expected, got });
-      }
+  for (let i = 0; i < safeK; i++) {
+    const rank = i + 1;
+    const gtItem = gtList[i];
+    const expectedId = (gtItem && gtItem.id !== undefined && gtItem.id !== null)
+      ? gtItem.id
+      : null;
+
+    const candItem = candList[i];
+    const gotId = (candItem && candItem.id !== undefined && candItem.id !== null)
+      ? candItem.id
+      : null;
+
+    const isMatch = (expectedId !== null && gotId !== null && expectedId === gotId);
+    if (isMatch) {
+      sameCount++;
     }
 
-    return { sameCount, total, mismatches };
-  };
+    cells.push({ rank, isMatch, expectedId, gotId });
+  }
 
-  return {
-    kdtree: buildForCandidate(algs.kdtree?.results),
-    hnsw: buildForCandidate(algs.hnsw?.results)
-  };
+  cells.sameCount = sameCount;
+  cells.total = safeK;
+  cells.cells = cells;
+  return cells;
 }
 

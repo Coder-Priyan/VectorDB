@@ -3803,8 +3803,7 @@ input[type="number"] {
     flex: none;
   }
 
-  .compare-lanes-card,
-  .compare-matrix-card {
+  .compare-lanes-card {
     height: auto;
     flex: none;
   }

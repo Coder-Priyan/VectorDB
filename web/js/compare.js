@@ -9,10 +9,9 @@ import {
   computeTimingStats,
   getCompareEmptyStateConfig,
   computeBarScale,
-  computeRecallSquares,
-  computeLatencyScale,
   formatRangeText,
-  buildRankDiff,
+  buildRankStrip,
+  formatRecallPercent,
   ALGORITHM_LABELS
 } from "./compare_helpers.js";
 
@@ -79,7 +78,43 @@ export function initCompareTab() {
   const progressBar = byId("compare-progress-fill");
   const emptyStateBox = byId("compare-empty-state");
   const resultsCard = byId("compare-results-card");
+  const lanesPanel = byId("compare-lanes-panel");
   const lanesContent = byId("compare-lanes-content");
+  const rankTooltipEl = byId("compare-rank-tooltip");
+
+  function showTooltip(cell, cellData) {
+    if (!rankTooltipEl || !lanesPanel) return;
+    const expectedText = cellData.expectedId !== null ? `#${cellData.expectedId}` : "-";
+    const gotText = cellData.gotId !== null ? `#${cellData.gotId}` : "-";
+
+    rankTooltipEl.replaceChildren(
+      document.createTextNode(`Rank ${cellData.rank}: expected `),
+      el("span", { className: "font-mono" }, expectedText),
+      document.createTextNode(", got "),
+      el("span", { className: "font-mono" }, gotText)
+    );
+
+    const cellRect = cell.getBoundingClientRect();
+    const panelRect = lanesPanel.getBoundingClientRect();
+    const x = cellRect.left - panelRect.left + (cellRect.width / 2);
+    const y = cellRect.top - panelRect.top - 28;
+
+    rankTooltipEl.style.left = `${Math.round(x)}px`;
+    rankTooltipEl.style.top = `${Math.round(y)}px`;
+    rankTooltipEl.style.transform = "translateX(-50%)";
+    rankTooltipEl.classList.remove("hidden");
+  }
+
+  function hideTooltip() {
+    if (!rankTooltipEl) return;
+    rankTooltipEl.classList.add("hidden");
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      hideTooltip();
+    }
+  });
 
   // Populate Options button icons
   const optionsIconSlot = optionsBtn?.querySelector(".compare-options-icon-slot");
@@ -161,6 +196,7 @@ export function initCompareTab() {
 
   function resetCompareView() {
     lastReportData = null;
+    hideTooltip();
     lanesContent?.replaceChildren();
     if (statusNotice) statusNotice.textContent = "Ready to benchmark.";
     if (progressBar) {
@@ -394,40 +430,45 @@ export function initCompareTab() {
       if (alg === "brute") {
         rankCol.appendChild(el("span", { className: "compare-rank-ref" }, "Reference for the other algorithms"));
       } else {
-        const candResults = Array.isArray(aData.results) ? aData.results : [];
-        let sameCount = 0;
+        const strip = buildRankStrip(bruteResults, aData.results, kVal);
         const stripEl = el("div", { className: "compare-rank-strip", role: "group", "aria-label": `${kVal} rank match indicators` });
 
-        for (let i = 0; i < kVal; i++) {
-          const rank = i + 1;
-          const expectedId = bruteResults[i]?.id ?? null;
-          const gotId = candResults[i]?.id ?? null;
-          const isMatch = (expectedId !== null && gotId !== null && expectedId === gotId);
-
-          if (isMatch) {
-            sameCount++;
+        for (const cellData of strip) {
+          if (cellData.isMatch) {
             stripEl.appendChild(el("span", { className: `compare-rank-cell filled bg-${alg}` }));
           } else {
+            const expectedText = cellData.expectedId !== null ? `#${cellData.expectedId}` : "-";
+            const gotText = cellData.gotId !== null ? `#${cellData.gotId}` : "-";
             const emptyCell = el("span", {
               className: "compare-rank-cell empty",
               tabIndex: 0,
-              "aria-label": `Rank ${rank}: expected #${expectedId ?? "-"}, got ${gotId !== null ? `#${gotId}` : "-"}`
+              "aria-label": `Rank ${cellData.rank}: expected ${expectedText}, got ${gotText}`
             });
+
+            emptyCell.addEventListener("mouseenter", () => showTooltip(emptyCell, cellData));
+            emptyCell.addEventListener("mouseleave", hideTooltip);
+            emptyCell.addEventListener("focus", () => showTooltip(emptyCell, cellData));
+            emptyCell.addEventListener("blur", hideTooltip);
+            emptyCell.addEventListener("keydown", (e) => {
+              if (e.key === "Escape") {
+                hideTooltip();
+                emptyCell.blur();
+              }
+            });
+
             stripEl.appendChild(emptyCell);
           }
         }
 
         const stripWrap = el("div", { className: "compare-rank-strip-wrap" },
           stripEl,
-          el("span", { className: "compare-rank-summary" }, `${sameCount} of ${kVal} same rank`)
+          el("span", { className: "compare-rank-summary" }, `${strip.sameCount} of ${kVal} same rank`)
         );
         rankCol.appendChild(stripWrap);
       }
 
       // 5. Recall column: plain primary text color, regular weight, ~22px, right-aligned
-      const rawRecall = aData.recall_at_k ?? 1.0;
-      const clampedRecall = Math.max(0, Math.min(1, Number(rawRecall) || 0));
-      const recallText = `${(clampedRecall * 100).toFixed(1)}%`;
+      const recallText = formatRecallPercent(aData.recall_at_k);
       const recallCol = el("div", { className: "compare-lane-recall-col" }, recallText);
 
       // Lane row

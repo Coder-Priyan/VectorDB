@@ -20,7 +20,8 @@ import {
   computeRecallSquares,
   computeLatencyScale,
   formatRangeText,
-  buildRankDiff
+  buildRankStrip,
+  formatRecallPercent
 } from "../compare_helpers.js";
 
 // Real raw benchmark response fixture captured from running server with 10 top-k items (ADR-036, docs/API.md sec 9)
@@ -737,79 +738,138 @@ export function registerCompareTests() {
       assertEqual(formatRangeText(42, 42), "42 - 42 µs");
     });
 
-    it("buildRankDiff identifies full match for kdtree and rank 10 mismatch for hnsw from realBenchmarkFixture", () => {
-      const diff = buildRankDiff(realBenchmarkFixture);
-      assertEqual(diff.kdtree.total, 10);
-      assertEqual(diff.kdtree.sameCount, 10);
-      assertEqual(diff.kdtree.mismatches.length, 0);
+    it("buildRankStrip identifies full match for kdtree and rank 10 mismatch for hnsw from realBenchmarkFixture", () => {
+      const bruteRes = realBenchmarkFixture.algorithms.brute.results;
+      const kdRes = realBenchmarkFixture.algorithms.kdtree.results;
+      const hnswRes = realBenchmarkFixture.algorithms.hnsw.results;
 
-      assertEqual(diff.hnsw.total, 10);
-      assertEqual(diff.hnsw.sameCount, 9);
-      assertEqual(diff.hnsw.mismatches.length, 1);
-      assertEqual(diff.hnsw.mismatches[0].rank, 10);
-      assertEqual(diff.hnsw.mismatches[0].expected, 110);
-      assertEqual(diff.hnsw.mismatches[0].got, 999);
+      const kdStrip = buildRankStrip(bruteRes, kdRes, 10);
+      assertEqual(kdStrip.length, 10);
+      assertEqual(kdStrip.sameCount, 10);
+      assert(kdStrip.every(c => c.isMatch === true));
+
+      const hnswStrip = buildRankStrip(bruteRes, hnswRes, 10);
+      assertEqual(hnswStrip.length, 10);
+      assertEqual(hnswStrip.sameCount, 9);
+      assert(hnswStrip.slice(0, 9).every(c => c.isMatch === true));
+      assertEqual(hnswStrip[9].isMatch, false);
+      assertEqual(hnswStrip[9].rank, 10);
+      assertEqual(hnswStrip[9].expectedId, 110);
+      assertEqual(hnswStrip[9].gotId, 999);
     });
 
-    it("buildRankDiff correctly identifies rank mismatches using mismatchFixture", () => {
-      const diff = buildRankDiff(mismatchFixture);
-      assertEqual(diff.kdtree.total, 3);
-      assertEqual(diff.kdtree.sameCount, 2);
-      assertEqual(diff.kdtree.mismatches.length, 1);
-      assertEqual(diff.kdtree.mismatches[0].rank, 2);
-      assertEqual(diff.kdtree.mismatches[0].expected, 20);
-      assertEqual(diff.kdtree.mismatches[0].got, 99);
+    it("buildRankStrip correctly identifies rank mismatches using mismatchFixture", () => {
+      const bruteRes = mismatchFixture.algorithms.brute.results;
+      const kdRes = mismatchFixture.algorithms.kdtree.results;
+      const hnswRes = mismatchFixture.algorithms.hnsw.results;
 
-      assertEqual(diff.hnsw.total, 3);
-      assertEqual(diff.hnsw.sameCount, 2);
-      assertEqual(diff.hnsw.mismatches.length, 1);
-      assertEqual(diff.hnsw.mismatches[0].rank, 3);
-      assertEqual(diff.hnsw.mismatches[0].expected, 30);
-      assertEqual(diff.hnsw.mismatches[0].got, 88);
+      const kdStrip = buildRankStrip(bruteRes, kdRes, 3);
+      assertEqual(kdStrip.length, 3);
+      assertEqual(kdStrip.sameCount, 2);
+      assertEqual(kdStrip[0].isMatch, true);
+      assertEqual(kdStrip[1].isMatch, false);
+      assertEqual(kdStrip[1].rank, 2);
+      assertEqual(kdStrip[1].expectedId, 20);
+      assertEqual(kdStrip[1].gotId, 99);
+      assertEqual(kdStrip[2].isMatch, true);
+
+      const hnswStrip = buildRankStrip(bruteRes, hnswRes, 3);
+      assertEqual(hnswStrip.length, 3);
+      assertEqual(hnswStrip.sameCount, 2);
+      assertEqual(hnswStrip[0].isMatch, true);
+      assertEqual(hnswStrip[1].isMatch, true);
+      assertEqual(hnswStrip[2].isMatch, false);
+      assertEqual(hnswStrip[2].rank, 3);
+      assertEqual(hnswStrip[2].expectedId, 30);
+      assertEqual(hnswStrip[2].gotId, 88);
     });
 
-    it("buildRankDiff handles missing candidate results using missingFixture", () => {
-      const diff = buildRankDiff(missingFixture);
-      assertEqual(diff.kdtree.total, 3);
-      assertEqual(diff.kdtree.sameCount, 1);
-      assertEqual(diff.kdtree.mismatches.length, 2);
-      assertEqual(diff.kdtree.mismatches[0].rank, 2);
-      assertEqual(diff.kdtree.mismatches[0].expected, 2);
-      assertEqual(diff.kdtree.mismatches[0].got, null);
-      assertEqual(diff.kdtree.mismatches[1].rank, 3);
-      assertEqual(diff.kdtree.mismatches[1].expected, 3);
-      assertEqual(diff.kdtree.mismatches[1].got, null);
+    it("buildRankStrip handles missing candidate results and array bounds using missingFixture", () => {
+      const bruteRes = missingFixture.algorithms.brute.results;
+      const kdRes = missingFixture.algorithms.kdtree.results;
+      const hnswRes = missingFixture.algorithms.hnsw.results;
 
-      assertEqual(diff.hnsw.total, 3);
-      assertEqual(diff.hnsw.sameCount, 2);
-      assertEqual(diff.hnsw.mismatches.length, 1);
-      assertEqual(diff.hnsw.mismatches[0].rank, 3);
-      assertEqual(diff.hnsw.mismatches[0].expected, 3);
-      assertEqual(diff.hnsw.mismatches[0].got, null);
+      const kdStrip = buildRankStrip(bruteRes, kdRes, 3);
+      assertEqual(kdStrip.length, 3);
+      assertEqual(kdStrip.sameCount, 1);
+      assertEqual(kdStrip[0].isMatch, true);
+      assertEqual(kdStrip[1].isMatch, false);
+      assertEqual(kdStrip[1].gotId, null);
+      assertEqual(kdStrip[1].expectedId, 2);
+      assertEqual(kdStrip[2].isMatch, false);
+      assertEqual(kdStrip[2].gotId, null);
+      assertEqual(kdStrip[2].expectedId, 3);
+
+      const hnswStrip = buildRankStrip(bruteRes, hnswRes, 3);
+      assertEqual(hnswStrip.length, 3);
+      assertEqual(hnswStrip.sameCount, 2);
+      assertEqual(hnswStrip[2].isMatch, false);
+      assertEqual(hnswStrip[2].gotId, null);
+      assertEqual(hnswStrip[2].expectedId, 3);
     });
 
-    it("buildRankDiff supports k=20 fixtures correctly", () => {
-      const k20Fixture = {
-        algorithms: {
-          brute: { results: Array.from({ length: 20 }, (_, i) => ({ id: i + 1 })) },
-          kdtree: { results: Array.from({ length: 20 }, (_, i) => ({ id: i + 1 })) },
-          hnsw: {
-            results: Array.from({ length: 20 }, (_, i) => ({ id: i === 19 ? 999 : i + 1 }))
-          }
-        },
-        k: 20
-      };
-      const diff = buildRankDiff(k20Fixture);
-      assertEqual(diff.kdtree.total, 20);
-      assertEqual(diff.kdtree.sameCount, 20);
-      assertEqual(diff.kdtree.mismatches.length, 0);
+    it("buildRankStrip supports k=1, k=20, slicing, Docs shape, and null inputs", () => {
+      // k=1
+      const strip1 = buildRankStrip([{ id: 42 }], [{ id: 42 }], 1);
+      assertEqual(strip1.length, 1);
+      assertEqual(strip1.sameCount, 1);
+      assertEqual(strip1[0].isMatch, true);
 
-      assertEqual(diff.hnsw.total, 20);
-      assertEqual(diff.hnsw.sameCount, 19);
-      assertEqual(diff.hnsw.mismatches.length, 1);
-      assertEqual(diff.hnsw.mismatches[0].rank, 20);
-      assertEqual(diff.hnsw.mismatches[0].expected, 20);
-      assertEqual(diff.hnsw.mismatches[0].got, 999);
+      // k=20
+      const gt20 = Array.from({ length: 20 }, (_, i) => ({ id: i + 1 }));
+      const cand20 = Array.from({ length: 20 }, (_, i) => ({ id: i === 19 ? 999 : i + 1 }));
+      const strip20 = buildRankStrip(gt20, cand20, 20);
+      assertEqual(strip20.length, 20);
+      assertEqual(strip20.sameCount, 19);
+      assertEqual(strip20[19].isMatch, false);
+      assertEqual(strip20[19].gotId, 999);
+
+      // Docs report shape with string chunk IDs
+      const docsGt = [{ id: "chunk_1" }, { id: "chunk_2" }, { id: "chunk_3" }];
+      const docsCand = [{ id: "chunk_1" }, { id: "chunk_diff" }, { id: "chunk_3" }];
+      const docsStrip = buildRankStrip(docsGt, docsCand, 3);
+      assertEqual(docsStrip.sameCount, 2);
+      assertEqual(docsStrip[1].isMatch, false);
+      assertEqual(docsStrip[1].expectedId, "chunk_2");
+      assertEqual(docsStrip[1].gotId, "chunk_diff");
+
+      // Candidate longer than k (slices to k)
+      const candLong = [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }];
+      const stripSliced = buildRankStrip([{ id: 1 }, { id: 2 }], candLong, 2);
+      assertEqual(stripSliced.length, 2);
+      assertEqual(stripSliced.sameCount, 2);
+
+      // Null / undefined safe fallbacks
+      const stripNull = buildRankStrip(null, null, 5);
+      assertEqual(stripNull.length, 5);
+      assertEqual(stripNull.sameCount, 0);
+      assertEqual(stripNull[0].expectedId, null);
+      assertEqual(stripNull[0].gotId, null);
+    });
+
+    it("formatRecallPercent formats recall correctly with clamping and one decimal", () => {
+      assertEqual(formatRecallPercent(1.0), "100.0%");
+      assertEqual(formatRecallPercent(0.9), "90.0%");
+      assertEqual(formatRecallPercent(0.6666), "66.7%");
+      assertEqual(formatRecallPercent(0.0), "0.0%");
+      assertEqual(formatRecallPercent(0), "0.0%");
+      assertEqual(formatRecallPercent(-0.5), "0.0%");
+      assertEqual(formatRecallPercent(1.5), "100.0%");
+      assertEqual(formatRecallPercent(null), "0.0%");
+      assertEqual(formatRecallPercent(undefined), "0.0%");
+      assertEqual(formatRecallPercent(NaN), "0.0%");
+    });
+
+    it("computeBarScale scales 3 latency medians where max lane gets 100% width", () => {
+      const scale = computeBarScale([120, 85, 32]);
+      assertEqual(scale.max, 120);
+      assertEqual(scale.getBarWidthPercent(120), 100);
+      assertEqual(scale.getBarWidthPercent(85), 71);
+      assertEqual(scale.getBarWidthPercent(32), 27);
+
+      // When all are 0
+      const zeroScale = computeBarScale([0, 0, 0]);
+      assertEqual(zeroScale.getBarWidthPercent(0), 0);
     });
   });
 }
