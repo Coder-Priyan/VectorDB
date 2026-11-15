@@ -22,7 +22,7 @@ This project operates on a strict three-party workflow:
 - **What It Does**: VectorDB is a fully offline, zero-cloud C++17 vector database (in-memory by default, with atomic disk persistence via --data-dir) and retrieval-augmented generation (RAG) engine. It provides exact brute-force search, flat-array KD-Tree spatial indexing, hierarchical navigable small-world (HNSW) graphs, document chunking, matrix-free 2D PCA projection, a multi-threaded REST HTTP API server, and a dependency-free vanilla HTML5/ES6 web UI [CONFIRMED: README.md:1-80, src/].
 - **Target Users**: Academic evaluators, students, and engineers seeking an offline, inspectable semantic search and RAG engine without external cloud or proprietary vector database services [INFERRED from B.Tech Major Project context, zero-cloud architecture, and educational demo tabs].
 - **Deadlines & Non-Code Deliverables**: Academic major project report, viva defense presentation, and demo walkthrough script [INFERRED from docs/DEMO_SCRIPT.md; exact calendar deadlines are [UNCLEAR]].
-- **Collaboration Preferences**: Human writes Hinglish (Hindi in Roman letters). Brain replies in simple short Hinglish with one question at a time. One step at a time. Human is not a technical planner: questions to the human must be short and answerable in one line. Human pastes Antigravity reports as plain text and runs verify commands in own terminal; human confirms many checks with short "OK" lines without screenshots, record them as human-reported. Brain must ask for screenshots of features that were previously only reported. Human wants a luxury, calm, trustworthy, professional modern 2026 UI (instrument panel, no page scroll, one font family, few lines and boxes, zero AI-slop). Human noted mixed fonts make the product feel untrustworthy. Human prefers: human uses ChatGPT/Gemini for mockups and passes the chosen image; Brain gives outcome-level briefs; builder decides implementation. Human is at the gym sometimes and wants a master prompt to run unattended. Human does not like text from AI mockups copied; layout and feel only. Merge and push to main are decided only AFTER the pending UI fixes. Brain vote: fixes first, then merge ui-quiet-studio. Brain should warn about chat length earlier (SYNC); human wants a SYNC when the chat is long. When several bugs are found in manual testing, batch them into ONE fix task instead of one task per bug. Human sometimes uses ChatGPT or another Claude as a testing helper and pastes their report; such reports are human-reported, not proof. Human handles viva, report and slides on their own. Brain must focus only on development and must not ask about viva dates or report status again. Human does not want AI-slop UI (gradients, glow, glass, indigo/violet accents); dark theme for now; has no reference website; delegated design choice to Brain. Human decided on 2026-11-14: aggressive mode with big master tasks, backup exists (branch backup-before-v2 and external backup); fixes follow after each big build. Brain still verifies with terminal output and screenshots; builder reports are claims, not proof. Wants Claude-style chat UI with history sidebar; wants the Ask tab to show how things work internally. [CONFIRMED: human instruction in chat]
+- **Collaboration Preferences**: Human writes Hinglish (Hindi in Roman letters). Brain replies in simple short Hinglish with one question at a time. One step at a time. Human is not a technical planner: questions to the human must be short and answerable in one line. Human pastes Antigravity reports as plain text and runs verify commands in own terminal; human confirms many checks with short "OK" lines without screenshots, record them as human-reported. Brain must ask for screenshots of features that were previously only reported. Human wants a luxury, calm, trustworthy, professional modern 2026 UI (instrument panel, no page scroll, one font family, few lines and boxes, zero AI-slop). Human noted mixed fonts make the product feel untrustworthy. Human prefers: human uses ChatGPT/Gemini for mockups and passes the chosen image; Brain gives outcome-level briefs; builder decides implementation. Human is at the gym sometimes and wants a master prompt to run unattended. Human does not like text from AI mockups copied; layout and feel only. Merge and push to main are decided only AFTER the pending UI fixes. Brain vote: fixes first, then merge ui-quiet-studio. Brain should warn about chat length earlier (SYNC); human wants a SYNC when the chat is long. When several bugs are found in manual testing, batch them into ONE fix task instead of one task per bug. Human sometimes uses ChatGPT or another Claude as a testing helper and pastes their report; such reports are human-reported, not proof. Human handles viva, report and slides on their own. Brain must focus only on development and must not ask about viva dates or report status again. Human does not want AI-slop UI (gradients, glow, glass, indigo/violet accents); dark theme for now; has no reference website; delegated design choice to Brain. Human decided on 2026-11-14: aggressive mode with big master tasks, backup exists (branch backup-before-v2 and external backup); fixes follow after each big build. Brain still verifies with terminal output and screenshots; builder reports are claims, not proof. Wants Claude-style chat UI with history sidebar; wants the Ask tab to show how things work internally. Human is happy to generate mockups per tab with ChatGPT and expects Brain to supply the image prompt each time. Image prompt rules: 16:9, 1920x1080 desktop, app screen only, no browser frame, real controls only, explicit "STRICTLY DO NOT ADD" list, algorithm colors Brute Force taupe #9c8269, KD-Tree moss #708a78, HNSW amber #d9a441. Human asks for the shell (sidebar footer pill on one line, 28px main padding) to be stated in every prompt. Human prefers shared components over per-tab fixes. Brain should not write a task prompt before reviewing the human's screenshots or mockups. [CONFIRMED: human instruction in chat]
 - **AI Mockup Realism & Engine Constraints**: AI mockups invent controls the engine does not have. Mismatches to handle later: Compare mockup shows Query Count, algorithm checkboxes, ms units and per-query match counts, but the real Compare has repetitions (1/3/5), one query run on all 3 algorithms, latency in microseconds and a rank-by-rank top-10 diff; Settings mockup shows System panel (max context, chunk size/overlap), Auto-save toggle, Export/Import collection, storage quota, uptime, model llama3.1:8b which are not real (model is llama3.2; persistence is the --data-dir flag); Explore, HNSW and Settings have no empty-state mockup, use the shared empty-state component. [CONFIRMED: human instruction in chat]
 - **Builder Test Claims vs Real Browser (ISS-049)**: Builder-reported test counts are claims; the human opening /tests.html is the only proof (T-055 check found 111/113 passed because realBenchmarkFixture was scoped inside a previous describe block from T-054). [CONFIRMED: human real-browser test 2026-11-15]
 - **Mockup Image Unreliability**: Builder descriptions of mockup images are unreliable: in T-055v and T-055b the builder listed a breadcrumb, kb-computer tag, paperclip, Auto-save toggle, dot-product chip, LLM First Token/Total tiles and a profile section that Brain did not see in the real mockups 01 and 02. Judge UI only by human screenshots, never by builder descriptions of images. [CONFIRMED: Brain review of builder reports, T-055c]
@@ -157,37 +157,53 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 47. **Standard Terminal Verification Commands**: Brain asked the human to verify with terminal commands after each task (`git log`, `git status`, `git diff --stat ui-quiet-studio -- src include tests`, `!important` count, scanner, `/tests.html`). Keep doing this.
 48. **Verification State Post-T-055c/T-056**: Human confirmed `/tests.html` 114/114, C++ 118/118 and git state by terminal on 2026-11-15 (after T-055c).
 49. **Builder Visual Audits Are Claims Only (Explore Primary Button)**: The T-056 primary-button audit reported Explore empty = 0 primary buttons, but human screenshot on 2026-11-15 showed an active solid amber Random Query button there. Builder visual audits are claims only; judge UI strictly by human screenshots.
-50. **Known Pending Items for Later Tab Tasks**: Visual defects identified from human screenshots on 2026-11-15 to be addressed in their respective tab tasks: Explore subtitle shows "document chunk" text on Demo Vectors; Explore empty state has active Random Query; Compare select label clips; Compare empty Summary Metrics header clips with horizontal scrollbar.
+50. **Known Pending Items for Later Tab Tasks**: Visual defects identified from human screenshots on 2026-11-15 to be addressed in their respective tab tasks: Explore subtitle shows "document chunk" text on Demo Vectors; Explore empty state has active Random Query; Compare select label clips; Compare empty Summary Metrics header clips with horizontal scrollbar; Compare and Settings possible zero left padding and clipped right edge in 1794px crops; Settings title alignment differs; Ask "Compare algorithms" can show a cold-start KD-Tree outlier.
 51. **T-058 Ask UX Refinements & Reusable Dropdown**: Documents drawer re-centers chat column using margin-right transition on `.ask-chat-viewport` with responsive fallback (<1280px); glass-box accordion collapsed by default with ghost pill toggle, and auto-expands on citation pill click; reusable dark dropdown component `createDropdown` in `web/js/ui.js` solves OS light select styling on dark background while preserving consumer ID contracts.
+52. **ChatGPT Mockups Copy Real Bugs & Alter Details**: ChatGPT mockups copy real bugs (e.g. wrapped Ollama pill bug) and alter details (changed sidebar icons, made all compare bars full length, colored Brute Force amber, and invented sample answer text). See ADR-052. Brain must review every mockup against real controls before a task is written.
+53. **Human Screenshot Cropping & Scaling**: Screenshots the human sends can be cropped or scaled (e.g. ~1794px wide); ask for the full browser window at 100% zoom before judging padding or edges.
+54. **In-Memory Persistence of Ingested Documents**: A corrected sample file (e.g. `vectordb_intro.txt`) does not update documents already ingested in server memory. To reload, delete the document in the Documents drawer and press Sample again (the server keeps ingested documents in memory unless `--data-dir` is used).
+55. **Human Terminal Verification Commands Set**: The human's standard terminal verification set after each task: `git status -sb`; `git log --oneline -4`; `git diff --stat ui-quiet-studio -- src include tests`; `.\build\vectordb_tests.exe`; `powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1`; `(Select-String -Path web\css\app.css -Pattern '!important').Count`; `(Select-String -Path web\css\app.css -Pattern 'box-shadow').Count`; `(Select-String -Path web\js\*.js -Pattern '#[0-9a-fA-F]{3,8}' | Where-Object { $_.Path -notmatch 'colors\.js' }).Count`; `/tests.html` count.
 
 ---
 
 ## 7. Verification Status (as of 2026-11-15)
 
-- **Verification State after T-058**:
+- **Human-Confirmed on 2026-11-15 (Terminal after T-057)**:
+  - HEAD: `4f82c21` (`docs: T-057 sync`), preceded by `b9fd372`, `acb96a3`.
   - C++ hermetic suite: 118/118 passed (529,813 assertions).
-  - Browser pure-logic unit test suite: 121 registered unit tests in code (added 5 unit tests for `getDropdownNextIndex` and `createDropdown` in T-058).
   - Web safety automated scanner: 28 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
-  - CSS Quality metrics: `!important` count = 2 (<= 3), `box-shadow` count = 0, zero hex color literals outside `:root` and `web/js/colors.js`.
-  - Max primary buttons per view: strictly 1 primary amber button (`.btn-primary`) in Ask across all states (empty, results, drawer-open).
-  - All visual UI states reported as "not tested (visual)" pending human review and screenshot capture in browser at 100% zoom.
+  - CSS Quality metrics: `!important` count = 2 (<= 3), `box-shadow` count = 0, zero hex color literals in `web/js` outside `colors.js`.
+  - No match for "dot" in either `vectordb_intro.txt` (`samples/vectordb_intro.txt` and `web/samples/vectordb_intro.txt`).
+  - Git engine check: `git diff --stat ui-quiet-studio -- src include tests` strictly empty.
 
-- **Human-confirmed by screenshots on 2026-11-15**:
-  - `/tests.html`: 114/114 passed.
-  - Ask tab: empty state, results state with citations and glass-box accordion, documents drawer.
-  - Explore tab: Demo vectors PCA canvas and nearest neighbors sidebar.
-  - HNSW tab: Layer 0 graph topology canvas, step playback, search path trace sidebar.
-  - Compare tab: empty state (with contextual title), results state with 3 stacked bar charts and 10 diff rows.
-  - Settings tab: 3-column content-sized panel grid.
-- **NOT yet seen by screenshot**:
-  - Sidebar collapsed (56px icon rail).
+- **Human-Confirmed on 2026-11-15 (Real Browser Screenshots)**:
+  - `/tests.html`: 116/116 passed.
+  - Ask empty state: shows the new helper line and the algorithm select chevron.
+  - Sidebar footer: "Ollama online" pill is strictly on one line.
+  - Ask answer view: fills down to the composer with no dead gap.
+  - Chunk similarity: (e.g. 70.0%) is on one line.
+  - Citation `[1]`: amber pill.
+  - Latency tiles: show arrows between them.
+  - Compare algorithms block: uses taupe/moss/amber dots and real proportional bars (first run showed KD-Tree 19.71 ms as a cold-start tree build, so its bar was full length; second run all in microseconds; this is real engine behaviour, not a UI bug; the human may decide later whether to warm up the KD-Tree first).
+  - Latency numbers add up: Embed 90.3 ms + First token 16.53 s, Generate 22.30 s, Total 22.39 s.
+
+- **Earlier Human Screenshots 2026-11-15 (before T-057)**:
+  - Explore (empty and with 1000 vectors), HNSW layer L0 (13,562 edges), Compare (empty and results), Settings (1000 and 1100 vectors, memory 507.8 KB then 558.6 KB) all rendered; numbers consistent.
+
+- **NOT yet seen by the human**:
+  - Sidebar collapsed (56px rail).
+  - Documents drawer layout after T-057.
   - 125% zoom layout check across tabs.
-  - Docs-mode tabs (Explore Docs with document cluster legend; HNSW Docs notice).
+  - Explore/HNSW/Compare in Docs mode.
+  - Compare and Settings at full 1920x1080 window (the crops the human sent were about 1794px wide and showed content touching the sidebar and the right edge; unverified whether real).
+  - The answer to the question "what is vector db?" (showed no answer in two screenshots; unknown if generation was still running).
+  - Small blue dot seen once at the top-left of the Ask composer in the empty state (unexplained, possibly browser or extension; ask human to report if it appears again).
+
 - **Pending Human Actions**:
   - Fill `<YOUR NAME>` placeholder in `LICENSE`.
-  - Decide Linux/macOS support tier & release timing.
-  - DO NOT merge `ui-redesign-v3` into `main` and DO NOT push to remote origin until visual approval.
-- **Not verified**: 1366x768 layout, Ask New chat empty-state guided card.
+  - Decide Linux/macOS support tier & release timing (ISS-029).
+  - DO NOT merge `ui-redesign-v3` into `main` and DO NOT push to remote origin until human approves visuals.
+  - After loading a corrected sample document the human must delete the old "VectorDB Intro" in the Documents drawer and press Sample again (the server keeps ingested documents in memory unless `--data-dir` is used).
 
 Tasks verified and completed on branch `ui-redesign` (T-017 through T-038), and `ui-polish-2026` (T-040):
 - **T-017** (2026-11-12, commit `033c8fd`): One-screen feasibility study (read-only architectural analysis across shell and all 5 tabs; confirmed CSS layout strategy and Option A proposal for Compare).

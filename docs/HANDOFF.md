@@ -1,6 +1,6 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by T-057
+Last updated: 2026-11-15 by SYNC-007
 
 ## 1. Current Status
 
@@ -36,9 +36,73 @@ Task T-057 executed the Ask tab redesign v3.1 from human-approved mockups (and s
 - **Commit `acb96a3` (T-057 A)**: Removed leftover `max-height: 50vh` cap on Ask message list (`.answer-box`), allowing message list to fill the viewport down to the composer without dead gap; chunk card similarity value formatted with `white-space: nowrap` and `min-width: 44px`; latency pipeline 5 tiles in left-to-right flow with `arrowRight` line icons between tiles and real timings; synchronized `web/samples/vectordb_intro.txt` with `samples/vectordb_intro.txt` (zero 'dot' matches); added 2 browser unit tests for `formatPipelineLatency` and `arrowRight` icon.
 - **Commit `b9fd372` (T-057 B)**: Verified Compare rows with taupe/moss/amber dots and real proportional bar lengths; custom CSS SVG chevron on composer algorithm select; quiet muted helper line added under empty-state suggestion chips; sidebar status pill ("Ollama online") formatted with `white-space: nowrap` and collapsed rail layout.
 
-Task T-058 executed Ask tab UX refinements and shared UI dropdown on branch `ui-redesign-v3` (ADR-051):
-- **Commit `833a2ee` (T-058 A)**: Documents drawer re-centers chat column: when `#doc-drawer` opens, `.ask-chat-viewport` applies `margin-right: 380px` via a 200ms cubic-bezier transition, centering the 860px column precisely in the remaining space (`viewport - 380px`), returning to center when closed; disabled under `prefers-reduced-motion`; responsive fallback below 1280px maintains drawer overlay. "How this was answered" glass-box accordion collapsed by default for all answers (latest, streaming, restored) with compact ghost toggle pill header (`[ > How this was answered ]`); clicking any `[n]` citation pill auto-expands the accordion, scrolls smoothly to and flashes highlight on the source card.
-- **Commit `a557a53` (T-058 B)**: Replaced native composer `<select>` with reusable accessible dark dropdown component (`createDropdown` in `web/js/ui.js`) with `--bg-raised`, 10px radius, zero box-shadow, upward popup (`.dropup`) near viewport bottom, amber checkmark indicator, keyboard navigation (ArrowUp/Down, Enter, Space, Escape, Tab), pure helper `getDropdownNextIndex`, and hidden input maintaining the `#ask-algo-select` ID contract. Added 5 unit tests in `test_v2.js` bringing registered test count to 121.
+### Current Status by Tab (2026-11-15):
+- **Ask**: Mockups approved by the human; T-057 implemented and human-verified (terminal + screenshots). Ask refinements = T-058 approved by the human, execution not confirmed by Brain (see Section "T-058 (approved, execution not confirmed)" below; in git history, commits `833a2ee` and `a557a53` are committed on `ui-redesign-v3`).
+- **Compare**: Brain gave the human a ChatGPT image prompt (results state first, then empty state); the human is generating the two images; WAITING for the images; then Brain reviews them and writes the Compare task, which must use the shared dropdown from T-058.
+- **Explore, HNSW, Settings**: Not started in this per-tab workflow.
+
+### Human-Confirmed on 2026-11-15 (Terminal after T-057):
+- HEAD: `4f82c21` (`docs: T-057 sync`), preceded by `b9fd372`, `acb96a3`.
+- C++ hermetic suite: 118/118 passed (529,813 assertions).
+- Web safety automated scanner: 100% clean (28 files).
+- CSS Quality metrics: `!important` count = 2, `box-shadow` count = 0, zero hex color literals in `web/js` outside `colors.js`.
+- No match for "dot" in either `vectordb_intro.txt` (`samples/vectordb_intro.txt` and `web/samples/vectordb_intro.txt`).
+- Engine diff: `git diff --stat ui-quiet-studio -- src include tests` strictly empty.
+
+### Human-Confirmed on 2026-11-15 (Real Browser Screenshots):
+- `/tests.html`: 116/116 passed.
+- Ask empty state: shows the new helper line and the algorithm select chevron.
+- Sidebar footer: "Ollama online" pill is strictly on one line.
+- Ask answer view: fills down to the composer with no dead gap.
+- Chunk similarity: (e.g. 70.0%) is on one line.
+- Citation `[1]`: amber pill.
+- Latency tiles: show arrows between them.
+- Compare algorithms block: uses taupe/moss/amber dots and real proportional bars (first run showed KD-Tree 19.71 ms as a cold-start tree build, so its bar was full length; second run all in microseconds; this is real engine behaviour, not a UI bug; the human may decide later whether to warm up the KD-Tree first).
+- Latency numbers add up: Embed 90.3 ms + First token 16.53 s, Generate 22.30 s, Total 22.39 s.
+
+### Earlier Human Screenshots 2026-11-15 (before T-057):
+- Explore (empty and with 1000 vectors), HNSW layer L0 (13,562 edges), Compare (empty and results), Settings (1000 and 1100 vectors, memory 507.8 KB then 558.6 KB) all rendered; numbers consistent.
+
+### NOT Yet Seen by the Human:
+- Sidebar collapsed (56px rail).
+- Documents drawer layout after T-057.
+- 125% zoom layout check across tabs.
+- Explore/HNSW/Compare in Docs mode.
+- Compare and Settings at full 1920x1080 window (the crops the human sent were about 1794px wide and showed content touching the sidebar and the right edge; unverified whether real).
+- The answer to the question "what is vector db?" (showed no answer in two screenshots; unknown if generation was still running).
+- Small blue dot seen once at the top-left of the Ask composer in the empty state (unexplained, possibly browser or extension; ask human to report if it appears again).
+
+### Current Workflow (Per-Tab Redesign, ADR-050):
+For each tab in the order Ask, Compare, Explore, HNSW, Settings:
+1. The human takes a screenshot of the current tab (full browser window, 100% zoom, both empty and results states).
+2. Brain writes an image prompt for ChatGPT (1920x1080, 16:9, app screen only, no browser frame, real controls only, explicit "STRICTLY DO NOT ADD" list, algorithm colors Brute Force taupe `#9c8269`, KD-Tree moss `#708a78`, HNSW amber `#d9a441`, shell footer pill on one line, 28px main padding).
+3. The human generates the mockup and sends it with a one-line opinion.
+4. Brain reviews it against the real controls, names what is taken and what is rejected, and the human approves.
+5. Brain writes ONE builder task.
+6. The human verifies by terminal and screenshots; then the next tab.
+
+### Known Pending Items for Later Tab Tasks:
+1. **Explore chart subtitle**: Says "document chunk" even for Demo Vectors (must dynamically depend on active collection).
+2. **Explore empty state**: (Demo, 0 vectors) shows an active solid amber Random Query and Search ID that cannot work (must be disabled when collection is empty).
+3. **Compare collection select text clips**: ("Demo Collection (Random/Vectors") and should use the labels "Demo Vectors" / "Document Chunks" like Explore.
+4. **Compare empty-state Summary Metrics header is clipped**: (`Distai...`, `Recall@k` missing) with a horizontal scrollbar.
+5. **Compare and Settings zero padding**: Possible zero left padding and clipped right edge in 1794px crops (needs a full-window 100% screenshot to verify whether real).
+6. **Settings title alignment**: Differs from other tabs (verify).
+7. **Ask Compare algorithms KD-Tree outlier**: Cold-start build shows high first-query latency.
+
+---
+
+## T-058 (approved, execution not confirmed)
+
+Approved by the human; Antigravity builder executed on branch `ui-redesign-v3` in commits `833a2ee` (T-058 A) and `a557a53` (T-058 B), with 121 browser unit tests registered in code. Pending human confirmation and verification in the next chat. Requirements:
+
+1. **Documents drawer**: When opened, the chat column (header, thread, composer) shifts left and re-centers in the free space between the sidebar and the drawer so nothing is covered; returns to normal centered position when closed; 200ms transition, none under `prefers-reduced-motion`; header, thread and composer move together and keep the same width; narrow widths (<1280px) fall back to overlay.
+2. **"How this was answered"**: Collapsed by default for every answer (new, latest, restored from chat history), stays collapsed during streaming; a ghost toggle with chevron expands it; each answer keeps its own state; clicking a `[n]` citation pill auto-expands that answer's panel, then scrolls to and highlights the source card.
+3. **Algorithm select**: Replace native select `#ask-algo-select` with a custom dark dropdown (button + popup list, flat `--bg-raised` surface, radius 10px, no shadow, options HNSW, KD-Tree, Brute Force, amber check on the selected one, opens upward near the bottom, full keyboard support and ARIA: `aria-haspopup="listbox"`, `role="listbox"`, `role="option"`, `aria-selected`). Keep id `#ask-algo-select` on the element exposing the value (hidden input). Built as reusable helper `createDropdown(options, value, onChange)` in `web/js/ui.js` with `createElement` only. Other tabs' selects are NOT changed in T-058.
+4. **Pure-logic browser tests**: Registered unit tests for the dropdown selection/keyboard-index helper (`getDropdownNextIndex`) and the accordion default-collapsed helper.
+5. **Acceptance criteria**: Exactly one `.btn-primary` (Send) in Ask in every state; no new hex literals outside `:root` and `web/js/colors.js`; `!important` <= 3; `box-shadow` = 0; scanner pass; C++ 118/118; `git diff --stat ui-quiet-studio -- src include tests` empty. Commits: `"T-058 A: drawer re-centers chat, glass-box collapsed by default"`, `"T-058 B: shared dark dropdown component, Ask algorithm select"`, `"docs: T-058 sync"`. No push.
+
+---
 
 ### Complete Commits List for T-055 through T-058:
 - `7dc5cf6`: T-055 A: design tokens, shared components and app shell
@@ -250,7 +314,7 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
   - `ui-redesign`: Base v2 platform + T-039 docs polish.
   - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
   - `ui-quiet-studio`: Quiet Studio branch through T-054 and SYNC-005.
-  - `ui-redesign-v3`: Active branch containing T-055, T-055b, T-055c, T-056 master build, and T-057 Ask tab redesign v3.1.
+  - `ui-redesign-v3`: Active branch containing T-055, T-055b, T-055c, T-056, T-057 (human-verified), and T-058 commits `833a2ee` and `a557a53`.
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
 - **Tracking Status**: Local branch `ui-redesign-v3` without upstream tracking (commits unpushed per protocol; nothing pushed to origin).
 - **Working Tree**: Clean tracked files; only untracked test logs in `results/logs/`.
@@ -260,11 +324,10 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ## 5. Pending Human Actions
 
-1. **Verify `/tests.html` in real browser**: Open `http://127.0.0.1:8080/tests.html` at 100% browser zoom and verify 116/116 tests pass.
-2. **Screenshots review**: Capture screenshots at 100% browser zoom (1920x1080) for Ask tab after T-057 (both empty and answered states), collapsed sidebar (56px rail), and 125% zoom layout check.
-3. **License copyright name**: Fill `<YOUR NAME>` placeholder in `LICENSE`.
-4. **Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
-5. **No merge and no push**: Do NOT merge `ui-redesign-v3` into `main` and do NOT push to remote origin until approved.
+1. **License copyright name**: Fill `<YOUR NAME>` placeholder in `LICENSE`.
+2. **Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
+3. **No merge and no push**: Do NOT merge `ui-redesign-v3` into `main` and do NOT push to remote origin until approved.
+4. **Sample reload procedure**: After loading a corrected sample document the human must delete the old "VectorDB Intro" in the Documents drawer and press Sample again (the server keeps ingested documents in memory unless `--data-dir` is used).
 
 ---
 
@@ -272,16 +335,19 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ### Open Follow-ups
 - **Redesign v3.1 per-tab rollout (ADR-050)**:
-  - Ask tab: COMPLETE (T-057).
-  - Compare tab: NEXT (redesign v3.1 from human-approved mockup).
+  - Ask tab: COMPLETE & HUMAN-VERIFIED (T-057). T-058 approved (execution not confirmed by Brain; code committed on branch).
+  - Compare tab: NEXT (WAITING for human's two ChatGPT mockup images).
   - Explore tab: PENDING (redesign v3.1 from human-approved mockup).
   - HNSW tab: PENDING (redesign v3.1 from human-approved mockup).
   - Settings tab: PENDING (redesign v3.1 from human-approved mockup).
 - **Known Pending Items for Later Tab Tasks**:
-  - Explore subtitle displays "document chunk" text on Demo Vectors.
-  - Explore empty state shows an active solid amber Random Query button.
-  - Compare select label clips.
-  - Compare empty Summary Metrics header clips with horizontal scrollbar.
+  - Explore subtitle displays "document chunk" text on Demo Vectors (must depend on collection).
+  - Explore empty state shows an active solid amber Random Query button that cannot work when empty (must be disabled).
+  - Compare collection select text clips ("Demo Collection (Random/Vectors") and should use the labels "Demo Vectors" / "Document Chunks" like Explore.
+  - Compare empty-state Summary Metrics header is clipped (`Distai...`, `Recall@k` missing) with a horizontal scrollbar.
+  - Compare and Settings possible zero left padding and clipped right edge in 1794px crops (verify with full-window screenshot).
+  - Settings title alignment differs from other tabs (verify).
+  - Ask "Compare algorithms" can show a cold-start KD-Tree outlier.
 - Optional C++ unit test for ISS-006 ingest rollback.
 
 ### Roadmap (Not Started)
@@ -294,11 +360,10 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ## 7. Recommended Next Step
 
-1. Human opens `http://127.0.0.1:8080/tests.html` in browser at 100% zoom and confirms 116/116 passing.
-2. Human captures 100% zoom screenshots (1920x1080) of Ask tab after T-057 (empty and answered states).
-3. Order of tab rebuilds from human-approved mockups per ADR-050: Ask (T-057 DONE), Compare, Explore, HNSW, Settings.
-4. Next build task: Compare tab redesign v3.1 from human-approved mockup.
-5. No merge of `ui-redesign-v3` to `main` and no push to origin.
+1. **If T-058 has not been run**: The human sends T-058 to Antigravity.
+2. **Human verifies after T-058 by terminal and screenshots**: drawer open, new answer collapsed then expanded, dropdown open, sidebar collapsed 56px, `[n]` pill click opens panel.
+3. **Human sends the two Compare mockup images** (results state first, then empty state from Brain's prompt).
+4. **Brain reviews them and writes the Compare task** (which must use the shared dropdown from T-058).
 
 ---
 
