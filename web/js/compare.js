@@ -3,31 +3,56 @@
  */
 
 import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js";
-import { el, formatSimilarity } from "./ui.js";
-import { setupCanvasDpr } from "./canvas.js";
+import { el, createDropdown } from "./ui.js";
 import { createIcon } from "./icons.js";
 import {
   computeTimingStats,
-  diffAgainstGroundTruth,
-  drawComparisonBars,
-  buildDiffRows,
-  extractChartMetrics,
-  drawMetricBarChart,
   getCompareEmptyStateConfig,
   ALGORITHM_LABELS,
   ALGORITHM_COLORS
 } from "./compare_helpers.js";
-import { isCanvasDrawable } from "./hnsw_helpers.js";
 
 export function initCompareTab() {
   const byId = (id) => document.getElementById(id);
-  const collSelect = byId("compare-coll-select");
-  if (!collSelect) return;
+  const collWrap = byId("compare-coll-dropdown-wrap");
+  const repeatWrap = byId("compare-repeat-dropdown-wrap");
+  if (!collWrap || !repeatWrap) return;
 
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get("coll") === "docs" && collSelect) collSelect.value = "docs";
+  const initialColl = urlParams.get("coll") === "docs" ? "docs" : "demo";
 
+  const collDropdown = createDropdown(
+    [
+      { value: "demo", label: "Demo Vectors" },
+      { value: "docs", label: "Document Chunks" }
+    ],
+    initialColl,
+    () => {
+      resetCompareView();
+      updateCollectionVisibility();
+      checkCollectionStats();
+    },
+    { id: "compare-coll-select", ariaLabel: "Collection" }
+  );
+  collWrap.replaceChildren(collDropdown.element);
+
+  const repeatDropdown = createDropdown(
+    [
+      { value: "1", label: "1 (Single run)" },
+      { value: "3", label: "3 (Warmup + 3 runs)" },
+      { value: "5", label: "5 (Warmup + 5 runs)" },
+      { value: "10", label: "10 (Warmup + 10 runs)" },
+      { value: "20", label: "20 (Warmup + 20 runs)" }
+    ],
+    "5",
+    null,
+    { id: "compare-repeat-select", ariaLabel: "Repetitions" }
+  );
+  repeatWrap.replaceChildren(repeatDropdown.element);
+
+  const collSelect = byId("compare-coll-select");
   const repeatSelect = byId("compare-repeat-select");
+
   const demoControls = byId("compare-demo-controls");
   const docsControls = byId("compare-docs-controls");
   const demoRandomBtn = byId("compare-demo-random-btn");
@@ -45,26 +70,17 @@ export function initCompareTab() {
   const progressBar = byId("compare-progress-fill");
   const emptyStateBox = byId("compare-empty-state");
   const resultsCard = byId("compare-results-card");
-  const canvasLatency = byId("compare-chart-latency");
-  const canvasDistances = byId("compare-chart-distances");
-  const canvasRecall = byId("compare-chart-recall");
-  const canvasBars = byId("compare-bars-canvas");
-  const summaryTbody = byId("compare-summary-tbody");
-  const topkResultsTable = byId("compare-topk-tbody");
+  const lanesContent = byId("compare-lanes-content");
+  const matrixContent = byId("compare-matrix-content");
+
+  const emptyIconSlot = byId("compare-empty-icon");
+  if (emptyIconSlot && !emptyIconSlot.hasChildNodes()) {
+    emptyIconSlot.appendChild(createIcon("activity", 32));
+  }
+
   const emptyTitle = byId("compare-empty-title");
   const emptyDesc = byId("compare-empty-desc");
   const initialRunBtn = byId("compare-initial-run-btn");
-  const controlsTitle = byId("compare-controls-title");
-  const chartsCol = byId("compare-charts-col");
-
-  // Populate line icons in chart headers
-  const chartIconSlots = document.querySelectorAll(".compare-chart-icon[data-icon]");
-  chartIconSlots.forEach(slot => {
-    const iconName = slot.getAttribute("data-icon");
-    if (iconName && !slot.hasChildNodes()) {
-      slot.appendChild(createIcon(iconName, 16));
-    }
-  });
 
   let currentDim = 128;
   let lastReportData = null;
@@ -80,12 +96,9 @@ export function initCompareTab() {
   }
 
   function updateCollectionVisibility() {
-    const isDocs = collSelect.value === "docs";
+    const isDocs = collDropdown.getValue() === "docs";
     demoControls?.classList.toggle("hidden", isDocs);
     docsControls?.classList.toggle("hidden", !isDocs);
-    if (controlsTitle) {
-      controlsTitle.textContent = isDocs ? "Benchmark Document Chunks" : "Benchmark Demo Vectors";
-    }
     if (initialRunBtn) {
       initialRunBtn.textContent = isDocs ? "Benchmark Document Chunks" : "Benchmark Demo Vectors";
     }
@@ -93,31 +106,15 @@ export function initCompareTab() {
 
   function resetCompareView() {
     lastReportData = null;
-    summaryTbody?.replaceChildren(
-      el("tr", {},
-        el("td", { colSpan: 5, className: "text-muted empty-state" }, "Run a benchmark to compare algorithms.")
-      )
-    );
+    lanesContent?.replaceChildren();
+    matrixContent?.replaceChildren();
     if (statusNotice) statusNotice.textContent = "Ready to benchmark.";
     if (progressBar) progressBar.style.setProperty("width", "0%");
-    [canvasLatency, canvasDistances, canvasRecall, canvasBars].forEach(c => {
-      if (c) {
-        const ctx = c.getContext("2d");
-        if (ctx) ctx.clearRect(0, 0, c.width, c.height);
-      }
-    });
-    topkResultsTable?.replaceChildren();
   }
-
-  collSelect.addEventListener("change", () => {
-    resetCompareView();
-    updateCollectionVisibility();
-    checkCollectionStats();
-  });
 
   function showDefaultEmptyState(title, desc) {
     if (!emptyStateBox) return;
-    const isDocs = collSelect?.value === "docs";
+    const isDocs = collDropdown.getValue() === "docs";
     if (emptyTitle) emptyTitle.textContent = title || "No benchmark yet";
     if (emptyDesc) emptyDesc.textContent = desc || "Run a benchmark to see latency, distance computations, recall and the top-k diff.";
     if (initialRunBtn) {
@@ -132,7 +129,7 @@ export function initCompareTab() {
 
   async function checkCollectionStats() {
     clearGlobalError();
-    const coll = collSelect?.value || "demo";
+    const coll = collDropdown.getValue() || "demo";
     const isDocs = coll === "docs";
     try {
       let count = 0;
@@ -187,7 +184,7 @@ export function initCompareTab() {
     const ready = await checkCollectionStats();
     if (!ready) return;
 
-    const repeatCount = parseInt(repeatSelect?.value || "5", 10);
+    const repeatCount = parseInt(repeatDropdown.getValue() || "5", 10);
     const latencies = { brute: [], kdtree: [], hnsw: [] };
     let lastReport = null;
 
@@ -242,110 +239,12 @@ export function initCompareTab() {
     lastReportData = { report, latencies };
     showResultsView();
 
-    const algs = report.algorithms;
-    const stats = {
-      brute: computeTimingStats(latencies.brute),
-      kdtree: computeTimingStats(latencies.kdtree),
-      hnsw: computeTimingStats(latencies.hnsw)
-    };
-
-    // Render Metrics Table
-    summaryTbody?.replaceChildren();
-    ["brute", "kdtree", "hnsw"].forEach((alg) => {
-      const aData = algs[alg] || {};
-      const tStat = stats[alg];
-      const medianUs = tStat.median;
-      const minMaxStr = `${Math.round(tStat.min)} - ${Math.round(tStat.max)} μs`;
-
-      const tr = el("tr", {},
-        el("td", { className: "fw-bold" },
-          el("span", { className: `legend-swatch swatch-${alg} mr-1` }),
-          ALGORITHM_LABELS[alg]
-        ),
-        el("td", {}, `${Math.round(medianUs)} μs`),
-        el("td", { className: "text-xs text-muted" }, minMaxStr),
-        el("td", {}, String(aData.distance_computations ?? "-")),
-        el("td", {}, formatSimilarity(aData.recall_at_k ?? 1.0))
-      );
-      summaryTbody?.appendChild(tr);
-    });
-
-    // Render Canvas Chart
-    renderChart();
-
-    // Render Top-k Ground Truth Side-by-Side Comparison
-    renderTopKComparison(report);
-  }
-
-  function renderChart() {
-    if (!lastReportData) return;
-    const isDark = true;
-    const chartMetrics = extractChartMetrics(lastReportData.report, lastReportData.latencies);
-
-    const renderSingleCanvas = (cvs, key) => {
-      if (!cvs) return;
-      const rect = cvs.getBoundingClientRect();
-      if (!isCanvasDrawable(rect.width, rect.height)) return;
-      const ctx = cvs.getContext("2d");
-      setupCanvasDpr(cvs, ctx);
-      drawMetricBarChart(cvs, key, chartMetrics[key], isDark);
-    };
-
-    renderSingleCanvas(canvasLatency, "latency");
-    renderSingleCanvas(canvasDistances, "dist");
-    renderSingleCanvas(canvasRecall, "recall");
-
-    if (canvasBars) {
-      const rect = canvasBars.getBoundingClientRect();
-      if (isCanvasDrawable(rect.width, rect.height)) {
-        const ctx = canvasBars.getContext("2d");
-        setupCanvasDpr(canvasBars, ctx);
-        const stats = {
-          brute: computeTimingStats(lastReportData.latencies.brute),
-          kdtree: computeTimingStats(lastReportData.latencies.kdtree),
-          hnsw: computeTimingStats(lastReportData.latencies.hnsw)
-        };
-        const algs = lastReportData.report.algorithms;
-        const chartData = {
-          brute: { latency: stats.brute.median, dist: algs.brute?.distance_computations || 0, recall: algs.brute?.recall_at_k ?? 1 },
-          kdtree: { latency: stats.kdtree.median, dist: algs.kdtree?.distance_computations || 0, recall: algs.kdtree?.recall_at_k ?? 1 },
-          hnsw: { latency: stats.hnsw.median, dist: algs.hnsw?.distance_computations || 0, recall: algs.hnsw?.recall_at_k ?? 1 }
-        };
-        drawComparisonBars(canvasBars, chartData, isDark);
-      }
+    // Lanes & Matrix rendering are implemented in Commit B
+    if (typeof renderLanes === "function") {
+      renderLanes(report, latencies);
     }
-  }
-
-  function renderTopKComparison(report) {
-    if (!topkResultsTable) return;
-    topkResultsTable.replaceChildren();
-
-    const diffRows = buildDiffRows(report, 100);
-
-    const formatCell = (item, isGt = false) => {
-      if (!item) return el("span", { className: "text-muted" }, "-");
-      const distStr = item.distance !== undefined ? ` (d=${Number(item.distance).toFixed(4)})` : "";
-      const idSpan = el("span", { className: "font-mono" }, `#${item.id}${distStr}`);
-
-      if (isGt) {
-        return el("div", { className: "compare-diff-cell" }, idSpan);
-      }
-
-      const badge = el("span", {
-        className: item.isMatch ? "badge badge-success text-xs" : "badge badge-warning text-xs"
-      }, item.isMatch ? "✓" : "diff");
-
-      return el("div", { className: "compare-diff-cell" }, idSpan, badge);
-    };
-
-    for (const row of diffRows) {
-      const tr = el("tr", {},
-        el("td", { className: "text-muted" }, String(row.rank)),
-        el("td", {}, formatCell(row.brute, true)),
-        el("td", {}, formatCell(row.kdtree, false)),
-        el("td", {}, formatCell(row.hnsw, false))
-      );
-      topkResultsTable.appendChild(tr);
+    if (typeof renderRankMatrix === "function") {
+      renderRankMatrix(report);
     }
   }
 
@@ -381,25 +280,10 @@ export function initCompareTab() {
     });
   });
 
-  let resizeRaf = null;
-  function scheduleResize() {
-    if (resizeRaf) return;
-    resizeRaf = requestAnimationFrame(() => {
-      resizeRaf = null;
-      if (lastReportData) renderChart();
-    });
-  }
-
-  const targetObserver = chartsCol || canvasLatency?.parentElement;
-  if (targetObserver && typeof ResizeObserver !== "undefined") {
-    const ro = new ResizeObserver(scheduleResize);
-    ro.observe(targetObserver);
-  }
-
   function onTabActivated() {
     checkCollectionStats();
     if (lastReportData) {
-      requestAnimationFrame(() => renderChart());
+      renderReport(lastReportData.report, lastReportData.latencies);
     }
   }
 
@@ -425,10 +309,8 @@ export function initCompareTab() {
     }
   });
 
-  window.addEventListener("resize", scheduleResize);
-
-  byId("compare-initial-run-btn")?.addEventListener("click", () => {
-    const isDocs = collSelect?.value === "docs";
+  initialRunBtn?.addEventListener("click", () => {
+    const isDocs = collDropdown.getValue() === "docs";
     if (isDocs) {
       docsRunBtn?.click();
     } else {

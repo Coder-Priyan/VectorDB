@@ -527,184 +527,94 @@
         </div>
       </div>
 
-      <div class="tab-toolbar">
+      <div class="tab-toolbar compare-toolbar">
         <div class="toolbar-left">
           <label for="compare-coll-select" class="toolbar-label">Collection</label>
-          <select id="compare-coll-select" class="input-select toolbar-select">
-            <option value="demo" selected>Demo Collection (Random/Vectors)</option>
-            <option value="docs">Document Collection (RAG Knowledge)</option>
-          </select>
-          <label for="compare-repeat-select" class="toolbar-label ml-2">Repetitions</label>
-          <select id="compare-repeat-select" class="input-select toolbar-select">
-            <option value="1">1 (Single run)</option>
-            <option value="5" selected>5 (Warmup + 5 runs)</option>
-            <option value="10">10 (Warmup + 10 runs)</option>
-            <option value="20">20 (Warmup + 20 runs)</option>
-          </select>
+          <div id="compare-coll-dropdown-wrap" class="compare-dropdown-wrap"></div>
+          <label for="compare-repeat-select" class="toolbar-label ml-3">Repetitions</label>
+          <div id="compare-repeat-dropdown-wrap" class="compare-dropdown-wrap"></div>
         </div>
         <div class="toolbar-right">
-          <span class="text-muted text-xs">Timings are indicative: official benchmarks come from the C++ tool</span>
+          <span class="text-muted text-xs compare-toolbar-note">Timings are indicative: official benchmarks come from the C++ tool.</span>
         </div>
       </div>
 
-      <!-- Main Compare 3-Column Grid -->
-      <div id="compare-main-area" class="compare-grid">
-        <!-- Column 1 (Left Panel): Controls, Progress & Summary Metrics -->
-        <div class="compare-col compare-col-left compare-panel">
+      <!-- Run bar: slim raised surface (~60-64px, 14px radius), 2px bottom progress line -->
+      <div class="compare-run-bar">
+        <!-- Demo Controls -->
+        <div id="compare-demo-controls" class="compare-run-controls">
+          <div class="compare-param-group">
+            <label for="compare-k-input" class="control-label">k</label>
+            <input type="number" id="compare-k-input" class="input-text input-sm compare-num-input" value="10" min="1" max="100">
+          </div>
+          <div class="compare-param-group">
+            <label for="compare-ef-input" class="control-label">efSearch</label>
+            <input type="number" id="compare-ef-input" class="input-text input-sm compare-num-input" value="50" min="1" max="500">
+          </div>
+          <button type="button" id="compare-demo-random-btn" class="btn btn-sm btn-primary">Benchmark Random Query</button>
+          <div class="compare-bar-divider" aria-hidden="true"></div>
+          <div class="compare-param-group flex-row align-center">
+            <label for="compare-demo-id-input" class="control-label">Stored Vector ID</label>
+            <input type="number" id="compare-demo-id-input" class="input-text input-sm compare-id-input" placeholder="e.g. 1" min="1">
+          </div>
+          <button type="button" id="compare-demo-id-btn" class="btn btn-sm btn-secondary">Benchmark ID</button>
+        </div>
+
+        <!-- Docs Controls (hidden by default) -->
+        <div id="compare-docs-controls" class="compare-run-controls hidden">
+          <div class="compare-param-group compare-query-group">
+            <label for="compare-docs-query-input" class="control-label">Query Text</label>
+            <input type="text" id="compare-docs-query-input" class="input-text input-sm compare-query-input" value="What is vector search?" placeholder="Enter semantic query...">
+          </div>
+          <div class="compare-param-group">
+            <label for="compare-docs-k-input" class="control-label">k</label>
+            <input type="number" id="compare-docs-k-input" class="input-text input-sm compare-num-input" value="5" min="1" max="20">
+          </div>
+          <div class="compare-param-group">
+            <label for="compare-docs-ef-input" class="control-label">efSearch</label>
+            <input type="number" id="compare-docs-ef-input" class="input-text input-sm compare-num-input" value="50" min="1" max="500">
+          </div>
+          <button type="button" id="compare-docs-run-btn" class="btn btn-sm btn-primary">Run Benchmark</button>
+        </div>
+
+        <!-- Status text on right side of run bar (shared for both modes) -->
+        <div id="compare-progress-status" class="compare-progress-status text-muted text-xs ml-auto" aria-live="polite">Ready to benchmark.</div>
+
+        <!-- 2px Progress Line on Bottom Edge -->
+        <div class="compare-progress-track">
+          <div id="compare-progress-fill" class="compare-progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Empty State Panel (Mutually exclusive with results card) -->
+      <div id="compare-empty-state" class="compare-empty-panel">
+        <div class="empty-state">
+          <div class="empty-state-icon" id="compare-empty-icon"></div>
+          <h3 id="compare-empty-title" class="empty-state-title">No benchmark yet</h3>
+          <p id="compare-empty-desc" class="empty-state-description">Run a benchmark to see latency, distance computations, recall and the top-k diff.</p>
+          <button type="button" id="compare-initial-run-btn" class="btn btn-secondary mt-3">Benchmark Demo Vectors</button>
+        </div>
+      </div>
+
+      <!-- Results Stack: Two stacked panels (Mutually exclusive with empty state) -->
+      <div id="compare-results-card" class="compare-results-stack hidden">
+        <!-- Panel 1: Algorithm lanes -->
+        <section id="compare-lanes-panel" class="compare-panel compare-lanes-card" aria-label="Algorithm lanes">
           <div class="panel-header-with-subtitle">
-            <h2 id="compare-controls-title" class="section-title">Benchmark Setup</h2>
-            <p class="text-muted text-xs">Configure the experiment and run a comparison.</p>
+            <h2 class="section-title">Algorithm lanes</h2>
+            <p class="text-muted text-xs">Speed, work and accuracy for the same query.</p>
           </div>
+          <div id="compare-lanes-content" class="compare-lanes-content"></div>
+        </section>
 
-          <!-- Demo Controls -->
-          <div id="compare-demo-controls" class="compare-controls-stack">
-            <div class="form-row-inline">
-              <div class="form-group-inline">
-                <label for="compare-k-input" class="control-label">k</label>
-                <input type="number" id="compare-k-input" class="input-text input-sm" value="10" min="1" max="100">
-              </div>
-              <div class="form-group-inline">
-                <label for="compare-ef-input" class="control-label">efSearch</label>
-                <input type="number" id="compare-ef-input" class="input-text input-sm" value="50" min="1" max="500">
-              </div>
-            </div>
-            <button type="button" id="compare-demo-random-btn" class="btn btn-sm btn-primary w-100">Benchmark Random Query</button>
-            <div class="form-row-inline mt-1">
-              <div class="form-group-inline flex-1">
-                <label for="compare-demo-id-input" class="control-label">Stored Vector ID</label>
-                <input type="number" id="compare-demo-id-input" class="input-text input-sm" placeholder="e.g. 1" min="1">
-              </div>
-              <button type="button" id="compare-demo-id-btn" class="btn btn-sm btn-secondary">Benchmark ID</button>
-            </div>
+        <!-- Panel 2: Top-k ground truth diff -->
+        <section id="compare-matrix-panel" class="compare-panel compare-matrix-card" aria-label="Top-k ground truth diff">
+          <div class="panel-header-with-subtitle">
+            <h2 class="section-title">Top-k ground truth diff</h2>
+            <p class="text-muted text-xs">Compare retrieved top-k results with the ground truth.</p>
           </div>
-
-          <!-- Docs Controls (hidden by default) -->
-          <div id="compare-docs-controls" class="compare-controls-stack hidden">
-            <div class="form-group">
-              <label for="compare-docs-query-input" class="control-label">Query Text</label>
-              <input type="text" id="compare-docs-query-input" class="input-text input-sm w-100" value="What is vector search?" placeholder="Enter semantic query...">
-            </div>
-            <div class="form-row-inline">
-              <div class="form-group-inline">
-                <label for="compare-docs-k-input" class="control-label">k</label>
-                <input type="number" id="compare-docs-k-input" class="input-text input-sm" value="5" min="1" max="20">
-              </div>
-              <div class="form-group-inline">
-                <label for="compare-docs-ef-input" class="control-label">efSearch</label>
-                <input type="number" id="compare-docs-ef-input" class="input-text input-sm" value="50" min="1" max="500">
-              </div>
-            </div>
-            <button type="button" id="compare-docs-run-btn" class="btn btn-sm btn-primary w-100">Run Benchmark</button>
-          </div>
-
-          <!-- Status & Thin Progress Line -->
-          <div class="compare-progress-block">
-            <div id="compare-progress-status" class="compare-progress-status text-muted text-xs" aria-live="polite">Ready to benchmark.</div>
-            <div class="progress-track"><div id="compare-progress-fill" class="progress-fill"></div></div>
-          </div>
-
-          <!-- Summary Metrics -->
-          <div class="compare-summary-section">
-            <div class="panel-header-with-subtitle">
-              <h3 class="section-title">Summary Metrics</h3>
-              <p class="text-muted text-xs">Overall performance across algorithms.</p>
-            </div>
-            <div class="compare-summary-table-wrap" tabindex="0" aria-label="Summary Metrics">
-              <table class="info-table compare-summary-table">
-                <thead>
-                  <tr>
-                    <th>Algorithm</th>
-                    <th>Median</th>
-                    <th>Min - Max</th>
-                    <th>Distances</th>
-                    <th>Recall@k</th>
-                  </tr>
-                </thead>
-                <tbody id="compare-summary-tbody">
-                  <tr><td colspan="5" class="text-muted empty-state">Run a benchmark to compare algorithms.</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Empty State Panel (Spanning Middle + Right Columns) -->
-        <div id="compare-empty-state" class="compare-panel compare-col-empty">
-          <div class="empty-state">
-            <div class="empty-state-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-              </svg>
-            </div>
-            <h3 id="compare-empty-title" class="empty-state-title">No benchmark yet</h3>
-            <p id="compare-empty-desc" class="empty-state-description">Run a benchmark to see latency, distance computations, recall and the top-k diff.</p>
-            <button type="button" id="compare-initial-run-btn" class="btn btn-secondary mt-3">Benchmark Demo Vectors</button>
-          </div>
-        </div>
-
-        <!-- Results Group: Column 2 (Middle) & Column 3 (Right) -->
-        <div id="compare-results-card" class="compare-results-group hidden">
-          <!-- Column 2 (Middle Panel): 3 Stacked Metric Bar Chart Panels -->
-          <div id="compare-charts-col" class="compare-col compare-col-middle">
-            <div class="compare-panel compare-chart-panel">
-              <div class="compare-chart-header">
-                <span class="compare-chart-icon" data-icon="clock" aria-hidden="true"></span>
-                <div class="compare-chart-heading">
-                  <h3 class="compare-chart-title">Latency (μs)</h3>
-                  <div class="compare-chart-subtitle">Lower is better</div>
-                </div>
-              </div>
-              <div class="canvas-wrapper">
-                <canvas id="compare-chart-latency" width="350" height="90"></canvas>
-              </div>
-            </div>
-            <div class="compare-panel compare-chart-panel">
-              <div class="compare-chart-header">
-                <span class="compare-chart-icon" data-icon="layers" aria-hidden="true"></span>
-                <div class="compare-chart-heading">
-                  <h3 class="compare-chart-title">Distance Computations</h3>
-                  <div class="compare-chart-subtitle">Lower is better</div>
-                </div>
-              </div>
-              <div class="canvas-wrapper">
-                <canvas id="compare-chart-distances" width="350" height="90"></canvas>
-              </div>
-            </div>
-            <div class="compare-panel compare-chart-panel">
-              <div class="compare-chart-header">
-                <span class="compare-chart-icon" data-icon="target" aria-hidden="true"></span>
-                <div class="compare-chart-heading">
-                  <h3 class="compare-chart-title">Recall@k</h3>
-                  <div class="compare-chart-subtitle">Higher is better</div>
-                </div>
-              </div>
-              <div class="canvas-wrapper">
-                <canvas id="compare-chart-recall" width="350" height="90"></canvas>
-              </div>
-            </div>
-          </div>
-
-          <!-- Column 3 (Right Panel): Top-k Ground Truth Diff Table -->
-          <div id="compare-diff-col" class="compare-col compare-col-right compare-panel">
-            <div class="panel-header-with-subtitle">
-              <h3 class="section-title">Top-k ground truth diff</h3>
-              <p class="text-muted text-xs">Compare retrieved top-k results with the ground truth.</p>
-            </div>
-            <div class="compare-diff-scroll" tabindex="0" aria-label="Top-k Ground Truth Diff">
-              <table class="info-table compare-diff-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Brute Force (GT)</th>
-                    <th>KD-Tree</th>
-                    <th>HNSW</th>
-                  </tr>
-                </thead>
-                <tbody id="compare-topk-tbody"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+          <div id="compare-matrix-content" class="compare-matrix-content"></div>
+        </section>
       </div>
     </section>
 

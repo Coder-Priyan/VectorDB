@@ -118,6 +118,12 @@ const ICON_SPECS = {
   arrowRight: [
     { tag: "line", attrs: { x1: "2.5", y1: "8", x2: "13.5", y2: "8" } },
     { tag: "polyline", attrs: { points: "9.5 4 13.5 8 9.5 12" } }
+  ],
+  activity: [
+    { tag: "polyline", attrs: { points: "14.5 8 12 8 10 14 6 2 4 8 1.5 8" } }
+  ],
+  dash: [
+    { tag: "line", attrs: { x1: "3.5", y1: "8", x2: "12.5", y2: "8" } }
   ]
 };
 
