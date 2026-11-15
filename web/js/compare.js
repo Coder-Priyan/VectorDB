@@ -366,10 +366,14 @@ export function initCompareTab() {
     for (const card of cardModels) {
       const alg = card.alg;
 
-      // Card Header: dot + algorithm name only (nothing else)
-      const headerEl = el("div", { className: "compare-card-header" },
+      // Card Header: dot + algorithm name + optional Baseline badge on Brute Force
+      const titleGroup = el("div", { className: "compare-card-title-group" },
         el("span", { className: `compare-card-dot bg-${alg}` }),
         el("span", {}, card.label)
+      );
+      const headerEl = el("div", { className: "compare-card-header" },
+        titleGroup,
+        card.isBrute ? el("span", { className: "badge badge-neutral compare-baseline-badge" }, "Baseline") : null
       );
 
       // Row 2: Median latency
