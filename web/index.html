@@ -643,139 +643,142 @@
         </div>
       </header>
 
-      <!-- Three-Column Panel Grid Layout (Quiet Studio) -->
-      <div class="settings-grid">
-        <!-- COLUMN 1: Server status panel (full column height) -->
-        <div class="settings-col">
-          <div class="settings-panel settings-panel-status">
-            <div class="panel-header-with-subtitle">
-              <h2 class="section-title">Server status</h2>
-              <p class="section-desc">Local services and model runtime.</p>
+      <!-- Server status panel (full width) -->
+      <div class="settings-panel settings-server-panel">
+        <div class="settings-server-header">
+          <div class="settings-server-heading">
+            <div class="settings-server-title-row">
+              <h2 class="settings-panel-title">Server status</h2>
+              <div class="settings-status-badge">
+                <span class="status-dot status-dot-healthy"></span>
+                <span id="settings-status-text">ok</span>
+              </div>
             </div>
-            <div id="settings-health-box">
-              <p class="text-muted empty-state">Loading metrics...</p>
-            </div>
+            <p class="settings-panel-desc">Local services and model runtime.</p>
+          </div>
+          <div class="settings-models-wrap">
+            <span class="settings-models-label">Ollama models</span>
+            <div id="settings-models-chips" class="settings-models-chips"></div>
           </div>
         </div>
+        <div id="settings-health-box" class="settings-metric-strip" aria-label="Server status metrics">
+          <p class="text-muted empty-state">Loading metrics...</p>
+        </div>
+      </div>
 
-        <!-- COLUMN 2: Demo collection, Insert random vectors, Persistence and storage -->
-        <div class="settings-col">
-          <!-- 1. Demo collection -->
-          <div class="settings-panel">
-            <div class="panel-header-with-subtitle">
-              <h2 class="section-title">Demo collection</h2>
-              <p class="section-desc">Vector dimension, distance metric, and HNSW graph parameters.</p>
-            </div>
-            <form id="settings-reset-demo-form" class="form-stack mt-2">
-              <div class="form-row">
-                <div class="form-group flex-1">
-                  <label for="demo-dim-input">Dimension</label>
-                  <input type="number" id="demo-dim-input" class="input-text" value="128" min="1" max="4096" required>
-                </div>
-                <div class="form-group flex-1">
-                  <label for="demo-metric-select">Metric</label>
-                  <select id="demo-metric-select" class="input-select">
-                    <option value="cosine" selected>Cosine</option>
-                    <option value="euclidean">Euclidean</option>
-                    <option value="manhattan">Manhattan</option>
-                  </select>
+      <!-- Settings Rows: Calm full-width rows (label left, controls right) -->
+      <div class="settings-rows-container">
+        <!-- Row a: Demo collection -->
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <h2 class="settings-row-title">Demo collection</h2>
+            <p class="settings-row-desc">Vector dimension, distance metric, and HNSW graph parameters.</p>
+          </div>
+          <div class="settings-row-controls">
+            <form id="settings-reset-demo-form" class="settings-demo-controls-form">
+              <div class="settings-control-group">
+                <label for="demo-dim-input" class="settings-control-label">Dimension</label>
+                <input type="number" id="demo-dim-input" class="input-text settings-input-dim" value="128" min="1" max="4096" required>
+              </div>
+              <div class="settings-control-group">
+                <label for="demo-metric-select" class="settings-control-label">Metric</label>
+                <div id="demo-metric-dropdown-wrap" class="settings-dropdown-wrap">
+                  <input type="hidden" id="demo-metric-select" value="cosine">
                 </div>
               </div>
-              <div class="form-row mt-2">
-                <div class="form-group flex-1">
-                  <label for="demo-m-input">M (Max edges)</label>
-                  <input type="number" id="demo-m-input" class="input-text" value="16" min="2" max="128">
-                </div>
-                <div class="form-group flex-1">
-                  <label for="demo-efc-input">efConstruction</label>
-                  <input type="number" id="demo-efc-input" class="input-text" value="200" min="4" max="1000">
-                </div>
+              <div class="settings-control-group">
+                <label for="demo-m-input" class="settings-control-label">M (Max edges)</label>
+                <input type="number" id="demo-m-input" class="input-text settings-input-sm" value="16" min="2" max="128">
+              </div>
+              <div class="settings-control-group">
+                <label for="demo-efc-input" class="settings-control-label">efConstruction</label>
+                <input type="number" id="demo-efc-input" class="input-text settings-input-sm" value="200" min="4" max="1000">
               </div>
             </form>
           </div>
+        </div>
 
-          <!-- 2. Insert random vectors -->
-          <div class="settings-panel">
-            <div class="panel-header-with-subtitle">
-              <h2 class="section-title">Insert random vectors</h2>
-              <p class="section-desc">Generate synthetic Gaussian vectors for search benchmarking.</p>
-            </div>
-            <form id="settings-random-demo-form" class="form-row mt-2">
-              <div class="form-group flex-2">
-                <input type="number" id="demo-random-count" class="input-text" value="100" min="1" max="20000" aria-label="Insert random vectors count">
-              </div>
-              <div class="form-group flex-1">
-                <button type="submit" id="demo-insert-random-btn" class="btn btn-primary w-100">+ Insert</button>
-              </div>
-            </form>
-            <div id="settings-random-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
+        <!-- Row b: Insert random vectors -->
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <h2 class="settings-row-title">Insert random vectors</h2>
+            <p class="settings-row-desc">Generate synthetic Gaussian vectors for search benchmarking.</p>
           </div>
-
-          <!-- 3. Persistence and storage -->
-          <div class="settings-panel">
-            <div class="panel-header-with-subtitle">
-              <h2 class="section-title">Persistence and storage</h2>
-              <p class="section-desc">Engine snapshot and disk persistence status across restarts.</p>
-            </div>
-            <div class="settings-kv-list mt-2">
-              <div class="settings-kv-row">
-                <span class="settings-kv-label">Persistence status</span>
-                <span id="settings-persistence-status" class="settings-kv-value text-primary">Checking...</span>
-              </div>
-              <div class="settings-kv-row">
-                <span class="settings-kv-label">Data directory</span>
-                <span id="settings-persistence-dir" class="settings-kv-value text-muted font-mono">--</span>
-              </div>
-            </div>
-            <p id="settings-persistence-hint" class="section-desc text-xs text-muted settings-panel-footer mt-2">Pass <code class="font-mono">--data-dir &lt;path&gt;</code> on server start to persist collections across restarts.</p>
+          <div class="settings-row-controls">
+            <form id="settings-random-demo-form" class="settings-random-controls-form">
+              <input type="number" id="demo-random-count" class="input-text settings-input-count" value="100" min="1" max="20000" aria-label="Insert random vectors count">
+              <button type="submit" id="demo-insert-random-btn" class="btn btn-primary">+ Insert</button>
+            </form>
+            <div id="settings-random-status" class="settings-inline-msg notice-success hidden" role="status"></div>
           </div>
         </div>
 
-        <!-- COLUMN 3: Chat history, Documentation and guides, Danger zone -->
-        <div class="settings-col">
-          <!-- 4. Chat history -->
-          <div class="settings-panel">
-            <div class="panel-header-with-subtitle">
-              <h2 class="section-title">Chat history</h2>
-              <p class="section-desc">Clear local conversation threads and reset the active Ask chat.</p>
+        <!-- Row c: Persistence and storage -->
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <h2 class="settings-row-title">Persistence and storage</h2>
+            <p class="settings-row-desc">Engine snapshot and disk persistence status across restarts.</p>
+          </div>
+          <div class="settings-row-controls settings-persistence-controls">
+            <div class="settings-persistence-fields">
+              <div class="settings-readonly-field">
+                <span class="settings-field-label">Persistence status</span>
+                <span id="settings-persistence-status" class="settings-field-val text-primary">Checking...</span>
+              </div>
+              <div class="settings-readonly-field">
+                <span class="settings-field-label">Data directory</span>
+                <span id="settings-persistence-dir" class="settings-field-val text-muted font-mono">--</span>
+              </div>
             </div>
-            <div class="settings-confirm-actions mt-2">
+            <p id="settings-persistence-hint" class="settings-hint-text text-muted">Pass --data-dir &lt;path&gt; on startup to persist collections across restarts.</p>
+          </div>
+        </div>
+
+        <!-- Row d: Chat history -->
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <h2 class="settings-row-title">Chat history</h2>
+            <p class="settings-row-desc">Clear local conversation threads and reset the active Ask chat.</p>
+          </div>
+          <div class="settings-row-controls">
+            <div class="settings-confirm-actions">
               <button type="button" id="settings-clear-chats-cancel-btn" class="btn btn-sm btn-secondary hidden">Cancel</button>
               <button type="button" id="settings-clear-chats-btn" class="btn btn-sm btn-secondary">Clear Chat History</button>
             </div>
-            <div id="settings-clear-chats-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
+            <div id="settings-clear-chats-status" class="settings-inline-msg notice-success hidden" role="status"></div>
           </div>
+        </div>
 
-          <!-- 5. Documentation and guides -->
-          <div class="settings-panel">
-            <div class="panel-header-with-subtitle">
-              <h2 class="section-title">Documentation and guides</h2>
-              <p class="section-desc">Offline educational guides and interactive walkthroughs.</p>
-            </div>
-            <div class="settings-doc-list mt-2">
-              <a href="/tests.html" target="_blank" class="settings-doc-row">
-                <span class="settings-doc-label">Interactive Test Suite</span>
-                <span class="text-xs text-muted font-mono">/tests.html</span>
-              </a>
-              <button type="button" id="settings-start-tour-btn" class="settings-doc-row">
-                <span class="settings-doc-label">Start Guided Tour</span>
-                <span class="text-xs text-muted">7-step interactive walkthrough</span>
-              </button>
-            </div>
+        <!-- Row e: Documentation and guides -->
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <h2 class="settings-row-title">Documentation and guides</h2>
+            <p class="settings-row-desc">Offline educational guides and interactive walkthroughs.</p>
           </div>
+          <div class="settings-row-controls settings-doc-buttons">
+            <a href="/tests.html" target="_blank" class="btn btn-secondary settings-doc-link-btn" title="Open Interactive Test Suite">
+              <span>Interactive Test Suite</span>
+              <span id="settings-tests-icon" class="settings-btn-icon"></span>
+            </a>
+            <button type="button" id="settings-start-tour-btn" class="btn btn-secondary settings-doc-link-btn" title="Start Guided Tour">
+              <span>Start Guided Tour</span>
+              <span id="settings-tour-icon" class="settings-btn-icon"></span>
+            </button>
+          </div>
+        </div>
 
-          <!-- 6. Danger zone (last, quiet) -->
-          <div class="settings-panel settings-panel-danger">
-            <div class="panel-header-with-subtitle">
-              <h2 class="section-title text-danger">Danger zone</h2>
-              <p class="section-desc">Irreversible actions. Use with caution.</p>
-            </div>
-            <div class="settings-confirm-actions mt-2">
+        <!-- Row f: Danger zone -->
+        <div class="settings-row settings-row-danger">
+          <div class="settings-row-info">
+            <h2 class="settings-row-title text-danger">Danger zone</h2>
+            <p class="settings-row-desc">Clears all demo vectors and resets the index.</p>
+          </div>
+          <div class="settings-row-controls">
+            <div class="settings-confirm-actions">
               <button type="button" id="demo-reset-cancel-btn" class="btn btn-sm btn-secondary hidden">Cancel</button>
               <button type="button" id="demo-reset-btn" class="btn btn-sm btn-danger">Reset Demo Collection</button>
             </div>
-            <div id="settings-reset-status" class="settings-inline-msg notice-success mt-2 hidden" role="status"></div>
-            <p class="section-desc text-xs text-muted mt-2">Clears all demo vectors and resets the index.</p>
+            <div id="settings-reset-status" class="settings-inline-msg notice-success hidden" role="status"></div>
           </div>
         </div>
       </div>
