@@ -1,22 +1,52 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by T-071 sync
+Last updated: 2026-11-16 by T-072 sync
 
-> **NEXT STEP**: Human verifies T-071 (Redesign v4) in a real browser at 1920x1080 100% zoom across Explore, HNSW, Compare, and Settings tabs (both Demo and Docs modes, plus empty states) and runs `/tests.html` (expect 143/143 passed); Brain reviews screenshots. (Note: Human provided initial Compare v4 screenshot showing correct 28px margins, baseline badge, and unclipped dropdowns). Next free ADR is ADR-066. Next free ISS is ISS-072. Next task number is T-072.
+> **NEXT STEP**: Human verifies T-072 (Compare & Settings Structural Rebuild) in a real browser at 1920x1080 100% zoom across Compare (Results view with benchmark completed, Empty state) and Settings (each of the 5 section panels: Server, Collection, Storage, Data and chats, Danger zone) and runs `/tests.html` (expect 152/152 passed); Brain reviews screenshots. Then proceed to T-073 (Explore & HNSW redesign). Next free ADR is ADR-067. Next free ISS is ISS-073. Next task number is T-073.
 >
-> **NEEDED FROM THE HUMAN**: (1) Terminal verification on branch `ui-redesign-v4` (`git status -sb`, `git log --oneline -8`, `.\build\vectordb_tests.exe`, scanner, `/tests.html`); (2) Full-window 1920x1080 100% screenshots of Explore, HNSW, Compare, and Settings tabs.
+> **NEEDED FROM THE HUMAN**: (1) Terminal verification on branch `ui-redesign-v4` (`git status -sb`, `git log --oneline -8`, `.\build\vectordb_tests.exe`, scanner, `/tests.html`); (2) Full-window 1920x1080 100% screenshots of Compare and Settings tabs.
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
-- **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Registered browser unit tests expanded to **143** in code after T-071 (143/143 pass in Node runner; human run at `/tests.html` pending).
+- **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Registered browser unit tests expanded to **152** in code after T-072 (152/152 pass in test runner; human run at `/tests.html` pending).
 - **Git State**: Local branch `ui-redesign-v4`, clean working tree (only untracked `results/logs/`), commits unpushed per protocol.
 - **Current UI State**:
   - Ask tab: COMPLETE, human-approved, and human-verified (100% frozen).
-  - Explore, HNSW, Compare, Settings tabs: Rebuilt under Redesign v4 (T-071, ADR-065) as a coherent instrument design system. Padding root-cause fixed (28px standard margins, ISS-057/071 resolved), native selects replaced with custom accessible dark dropdowns (`createDropdown`), button hierarchy enforced (0 or 1 `.btn-primary` per view), 60px raised toolbars, hairline borders, no shadows, no innerHTML.
+  - Compare tab: Structurally rebuilt in T-072 (ADR-066) as a single-column 1200px max-width layout with Headline sentence, Latency race (12px pill bars on shared scale), 4-column Detail Table (compact flat cells), and Footnote. Cards grid completely eradicated (zero `compare-card` occurrences).
+  - Settings tab: Structurally rebuilt in T-072 (ADR-066) as a Two-Pane architecture (240px left nav with 5 sections: Server, Collection, Storage, Data and chats, Danger zone; 760px right pane showing active section with smooth fade). Server status has 2-column DL metrics and plain text models list. All 22 original DOM IDs and both two-step confirms preserved.
+  - Explore, HNSW tabs: Unified under Redesign v4 (T-071, ADR-065); follow-up structural pass scheduled in T-073.
 - **Stale-Doc Watchlist**:
   - `docs/ARCHITECTURE.md`: Header reads "Last updated T-039"; directory tree predates v3/v4 design files.
-  - `docs/PROGRESS.md`: Feature table item 101 updated from 116 to 143 registered tests.
+  - `docs/PROGRESS.md`: Feature table item 109 updated from 143 to 152 registered tests.
   - `docs/DEMO_SCRIPT.md`: Steps 9-10 describe old Compare UI from v2/early v3.
-- **Workflow & Next Tab**: Next action is human screenshot verification of the 4 tabs on branch `ui-redesign-v4`. Next free ADR is ADR-066. Next free ISS is ISS-072. Next task is T-072.
+- **Workflow & Next Tab**: Next action is human screenshot verification of Compare and Settings on branch `ui-redesign-v4`. Next free ADR is ADR-067. Next free ISS is ISS-073. Next task is T-073.
+
+## T-072 summary (ADR-066; Redesign v4 round 2 - Compare and Settings structural rebuild)
+
+- **Context & Motivation**: T-071 was rejected by human for looking unchanged ("same as before, make MAJOR changes"). T-072 executed a complete structural rebuild of Compare and Settings:
+- **Compare Tab Structural Rebuild (Commits `a60f6a9`, `f3b8c0d`)**:
+  - Completely removed the 3-card grid and `.compare-card*` styles (zero occurrences of `compare-card` in codebase).
+  - Rebuilt results into a single-column 1200px max-width layout (`#compare-results-view`):
+    1. **Headline Block (`#compare-headline-block`)**: 28px regular sentence with medium-weight key numbers (e.g. "HNSW was 1.8x faster than Brute Force with 100.0% recall on 100 vectors.") and 14px muted subline.
+    2. **Latency Race (`#compare-race-section`)**: 3 rows (Brute Force, KD-Tree, HNSW) with algorithm color dot, 12px rounded pill bar on shared linear scale (slowest = 100%), 20px tabular sans value (text-primary for fastest, text-secondary for others), and min-max range under it.
+    3. **Detail Table (`#compare-table-section`)**: 3 rows x 4 columns (Algorithm | Distance computations | Recall@k | Top-k match vs Brute Force), 56px row height, faint hairlines between rows only, 16px tabular sans numbers, compact k flat cells with hover/focus tooltip, "Ground truth" text for Brute Force.
+    4. **Footnote (`#compare-footnote`)**: Quiet notice: "Timings are indicative (browser JS loop). Official benchmarks run via the C++ CLI tool."
+  - Pure helpers in `web/js/compare_helpers.js`: `buildCompareHeadline`, `buildLatencyRaceRows`, `buildDetailTableRows`.
+  - Replaced 4 obsolete card tests in `web/js/tests/test_compare.js` with 7 comprehensive unit tests.
+- **Settings Tab Two-Pane Rebuild (Commits `85bb63f`, `697e483`)**:
+  - Replaced old full-width rows layout with an instrument-grade Two-Pane architecture (`.settings-two-pane-container`):
+    1. **Left Pane (240px fixed nav, `.settings-nav-pane`)**: 5 section tabs (`#settings-tab-server`, `#settings-tab-collection`, `#settings-tab-storage`, `#settings-tab-data`, `#settings-tab-danger`). Active tab has 2px amber left indicator (danger has red indicator), `font-weight: 500`. Roving tabindex keyboard navigation (`ArrowDown`/`ArrowUp`, `ArrowRight`/`ArrowLeft`, `Home`/`End`) powered by pure helper `getSettingsNextSectionIndex`. Responsive horizontal scroll tab row below 1100px.
+    2. **Right Content Pane (760px max-width, `.settings-content-pane`)**: Shows active section panel with 200ms ease-out fade transition. Panels: `#settings-section-server`, `#settings-section-collection`, `#settings-section-storage`, `#settings-section-data`, `#settings-section-danger`.
+    3. **Server Status**: Live status badge ("Server ok"), Ollama status ("Ollama online"), 2-column definition list (`<dl id="settings-health-box">`) with 14px muted label left and 16px tabular sans value right separated by hairline rows, and plain text models list (`<ul class="settings-plain-list">`).
+    4. **Collection & Storage**: Clean 44px vertical inputs with 440px max-width form container. Single primary button in Collection section (`#demo-insert-random-btn`).
+    5. **Data & Chats**: Calm action blocks for chat history and documentation links.
+    6. **Danger Zone**: Clear warning text and soft red reset button.
+  - All 22 original Settings DOM IDs and both two-step confirms (`#demo-reset-btn`, `#settings-clear-chats-btn`) strictly preserved.
+  - Added 6 pure unit tests in `web/js/tests/test_v2.js` covering `getSettingsNextSectionIndex`. Registered browser tests expanded to 152.
+- **Git Commits**:
+  - `a60f6a9` - `T-072 A: Compare structural rebuild (headline, latency race, detail table)`
+  - `f3b8c0d` - `T-072 B: Compare helpers, tests, dead code removal`
+  - `85bb63f` - `T-072 C: Settings two-pane rebuild`
+  - `697e483` - `T-072 D: Settings tests, dead code removal`
 
 ## T-071 summary (ADR-065; Redesign v4 across Explore, HNSW, Compare, Settings)
 

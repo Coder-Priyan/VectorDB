@@ -1,6 +1,6 @@
 # Project Progress
 
-Last updated: 2026-11-15 by T-071 sync
+Last updated: 2026-11-16 by T-072 sync
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform (Task T-033 Complete across all 9 Phases P0-P8, Branch `ui-redesign-v3`)
 
@@ -76,9 +76,15 @@ Last updated: 2026-11-15 by T-071 sync
   - `dc778d3` (`T-071 P3: Compare redesign`): Added quiet "Baseline" badge on Brute Force card header. Fixed `#compare-coll-dropdown-wrap` min-width to 170px nowrap preventing "Document Chunks" label clipping. Preserved medium 580px cards and 0.0px row top alignment.
   - `59c0c83` (`T-071 P4: Settings redesign`): Rebuilt `.settings-demo-controls-form` into clean 4-column grid (`repeat(4, minmax(110px, 130px))`) with 40px inputs, resolving ISS-071. Hairline borders and 22px 28px padding.
   - `e2ec407` (`T-071 P5: consistency sweep`): Full consistency audit. Verified all 119 DOM IDs intact. Exactly 0 or 1 `.btn-primary` per view across all states. Zero native selects on the 4 tabs. All 143 browser unit tests pass in Node. Web safety scanner 100% clean. `!important` count = 2, `box-shadow` count = 0, hex count outside `colors.js` = 0.
-  - Status: IMPLEMENTED (visual verification ongoing).
+  - Status: SUPERSEDED by T-072 (human rejected T-071 visual result for looking unchanged).
+- **T-072**: Redesign v4 round 2 - Compare and Settings structural rebuild on branch `ui-redesign-v4`.
+  - `a60f6a9` (`T-072 A: Compare structural rebuild`): Rebuilt Compare results view in `web/index.html` and `web/css/app.css` into a single-column 1200px max-width layout: (1) Headline summary block (`#compare-headline-block`), (2) Latency race block (`#compare-race-section`) with 12px pill bars on shared scale and 20px tabular sans values, (3) 4-column Detail Table (`#compare-table-section`) with compact flat cells, (4) Footnote. Removed `.compare-card*` styles; renamed `#compare-results-card` to `#compare-results-view` (zero occurrences of `compare-card`).
+  - `f3b8c0d` (`T-072 B: Compare helpers, tests, dead code removal`): Added pure helpers `buildCompareHeadline`, `buildLatencyRaceRows`, `buildDetailTableRows` in `web/js/compare_helpers.js`. Replaced 4 obsolete card tests in `web/js/tests/test_compare.js` with 7 comprehensive unit tests using module-scoped `realBenchmarkFixture`.
+  - `85bb63f` (`T-072 C: Settings two-pane rebuild`): Rebuilt Settings in `web/index.html`, `web/css/app.css`, `web/js/settings.js`, `web/js/settings_helpers.js`. Left Pane: 240px fixed navigation list with 5 sections (`#settings-tab-server`, `#settings-tab-collection`, `#settings-tab-storage`, `#settings-tab-data`, `#settings-tab-danger`). Right Pane: 760px content pane showing active section. Server status rendered as 2-column definition list (`<dl id="settings-health-box">`) and plain text models list (`<div id="settings-models-chips">`). All 22 original Settings DOM IDs and both two-step confirms preserved.
+  - `697e483` (`T-072 D: Settings tests, dead code removal`): Added 6 unit tests for `getSettingsNextSectionIndex` (ArrowDown/Up, ArrowRight/Left, Home, End, wrap-around, unhandled keys) in `web/js/tests/test_v2.js`. Cleaned up obsolete settings rules in media queries. Registered browser unit tests expanded to 152.
+  - Status: IMPLEMENTED (visual screenshot verification pending).
 
-All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count 0, hex count outside colors.js 0. Browser test count 143 registered in code (143/143 pass). Redesign v4 complete on branch ui-redesign-v4 (ADR-065).
+All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count 0, hex count outside colors.js 0. Browser test count 152 registered in code (152/152 pass). Redesign v4 round 2 complete on branch ui-redesign-v4 (ADR-066).
 
 ---
 
@@ -106,7 +112,7 @@ All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count
 | **Educational Learning Layer & Guided Tour** (7 explainers, info popovers, tour) | `web/js/learn_content.js`, `docs/LEARNING_GUIDE.md` | [CONFIRMED] | TESTED |
 | **Automated Web Safety Scanner** (Zero innerHTML, strict CSP verified) | `scripts/check_web_safety.ps1` | [CONFIRMED] | TESTED |
 | **Hermetic C++ Unit & Integration Test Suite** (118 registered tests) | `tests/*.cpp`, `tests/fake_ollama.hpp` | [CONFIRMED] | TESTED |
-| **Browser Pure-Logic Unit Test Suite** (143 registered unit tests) | `web/tests.html`, `web/js/tests/*.js` | [CONFIRMED] | TESTED |
+| **Browser Pure-Logic Unit Test Suite** (152 registered unit tests) | `web/tests.html`, `web/js/tests/*.js` | [CONFIRMED] | TESTED |
 | **Atomic Multi-Chunk Rollback** (Transactional vector rollback on mid-ingest failure, not covered by automated test) | `include/vectordb/rag.hpp`, `src/rag.cpp` | [CONFIRMED: src/rag.cpp:155-160] | IMPLEMENTED |
 | **Quiet Studio UI Design System** (Zero lines except sidebar edge, depth via 3 dark surfaces, zero box-shadows, zero table row underlines, IBM Plex Sans typography, 94 browser unit tests) | `web/css/app.css`, `web/js/colors.js` | [CONFIRMED: ADR-038] | IMPLEMENTED (visual not tested) |
 | **Quiet Studio Layout & Controls Tuning** (Compact single-row toolbars, 170px compare canvas 3-row fit, 440px sidebar unclipped summary metrics, unified canvas panels, custom native controls) | `web/css/app.css`, `web/js/compare_helpers.js` | [CONFIRMED: ADR-039] | IMPLEMENTED (partially tested by screenshots) |
