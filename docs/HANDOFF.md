@@ -1,16 +1,28 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by T-066
+Last updated: 2026-11-15 by T-067
 
-> **NEXT STEP**: Human verifies T-066 (Compare cards refinement v3.5) with full-window 1920x1080 100% screenshots and /tests.html count (expected 141/141). Brain reviews: (a) aligned rows across the 3 cards (same y position for latency, distance, rank, recall), (b) no gaps > 90px, (c) 40px big numbers in sans, (d) restored 6px distance bar on shared scale, (e) full-width rank strip without wrapping, (f) 141/141 passed in /tests.html. After verification, next tab is Settings (T-067, full-width rows layout from approved mockup), then Explore.
+> **NEXT STEP**: Human verifies T-067 (Compare cards v3.6 - list-style rows) with full-window 1920x1080 100% screenshots. Screenshots needed: Compare Demo results (verifying calm list-style rows, faint 1px hairlines, full-height card fill with no dead band under Recall, 24px right-aligned sans values, 6px latency bar on shared scale, no distance bar, full-width rank strip with real k and N / K count, Brute Force reference text); a HNSW mismatch cell with hover tooltip; Demo empty (0 vectors); Docs results; Docs empty; Options popover open; both dropdowns open; one at 125% zoom. After human verifies T-067: next tab is Settings (T-068, full-width rows mockup), then Explore. Next free ADR is ADR-062.
 >
-> **NEEDED FROM THE HUMAN**: (1) full-window 1920x1080 100% screenshots: Compare Demo results, Docs results, Options popover open, both dropdowns open, one at 125% zoom; (2) /tests.html count; (3) terminal verification lines (`git log --oneline -5`, `git status -sb`, `.\build\vectordb_tests.exe`, `powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1`, CSS counts).
+> **NEEDED FROM THE HUMAN**: (1) full-window 1920x1080 100% screenshots: Compare Demo results, Docs results, Options popover open, both dropdowns open, one at 125% zoom; (2) terminal verification lines (`git log --oneline -5`, `git status -sb`, `.\build\vectordb_tests.exe`, `powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1`, CSS counts).
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
-- **/tests.html**: /tests.html showed 1 failed, 140 passed of 141 after T-065, human-confirmed on 2026-11-15 (ISS-066); resolved in T-066 B (`web/js/tests/test_compare.js:917` asserted 64 not 112, 9 not 8; added distance bar asserts). Total 141 registered browser unit tests now pass in Node harness; human run on `/tests.html` expected to be 141/141.
-- **Git State after T-066**: Commits `a7fb01c` (T-066 A), `30190ca` (T-066 B), and docs sync commit.
-- **Compare Visual Status**: Refined under ADR-060 (T-066) with aligned rows, larger type scale, restored distance bar, and full-width rank strip. Visual verification by human screenshots pending. Compare empty-state keeps T-063 design.
-- **Workflow & Next Tab**: Next tab in workflow is Settings (T-067 rows layout from approved mockup), then Explore. Next free ADR is ADR-061.
+- **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066). Total registered browser unit tests remain **141** in code; all 54 compare tests pass.
+- **Git State after T-067**: Commits `d679efe` (T-067 A), `5d70543` (T-067 B), and docs sync commit.
+- **Compare Visual Status**: Rebuilt under ADR-061 (T-067) from human-approved mockup layout (list-style rows with 1px faint hairlines, vertically centered content in stretched rows filling full height with no bottom band, 24px right-aligned sans values, no distance bar, full-width real-k rank strip). Visual verification pending. Compare empty-state keeps T-063 design.
+- **Workflow & Next Tab**: Next tab in workflow is Settings (T-068 rows layout from approved mockup), then Explore. Next free ADR is ADR-062.
+
+## T-067 summary (ADR-061; supersedes ADR-059 and ADR-060)
+
+- **Layout**: Rebuilt cards into calm list-style rows separated by 1px faint hairlines (`var(--border-hairline)`). Full-height cards (`height: 100%`, `padding: 0`, `overflow: hidden`) with identical grid rows (`grid-template-rows: 56px 1.4fr 1fr 1.3fr 1fr;`) guaranteeing identical row tops across cards.
+- **Vertical Centering**: Every row vertically centers its content (`justify-content: center;`), eliminating the ~100px bottom band under Recall and uneven 100-120px gaps.
+- **Header**: Algorithm color dot + name (20px medium), no chips or decorative badges.
+- **Median Latency Row**: Label left (15px) with min-max range (13px) below it; value right (24px tabular sans) with muted "µs" (14px) on baseline; 6px pill bar on faint track on shared scale (`computeBarScale`).
+- **Distance Computations Row**: Label left (15px), value right (24px tabular sans). Distance bar completely removed.
+- **Top-k Rank Match Row**: Label left (15px), count "N / K" right (15px muted) with aria-label; full-width strip of real-k flat rounded cells (20px height) below. Brute Force shows "Reference for the other algorithms" in place of strip/count.
+- **Recall Row**: Label left (15px), value right (24px tabular sans) with "%", primary text color.
+- **Dead Code Removed**: Removed 40px type styles (`.compare-latency-num`, `.compare-dist-num`, `.compare-recall-num`), `.compare-card-section`, distance bar CSS and JS (`distScale`, `distBarWidthPct`). Updated test assertions honestly.
+- **Git**: commit A (`d679efe`), commit B (`5d70543`), docs commit.
 
 ## T-066 summary (ADR-060; refines ADR-059 Compare cards)
 
