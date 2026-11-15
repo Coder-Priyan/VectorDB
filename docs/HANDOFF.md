@@ -1,8 +1,8 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-077 sync
+Last updated: 2026-11-16 by T-078 sync
 
-> **NEXT STEP**: Human verifies T-074 (Apple-Grade Renovation across Explore, HNSW, Compare, Settings), T-075 (Compare 3-Card List Layout Matching Approved Mockup 15), and T-077 (Settings Tab Rebuilt as Single-Screen Unified Bento Dashboard, Option A) in a real browser at 1920x1080 100% zoom across Explore, HNSW, Compare (Results view with benchmark completed, Empty state) and Settings (all cards visible simultaneously) and runs `/tests.html` (expect 156/156 passed); Brain reviews screenshots. Next free ADR is ADR-072. Next free ISS is ISS-078. Next task number is T-078.
+> **NEXT STEP**: Human verifies T-074 (Apple-Grade Renovation across Explore, HNSW, Compare, Settings), T-075 (Compare 3-Card List Layout Matching Approved Mockup 15), T-077 (Settings Tab Rebuilt as Single-Screen Unified Bento Dashboard, Option A), and T-078 (Compare Tab Renovated Inspired by Ask and Settings UI) in a real browser at 1920x1080 100% zoom across Explore, HNSW, Compare (Results view with benchmark completed, Empty state) and Settings (all cards visible simultaneously) and runs `/tests.html` (expect 156/156 passed); Brain reviews screenshots. Next free ADR is ADR-073. Next free ISS is ISS-079. Next task number is T-079.
 >
 > **NEEDED FROM THE HUMAN**: (1) Terminal verification on branch `ui-redesign-v4` (`git status -sb`, `git log --oneline -8`, `.\build\vectordb_tests.exe`, scanner, `/tests.html`); (2) Full-window 1920x1080 100% screenshots of Explore, HNSW, Compare, and Settings tabs.
 
@@ -11,7 +11,7 @@ Last updated: 2026-11-16 by T-077 sync
 - **Git State**: Local branch `ui-redesign-v4`, clean working tree (only untracked `results/logs/`), commits unpushed per protocol.
 - **Current UI State**:
   - Ask tab: COMPLETE, human-approved, and human-verified (100% frozen).
-  - Compare tab: 3-card list layout restored to approved mockup (`docs/mockups/15-compare-rows.png`), `#compare-cards-container` with 3 equal-width content-sized cards on `--bg-panel` with 14px radius, hairline borders, aligned rows (Header with dot + title + Baseline badge, Median latency with range and colored progress bar, Distance computations, Top-k rank match with 10 algorithm-colored square cells and count, Recall), and legend footnote with info circle icon.
+  - Compare tab: Renovated inspired by Ask and Settings UI (T-078). Centered studio canvas at 1180px matching Settings (`max-width: 1180px; margin: 0 auto;`), elevated control row on `--bg-panel` with uppercase tracked labels and live status cluster (`.status-dot-healthy`), 3 content-sized algorithm cards (Brute Force, KD-Tree, HNSW) on `--bg-panel` with 14px radius, hairline dividers, 20px tabular semibold values, and 6px latency progress bars.
   - Settings tab: Single-screen unified Bento dashboard (`max-width: 1180px; margin: 0 auto;`), zero sub-tabs: Top full-width card for Server & Engine Health (4x2 metric grid and installed model chips), Bottom 2-column balanced grid (Left = Demo Collection form + Insert random vectors form; Right = Storage & Maintenance with persistence, chat history, docs links, and danger reset).
   - Explore tab: Dedicated studio viewport (`.explore-viewport`), macOS Inspector-style sidebar, card-style neighbor rows with hover highlight, accent-tinted similarity match percentages, `--bg-panel` canvas frame with hairline border.
   - HNSW tab: Dedicated studio viewport (`.hnsw-viewport`), segmented player transport cluster with ghost buttons, Apple stat tiles with uppercase labels and tabular numbers, bottom topology strip with 24px hairline dividers.
@@ -19,7 +19,28 @@ Last updated: 2026-11-16 by T-077 sync
   - `docs/ARCHITECTURE.md`: Header reads "Last updated T-039"; directory tree predates v3/v4 design files.
   - `docs/PROGRESS.md`: Feature table item 109 updated to 156 registered tests.
   - `docs/DEMO_SCRIPT.md`: Steps 9-10 describe old Compare UI from v2/early v3.
-- **Workflow & Next Tab**: Next action is human screenshot verification of Explore, HNSW, Compare, and Settings on branch `ui-redesign-v4`. Next free ADR is ADR-072. Next free ISS is ISS-078. Next task is T-078.
+- **Workflow & Next Tab**: Next action is human screenshot verification of Explore, HNSW, Compare, and Settings on branch `ui-redesign-v4`. Next free ADR is ADR-073. Next free ISS is ISS-079. Next task is T-079.
+
+## T-078 summary (ADR-072; Compare tab renovated inspired by Ask and Settings UI)
+
+- **Goal & Motivation**: User instructed: "bohot badiya kfii acha kaam kiiya setting tab mai toh ab humm compare tab ka ui maii kaam karanga bss ab sab bhul jaaao ab tkk ka jo bhi kiyaa bss ask tab aur setting tab ka ui sa inspire hokaa compare tab banao professional typeee (Note - ask tab aur setting tab ko mtt chadhna uss sa inspire hokaa hee compare tab banao) sab design rules bhul jaao tumhara pass ask tab aur setting tab ka ui haii uski theme haii ab tumha compare tab ko design krna hai zero sa sab bhul jna compare tab ka ab tkk ka restart krooo".
+- **Unified Canvas Architecture**:
+  - Viewport: Aligned to 1180px centered studio canvas matching Settings (`max-width: 1180px; margin: 0 auto;`), eliminating horizontal mismatch when switching between tabs and giving cards generous breathing room.
+  - Control Bar: `.compare-control-row` upgraded to `--bg-panel` with 14px radius, 1px hairline border, uppercase tracked labels (`11px, 600 weight`), `--bg-raised` dropdowns and buttons, smooth cubic-bezier transitions, and active button micro-scaling (`scale(0.98)`).
+  - Live Status Badge: Added `.compare-status-cluster` with `.compare-status-badge` featuring live green pulse dot (`.status-dot-healthy`) and `#compare-progress-status` text next to the 2px bottom progress line.
+  - Refined Algorithm Cards: 3 equal-width cards on `--bg-panel` with 14px radius, 1px hairline border, 24px 26px padding:
+    - Card Header: 9px colored algorithm dot + 19px semibold title + 11px uppercase Baseline pill badge on Brute Force.
+    - Hairline dividers: 18px separation with `rgba(255, 255, 255, 0.06)`.
+    - Row 1: Median latency (14.5px label + range sublabel, 20px tabular semibold value) + 6px smooth progress bar on `--bg-raised` track.
+    - Row 2: Distance computations (14.5px label, 20px tabular semibold value).
+    - Row 3: Top-k rank match (Brute Force reference text; KD-Tree/HNSW with 14px algorithm-colored square cells and hover/focus tooltips + count).
+    - Row 4: Recall (14.5px label, 20px tabular semibold value).
+    - Footnote: Info circle icon + 13px muted indicative timings note.
+  - CSS Cleanup: Removed dead `.compare-race-*` media queries and fixed unmatched brace in `app.css`.
+- **Strict Invariants**:
+  - Ask tab files (`web/js/ask.js`, `web/js/ask_helpers.js`, `#panel-ask`) and Settings tab files (`web/js/settings.js`, `#panel-settings`) 100% frozen.
+  - C++ engine (`src/`, `include/`, `tests/`) 100% frozen.
+  - 156/156 unit tests passed, 118/118 C++ tests passed.
 
 ## T-077 summary (ADR-071; Settings single-screen unified Bento dashboard without sub-tabs)
 
