@@ -83,8 +83,21 @@ Last updated: 2026-11-16 by T-072 sync
   - `85bb63f` (`T-072 C: Settings two-pane rebuild`): Rebuilt Settings in `web/index.html`, `web/css/app.css`, `web/js/settings.js`, `web/js/settings_helpers.js`. Left Pane: 240px fixed navigation list with 5 sections (`#settings-tab-server`, `#settings-tab-collection`, `#settings-tab-storage`, `#settings-tab-data`, `#settings-tab-danger`). Right Pane: 760px content pane showing active section. Server status rendered as 2-column definition list (`<dl id="settings-health-box">`) and plain text models list (`<div id="settings-models-chips">`). All 22 original Settings DOM IDs and both two-step confirms preserved.
   - `697e483` (`T-072 D: Settings tests, dead code removal`): Added 6 unit tests for `getSettingsNextSectionIndex` (ArrowDown/Up, ArrowRight/Left, Home, End, wrap-around, unhandled keys) in `web/js/tests/test_v2.js`. Cleaned up obsolete settings rules in media queries. Registered browser unit tests expanded to 152.
   - Status: IMPLEMENTED (visual screenshot verification pending).
+- **T-073**: Redesign v4 round 3 - Full-project visual and viewport alignment to Ask tab theme on branch `ui-redesign-v4` (ADR-067).
+  - `c21fb68` (`T-073: Full-project visual and viewport alignment to Ask tab theme`):
+    - Unified tab panel outer padding across all 5 tabs (`#panel-ask, #panel-explore, #panel-hnsw, #panel-compare, #panel-settings`) to Ask's exact padding: `padding: var(--space-3) var(--space-6); box-sizing: border-box; overflow: hidden;`.
+    - Added dedicated viewport wrappers in `web/index.html`: `.explore-viewport`, `.hnsw-viewport`, `.compare-viewport`, `.settings-viewport`.
+    - Centered content viewports: Compare (`.compare-viewport`, max-width 960px, margin: 0 auto), Settings (`.settings-viewport`, max-width 1000px, margin: 0 auto) with clean internal scroll.
+    - Canvas studio viewports: Explore and HNSW flex column layout filling full available height.
+    - Surface hierarchy aligned to Ask DNA: `--bg-panel` cards with 1px hairline borders (`rgba(255, 255, 255, 0.08)`), `--bg-raised` floating toolbars and sidebars with hairline borders, `--bg-panel` inner inputs, pill chips for legend swatches with hairline borders.
+    - Compare surfaces upgraded to `--bg-panel` cards with hairline borders (`.compare-headline-block`, `.compare-race-section`, `.compare-table-section`, `.compare-empty-panel`); floating raised control row (`.compare-control-row`, 64px height, 14px radius, `--bg-raised`, hairline border).
+    - Settings Two-Pane upgraded to `--bg-panel` active section cards with hairline borders and 28px 32px padding; 220px fixed navigation list with hairline border.
+    - Ask tab files (`web/js/ask.js`, `web/js/ask_helpers.js`), `#panel-ask` in HTML, and `.ask-*` CSS rules 100% frozen.
+    - Engine code (`src/`, `include/`, `tests/`) 100% frozen.
+    - Quality gates: zero innerHTML, zero box-shadow, !important count = 2, zero non-root hex, 152/152 unit tests passing, 118/118 C++ tests passing.
+  - Status: IMPLEMENTED (visual screenshot verification pending).
 
-All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count 0, hex count outside colors.js 0. Browser test count 152 registered in code (152/152 pass). Redesign v4 round 2 complete on branch ui-redesign-v4 (ADR-066).
+All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count 0, hex count outside colors.js 0. Browser test count 152 registered in code (152/152 pass). Redesign v4 round 3 complete on branch ui-redesign-v4 (ADR-067).
 
 ---
 

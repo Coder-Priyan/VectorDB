@@ -1,24 +1,54 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-072 sync
+Last updated: 2026-11-16 by T-073 sync
 
-> **NEXT STEP**: Human verifies T-072 (Compare & Settings Structural Rebuild) in a real browser at 1920x1080 100% zoom across Compare (Results view with benchmark completed, Empty state) and Settings (each of the 5 section panels: Server, Collection, Storage, Data and chats, Danger zone) and runs `/tests.html` (expect 152/152 passed); Brain reviews screenshots. Then proceed to T-073 (Explore & HNSW redesign). Next free ADR is ADR-067. Next free ISS is ISS-073. Next task number is T-073.
+> **NEXT STEP**: Human verifies T-073 (Redesign v4 Round 3 - Full-Project Visual & Viewport Alignment to Ask Tab Theme) in a real browser at 1920x1080 100% zoom across Explore, HNSW, Compare (Results view with benchmark completed, Empty state) and Settings (each of the 5 section panels: Server, Collection, Storage, Data and chats, Danger zone) and runs `/tests.html` (expect 152/152 passed); Brain reviews screenshots. Next free ADR is ADR-068. Next free ISS is ISS-074. Next task number is T-074.
 >
-> **NEEDED FROM THE HUMAN**: (1) Terminal verification on branch `ui-redesign-v4` (`git status -sb`, `git log --oneline -8`, `.\build\vectordb_tests.exe`, scanner, `/tests.html`); (2) Full-window 1920x1080 100% screenshots of Compare and Settings tabs.
+> **NEEDED FROM THE HUMAN**: (1) Terminal verification on branch `ui-redesign-v4` (`git status -sb`, `git log --oneline -8`, `.\build\vectordb_tests.exe`, scanner, `/tests.html`); (2) Full-window 1920x1080 100% screenshots of Explore, HNSW, Compare, and Settings tabs.
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
-- **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Registered browser unit tests expanded to **152** in code after T-072 (152/152 pass in test runner; human run at `/tests.html` pending).
+- **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Registered browser unit tests expanded to **152** in code (152/152 pass in test runner; human run at `/tests.html` pending).
 - **Git State**: Local branch `ui-redesign-v4`, clean working tree (only untracked `results/logs/`), commits unpushed per protocol.
 - **Current UI State**:
   - Ask tab: COMPLETE, human-approved, and human-verified (100% frozen).
-  - Compare tab: Structurally rebuilt in T-072 (ADR-066) as a single-column 1200px max-width layout with Headline sentence, Latency race (12px pill bars on shared scale), 4-column Detail Table (compact flat cells), and Footnote. Cards grid completely eradicated (zero `compare-card` occurrences).
-  - Settings tab: Structurally rebuilt in T-072 (ADR-066) as a Two-Pane architecture (240px left nav with 5 sections: Server, Collection, Storage, Data and chats, Danger zone; 760px right pane showing active section with smooth fade). Server status has 2-column DL metrics and plain text models list. All 22 original DOM IDs and both two-step confirms preserved.
-  - Explore, HNSW tabs: Unified under Redesign v4 (T-071, ADR-065); follow-up structural pass scheduled in T-073.
+  - Compare tab: Centered 960px viewport (`.compare-viewport`), floating raised control row (64px height, `--bg-raised`, hairline border), and single-column card surfaces on `--bg-panel` with hairline borders (Headline, Latency race with 12px pill bars on shared scale, 4-column Detail Table, Footnote).
+  - Settings tab: Centered 1000px viewport (`.settings-viewport`), Two-Pane architecture (220px fixed left nav with hairline divider, right active section card on `--bg-panel` with hairline border, 28px 32px padding).
+  - Explore tab: Dedicated studio viewport (`.explore-viewport`), `--bg-panel` canvas frame with hairline border, elevated `--bg-raised` sidebar matching Ask docs drawer with hairline border, and pill chips with hairline borders.
+  - HNSW tab: Dedicated studio viewport (`.hnsw-viewport`), `--bg-panel` canvas frame with hairline border, elevated `--bg-raised` sidebar matching Ask docs drawer, player bar and stat tiles on `--bg-panel`, and bottom topology summary strip on `--bg-raised` with hairline border.
 - **Stale-Doc Watchlist**:
   - `docs/ARCHITECTURE.md`: Header reads "Last updated T-039"; directory tree predates v3/v4 design files.
   - `docs/PROGRESS.md`: Feature table item 109 updated from 143 to 152 registered tests.
   - `docs/DEMO_SCRIPT.md`: Steps 9-10 describe old Compare UI from v2/early v3.
-- **Workflow & Next Tab**: Next action is human screenshot verification of Compare and Settings on branch `ui-redesign-v4`. Next free ADR is ADR-067. Next free ISS is ISS-073. Next task is T-073.
+- **Workflow & Next Tab**: Next action is human screenshot verification of Explore, HNSW, Compare, and Settings on branch `ui-redesign-v4`. Next free ADR is ADR-068. Next free ISS is ISS-074. Next task is T-074.
+
+## T-073 summary (ADR-067; Redesign v4 round 3 - Full-project visual and viewport alignment to Ask tab theme)
+
+- **Goal & Motivation**: User requested: "again apply major changes on project just leave ask tab don't touch it and use theme of ask tab". Aligned Explore, HNSW, Compare, and Settings to the exact theme, surface contrast hierarchy, borders, radii, and typography of the human-approved Ask tab while leaving Ask 100% untouched.
+- **Unified Outer Containers & Viewports**:
+  - Unified `#panel-ask, #panel-explore, #panel-hnsw, #panel-compare, #panel-settings` to identical outer padding: `padding: var(--space-3) var(--space-6); box-sizing: border-box; overflow: hidden;`.
+  - Added dedicated viewport wrappers in `web/index.html`: `.explore-viewport`, `.hnsw-viewport`, `.compare-viewport`, `.settings-viewport`.
+  - Centered content viewports: Compare (`.compare-viewport`, max-width 960px, margin: 0 auto), Settings (`.settings-viewport`, max-width 1000px, margin: 0 auto) with internal smooth scrollbars.
+  - Studio viewports: Explore and HNSW flex column layout filling full available height.
+- **Ask Surface Hierarchy**:
+  - Cards and content surfaces use `--bg-panel` (`#121215`) with `1px solid var(--border-hairline)` (`rgba(255, 255, 255, 0.08)`).
+  - Floating bars, elevated toolbars, and sidebars use `--bg-raised` (`#18181c`) with `1px solid var(--border-hairline)` matching `.ask-docs-drawer`.
+  - Inner inputs use `--bg-panel` with hairline borders.
+  - Pill chips for legend swatches use `--bg-raised` with hairline borders and 12px sans text.
+  - Tabular numerals (`font-variant-numeric: tabular-nums`) applied to stat tiles and metrics.
+- **Compare Surface Polish**:
+  - `.compare-control-row`: floating raised pill (64px min-height, `--bg-raised`, hairline border, 14px radius, 0 20px padding).
+  - `.compare-headline-block`: `--bg-panel` card with hairline border and 22px 28px padding.
+  - `.compare-race-section`: `--bg-panel` card with hairline border and 22px 28px padding.
+  - `.compare-table-section`: `--bg-panel` card with hairline border and 18px 24px padding.
+  - `.compare-empty-panel`: `--bg-panel` card with hairline border and 48px 32px padding.
+- **Settings Surface Polish**:
+  - `.settings-section-panel`: `--bg-panel` card with hairline border, 14px radius, and 28px 32px padding.
+  - `.settings-nav-pane`: 220px fixed navigation list with hairline border.
+- **Strict Invariants**:
+  - Ask tab files (`web/js/ask.js`, `web/js/ask_helpers.js`), `#panel-ask` in HTML, and `.ask-*` CSS rules 100% frozen.
+  - Engine code (`src/`, `include/`, `tests/`) 100% frozen.
+  - Quality gates: zero innerHTML, zero box-shadow, !important count = 2, zero non-root hex, 152/152 unit tests passing, 118/118 C++ tests passing.
+- **Git Commit**: `c21fb68` (`T-073: Full-project visual and viewport alignment to Ask tab theme (Explore, HNSW, Compare, Settings)`).
 
 ## T-072 summary (ADR-066; Redesign v4 round 2 - Compare and Settings structural rebuild)
 
