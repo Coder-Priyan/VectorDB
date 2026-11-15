@@ -3,7 +3,7 @@
  */
 import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js";
 import { Viewport2D, setupCanvasDpr } from "./canvas.js";
-import { el, formatSimilarity } from "./ui.js";
+import { el, formatSimilarity, createDropdown } from "./ui.js";
 import { computeBounds, drawStar } from "./explore_helpers.js";
 import { getLayerColor, formatEdgeSummary, formatHnswTopologySummary, mapTraceToCoordinates, PlaybackController, isCanvasDrawable } from "./hnsw_helpers.js";
 import { THEME } from "./colors.js";
@@ -15,11 +15,65 @@ export function initHnswTab() {
   const ctx = canvas.getContext("2d");
   const byId = (id) => document.getElementById(id);
 
-  const collSelect = byId("hnsw-coll-select"), refreshBtn = byId("hnsw-refresh-btn");
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get("coll") === "docs" && collSelect) collSelect.value = "docs";
+  const initialColl = urlParams.get("coll") === "docs" ? "docs" : "demo";
+
+  const collWrap = byId("hnsw-coll-dropdown-wrap");
+  let collDropdown = null;
+  if (collWrap) {
+    collDropdown = createDropdown(
+      [
+        { value: "demo", label: "Demo Vectors" },
+        { value: "docs", label: "Document Chunks" }
+      ],
+      initialColl,
+      () => { edgesDirty = true; loadGraphData(); loadHnswInfo(); },
+      { id: "hnsw-coll-select", ariaLabel: "Select collection" }
+    );
+    collWrap.replaceChildren(collDropdown.element);
+  }
+
+  const maxEdgesWrap = byId("hnsw-max-edges-dropdown-wrap");
+  let maxEdgesDropdown = null;
+  if (maxEdgesWrap) {
+    maxEdgesDropdown = createDropdown(
+      [
+        { value: "2000", label: "2,000" },
+        { value: "10000", label: "10,000" },
+        { value: "20000", label: "20,000" },
+        { value: "60000", label: "60,000" }
+      ],
+      "20000",
+      () => { edgesDirty = true; loadGraphData(); },
+      { id: "hnsw-max-edges-select", ariaLabel: "Max edges" }
+    );
+    maxEdgesWrap.replaceChildren(maxEdgesDropdown.element);
+  }
+
+  const speedWrap = byId("hnsw-trace-speed-dropdown-wrap");
+  let speedDropdown = null;
+  if (speedWrap) {
+    speedDropdown = createDropdown(
+      [
+        { value: "0.5", label: "0.5x" },
+        { value: "1", label: "1x" },
+        { value: "2", label: "2x" },
+        { value: "5", label: "5x" }
+      ],
+      "1",
+      () => { if (playback.getState().isPlaying) startPlayback(); },
+      { id: "hnsw-trace-speed", ariaLabel: "Playback speed" }
+    );
+    speedWrap.replaceChildren(speedDropdown.element);
+  }
+
+  const collSelect = byId("hnsw-coll-select");
+  if (collSelect && !collDropdown) collSelect.value = initialColl;
+  const maxEdgesSelect = byId("hnsw-max-edges-select");
+  const traceSpeedSelect = byId("hnsw-trace-speed");
+  const refreshBtn = byId("hnsw-refresh-btn");
   const layerSlider = byId("hnsw-layer-slider"), layerLabel = byId("hnsw-layer-label");
-  const maxEdgesSelect = byId("hnsw-max-edges-select"), edgeSummaryEl = byId("hnsw-edge-summary");
+  const edgeSummaryEl = byId("hnsw-edge-summary");
   const edgeWarnBadge = byId("hnsw-edge-warn-badge"), infoTableBox = byId("hnsw-info-box");
 
   const traceSection = byId("hnsw-trace-section"), traceNotice = byId("hnsw-trace-notice");
@@ -27,7 +81,7 @@ export function initHnswTab() {
   const traceIdBtn = byId("hnsw-trace-id-btn"), traceKInput = byId("hnsw-trace-k"), traceEfInput = byId("hnsw-trace-ef");
   const tracePlayBtn = byId("hnsw-trace-play-btn"), traceStepBackBtn = byId("hnsw-trace-prev-btn");
   const traceStepFwdBtn = byId("hnsw-trace-next-btn"), traceResetBtn = byId("hnsw-trace-reset-btn");
-  const traceSpeedSelect = byId("hnsw-trace-speed"), traceSlider = byId("hnsw-trace-slider");
+  const traceSlider = byId("hnsw-trace-slider");
   const traceStepAnnounce = byId("hnsw-trace-announcement"), traceMissingNotice = byId("hnsw-trace-missing");
   const traceStatsBox = byId("hnsw-trace-stats-box");
 
@@ -81,6 +135,10 @@ export function initHnswTab() {
         const bounds = computeBounds(data.nodes);
         viewport.fitBounds(bounds.minX, bounds.maxX, bounds.minY, bounds.maxY);
       }
+
+      const nodeCount = (data.nodes || []).length;
+      if (traceRandomBtn) traceRandomBtn.disabled = isDocs || nodeCount === 0;
+      if (traceIdBtn) traceIdBtn.disabled = isDocs || nodeCount === 0;
 
       edgesDirty = true;
       render();

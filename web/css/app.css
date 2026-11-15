@@ -3344,8 +3344,26 @@ input[type="number"] {
 }
 
 #hnsw-layer-slider {
-  width: 130px;
+  width: 120px;
+  max-width: 130px;
   flex-shrink: 0;
+}
+
+.trace-speed-dropdown-wrap {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.trace-speed-dropdown-wrap .custom-dropdown-btn {
+  height: 30px;
+  min-width: 68px;
+  padding: 0 8px;
+  font-size: var(--text-xs);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
 }
 
 #panel-hnsw .viz-layout {

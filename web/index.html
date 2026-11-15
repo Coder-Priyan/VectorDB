@@ -336,20 +336,16 @@
       <div class="tab-toolbar">
         <div class="toolbar-left">
           <label for="hnsw-coll-select" class="toolbar-label">Collection</label>
-          <select id="hnsw-coll-select" class="input-select toolbar-select">
-            <option value="demo" selected>Demo</option>
-            <option value="docs">Docs</option>
-          </select>
+          <div id="hnsw-coll-dropdown-wrap" class="toolbar-dropdown-wrap">
+            <input type="hidden" id="hnsw-coll-select" value="demo">
+          </div>
           <label for="hnsw-layer-slider" id="hnsw-layer-label" class="toolbar-label font-mono ml-2">Layer L0</label>
           <input type="range" id="hnsw-layer-slider" min="0" max="0" value="0" class="input-range">
           <label for="hnsw-max-edges-select" class="toolbar-label ml-2">Max Edges</label>
-          <select id="hnsw-max-edges-select" class="input-select toolbar-select">
-            <option value="2000">2,000</option>
-            <option value="10000">10,000</option>
-            <option value="20000" selected>20,000</option>
-            <option value="60000">60,000</option>
-          </select>
-          <button id="hnsw-refresh-btn" class="btn btn-sm btn-ghost">Refresh</button>
+          <div id="hnsw-max-edges-dropdown-wrap" class="toolbar-dropdown-wrap">
+            <input type="hidden" id="hnsw-max-edges-select" value="20000">
+          </div>
+          <button type="button" id="hnsw-refresh-btn" class="btn btn-sm btn-ghost">Refresh</button>
         </div>
         <div class="toolbar-right">
           <span id="hnsw-edge-summary" class="text-muted font-mono text-xs"></span>
@@ -425,12 +421,9 @@
                   <button type="button" id="hnsw-trace-play-btn" class="btn btn-sm btn-secondary">Play</button>
                   <button type="button" id="hnsw-trace-next-btn" class="btn btn-sm btn-ghost" title="Next step">&rarr;</button>
                   <button type="button" id="hnsw-trace-reset-btn" class="btn btn-sm btn-ghost">Reset</button>
-                  <select id="hnsw-trace-speed" class="input-select btn-sm">
-                    <option value="0.5">0.5x</option>
-                    <option value="1" selected>1x</option>
-                    <option value="2">2x</option>
-                    <option value="5">5x</option>
-                  </select>
+                  <div id="hnsw-trace-speed-dropdown-wrap" class="toolbar-dropdown-wrap trace-speed-dropdown-wrap">
+                    <input type="hidden" id="hnsw-trace-speed" value="1">
+                  </div>
                 </div>
                 <div class="step-slider-row mt-2">
                   <span id="hnsw-step-counter" class="font-mono text-xs text-muted">Step 0 / 0</span>
