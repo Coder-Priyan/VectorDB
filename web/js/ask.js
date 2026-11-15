@@ -10,7 +10,7 @@
 
 import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js";
 import { readSseStream } from "./sse.js";
-import { el, formatBytes, formatDuration, formatSimilarity, parseCitations, showToast } from "./ui.js";
+import { el, formatBytes, formatDuration, formatSimilarity, parseCitations, showToast, createDropdown } from "./ui.js";
 import { createIcon } from "./icons.js";
 import { formatBenchmarkRows, formatTraceSummary, formatPipelineLatency } from "./ask_helpers.js";
 
@@ -21,6 +21,22 @@ const DOCS_DRAWER_KEY = "vectordb:docs-drawer-open";
 
 export function initAskTab() {
   const byId = (id) => document.getElementById(id);
+
+  // Initialize Custom Dark Dropdown for Algorithm Selection
+  const algoDropdownWrap = byId("ask-algo-dropdown-wrap");
+  if (algoDropdownWrap) {
+    const algoDropdown = createDropdown(
+      [
+        { value: "hnsw", label: "HNSW" },
+        { value: "kdtree", label: "KD-Tree" },
+        { value: "brute", label: "Brute" }
+      ],
+      "hnsw",
+      null,
+      { id: "ask-algo-select", ariaLabel: "Search algorithm" }
+    );
+    algoDropdownWrap.replaceChildren(algoDropdown.element);
+  }
 
   // Ask Tab & Chat elements
   const askForm = byId("ask-form");

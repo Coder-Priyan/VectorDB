@@ -8,7 +8,7 @@
 import { describe, assert, assertEqual } from "./framework.js";
 import { createIcon } from "../icons.js";
 import { EXPLAINERS } from "../learn_content.js";
-import { parseCitations } from "../ui.js";
+import { parseCitations, getDropdownNextIndex, createDropdown } from "../ui.js";
 import { formatBenchmarkRows, formatTraceSummary, formatPipelineLatency } from "../ask_helpers.js";
 
 export function registerV2Tests() {
@@ -298,6 +298,48 @@ export function registerV2Tests() {
       assertEqual(empty.length, 5);
       assertEqual(empty[0].ms, 0);
       assertEqual(empty[4].isTotal, true);
+    });
+  });
+
+  describe("v2: Custom Dark Dropdown Component (T-058)", (test) => {
+    test("getDropdownNextIndex cycles down through options and wraps to 0", () => {
+      assertEqual(getDropdownNextIndex(0, 1, 3), 1);
+      assertEqual(getDropdownNextIndex(1, 1, 3), 2);
+      assertEqual(getDropdownNextIndex(2, 1, 3), 0);
+    });
+
+    test("getDropdownNextIndex cycles up through options and wraps to last index", () => {
+      assertEqual(getDropdownNextIndex(2, -1, 3), 1);
+      assertEqual(getDropdownNextIndex(1, -1, 3), 0);
+      assertEqual(getDropdownNextIndex(0, -1, 3), 2);
+    });
+
+    test("getDropdownNextIndex handles unselected (-1) initial state cleanly", () => {
+      assertEqual(getDropdownNextIndex(-1, 1, 3), 0);
+      assertEqual(getDropdownNextIndex(-1, -1, 3), 2);
+    });
+
+    test("getDropdownNextIndex handles empty list without throwing", () => {
+      assertEqual(getDropdownNextIndex(0, 1, 0), -1);
+      assertEqual(getDropdownNextIndex(-1, -1, 0), -1);
+    });
+
+    test("createDropdown initializes with correct initial value and hidden input contract", () => {
+      const dd = createDropdown([
+        { value: "hnsw", label: "HNSW" },
+        { value: "kdtree", label: "KD-Tree" },
+        { value: "brute", label: "Brute" }
+      ], "hnsw", null, { id: "test-algo-select" });
+
+      assertEqual(dd.getValue(), "hnsw");
+      const hiddenInput = dd.element.querySelector("input[type='hidden']");
+      assert(hiddenInput !== null, "Must contain hidden input for ID contract");
+      assertEqual(hiddenInput.id, "test-algo-select");
+      assertEqual(hiddenInput.value, "hnsw");
+
+      dd.setValue("kdtree");
+      assertEqual(dd.getValue(), "kdtree");
+      assertEqual(hiddenInput.value, "kdtree");
     });
   });
 }

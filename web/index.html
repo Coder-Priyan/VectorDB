@@ -143,11 +143,9 @@
                 <div class="composer-controls">
                   <div class="composer-algo-control">
                     <span class="composer-algo-icon"></span>
-                    <select id="ask-algo-select" class="composer-algo-select" aria-label="Search algorithm">
-                      <option value="hnsw" selected>HNSW</option>
-                      <option value="kdtree">KD-Tree</option>
-                      <option value="brute">Brute</option>
-                    </select>
+                    <div id="ask-algo-dropdown-wrap">
+                      <input type="hidden" id="ask-algo-select" value="hnsw">
+                    </div>
                   </div>
                   <div class="composer-k-control">
                     <label for="ask-k-input" class="composer-k-label">k</label>

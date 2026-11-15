@@ -55,6 +55,9 @@ const ICON_SPECS = {
   chevronDown: [
     { tag: "polyline", attrs: { points: "4 6 8 10 12 6" } }
   ],
+  check: [
+    { tag: "polyline", attrs: { points: "3.5 8.5 6.5 11.5 12.5 4.5" } }
+  ],
   copy: [
     { tag: "rect", attrs: { x: "5.5", y: "5.5", width: "8", height: "8", rx: "1" } },
     { tag: "path", attrs: { d: "M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" } }

@@ -5,6 +5,8 @@
  * keyboard tab navigation, citation pill renderers, and string formatters.
  */
 
+import { createIcon } from "./icons.js";
+
 /**
  * Creates an HTML element with attributes and children without innerHTML.
  * Ensures untrusted server data is always inserted as text nodes.
@@ -268,5 +270,243 @@ export function showToast(message, type = "info", duration = 3000) {
       }
     }, 200);
   }, duration);
+}
+
+/**
+ * Calculates next index for dropdown keyboard navigation cycling.
+ * Pure helper for unit testing and keyboard interaction.
+ *
+ * @param {number} currentIndex
+ * @param {number} delta - +1 for down, -1 for up
+ * @param {number} totalCount
+ * @returns {number}
+ */
+export function getDropdownNextIndex(currentIndex, delta, totalCount) {
+  if (totalCount <= 0) return -1;
+  if (currentIndex < 0) {
+    return delta >= 0 ? 0 : totalCount - 1;
+  }
+  return (currentIndex + delta + totalCount) % totalCount;
+}
+
+/**
+ * Creates a reusable accessible dark dropdown component.
+ *
+ * @param {Array<{value: string, label: string}|string>} options
+ * @param {string} initialValue
+ * @param {Function} [onChange] - Callback when value changes
+ * @param {Object} [config] - Optional config { id, ariaLabel, className }
+ * @returns {{ element: HTMLElement, getValue: () => string, setValue: (val: string) => void }}
+ */
+export function createDropdown(options, initialValue, onChange, config = {}) {
+  const normalizedOptions = (options || []).map(opt => {
+    if (typeof opt === "object" && opt !== null) {
+      return { value: String(opt.value), label: String(opt.label ?? opt.value) };
+    }
+    return { value: String(opt), label: String(opt) };
+  });
+
+  let currentValue = initialValue !== undefined && initialValue !== null
+    ? String(initialValue)
+    : (normalizedOptions[0]?.value || "");
+
+  let isOpen = false;
+  let highlightedIndex = normalizedOptions.findIndex(o => o.value === currentValue);
+  if (highlightedIndex < 0 && normalizedOptions.length > 0) {
+    highlightedIndex = 0;
+  }
+
+  const container = el("div", {
+    className: `custom-dropdown ${config.className || ""}`.trim()
+  });
+
+  const hiddenInput = el("input", {
+    type: "hidden",
+    value: currentValue
+  });
+  if (config.id) {
+    hiddenInput.id = config.id;
+  }
+  container.appendChild(hiddenInput);
+
+  const curOpt = normalizedOptions.find(o => o.value === currentValue);
+  const labelSpan = el("span", { className: "custom-dropdown-label" }, curOpt ? curOpt.label : currentValue);
+  const chevronIcon = createIcon("chevronDown", 12, "custom-dropdown-chevron");
+
+  const btn = el("button", {
+    type: "button",
+    className: "custom-dropdown-btn",
+    "aria-haspopup": "listbox",
+    "aria-expanded": "false",
+    "aria-label": config.ariaLabel || "Select option"
+  }, labelSpan, chevronIcon);
+  container.appendChild(btn);
+
+  const popup = el("div", {
+    className: "custom-dropdown-popup",
+    role: "listbox",
+    tabindex: "-1",
+    "aria-label": config.ariaLabel || "Options"
+  });
+
+  const optionEls = normalizedOptions.map((opt, idx) => {
+    const isSelected = opt.value === currentValue;
+    const optLabel = el("span", { className: "custom-dropdown-option-label" }, opt.label);
+    const checkIcon = createIcon("check", 12, "custom-dropdown-check");
+    if (!isSelected) {
+      checkIcon.classList.add("hidden");
+    }
+    const optEl = el("div", {
+      className: `custom-dropdown-option${isSelected ? " selected" : ""}`,
+      role: "option",
+      "aria-selected": String(isSelected),
+      "data-value": opt.value,
+      tabindex: "-1"
+    }, optLabel, checkIcon);
+
+    optEl.addEventListener("click", (e) => {
+      e.stopPropagation();
+      selectValue(opt.value);
+      close();
+      btn.focus();
+    });
+
+    optEl.addEventListener("mouseenter", () => {
+      setHighlightedIndex(idx);
+    });
+
+    popup.appendChild(optEl);
+    return optEl;
+  });
+  container.appendChild(popup);
+
+  function setHighlightedIndex(idx) {
+    highlightedIndex = idx;
+    optionEls.forEach((el, i) => {
+      el.classList.toggle("highlighted", i === idx);
+      if (i === idx) {
+        el.scrollIntoView({ block: "nearest" });
+      }
+    });
+  }
+
+  function open() {
+    if (isOpen) return;
+    isOpen = true;
+    container.classList.add("open");
+    btn.setAttribute("aria-expanded", "true");
+
+    try {
+      const rect = container.getBoundingClientRect();
+      const popupHeight = (normalizedOptions.length * 32) + 16;
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const isDropup = spaceBelow < popupHeight || rect.bottom > (window.innerHeight - 80);
+      popup.classList.toggle("dropup", isDropup);
+    } catch (_) {}
+
+    const curIdx = normalizedOptions.findIndex(o => o.value === currentValue);
+    setHighlightedIndex(curIdx >= 0 ? curIdx : 0);
+
+    document.addEventListener("click", onDocClick);
+    document.addEventListener("keydown", onKeyDown);
+  }
+
+  function close() {
+    if (!isOpen) return;
+    isOpen = false;
+    container.classList.remove("open");
+    btn.setAttribute("aria-expanded", "false");
+    document.removeEventListener("click", onDocClick);
+    document.removeEventListener("keydown", onKeyDown);
+  }
+
+  function selectValue(newVal, triggerChange = true) {
+    currentValue = newVal;
+    hiddenInput.value = newVal;
+
+    const selectedOpt = normalizedOptions.find(o => o.value === newVal);
+    labelSpan.textContent = selectedOpt ? selectedOpt.label : newVal;
+
+    optionEls.forEach((optEl, i) => {
+      const isSel = normalizedOptions[i].value === newVal;
+      optEl.classList.toggle("selected", isSel);
+      optEl.setAttribute("aria-selected", String(isSel));
+      const check = optEl.querySelector(".custom-dropdown-check");
+      if (check) check.classList.toggle("hidden", !isSel);
+    });
+
+    if (triggerChange) {
+      hiddenInput.dispatchEvent(new Event("change", { bubbles: true }));
+      if (typeof onChange === "function") {
+        onChange(newVal);
+      }
+    }
+  }
+
+  function onDocClick(e) {
+    if (!container.contains(e.target)) {
+      close();
+    }
+  }
+
+  function onKeyDown(e) {
+    if (!isOpen) return;
+    if (e.key === "Escape") {
+      e.preventDefault();
+      close();
+      btn.focus();
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      const next = getDropdownNextIndex(highlightedIndex, 1, normalizedOptions.length);
+      setHighlightedIndex(next);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      const prev = getDropdownNextIndex(highlightedIndex, -1, normalizedOptions.length);
+      setHighlightedIndex(prev);
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      if (highlightedIndex >= 0 && highlightedIndex < normalizedOptions.length) {
+        selectValue(normalizedOptions[highlightedIndex].value);
+      }
+      close();
+      btn.focus();
+    } else if (e.key === "Tab") {
+      close();
+    }
+  }
+
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (isOpen) close();
+    else open();
+  });
+
+  btn.addEventListener("keydown", (e) => {
+    if (!isOpen && (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "Enter" || e.key === " ")) {
+      e.preventDefault();
+      open();
+    }
+  });
+
+  try {
+    const desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
+    if (desc) {
+      Object.defineProperty(hiddenInput, "value", {
+        get() {
+          return desc.get.call(this);
+        },
+        set(v) {
+          desc.set.call(this, v);
+          selectValue(v, false);
+        }
+      });
+    }
+  } catch (_) {}
+
+  return {
+    element: container,
+    getValue: () => currentValue,
+    setValue: (val) => selectValue(val, true)
+  };
 }
 
