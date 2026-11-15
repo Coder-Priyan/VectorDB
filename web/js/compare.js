@@ -372,37 +372,53 @@ export function initCompareTab() {
         el("span", {}, card.label)
       );
 
-      // Section a: Median latency
+      // Row 2: Median latency
       const latBarEl = el("div", { className: `compare-latency-bar bg-${alg}` });
       latBarEl.style.setProperty("width", `${card.barWidthPct}%`);
-      const latencySection = el("div", { className: "compare-card-section" },
-        el("span", { className: "compare-metric-label" }, "Median latency"),
-        el("div", { className: "compare-latency-val-wrap" },
-          el("span", { className: "compare-latency-num" }, String(card.medianUs)),
-          el("span", { className: "compare-latency-unit" }, "µs")
+      const latencyRow = el("div", { className: "compare-card-row compare-row-latency" },
+        el("div", { className: "compare-row-top" },
+          el("div", { className: "compare-row-label-group" },
+            el("span", { className: "compare-metric-label" }, "Median latency"),
+            el("span", { className: "compare-latency-range" }, `Range ${card.rangeText}`)
+          ),
+          el("div", { className: "compare-metric-val-wrap" },
+            el("span", { className: "compare-metric-num" }, String(card.medianUs)),
+            el("span", { className: "compare-metric-unit" }, "µs")
+          )
         ),
-        el("span", { className: "compare-latency-range" }, `Range ${card.rangeText}`),
         el("div", { className: "compare-latency-track" }, latBarEl)
       );
 
-      // Section b: Distance computations (with restored 6px pill bar)
-      const distBarEl = el("div", { className: `compare-distance-bar bg-${alg}` });
-      distBarEl.style.setProperty("width", `${card.distBarWidthPct}%`);
-      const distSection = el("div", { className: "compare-card-section" },
-        el("span", { className: "compare-metric-label" }, "Distance computations"),
-        el("span", { className: "compare-dist-num" }, String(card.distanceComputations)),
-        el("div", { className: "compare-distance-track" }, distBarEl)
+      // Row 3: Distance computations (no bar)
+      const distRow = el("div", { className: "compare-card-row compare-row-dist" },
+        el("div", { className: "compare-row-single" },
+          el("span", { className: "compare-metric-label" }, "Distance computations"),
+          el("span", { className: "compare-metric-num" }, String(card.distanceComputations))
+        )
       );
 
-      // Section c: Top-k rank match
-      const rankSection = el("div", { className: "compare-card-section" },
-        el("span", { className: "compare-metric-label" }, "Top-k rank match")
-      );
+      // Row 4: Top-k rank match
+      const rankRow = el("div", { className: "compare-card-row compare-row-rank" });
       if (card.isBrute) {
-        rankSection.appendChild(
+        rankRow.appendChild(
+          el("div", { className: "compare-row-top" },
+            el("span", { className: "compare-metric-label" }, "Top-k rank match")
+          )
+        );
+        rankRow.appendChild(
           el("span", { className: "compare-rank-ref" }, "Reference for the other algorithms")
         );
       } else {
+        rankRow.appendChild(
+          el("div", { className: "compare-row-top" },
+            el("span", { className: "compare-metric-label" }, "Top-k rank match"),
+            el("span", {
+              className: "compare-rank-count",
+              "aria-label": `${card.sameCount} of ${card.total} same rank`
+            }, `${card.sameCount} / ${card.total}`)
+          )
+        );
+
         const stripEl = el("div", {
           className: "compare-rank-strip",
           role: "group",
@@ -436,16 +452,15 @@ export function initCompareTab() {
           }
         }
 
-        rankSection.appendChild(stripEl);
-        rankSection.appendChild(
-          el("span", { className: "compare-rank-summary" }, `${card.sameCount} of ${card.total} same rank`)
-        );
+        rankRow.appendChild(stripEl);
       }
 
-      // Section d: Recall (plain primary text number, regular weight, sans)
-      const recallSection = el("div", { className: "compare-card-section" },
-        el("span", { className: "compare-metric-label" }, "Recall"),
-        el("span", { className: "compare-recall-num" }, card.recallPercent)
+      // Row 5: Recall (plain primary text number, regular weight, sans)
+      const recallRow = el("div", { className: "compare-card-row compare-row-recall" },
+        el("div", { className: "compare-row-single" },
+          el("span", { className: "compare-metric-label" }, "Recall"),
+          el("span", { className: "compare-metric-num" }, card.recallPercent)
+        )
       );
 
       // Card Container
@@ -456,10 +471,10 @@ export function initCompareTab() {
         "aria-label": card.label
       },
         headerEl,
-        latencySection,
-        distSection,
-        rankSection,
-        recallSection
+        latencyRow,
+        distRow,
+        rankRow,
+        recallRow
       );
 
       cardsContainer.appendChild(cardEl);
