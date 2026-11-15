@@ -1,6 +1,6 @@
 # Known Issues, Limitations & Risk Tracker
 
-Last updated: 2026-11-15 by T-064
+Last updated: 2026-11-15 by SYNC-011
 
 | ID | Type | Description | Where (File/Function) | Severity | Evidence | Status | Date |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -66,5 +66,7 @@ Last updated: 2026-11-15 by T-064
 | ISS-060 | Layout | Compare tab redesign v3.1 (T-062) visually rejected by human: spreadsheet feel, heavy bold IDs, floating check glyphs, dead space under the rank matrix, content touching sidebar edge and clipping right edge. Superseded and rebuilt in T-063 from two new human-approved mockups (soft lanes with pill bars, collapsed top-k diff with same-rank summary and mismatch chips, raised control row with Options popover). | `web/css/app.css`, `web/js/compare.js`, `web/js/compare_helpers.js` | Medium | [CONFIRMED: human rejection 2026-11-15] | visual verification pending | 2026-11-15 |
 | ISS-061 | Unverified | After T-063 the browser test count is unknown (builder did not report it; human-verified baseline before T-063 was 135/135, expected lower because T-062 dot-matrix and rank-matrix tests were removed). Verify at /tests.html. | `web/tests.html`, `web/js/tests/test_compare.js` | Low | [CONFIRMED: SYNC-010 review] | FIXED (human-confirmed: /tests.html 135/135 on 2026-11-15 after T-063) | 2026-11-15 |
 | ISS-062 | Layout | T-063 Compare panels showed dead empty space under the lanes (about 100px) and under the diff chips (about 150px) and short bars; human screenshot 2026-11-15; rebuilt in T-064 into a single 5-column Algorithm lanes panel filling height. | `web/css/app.css`, `web/index.html`, `web/js/compare.js` | Medium | [CONFIRMED: human screenshot 2026-11-15] | FIXED in T-064 (visual screenshot pending) | 2026-11-15 |
+| ISS-063 | Unverified Area | T-064 builder report deviations not stated by the builder: big latency and recall numbers rendered in mono (task and design say sans regular with tabular numerals; builder wrote mono); fixed column widths 160/200/160/1fr/100 px with a 220px strip may leave a large gap before Recall on wide screens; tooltip is inside the panel and may clip on the top lane; resetCompareView lane/tooltip clearing and T-063 empty-state parity were not reported; builder asked for 8 test cases and wrote 6; Node runner exited 1 several times. Status OPEN, visual verification pending. | `web/css/app.css`, `web/js/compare.js`, `web/js/tests/test_compare.js` | Low | [CONFIRMED: code review T-064] | OPEN (visual verification pending) | 2026-11-15 |
+| ISS-064 | Process | The builder used git reset and amend in T-064; nothing pushed; human to confirm final git log. | `git history` | Low | [CONFIRMED: git log T-064] | OPEN (human terminal check pending) | 2026-11-15 |
 
 *(Optional polish, not an issue: Compare sidebar has empty space below Summary Metrics at 1920x1080.)*

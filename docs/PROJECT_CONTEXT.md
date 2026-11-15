@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-15 by T-064
+Last updated: 2026-11-15 by SYNC-011
 
 ## 1. Operating Model
 
@@ -178,23 +178,30 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 68. **Lesson (T-063 ISS-057 Compare-Scoped Workaround & Open Status)**: T-063 ISS-057 fix is a Compare-scoped workaround: `#panel-compare` uses negative margins (`calc(-1 * var(--space-3)) calc(-1 * var(--space-6))`), width `calc(100% + var(--space-6) * 2)` and padding `28px`, because the shared rule `.app-content` (`app.css:1216`, padding `var(--space-3) var(--space-6)`) was left untouched on purpose. Root cause per builder: `.app-content` padding is 12px 24px, not 28px. Builder claims are not proof: ISS-057 stays OPEN until the human's full-window 1920x1080 100% screenshot shows a visible gap to the sidebar and no clipping at the right edge. If the other tabs (Explore, HNSW, Settings) need the same 28px, fix the shared `.app-content` rule once in a later task instead of repeating negative-margin workarounds.
 69. **Lesson (T-063 Unmet / Unverified Behavioural Reporting)**: T-063 builder report was incomplete: the deviations list covered only the mockup, not unmet spec items; behaviours (Options popover Escape and focus return, controls disabled when the collection has 0 items, progress line amber only while running) were not reported. These are unverified until the human tests them.
 70. **Lesson (Builder Tool Execution Error)**: One tool error 'Model produced invalid output' appeared once in the T-063 builder log; final outputs were fine; noted only.
-71. **Lesson (ChatGPT Enlarges Sidebar)**: ChatGPT keeps enlarging the sidebar to about 324px and ignores the 264px rule; the builder must never copy sizes from the mockup.
-72. **Lesson (Human Taste on Visual Languages)**: Human taste confirmed on 2026-11-15: the human rejects 'table with makeup'; four different visual languages in one row (band, bar, squares, percent) feel noisy; a single panel with one strict grid, one visual language per column and a collapsed secondary detail (tooltip) feels right.
-73. **Lesson (Mockup Proportions vs Real Data)**: Mockup numbers and bar lengths are not proportional; always compute bars from real data on one shared scale (e.g. `computeBarScale`).
-74. **Human-Confirmed on 2026-11-15 (/tests.html 135/135)**: Human verified `/tests.html` showed 135/135 passed after T-063 (the earlier guess that the count would be lower was wrong).
+71. **Lesson (ChatGPT Enlarges Sidebar & Hallucinates Mockup Details)**: ChatGPT mockups keep enlarging the sidebar (about 324px) and ignore the 264px rule; also change data (e.g. HNSW 0 of 10 and ten chips), repeat captions, and add fake decorations (amber bar near title, glow). Always list numbers explicitly and review the image against them. The builder must never copy sizes from the mockup.
+72. **Lesson (Human Taste on Visual Languages & Compare Single Panel)**: Human taste confirmed on 2026-11-15: the human rejects 'table with makeup', wall of chips, and rows with four visual languages (band, bar, squares, percent); likes one panel, one strict grid, one visual language per column, and secondary detail collapsed into an interactive tooltip. The human said the final Compare v3.3 mockup "was great".
+73. **Lesson (A/B Directions for Mockup Prompts)**: The Brain offers A/B directions before writing mockup prompts when the human says "no vibe" (e.g. Direction A single panel + collapsed Details vs Direction B rank strip per lane); the human wants BOTH prompts and then picks by looking at the images.
+74. **Lesson (Mockup Proportions vs Real Data & Brain Verification)**: Mockup numbers and bar lengths are not proportional; always compute bars from real data on one shared scale (e.g. `computeBarScale`). The human sends terminal output and screenshots; Brain always verifies fonts (sans vs mono), 10 vs 9 cells, and scale proportionality in mockups before the builder task.
+75. **Lesson (Human Communication & Review-Only Signals)**: Human communication: Hinglish, short; "abhi koi prompt nhi dena, sirf dekho" means review only, do not write a task.
+76. **Human-Confirmed on 2026-11-15 (/tests.html 135/135 and 137/137)**: Human verified `/tests.html` showed 135/135 passed after T-063, and 137/137 passed on 2026-11-15 20:56 after T-064 (builder claim was 137, matched).
 
 ---
 
 ## 7. Verification Status (as of 2026-11-15)
 
-- **Antigravity Terminal Verification after T-064**:
+- **Human-Confirmed on 2026-11-15 (Terminal & Browser after T-064)**:
+  - `/tests.html`: **137/137 passed** (human-confirmed 2026-11-15 20:56; builder claim 137 matched).
+  - Compare visual verification: pending human screenshots (Demo results, HNSW mismatch cell with hover tooltip, Demo empty 0 vectors, Docs results, Docs empty, Options popover open, both dropdowns open, 125% zoom).
+  - Git state after T-064 per builder report: HEAD `d8e4970` (`docs: T-064 sync`), preceded by `035eb9a` (T-064 B) and `467c0cb` (T-064 A); the human has not yet re-run git status/log/C++ tests/scanner after T-064 (those lines in the T-064 report are builder-reported). Builder ran git reset/amend during T-064 (nothing pushed).
+
+- **Antigravity Terminal Verification after T-064 (Builder-Reported)**:
   - Commits: `467c0cb` (T-064 A), `035eb9a` (T-064 B).
   - C++ hermetic suite: 118/118 passed (529,813 assertions).
   - Web safety automated scanner: 28 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
   - CSS Quality metrics: `!important` count = 2 (<= 3), `box-shadow` count = 0, zero hex color literals in `web/js` outside `colors.js`.
   - Git engine check: `git diff --stat ui-quiet-studio -- src include tests` strictly empty.
   - Helper cleanup: `buildRankDiff` completely removed from `web/js/` (zero matches).
-  - Browser unit tests registered in code: 137 (Node harness CLAIM: 137; only human /tests.html is proof).
+  - Browser unit tests registered in code: 137 (50 in `test_compare.js`).
   - Working tree: clean tracked files; only untracked `results/logs/` files (no `scratch/`).
 
 - **Human-Confirmed on 2026-11-15 (Terminal after T-063)**:
