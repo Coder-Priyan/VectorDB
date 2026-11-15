@@ -1,8 +1,8 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-075 sync
+Last updated: 2026-11-16 by T-076 sync
 
-> **NEXT STEP**: Human verifies T-074 (Apple-Grade Renovation across Explore, HNSW, Compare, Settings) and T-075 (Compare 3-Card List Layout Matching Approved Mockup 15) in a real browser at 1920x1080 100% zoom across Explore, HNSW, Compare (Results view with benchmark completed, Empty state) and Settings (each of the 5 section panels: Server, Collection, Storage, Data and chats, Danger zone) and runs `/tests.html` (expect 156/156 passed); Brain reviews screenshots. Next free ADR is ADR-070. Next free ISS is ISS-076. Next task number is T-076.
+> **NEXT STEP**: Human verifies T-074 (Apple-Grade Renovation across Explore, HNSW, Compare, Settings), T-075 (Compare 3-Card List Layout Matching Approved Mockup 15), and T-076 (Settings Tab Rebuilt from Zero Inspired by Ask Studio Canvas & Compare Card Styling) in a real browser at 1920x1080 100% zoom across Explore, HNSW, Compare (Results view with benchmark completed, Empty state) and Settings (each of the 5 section panels: Server, Collection, Storage, Data and chats, Danger zone) and runs `/tests.html` (expect 156/156 passed); Brain reviews screenshots. Next free ADR is ADR-071. Next free ISS is ISS-077. Next task number is T-077.
 >
 > **NEEDED FROM THE HUMAN**: (1) Terminal verification on branch `ui-redesign-v4` (`git status -sb`, `git log --oneline -8`, `.\build\vectordb_tests.exe`, scanner, `/tests.html`); (2) Full-window 1920x1080 100% screenshots of Explore, HNSW, Compare, and Settings tabs.
 
@@ -12,14 +12,28 @@ Last updated: 2026-11-16 by T-075 sync
 - **Current UI State**:
   - Ask tab: COMPLETE, human-approved, and human-verified (100% frozen).
   - Compare tab: 3-card list layout restored to approved mockup (`docs/mockups/15-compare-rows.png`), `#compare-cards-container` with 3 equal-width content-sized cards on `--bg-panel` with 14px radius, hairline borders, aligned rows (Header with dot + title + Baseline badge, Median latency with range and colored progress bar, Distance computations, Top-k rank match with 10 algorithm-colored square cells and count, Recall), and legend footnote with info circle icon.
-  - Settings tab: Centered 1000px viewport (`.settings-viewport`), Two-Pane architecture (220px fixed left nav with hairline divider, right active section card on `--bg-panel` with hairline border, 28px 32px padding).
+  - Settings tab: Centered 860px studio canvas (`.settings-viewport`) matching Ask chat thread, horizontal segmented pill navigation bar (`.settings-segmented-bar`) on `--bg-panel`, grouped section cards on `--bg-panel` with 14px radius and hairline borders, and 4x2 grid of elevated stat tiles (`--bg-raised`, 8px radius, 11px uppercase label, 16px tabular semibold value).
   - Explore tab: Dedicated studio viewport (`.explore-viewport`), macOS Inspector-style sidebar, card-style neighbor rows with hover highlight, accent-tinted similarity match percentages, `--bg-panel` canvas frame with hairline border.
   - HNSW tab: Dedicated studio viewport (`.hnsw-viewport`), segmented player transport cluster with ghost buttons, Apple stat tiles with uppercase labels and tabular numbers, bottom topology strip with 24px hairline dividers.
 - **Stale-Doc Watchlist**:
   - `docs/ARCHITECTURE.md`: Header reads "Last updated T-039"; directory tree predates v3/v4 design files.
   - `docs/PROGRESS.md`: Feature table item 109 updated to 156 registered tests.
   - `docs/DEMO_SCRIPT.md`: Steps 9-10 describe old Compare UI from v2/early v3.
-- **Workflow & Next Tab**: Next action is human screenshot verification of Explore, HNSW, Compare, and Settings on branch `ui-redesign-v4`. Next free ADR is ADR-070. Next free ISS is ISS-076. Next task is T-076.
+- **Workflow & Next Tab**: Next action is human screenshot verification of Explore, HNSW, Compare, and Settings on branch `ui-redesign-v4`. Next free ADR is ADR-071. Next free ISS is ISS-077. Next task is T-077.
+
+## T-076 summary (ADR-070; Settings tab rebuilt from zero inspired by Ask canvas & Compare cards)
+
+- **Goal & Motivation**: User instructed: "setting tab ka ui maii kaam karanga bss ab sab bhul jaaao ab tkk ka jo bhi kiyaa bss ask tab ka ui sa inspire hokaa setting tab banao professional typeee (Note - ask tab ko mtt chadhna uss sa inspire hokaa hee setting tab banao) sab design rules bhul jaao tumhara pass ask tab ka ui haii uski theme haii ab tumha setting tab ko design krna hai zero sa sab bhul jna setting tab ka ab tkk ka restart krooo".
+- **Centered Studio Architecture**:
+  - Removed nested 240px sidebar and two-pane container.
+  - `.settings-viewport`: `max-width: 860px; margin: 0 auto;` matching Ask tab's exact chat thread width and vertical centering.
+  - `.settings-segmented-bar`: Horizontal pill-shaped category picker on `--bg-panel` (Server, Collection, Storage, Data and chats, Danger zone) with roving tabindex and keyboard arrow navigation.
+  - Grouped section cards: `--bg-panel` (`#121215`), 14px radius, 1px hairline border (`rgba(255, 255, 255, 0.08)`), 26px 30px padding.
+  - System metrics: 4-column x 2-row grid of elevated stat tiles (`--bg-raised`, 8px radius, 11px uppercase label, 16px tabular semibold value).
+  - Storage & Forms: 2-column input forms on `--bg-raised`, 2-tile storage grid, danger card with subtle red hairline border.
+  - Preserved all 22 DOM IDs, both two-step confirms, and custom dropdowns.
+- **Strict Invariants**:
+  - Ask tab files and C++ engine 100% frozen. 156/156 unit tests passed, 118/118 C++ tests passed.
 
 ## T-075 summary (ADR-069; Compare 3-card list layout restored to approved mockup 15)
 

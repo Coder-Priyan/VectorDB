@@ -97,7 +97,11 @@ Last updated: 2026-11-16 by T-075 sync
     - Quality gates: zero innerHTML, zero box-shadow, !important count = 2, zero non-root hex, 152/152 unit tests passing, 118/118 C++ tests passing.
   - Status: IMPLEMENTED (visual screenshot verification pending).
 
-All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count 0, hex count outside colors.js 0. Browser test count 152 registered in code (152/152 pass). Redesign v4 round 3 complete on branch ui-redesign-v4 (ADR-067).
+- **T-074**: Apple-grade design renovation across Explore, HNSW, Compare, and Settings (commit `6af5f59`, ADR-068). Added SF Pro-inspired letter spacing, uppercase section overlines, universal tabular numerals, cubic-bezier transitions (`0.16, 1, 0.3, 1`), active button press micro-scaling (`scale(0.98)`), smooth slider scrubber tracks with hover scaling, `.toolbar-divider` segmented controls, macOS Inspector sidebars, and Numbers-grade table row hover states.
+- **T-075**: Compare 3-card list layout restored to approved mockup 15 with Apple-grade polish (commit `4240f9a`, ADR-069). Replaced single-table layout with 3 equal-width cards in one row (`#compare-cards-container`, `.compare-card`), `--bg-panel`, 14px radius, hairline border, content-sized height (~480px, no dead space bands), aligned rows (Header with dot + title + Baseline badge, Median latency with range + colored progress bar, Distance computations, Top-k rank match with 10 algorithm-colored square cells and count, Recall), and legend footnote with info circle icon.
+- **T-076**: Settings tab rebuilt from zero inspired by Ask tab canvas and Compare card design (commit `7d0a7ae`, ADR-070, ISS-076). Centered studio canvas (`max-width: 860px; margin: 0 auto;`), horizontal segmented pill navigation bar (`.settings-segmented-bar`) on `--bg-panel`, grouped section cards with 14px radius and hairline borders, and 4x2 grid of elevated stat tiles (`--bg-raised`, 8px radius, 11px uppercase label, 16px tabular semibold value). Preserved all 22 original Settings DOM IDs, both two-step confirms, and keyboard arrow navigation.
+
+All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count 0, hex count outside colors.js 0. Browser test count 156 registered in code (156/156 pass). Redesign v4 complete on branch ui-redesign-v4.
 
 ---
 
