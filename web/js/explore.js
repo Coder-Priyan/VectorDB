@@ -223,7 +223,7 @@ export function initExploreTab() {
         ctx.strokeStyle = THEME.accent; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(rScr.x, rScr.y, 6.5, 0, Math.PI * 2); ctx.stroke();
 
-        // Node ID label next to ring as in mockup (#102, #087, #215)
+        // Node ID label next to ring as in mockup (e.g. 102, 087, 215)
         const idLabel = `#${res.id ?? (res.chunk_index !== undefined ? res.chunk_index : i + 1)}`;
         ctx.fillStyle = THEME.textPrimary;
         ctx.font = "11px 'IBM Plex Sans', -apple-system, sans-serif";

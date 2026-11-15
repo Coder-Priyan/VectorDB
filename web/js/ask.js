@@ -662,18 +662,25 @@ export function initAskTab() {
 
         pill.addEventListener("click", () => {
           const bubble = pill.closest(".chat-msg-bubble");
+          const card = (bubble && bubble.querySelector(`#source-card-${seg.n}`)) || document.getElementById(`source-card-${seg.n}`);
+          const scrollToCard = () => {
+            if (card) {
+              card.scrollIntoView({ behavior: "smooth", block: "center" });
+              card.classList.add("highlighted");
+              setTimeout(() => card.classList.remove("highlighted"), 1500);
+            }
+          };
+
           if (bubble) {
             const glassBox = bubble.querySelector(".glass-box-details");
-            if (glassBox) {
+            if (glassBox && typeof glassBox.expand === "function") {
+              glassBox.expand(scrollToCard);
+              return;
+            } else if (glassBox) {
               glassBox.open = true;
             }
           }
-          const card = (bubble && bubble.querySelector(`#source-card-${seg.n}`)) || document.getElementById(`source-card-${seg.n}`);
-          if (card) {
-            card.scrollIntoView({ behavior: "smooth", block: "center" });
-            card.classList.add("highlighted");
-            setTimeout(() => card.classList.remove("highlighted"), 1500);
-          }
+          scrollToCard();
         });
         targetEl.appendChild(pill);
       } else {
@@ -686,13 +693,16 @@ export function initAskTab() {
     const details = el("details", { className: "glass-box-details" });
     const summary = el(
       "summary",
-      { className: "glass-box-summary" },
+      { className: "glass-box-summary", "aria-expanded": "false" },
       createIcon("chevronDown", 14, "glass-box-chevron"),
       el("span", { className: "glass-box-summary-title" }, "How this was answered")
     );
     details.appendChild(summary);
 
+    const wrapper = el("div", { className: "glass-box-body-wrapper" });
     const body = el("div", { className: "glass-box-body" });
+    body.setAttribute("inert", "");
+    wrapper.appendChild(body);
 
     // Panel A: Retrieved source chunks
     const sourcesHeader = el("div", { className: "glass-sub-header" },
@@ -877,7 +887,117 @@ export function initAskTab() {
     body.appendChild(benchResults);
     body.appendChild(traceResults);
 
-    details.appendChild(body);
+    details.appendChild(wrapper);
+
+    let isClosing = false;
+    let isExpanding = false;
+
+    function isReducedMotion() {
+      try {
+        return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function expand(onComplete) {
+      if (details.classList.contains("is-open") && !isClosing) {
+        if (typeof onComplete === "function") onComplete();
+        return;
+      }
+      isClosing = false;
+      isExpanding = true;
+      details.open = true;
+      summary.setAttribute("aria-expanded", "true");
+      body.removeAttribute("inert");
+
+      if (isReducedMotion()) {
+        details.classList.add("is-open");
+        details.classList.remove("is-closing");
+        isExpanding = false;
+        if (typeof onComplete === "function") onComplete();
+        return;
+      }
+
+      requestAnimationFrame(() => {
+        details.classList.add("is-open");
+        details.classList.remove("is-closing");
+
+        let finished = false;
+        const finish = () => {
+          if (finished) return;
+          finished = true;
+          wrapper.removeEventListener("transitionend", onTransitionEnd);
+          isExpanding = false;
+          if (typeof onComplete === "function") onComplete();
+        };
+
+        const onTransitionEnd = (e) => {
+          if (e && e.target !== wrapper) return;
+          finish();
+        };
+
+        wrapper.addEventListener("transitionend", onTransitionEnd);
+        setTimeout(finish, 250);
+      });
+    }
+
+    function collapse() {
+      if (!details.open || isClosing) return;
+      isClosing = true;
+      isExpanding = false;
+      summary.setAttribute("aria-expanded", "false");
+      details.classList.remove("is-open");
+      details.classList.add("is-closing");
+
+      if (isReducedMotion()) {
+        details.open = false;
+        details.classList.remove("is-closing");
+        body.setAttribute("inert", "");
+        isClosing = false;
+        return;
+      }
+
+      let finished = false;
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        wrapper.removeEventListener("transitionend", onTransitionEnd);
+        if (isClosing) {
+          details.open = false;
+          details.classList.remove("is-closing");
+          body.setAttribute("inert", "");
+          isClosing = false;
+        }
+      };
+
+      const onTransitionEnd = (e) => {
+        if (e && e.target !== wrapper) return;
+        finish();
+      };
+
+      wrapper.addEventListener("transitionend", onTransitionEnd);
+      setTimeout(finish, 250);
+    }
+
+    summary.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (details.classList.contains("is-open") && !isClosing) {
+        collapse();
+      } else {
+        expand();
+      }
+    });
+
+    details.addEventListener("toggle", () => {
+      if (details.open && !details.classList.contains("is-open") && !isClosing && !isExpanding) {
+        expand();
+      }
+    });
+
+    details.expand = expand;
+    details.collapse = collapse;
+
     return details;
   }
 
