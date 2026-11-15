@@ -8,8 +8,13 @@ import { createIcon } from "./icons.js";
 import {
   computeTimingStats,
   getCompareEmptyStateConfig,
-  ALGORITHM_LABELS,
-  ALGORITHM_COLORS
+  computeDotScale,
+  computeDotCount,
+  computeRecallSquares,
+  computeLatencyScale,
+  formatRangeText,
+  buildRankMatrix,
+  ALGORITHM_LABELS
 } from "./compare_helpers.js";
 
 export function initCompareTab() {
@@ -238,14 +243,191 @@ export function initCompareTab() {
     if (!report || !report.algorithms) return;
     lastReportData = { report, latencies };
     showResultsView();
+    renderLanes(report, latencies);
+    renderRankMatrix(report);
+  }
 
-    // Lanes & Matrix rendering are implemented in Commit B
-    if (typeof renderLanes === "function") {
-      renderLanes(report, latencies);
+  function renderLanes(report, latencies) {
+    if (!lanesContent || !report || !report.algorithms) return;
+    lanesContent.replaceChildren();
+
+    const algs = report.algorithms;
+    const stats = {
+      brute: computeTimingStats(latencies?.brute || [algs.brute?.latency_us || 0]),
+      kdtree: computeTimingStats(latencies?.kdtree || [algs.kdtree?.latency_us || 0]),
+      hnsw: computeTimingStats(latencies?.hnsw || [algs.hnsw?.latency_us || 0])
+    };
+
+    // Shared scale for latency bars
+    const latencyScale = computeLatencyScale({
+      brute: stats.brute.median,
+      kdtree: stats.kdtree.median,
+      hnsw: stats.hnsw.median
+    });
+
+    // Dot scale for distance computations
+    const maxComputations = Math.max(
+      algs.brute?.distance_computations || 0,
+      algs.kdtree?.distance_computations || 0,
+      algs.hnsw?.distance_computations || 0
+    );
+    const { scale: dotScale } = computeDotScale(maxComputations);
+
+    // Header row above the first lane
+    const headerRow = el("div", { className: "compare-lanes-header-row" },
+      el("div", {}, "Algorithm"),
+      el("div", {}, "Latency (median, µs)"),
+      el("div", {}, "Distance computations"),
+      el("div", {}, "Top-k recall")
+    );
+    lanesContent.appendChild(headerRow);
+
+    const kVal = report.k || 10;
+    const algKeys = ["brute", "kdtree", "hnsw"];
+
+    for (const alg of algKeys) {
+      const aData = algs[alg] || {};
+      const tStat = stats[alg];
+      const medianUs = Math.round(tStat.median);
+      const minMaxStr = formatRangeText(tStat.min, tStat.max);
+      const barWidthPct = latencyScale.getBarWidthPercent(tStat.median);
+
+      // 1. Name col
+      const nameCol = el("div", { className: "compare-lane-name-col" },
+        el("span", { className: `compare-lane-dot bg-${alg}` }),
+        el("span", {}, ALGORITHM_LABELS[alg] || alg)
+      );
+
+      // 2. Latency col
+      const barEl = el("div", { className: `compare-lane-latency-bar bg-${alg}` });
+      barEl.style.setProperty("width", `${barWidthPct}%`);
+      const latencyCol = el("div", { className: "compare-lane-latency-col" },
+        el("div", { className: "compare-lane-latency-bar-wrap" },
+          el("div", { className: "compare-lane-latency-track" }, barEl),
+          el("span", { className: "compare-lane-latency-val" }, `${medianUs} µs`)
+        ),
+        el("span", { className: "compare-lane-latency-range" }, minMaxStr)
+      );
+
+      // 3. Distance computations col (dot matrix in rows of 25)
+      const distCount = aData.distance_computations ?? 0;
+      const numDots = computeDotCount(distCount, dotScale);
+      const dotsGrid = el("div", { className: "compare-lane-dots-grid" });
+      const numRows = Math.ceil(numDots / 25);
+      for (let r = 0; r < numRows; r++) {
+        const rowEl = el("div", { className: "compare-lane-dots-row" });
+        const dotsInRow = Math.min(25, numDots - (r * 25));
+        for (let d = 0; d < dotsInRow; d++) {
+          rowEl.appendChild(el("span", { className: `compare-lane-dot-unit bg-${alg}` }));
+        }
+        dotsGrid.appendChild(rowEl);
+      }
+
+      const dotsCol = el("div", { className: "compare-lane-dots-col" },
+        dotsGrid,
+        el("span", { className: "compare-lane-dots-total" }, String(distCount))
+      );
+
+      // 4. Recall squares col
+      const recallVal = aData.recall_at_k ?? 1.0;
+      const recallSquares = computeRecallSquares(recallVal, kVal);
+      const squaresWrap = el("div", { className: "compare-lane-squares-wrap" });
+      for (let s = 0; s < recallSquares.filled; s++) {
+        squaresWrap.appendChild(el("span", { className: `compare-lane-square filled bg-${alg}` }));
+      }
+      for (let s = 0; s < recallSquares.unfilled; s++) {
+        squaresWrap.appendChild(el("span", { className: "compare-lane-square unfilled" }));
+      }
+
+      const recallPct = `${(recallVal * 100).toFixed(1)}%`;
+      const recallCol = el("div", { className: "compare-lane-recall-col" },
+        squaresWrap,
+        el("span", { className: "compare-lane-recall-val" }, recallPct)
+      );
+
+      // Lane row
+      const laneRow = el("div", { className: "compare-lane-row" },
+        nameCol,
+        latencyCol,
+        dotsCol,
+        recallCol
+      );
+      lanesContent.appendChild(laneRow);
     }
-    if (typeof renderRankMatrix === "function") {
-      renderRankMatrix(report);
+
+    // Legend line below lanes
+    let legendText = "Latency: lower is better. Dots: fewer is less work. Squares: filled = found in ground truth.";
+    if (dotScale > 1) {
+      legendText += ` (1 dot = ${dotScale} computations)`;
     }
+    const legendEl = el("div", { className: "compare-lanes-legend" }, legendText);
+    lanesContent.appendChild(legendEl);
+  }
+
+  function renderRankMatrix(report) {
+    if (!matrixContent || !report || !report.algorithms) return;
+    matrixContent.replaceChildren();
+
+    const matrixData = buildRankMatrix(report);
+    const scrollContainer = el("div", { className: "compare-matrix-scroll", tabindex: "0", "aria-label": "Top-k Rank Matrix" });
+    const tableEl = el("table", { className: "compare-matrix-table" });
+
+    // Table header row: Rank columns
+    const theadEl = el("thead", {});
+    const headerTr = el("tr", { className: "compare-matrix-header-row" },
+      el("th", { className: "compare-matrix-label-th" }, "Algorithm")
+    );
+    for (const rank of matrixData.columns) {
+      headerTr.appendChild(el("th", { className: "compare-matrix-col-th" }, `#${rank}`));
+    }
+    theadEl.appendChild(headerTr);
+    tableEl.appendChild(theadEl);
+
+    // Table body rows: Brute Force (GT), KD-Tree, HNSW
+    const tbodyEl = el("tbody", {});
+    for (const row of matrixData.rows) {
+      const tr = el("tr", { className: "compare-matrix-row" });
+      const labelTd = el("td", { className: "compare-matrix-label-td" },
+        el("span", { className: `compare-lane-dot bg-${row.algorithm} mr-2` }),
+        el("span", {}, row.label)
+      );
+      tr.appendChild(labelTd);
+
+      for (const cell of row.cells) {
+        const td = el("td", { className: "compare-matrix-td" });
+        if (cell.status === "missing") {
+          td.appendChild(el("span", { className: "compare-matrix-missing" }, "—"));
+        } else {
+          const idSpan = el("span", { className: "compare-matrix-id" }, `#${cell.id}`);
+          const distStr = cell.distance !== null && cell.distance !== undefined
+            ? Number(cell.distance).toFixed(4)
+            : "";
+          const distSpan = el("span", { className: "compare-matrix-dist" }, distStr);
+          const cellWrap = el("div", { className: "compare-matrix-cell" }, idSpan, distSpan);
+
+          if (cell.status === "match") {
+            const checkIcon = createIcon("check", 12, "compare-matrix-check");
+            cellWrap.appendChild(el("span", { className: "compare-matrix-glyph" }, checkIcon));
+          } else if (cell.status === "mismatch") {
+            const dashIcon = createIcon("dash", 12, "compare-matrix-dash");
+            cellWrap.appendChild(el("span", { className: "compare-matrix-glyph" }, dashIcon));
+          }
+
+          td.appendChild(cellWrap);
+        }
+        tr.appendChild(td);
+      }
+      tbodyEl.appendChild(tr);
+    }
+    tableEl.appendChild(tbodyEl);
+    scrollContainer.appendChild(tableEl);
+
+    const legendEl = el("div", { className: "compare-matrix-legend" },
+      "Check = same vector at the same rank as the ground truth."
+    );
+
+    matrixContent.appendChild(scrollContainer);
+    matrixContent.appendChild(legendEl);
   }
 
   // Event Handlers

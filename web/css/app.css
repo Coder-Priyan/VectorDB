@@ -2984,6 +2984,14 @@ input[type="number"] {
 .swatch-kdtree { background-color: var(--color-kdtree); }
 .swatch-hnsw { background-color: var(--color-hnsw); }
 
+.bg-brute { background-color: var(--color-brute); }
+.bg-kdtree { background-color: var(--color-kdtree); }
+.bg-hnsw { background-color: var(--color-hnsw); }
+
+.color-brute { color: var(--color-brute); }
+.color-kdtree { color: var(--color-kdtree); }
+.color-hnsw { color: var(--color-hnsw); }
+
 #hnsw-layer-slider {
   width: 130px;
   flex-shrink: 0;

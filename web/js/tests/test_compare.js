@@ -15,7 +15,13 @@ import {
   getCompareEmptyStateConfig,
   niceAxis,
   getMetricAxisConfig,
-  mapChartRows
+  mapChartRows,
+  computeDotScale,
+  computeDotCount,
+  computeRecallSquares,
+  computeLatencyScale,
+  formatRangeText,
+  buildRankMatrix
 } from "../compare_helpers.js";
 
 // Real raw benchmark response fixture captured from running server with 10 top-k items (ADR-036, docs/API.md sec 9)
@@ -76,6 +82,83 @@ const realBenchmarkFixture = {
   count: 1000,
   ground_truth: "brute",
   k: 10
+};
+
+// Real shape benchmark fixture containing deliberate rank mismatches (ADR-036)
+const mismatchFixture = {
+  algorithms: {
+    brute: {
+      results: [
+        { id: 10, distance: 0.15 },
+        { id: 20, distance: 0.25 },
+        { id: 30, distance: 0.35 }
+      ],
+      distance_computations: 100,
+      latency_us: 50,
+      recall_at_k: 1.0
+    },
+    kdtree: {
+      results: [
+        { id: 10, distance: 0.15 },
+        { id: 99, distance: 0.29 }, // mismatch at rank 2
+        { id: 30, distance: 0.35 }
+      ],
+      distance_computations: 45,
+      latency_us: 30,
+      recall_at_k: 0.67
+    },
+    hnsw: {
+      results: [
+        { id: 10, distance: 0.15 },
+        { id: 20, distance: 0.25 },
+        { id: 88, distance: 0.40 } // mismatch at rank 3
+      ],
+      distance_computations: 15,
+      latency_us: 12,
+      recall_at_k: 0.67
+    }
+  },
+  count: 100,
+  ground_truth: "brute",
+  k: 3
+};
+
+// Real shape benchmark fixture containing missing candidates (ADR-036)
+const missingFixture = {
+  algorithms: {
+    brute: {
+      results: [
+        { id: 1, distance: 0.1 },
+        { id: 2, distance: 0.2 },
+        { id: 3, distance: 0.3 }
+      ],
+      distance_computations: 125,
+      latency_us: 40,
+      recall_at_k: 1.0
+    },
+    kdtree: {
+      results: [
+        { id: 1, distance: 0.1 }
+        // Missing rank 2 and 3
+      ],
+      distance_computations: 50,
+      latency_us: 20,
+      recall_at_k: 0.33
+    },
+    hnsw: {
+      results: [
+        { id: 1, distance: 0.1 },
+        { id: 2, distance: 0.2 }
+        // Missing rank 3
+      ],
+      distance_computations: 20,
+      latency_us: 10,
+      recall_at_k: 0.67
+    }
+  },
+  count: 50,
+  ground_truth: "brute",
+  k: 3
 };
 
 export function registerCompareTests() {
@@ -572,6 +655,148 @@ export function registerCompareTests() {
       assertEqual(rows[1].formattedValue, "85 μs");
       assertEqual(rows[2].value, 32);
       assertEqual(rows[2].formattedValue, "32 μs");
+    });
+  });
+
+  describe("Compare Lane Sheet & Rank Matrix Helpers (ADR-056)", (it) => {
+    it("computeDotScale sets scale 1 when max <= 125, scales up proportionally when max > 125", () => {
+      // Requirements test cases: max 100, max 112, max 125, max 126, max 1000
+      const s100 = computeDotScale(100);
+      assertEqual(s100.scale, 1);
+      assertEqual(s100.maxDots, 100);
+
+      const s112 = computeDotScale(112);
+      assertEqual(s112.scale, 1);
+      assertEqual(s112.maxDots, 112);
+
+      const s125 = computeDotScale(125);
+      assertEqual(s125.scale, 1);
+      assertEqual(s125.maxDots, 125);
+
+      const s126 = computeDotScale(126);
+      assertEqual(s126.scale, 2);
+      assertEqual(s126.maxDots, 63);
+
+      const s1000 = computeDotScale(1000);
+      assertEqual(s1000.scale, 8);
+      assertEqual(s1000.maxDots, 125);
+    });
+
+    it("computeDotCount computes ceiling dot counts from count and scale", () => {
+      assertEqual(computeDotCount(100, 1), 100);
+      assertEqual(computeDotCount(1000, 8), 125);
+      assertEqual(computeDotCount(240, 8), 30);
+      assertEqual(computeDotCount(64, 8), 8);
+      assertEqual(computeDotCount(0, 1), 0);
+      assertEqual(computeDotCount(1, 8), 1);
+    });
+
+    it("computeRecallSquares calculates filled and unfilled squares across different k values", () => {
+      // Requirements test cases: k=10, k=3, k=20, recall 1.0 and 0.8
+      const sq10_full = computeRecallSquares(1.0, 10);
+      assertEqual(sq10_full.k, 10);
+      assertEqual(sq10_full.filled, 10);
+      assertEqual(sq10_full.unfilled, 0);
+
+      const sq10_part = computeRecallSquares(0.8, 10);
+      assertEqual(sq10_part.k, 10);
+      assertEqual(sq10_part.filled, 8);
+      assertEqual(sq10_part.unfilled, 2);
+
+      const sq3_full = computeRecallSquares(1.0, 3);
+      assertEqual(sq3_full.k, 3);
+      assertEqual(sq3_full.filled, 3);
+      assertEqual(sq3_full.unfilled, 0);
+
+      const sq3_part = computeRecallSquares(0.8, 3);
+      assertEqual(sq3_part.k, 3);
+      assertEqual(sq3_part.filled, 2); // round(0.8 * 3) = round(2.4) = 2
+      assertEqual(sq3_part.unfilled, 1);
+
+      const sq20_part = computeRecallSquares(0.8, 20);
+      assertEqual(sq20_part.k, 20);
+      assertEqual(sq20_part.filled, 16); // round(0.8 * 20) = 16
+      assertEqual(sq20_part.unfilled, 4);
+    });
+
+    it("computeLatencyScale produces shared linear scale and bounded bar widths", () => {
+      const scale = computeLatencyScale([120, 85, 32]);
+      assert(scale.max > 120, "Scale max must exceed highest median");
+      const w120 = scale.getBarWidthPercent(120);
+      const w85 = scale.getBarWidthPercent(85);
+      const w32 = scale.getBarWidthPercent(32);
+
+      assert(w120 > w85, "Higher median must have wider bar");
+      assert(w85 > w32, "Middle median must be wider than lower median");
+      assert(w120 <= 100, "Bar width must not exceed 100%");
+      assert(w32 >= 2, "Bar width must be at least minimum visibility clamp");
+    });
+
+    it("formatRangeText formats min-max strictly in microseconds without extra units", () => {
+      assertEqual(formatRangeText(18.2, 25.7), "18 - 26 µs");
+      assertEqual(formatRangeText(0, 100), "0 - 100 µs");
+      assertEqual(formatRangeText(42, 42), "42 - 42 µs");
+    });
+
+    it("buildRankMatrix builds rank matrix with matches and mismatches from realBenchmarkFixture", () => {
+      const matrix = buildRankMatrix(realBenchmarkFixture, 10);
+      assertEqual(matrix.k, 10);
+      assertEqual(matrix.columns.length, 10);
+      assertEqual(matrix.rows.length, 3);
+
+      const bruteRow = matrix.rows[0];
+      assertEqual(bruteRow.algorithm, "brute");
+      assertEqual(bruteRow.isGt, true);
+      assertEqual(bruteRow.cells.length, 10);
+      assertEqual(bruteRow.cells[0].status, "gt");
+      assertEqual(bruteRow.cells[0].id, 101);
+
+      const kdtreeRow = matrix.rows[1];
+      assertEqual(kdtreeRow.algorithm, "kdtree");
+      assertEqual(kdtreeRow.cells.length, 10);
+      assert(kdtreeRow.cells.every(c => c.status === "match"), "All KD-Tree cells in real fixture match GT");
+
+      const hnswRow = matrix.rows[2];
+      assertEqual(hnswRow.algorithm, "hnsw");
+      assertEqual(hnswRow.cells.length, 10);
+      assertEqual(hnswRow.cells[0].status, "match");
+      assertEqual(hnswRow.cells[9].status, "mismatch"); // rank 10 has id 999 vs GT 110
+      assertEqual(hnswRow.cells[9].id, 999);
+    });
+
+    it("buildRankMatrix correctly tags mismatch cells using mismatchFixture", () => {
+      const matrix = buildRankMatrix(mismatchFixture, 3);
+      assertEqual(matrix.k, 3);
+
+      const kdtreeRow = matrix.rows.find(r => r.algorithm === "kdtree");
+      assertEqual(kdtreeRow.cells[0].status, "match");
+      assertEqual(kdtreeRow.cells[1].status, "mismatch");
+      assertEqual(kdtreeRow.cells[1].id, 99);
+      assertEqual(kdtreeRow.cells[2].status, "match");
+
+      const hnswRow = matrix.rows.find(r => r.algorithm === "hnsw");
+      assertEqual(hnswRow.cells[0].status, "match");
+      assertEqual(hnswRow.cells[1].status, "match");
+      assertEqual(hnswRow.cells[2].status, "mismatch");
+      assertEqual(hnswRow.cells[2].id, 88);
+    });
+
+    it("buildRankMatrix handles missing candidate items using missingFixture", () => {
+      const matrix = buildRankMatrix(missingFixture, 3);
+      assertEqual(matrix.k, 3);
+
+      const kdtreeRow = matrix.rows.find(r => r.algorithm === "kdtree");
+      assertEqual(kdtreeRow.cells[0].status, "match");
+      assertEqual(kdtreeRow.cells[1].status, "missing");
+      assertEqual(kdtreeRow.cells[1].id, null);
+      assertEqual(kdtreeRow.cells[2].status, "missing");
+      assertEqual(kdtreeRow.cells[2].id, null);
+
+      const hnswRow = matrix.rows.find(r => r.algorithm === "hnsw");
+      assertEqual(hnswRow.cells[0].status, "match");
+      assertEqual(hnswRow.cells[1].status, "match");
+      assertEqual(hnswRow.cells[2].status, "missing");
+      assertEqual(hnswRow.cells[2].id, null);
     });
   });
 }

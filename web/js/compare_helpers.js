@@ -803,3 +803,171 @@ export function getCompareEmptyStateConfig(collection, count, hasResults = false
   };
 }
 
+/**
+ * Calculates dot matrix compression scale (N) so largest count draws at most 125 dots.
+ * If max <= 125, N = 1 (1 dot = 1 computation).
+ * If max > 125, N = ceil(max / 125).
+ *
+ * @param {number} maxComputations
+ * @returns {{ scale: number, maxDots: number }}
+ */
+export function computeDotScale(maxComputations) {
+  const safeMax = Math.max(0, Number(maxComputations) || 0);
+  if (safeMax <= 125) {
+    return { scale: 1, maxDots: safeMax };
+  }
+  const scale = Math.ceil(safeMax / 125);
+  const maxDots = Math.ceil(safeMax / scale);
+  return { scale, maxDots };
+}
+
+/**
+ * Calculates how many dots to render for a given computation count and scale.
+ *
+ * @param {number} count
+ * @param {number} scale
+ * @returns {number}
+ */
+export function computeDotCount(count, scale) {
+  const safeCount = Math.max(0, Number(count) || 0);
+  const safeScale = Math.max(1, Number(scale) || 1);
+  return Math.ceil(safeCount / safeScale);
+}
+
+/**
+ * Computes filled and unfilled square counts for top-k recall visualization.
+ *
+ * @param {number} recall - 0.0 to 1.0
+ * @param {number} k - requested or returned k
+ * @returns {{ k: number, filled: number, unfilled: number }}
+ */
+export function computeRecallSquares(recall, k) {
+  const safeK = Math.max(1, Math.round(Number(k) || 10));
+  const safeRecall = Math.max(0, Math.min(1, Number(recall) || 0));
+  const filled = Math.max(0, Math.min(safeK, Math.round(safeRecall * safeK)));
+  const unfilled = safeK - filled;
+  return { k: safeK, filled, unfilled };
+}
+
+/**
+ * Computes shared linear scale for latency bars across algorithms.
+ *
+ * @param {number[]|Record<string, number>} medians
+ * @returns {{ max: number, getBarWidthPercent: (median: number) => number }}
+ */
+export function computeLatencyScale(medians) {
+  const values = Array.isArray(medians)
+    ? medians
+    : (medians && typeof medians === "object" ? Object.values(medians) : []);
+  const safeVals = values.map(v => Math.max(0, Number(v) || 0));
+  const maxVal = Math.max(...safeVals, 1);
+  const scaleMax = maxVal * 1.15;
+
+  return {
+    max: scaleMax,
+    getBarWidthPercent: (median) => {
+      const safeMed = Math.max(0, Number(median) || 0);
+      return Math.min(100, Math.max(2, Math.round((safeMed / scaleMax) * 100)));
+    }
+  };
+}
+
+/**
+ * Formats min-max timing range text strictly in microseconds (µs).
+ *
+ * @param {number} min
+ * @param {number} max
+ * @returns {string}
+ */
+export function formatRangeText(min, max) {
+  const safeMin = Math.max(0, Math.round(Number(min) || 0));
+  const safeMax = Math.max(0, Math.round(Number(max) || 0));
+  return `${safeMin} - ${safeMax} µs`;
+}
+
+/**
+ * Builds structured data for the Top-k ground truth diff rank matrix.
+ * Compares candidate algorithm ranks against Brute Force ground truth ranks.
+ *
+ * @param {object} report - Raw benchmark report from server
+ * @param {number} [requestedK] - Number of ranks to compare (clamped 1..20)
+ * @returns {{
+ *   k: number,
+ *   columns: number[],
+ *   rows: Array<{
+ *     algorithm: "brute"|"kdtree"|"hnsw",
+ *     label: string,
+ *     isGt: boolean,
+ *     cells: Array<{
+ *       rank: number,
+ *       id: number|null,
+ *       distance: number|null,
+ *       status: "gt"|"match"|"mismatch"|"missing"
+ *     }>
+ *   }>
+ * }}
+ */
+export function buildRankMatrix(report, requestedK) {
+  const rawK = requestedK || report?.k || 10;
+  const k = Math.min(20, Math.max(1, Number(rawK) || 10));
+  const columns = Array.from({ length: k }, (_, i) => i + 1);
+
+  const algs = report?.algorithms || {};
+  const bruteRes = Array.isArray(algs.brute?.results) ? algs.brute.results : [];
+  const kdtreeRes = Array.isArray(algs.kdtree?.results) ? algs.kdtree.results : [];
+  const hnswRes = Array.isArray(algs.hnsw?.results) ? algs.hnsw.results : [];
+
+  const buildCellsForAlg = (results, isGt) => {
+    return columns.map((rank, idx) => {
+      const gtItem = bruteRes[idx] || null;
+      const candItem = results[idx] || null;
+
+      if (!candItem || candItem.id === undefined || candItem.id === null) {
+        return { rank, id: null, distance: null, status: "missing" };
+      }
+
+      if (isGt) {
+        return {
+          rank,
+          id: candItem.id,
+          distance: typeof candItem.distance === "number" ? candItem.distance : null,
+          status: "gt"
+        };
+      }
+
+      const isMatch = gtItem && gtItem.id !== undefined && gtItem.id === candItem.id;
+      return {
+        rank,
+        id: candItem.id,
+        distance: typeof candItem.distance === "number" ? candItem.distance : null,
+        status: isMatch ? "match" : "mismatch"
+      };
+    });
+  };
+
+  return {
+    k,
+    columns,
+    rows: [
+      {
+        algorithm: "brute",
+        label: "Brute Force (GT)",
+        isGt: true,
+        cells: buildCellsForAlg(bruteRes, true)
+      },
+      {
+        algorithm: "kdtree",
+        label: "KD-Tree",
+        isGt: false,
+        cells: buildCellsForAlg(kdtreeRes, false)
+      },
+      {
+        algorithm: "hnsw",
+        label: "HNSW",
+        isGt: false,
+        cells: buildCellsForAlg(hnswRes, false)
+      }
+    ]
+  };
+}
+
