@@ -22,7 +22,9 @@ import {
   formatRangeText,
   buildRankStrip,
   formatRecallPercent,
-  mapReportToCards
+  buildCompareHeadline,
+  buildLatencyRaceRows,
+  buildDetailTableRows
 } from "../compare_helpers.js";
 
 // Real raw benchmark response fixture captured from running server with 10 top-k items (ADR-036, docs/API.md sec 9)
@@ -873,87 +875,140 @@ export function registerCompareTests() {
       assertEqual(zeroScale.getBarWidthPercent(0), 0);
     });
 
-    it("mapReportToCards maps real benchmark fixture to 3 algorithm cards with correct structure", () => {
-      const cards = mapReportToCards(realBenchmarkFixture, {
+    it("buildCompareHeadline formats fastest algorithm, ratio, and subline correctly", () => {
+      const headline = buildCompareHeadline(realBenchmarkFixture, {
+        brute: [120],
+        kdtree: [85],
+        hnsw: [42]
+      }, { k: 10, repetitions: 5 });
+
+      assertEqual(headline.fastestKey, "hnsw");
+      assertEqual(headline.fastestLabel, "HNSW");
+      assertEqual(headline.medianUs, 42);
+      assertEqual(headline.ratioText, "2.9x");
+      assertEqual(headline.recallPercent, "90.0%");
+      assertEqual(headline.isBruteFastest, false);
+      assertEqual(headline.text, "HNSW was fastest at 42 µs (2.9x faster than Brute Force) with 90.0% recall.");
+      assertEqual(headline.subline, "k = 10, 1000 vectors, 5 repetitions, median of runs.");
+    });
+
+    it("buildCompareHeadline handles Brute Force fastest case honestly", () => {
+      const headline = buildCompareHeadline(realBenchmarkFixture, {
+        brute: [20],
+        kdtree: [35],
+        hnsw: [45]
+      }, { k: 10, repetitions: 3 });
+
+      assertEqual(headline.fastestKey, "brute");
+      assertEqual(headline.isBruteFastest, true);
+      assertEqual(headline.medianUs, 20);
+      assertEqual(headline.text, "Brute Force was fastest on this collection (1000 vectors) at 20 µs; graph and tree indexes pay off at larger sizes.");
+      assertEqual(headline.subline, "k = 10, 1000 vectors, 3 repetitions, median of runs.");
+    });
+
+    it("buildCompareHeadline handles null, empty, or invalid report safely", () => {
+      const h1 = buildCompareHeadline(null);
+      assertEqual(h1.text, "");
+      assertEqual(h1.subline, "");
+      const h2 = buildCompareHeadline({});
+      assertEqual(h2.text, "");
+    });
+
+    it("buildLatencyRaceRows builds 3 rows on shared linear scale with fastest highlighted", () => {
+      const rows = buildLatencyRaceRows(realBenchmarkFixture, {
         brute: [120],
         kdtree: [85],
         hnsw: [42]
       });
 
-      assertEqual(cards.length, 3);
+      assertEqual(rows.length, 3);
+
+      // Row 1: Brute Force (slowest => 100%)
+      assertEqual(rows[0].alg, "brute");
+      assertEqual(rows[0].label, "Brute Force");
+      assertEqual(rows[0].medianUs, 120);
+      assertEqual(rows[0].barWidthPct, 100);
+      assertEqual(rows[0].isFastest, false);
+      assertEqual(rows[0].valueClass, "text-secondary");
+
+      // Row 2: KD-Tree (85 / 120 => 71%)
+      assertEqual(rows[1].alg, "kdtree");
+      assertEqual(rows[1].label, "KD-Tree");
+      assertEqual(rows[1].medianUs, 85);
+      assertEqual(rows[1].barWidthPct, 71);
+      assertEqual(rows[1].isFastest, false);
+      assertEqual(rows[1].valueClass, "text-secondary");
+
+      // Row 3: HNSW (42 / 120 => 35%, fastest => text-primary)
+      assertEqual(rows[2].alg, "hnsw");
+      assertEqual(rows[2].label, "HNSW");
+      assertEqual(rows[2].medianUs, 42);
+      assertEqual(rows[2].barWidthPct, 35);
+      assertEqual(rows[2].isFastest, true);
+      assertEqual(rows[2].valueClass, "text-primary");
+    });
+
+    it("buildLatencyRaceRows falls back to report latency_us and handles empty report", () => {
+      const rows = buildLatencyRaceRows(realBenchmarkFixture, null);
+      assertEqual(rows.length, 3);
+      assertEqual(rows[0].medianUs, 120);
+      assertEqual(rows[1].medianUs, 85);
+      assertEqual(rows[2].medianUs, 32);
+
+      assertEqual(buildLatencyRaceRows(null).length, 0);
+      assertEqual(buildLatencyRaceRows({}).length, 0);
+    });
+
+    it("buildDetailTableRows builds 3 accuracy and work rows with rank strips", () => {
+      const rows = buildDetailTableRows(realBenchmarkFixture);
+      assertEqual(rows.length, 3);
 
       // 1. Brute Force
-      const brute = cards[0];
+      const brute = rows[0];
       assertEqual(brute.alg, "brute");
-      assertEqual(brute.label, "Brute Force");
       assertEqual(brute.isBrute, true);
-      assertEqual(brute.medianUs, 120);
-      assertEqual(brute.rangeText, "120 - 120 µs");
-      assertEqual(brute.barWidthPct, 100);
       assertEqual(brute.distanceComputations, 1000);
-      assertEqual(brute.rankStrip, null);
       assertEqual(brute.recallPercent, "100.0%");
+      assertEqual(brute.rankStrip, null);
 
       // 2. KD-Tree
-      const kd = cards[1];
+      const kd = rows[1];
       assertEqual(kd.alg, "kdtree");
-      assertEqual(kd.label, "KD-Tree");
       assertEqual(kd.isBrute, false);
-      assertEqual(kd.medianUs, 85);
-      assertEqual(kd.barWidthPct, 71);
       assertEqual(kd.distanceComputations, 240);
-      assertEqual(kd.rankStrip.length, 10);
+      assertEqual(kd.recallPercent, "100.0%");
       assertEqual(kd.sameCount, 10);
       assertEqual(kd.total, 10);
-      assertEqual(kd.recallPercent, "100.0%");
+      assertEqual(kd.rankStrip.length, 10);
 
       // 3. HNSW
-      const hnsw = cards[2];
+      const hnsw = rows[2];
       assertEqual(hnsw.alg, "hnsw");
-      assertEqual(hnsw.label, "HNSW");
       assertEqual(hnsw.isBrute, false);
-      assertEqual(hnsw.medianUs, 42);
-      assertEqual(hnsw.barWidthPct, 35);
       assertEqual(hnsw.distanceComputations, 64);
-      assertEqual(hnsw.rankStrip.length, 10);
+      assertEqual(hnsw.recallPercent, "90.0%");
       assertEqual(hnsw.sameCount, 9);
       assertEqual(hnsw.total, 10);
-      assertEqual(hnsw.recallPercent, "90.0%");
+      assertEqual(hnsw.rankStrip[9].isMatch, false);
+      assertEqual(hnsw.rankStrip[9].expectedId, 110);
+      assertEqual(hnsw.rankStrip[9].gotId, 999);
     });
 
-    it("mapReportToCards handles missing or null latencies using latency_us fallback", () => {
-      const cards = mapReportToCards(realBenchmarkFixture, null);
-      assertEqual(cards.length, 3);
-      assertEqual(cards[0].medianUs, 120);
-      assertEqual(cards[1].medianUs, 85);
-      assertEqual(cards[2].medianUs, 32);
-    });
-
-    it("mapReportToCards handles null, empty, or invalid report gracefully", () => {
-      assertEqual(mapReportToCards(null).length, 0);
-      assertEqual(mapReportToCards(undefined).length, 0);
-      assertEqual(mapReportToCards({}).length, 0);
-      assertEqual(mapReportToCards("invalid").length, 0);
-    });
-
-    it("mapReportToCards supports custom k and mismatch detection in rank strip", () => {
+    it("buildDetailTableRows supports custom report and handles empty report safely", () => {
       const customReport = {
         k: 4,
         algorithms: {
           brute: {
-            latency_us: 50,
             distance_computations: 200,
             recall_at_k: 1.0,
             results: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }]
           },
           kdtree: {
-            latency_us: 40,
             distance_computations: 100,
             recall_at_k: 0.75,
             results: [{ id: 1 }, { id: 99 }, { id: 3 }, { id: 4 }]
           },
           hnsw: {
-            latency_us: 20,
             distance_computations: 60,
             recall_at_k: 0.5,
             results: [{ id: 1 }, { id: 2 }, { id: 88 }, { id: 77 }]
@@ -961,26 +1016,16 @@ export function registerCompareTests() {
         }
       };
 
-      const cards = mapReportToCards(customReport);
-      assertEqual(cards.length, 3);
+      const rows = buildDetailTableRows(customReport);
+      assertEqual(rows.length, 3);
+      assertEqual(rows[1].sameCount, 3);
+      assertEqual(rows[1].total, 4);
+      assertEqual(rows[1].rankStrip[1].isMatch, false);
+      assertEqual(rows[2].sameCount, 2);
+      assertEqual(rows[2].rankStrip[2].isMatch, false);
 
-      const kdCard = cards[1];
-      assertEqual(kdCard.total, 4);
-      assertEqual(kdCard.sameCount, 3);
-      assertEqual(kdCard.rankStrip.length, 4);
-      assertEqual(kdCard.rankStrip[0].isMatch, true);
-      assertEqual(kdCard.rankStrip[1].isMatch, false);
-      assertEqual(kdCard.rankStrip[1].expectedId, 2);
-      assertEqual(kdCard.rankStrip[1].gotId, 99);
-      assertEqual(kdCard.recallPercent, "75.0%");
-
-      const hnswCard = cards[2];
-      assertEqual(hnswCard.total, 4);
-      assertEqual(hnswCard.sameCount, 2);
-      assertEqual(hnswCard.rankStrip[2].isMatch, false);
-      assertEqual(hnswCard.rankStrip[2].expectedId, 3);
-      assertEqual(hnswCard.rankStrip[2].gotId, 88);
-      assertEqual(hnswCard.recallPercent, "50.0%");
+      assertEqual(buildDetailTableRows(null).length, 0);
+      assertEqual(buildDetailTableRows({}).length, 0);
     });
   });
 }
