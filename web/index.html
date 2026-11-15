@@ -626,9 +626,26 @@
         </div>
       </div>
 
-      <!-- Results: 3 Cards comparison (Mutually exclusive with empty state) -->
+      <!-- Results: Apple Spec Sheet comparison (Mutually exclusive with empty state) -->
       <div id="compare-results-view" class="compare-results-view hidden">
-        <div id="compare-cards-container" class="compare-cards-container" role="region" aria-label="Benchmark comparison cards"></div>
+        <!-- Hero Callout Banner -->
+        <div id="compare-hero-banner" class="compare-hero-banner">
+          <div class="compare-hero-left">
+            <div class="compare-hero-headline-wrap">
+              <span class="compare-hero-spark" aria-hidden="true">&#9889;</span>
+              <h2 id="compare-hero-headline" class="compare-hero-headline">HNSW delivered 8.4x speedup over Brute Force</h2>
+            </div>
+            <p id="compare-hero-subtitle" class="compare-hero-subtitle">k = 10 &middot; 1,000 vectors &middot; 5 runs median</p>
+          </div>
+          <div class="compare-hero-chips" id="compare-hero-chips">
+            <span class="compare-chip chip-winner" id="compare-chip-winner">Fastest: HNSW</span>
+            <span class="compare-chip chip-speedup" id="compare-chip-speedup">8.4x Speedup</span>
+            <span class="compare-chip chip-recall" id="compare-chip-recall">100% Recall</span>
+          </div>
+        </div>
+
+        <!-- Unified Comparative Spec Sheet -->
+        <div id="compare-cards-container" class="compare-spec-sheet" role="region" aria-label="Benchmark comparison spec sheet"></div>
         <div id="compare-footnote" class="compare-footnote">
           <span class="compare-footnote-icon" id="compare-footnote-icon"></span>
           <span>Filled = same rank as ground truth. Latency: lower is better. Timings are indicative: official benchmarks come from the C++ tool.</span>
