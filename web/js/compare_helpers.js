@@ -972,6 +972,12 @@ export function mapReportToCards(report, latencies) {
     stats.hnsw.median
   ]);
 
+  const distScale = computeBarScale([
+    algs.brute?.distance_computations || 0,
+    algs.kdtree?.distance_computations || 0,
+    algs.hnsw?.distance_computations || 0
+  ]);
+
   const kVal = Math.max(1, Math.round(Number(report.k) || 10));
   const bruteResults = Array.isArray(algs.brute?.results) ? algs.brute.results : [];
   const algKeys = ["brute", "kdtree", "hnsw"];
@@ -983,6 +989,7 @@ export function mapReportToCards(report, latencies) {
     const rangeText = formatRangeText(tStat.min, tStat.max);
     const barWidthPct = latencyScale.getBarWidthPercent(tStat.median);
     const distanceComputations = Math.max(0, Math.round(Number(aData.distance_computations) || 0));
+    const distBarWidthPct = distScale.getBarWidthPercent(distanceComputations);
     const recallPercent = formatRecallPercent(aData.recall_at_k);
     const isBrute = alg === "brute";
 
@@ -1004,6 +1011,7 @@ export function mapReportToCards(report, latencies) {
       rangeText,
       barWidthPct,
       distanceComputations,
+      distBarWidthPct,
       rankStrip,
       sameCount,
       total,

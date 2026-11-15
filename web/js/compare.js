@@ -385,10 +385,13 @@ export function initCompareTab() {
         el("div", { className: "compare-latency-track" }, latBarEl)
       );
 
-      // Section b: Distance computations (plain number, no bar)
+      // Section b: Distance computations (with restored 6px pill bar)
+      const distBarEl = el("div", { className: `compare-distance-bar bg-${alg}` });
+      distBarEl.style.setProperty("width", `${card.distBarWidthPct}%`);
       const distSection = el("div", { className: "compare-card-section" },
         el("span", { className: "compare-metric-label" }, "Distance computations"),
-        el("span", { className: "compare-dist-num" }, String(card.distanceComputations))
+        el("span", { className: "compare-dist-num" }, String(card.distanceComputations)),
+        el("div", { className: "compare-distance-track" }, distBarEl)
       );
 
       // Section c: Top-k rank match
