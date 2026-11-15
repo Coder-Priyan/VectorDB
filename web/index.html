@@ -226,34 +226,70 @@
     <!-- TAB 2: EXPLORE (PCA) -->
     <section id="panel-explore" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-explore">
       <div class="explore-viewport">
-      <div class="page-header">
-        <div>
-          <h1 class="page-header-title">Explore</h1>
-          <p class="page-header-description">Visualize your vectors, see clusters, and inspect nearest neighbours.</p>
-        </div>
-        <div class="page-header-actions">
-          <span id="explore-info-slot"></span>
-        </div>
-      </div>
-      <div class="tab-toolbar explore-toolbar">
-        <div class="toolbar-left">
-          <label for="explore-coll-select" class="toolbar-label">Collection</label>
-          <div id="explore-coll-dropdown-wrap" class="toolbar-dropdown-wrap">
-            <input type="hidden" id="explore-coll-select" value="demo">
+        <div class="page-header">
+          <div>
+            <h1 class="page-header-title">Explore</h1>
+            <p class="page-header-description">Visualize your vectors, see clusters, and inspect nearest neighbours.</p>
           </div>
-          <div class="toolbar-divider" aria-hidden="true"></div>
-          <button type="button" id="explore-refresh-btn" class="btn btn-sm btn-ghost">Refresh</button>
-        </div>
-        <div class="toolbar-right">
-          <div class="explore-status-badge">
-            <span class="status-dot status-dot-healthy"></span>
-            <span id="explore-variance-note" class="explore-variance-note font-mono text-xs">Loading variance...</span>
+          <div class="page-header-actions">
+            <span id="explore-info-slot"></span>
           </div>
         </div>
-      </div>
-      <div class="viz-layout">
-        <div class="viz-main">
-          <div class="canvas-frame">
+
+        <!-- Integrated Studio Toolbar & Query Controls -->
+        <div class="explore-toolbar">
+          <div class="toolbar-left">
+            <label for="explore-coll-select" class="toolbar-label">Collection</label>
+            <div id="explore-coll-dropdown-wrap" class="toolbar-dropdown-wrap">
+              <input type="hidden" id="explore-coll-select" value="demo">
+            </div>
+            <div class="toolbar-divider" aria-hidden="true"></div>
+
+            <!-- Demo Controls (Inline in Toolbar) -->
+            <div id="explore-demo-controls" class="explore-inline-controls">
+              <div class="explore-ctrl-group">
+                <label for="explore-demo-k" class="explore-ctrl-label">k</label>
+                <input type="number" id="explore-demo-k" class="input-text input-sm explore-k-input" value="3" min="1" max="50">
+              </div>
+              <button type="button" id="explore-demo-random-btn" class="btn btn-sm btn-primary">Random Query</button>
+              <div class="toolbar-divider" aria-hidden="true"></div>
+              <div class="explore-ctrl-group">
+                <label for="explore-demo-id-input" class="explore-ctrl-label">ID</label>
+                <input type="number" id="explore-demo-id-input" class="input-text input-sm explore-id-input" placeholder="e.g. 1" min="1">
+              </div>
+              <button type="button" id="explore-demo-id-btn" class="btn btn-sm btn-secondary">Search ID</button>
+            </div>
+
+            <!-- Docs Controls (Inline in Toolbar, hidden by default) -->
+            <div id="explore-docs-controls" class="explore-inline-controls hidden">
+              <form id="explore-query-docs-form" class="explore-docs-form">
+                <input type="text" id="explore-query-docs-input" class="input-text input-sm explore-docs-input" placeholder="What is the HNSW algorithm and how does it work in a vector database?" required>
+                <div class="explore-ctrl-group">
+                  <label for="explore-query-docs-k" class="explore-ctrl-label">k</label>
+                  <input type="number" id="explore-query-docs-k" class="input-text input-sm explore-k-input" value="3" min="1" max="50">
+                </div>
+                <button type="submit" id="explore-query-docs-btn" class="btn btn-sm btn-primary">
+                  <span class="btn-icon" data-icon="send"></span>
+                  <span>Project &amp; Search</span>
+                </button>
+              </form>
+            </div>
+
+            <div class="toolbar-divider" aria-hidden="true"></div>
+            <button type="button" id="explore-refresh-btn" class="btn btn-sm btn-ghost">Refresh</button>
+          </div>
+
+          <div class="toolbar-right">
+            <div class="explore-status-badge">
+              <span class="status-dot status-dot-healthy"></span>
+              <span id="explore-variance-note" class="explore-variance-note font-mono text-xs">Loading variance...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Full-Bleed Spatial Canvas -->
+        <div class="explore-canvas-section">
+          <div class="canvas-frame explore-canvas-frame">
             <div class="canvas-panel-header">
               <div>
                 <h2 class="canvas-panel-title">Vector Space (PCA, 2D)</h2>
@@ -262,121 +298,84 @@
               <button type="button" id="explore-reset-view-btn" class="btn btn-sm btn-ghost canvas-reset-btn" title="Reset View (Double-click canvas)">Reset Zoom</button>
             </div>
             <div class="canvas-wrapper">
-              <canvas id="explore-canvas" width="680" height="460"></canvas>
+              <canvas id="explore-canvas" width="900" height="420"></canvas>
               <div id="explore-tooltip" class="canvas-tooltip hidden" role="tooltip"></div>
             </div>
             <div id="explore-legend-container" class="legend-row"></div>
           </div>
           <div id="explore-empty-state" class="empty-state-box hidden"></div>
         </div>
-        <aside class="viz-sidebar">
-          <div id="explore-docs-controls" class="hidden">
-            <h3 class="section-title">Query Parameters</h3>
-            <form id="explore-query-docs-form" class="form-stack mt-2">
-              <div class="form-group">
-                <textarea id="explore-query-docs-input" class="textarea-field" rows="3" placeholder="What is the HNSW algorithm and how does it work in a vector database?" required></textarea>
-              </div>
-              <div class="form-row">
-                <div class="form-group flex-1">
-                  <label for="explore-query-docs-k">Top k</label>
-                  <input type="number" id="explore-query-docs-k" class="input-text" value="3" min="1" max="50">
-                </div>
-                <div class="form-group flex-1 align-end">
-                  <button type="submit" id="explore-query-docs-btn" class="btn btn-primary w-100">
-                    <span class="btn-icon" data-icon="send"></span>
-                    <span>Project &amp; Search</span>
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-          <div id="explore-demo-controls">
-            <h3 class="section-title">Query Parameters</h3>
-            <div class="form-stack mt-2">
-              <div class="form-row">
-                <div class="form-group flex-1">
-                  <label for="explore-demo-k">Top k</label>
-                  <input type="number" id="explore-demo-k" class="input-text" value="3" min="1" max="50">
-                </div>
-                <div class="form-group flex-1 align-end">
-                  <button type="button" id="explore-demo-random-btn" class="btn btn-primary w-100">Random Query</button>
-                </div>
-              </div>
-              <div class="form-row mt-2">
-                <div class="form-group flex-2">
-                  <label for="explore-demo-id-input">Query by Stored ID</label>
-                  <input type="number" id="explore-demo-id-input" class="input-text" placeholder="Vector ID (e.g. 1)" min="1">
-                </div>
-                <div class="form-group flex-1 align-end">
-                  <button type="button" id="explore-demo-id-btn" class="btn btn-secondary w-100">Search ID</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="explore-sidebar-divider" aria-hidden="true"></div>
-          <div class="viz-results-section">
+
+        <!-- Bottom Nearest Neighbors Studio Deck -->
+        <div class="explore-deck-section">
+          <div class="explore-deck-header">
             <h3 class="section-title" id="explore-results-heading">Nearest neighbours (k = 3)</h3>
-            <div class="explore-neighbors-list" id="explore-neighbors-list">
-              <table class="info-table explore-neighbors-table">
-                <thead>
-                  <tr><th>Target</th><th>Distance</th><th>Similarity</th></tr>
-                </thead>
-                <tbody id="explore-results-tbody">
-                  <tr><td colspan="3" class="text-muted empty-state">Run a query to inspect nearest neighbours.</td></tr>
-                </tbody>
-              </table>
-            </div>
+            <span class="text-muted text-xs">Click any vector on the canvas or run a query above</span>
           </div>
-        </aside>
-      </div>
+          <div class="explore-neighbors-list" id="explore-neighbors-list">
+            <table class="info-table explore-neighbors-table">
+              <thead>
+                <tr><th>Target</th><th>Distance</th><th>Similarity</th></tr>
+              </thead>
+              <tbody id="explore-results-tbody">
+                <tr><td colspan="3" class="text-muted empty-state">Run a query to inspect nearest neighbours.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- TAB 3: HNSW GRAPH -->
     <section id="panel-hnsw" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-hnsw">
       <div class="hnsw-viewport">
-      <div class="page-header">
-        <div>
-          <h1 class="page-header-title">HNSW</h1>
-          <p class="page-header-description">Visualize the Hierarchical Navigable Small World (HNSW) graph and trace the search path.</p>
-        </div>
-        <div class="page-header-actions">
-          <span id="hnsw-info-slot"></span>
-        </div>
-      </div>
-      <div class="tab-toolbar hnsw-toolbar">
-        <div class="toolbar-left">
-          <label for="hnsw-coll-select" class="toolbar-label">Collection</label>
-          <div id="hnsw-coll-dropdown-wrap" class="toolbar-dropdown-wrap">
-            <input type="hidden" id="hnsw-coll-select" value="demo">
+        <div class="page-header">
+          <div>
+            <h1 class="page-header-title">HNSW</h1>
+            <p class="page-header-description">Visualize the Hierarchical Navigable Small World (HNSW) graph and trace the search path.</p>
           </div>
-          <div class="toolbar-divider" aria-hidden="true"></div>
-          <label for="hnsw-layer-slider" id="hnsw-layer-label" class="toolbar-label font-mono">Layer L0</label>
-          <input type="range" id="hnsw-layer-slider" min="0" max="0" value="0" class="input-range">
-          <div class="toolbar-divider" aria-hidden="true"></div>
-          <label for="hnsw-max-edges-select" class="toolbar-label">Max Edges</label>
-          <div id="hnsw-max-edges-dropdown-wrap" class="toolbar-dropdown-wrap">
-            <input type="hidden" id="hnsw-max-edges-select" value="20000">
+          <div class="page-header-actions">
+            <span id="hnsw-info-slot"></span>
           </div>
-          <button type="button" id="hnsw-refresh-btn" class="btn btn-sm btn-ghost">Refresh</button>
         </div>
-        <div class="toolbar-right">
-          <div class="hnsw-status-badge">
-            <span class="status-dot status-dot-healthy"></span>
-            <span id="hnsw-edge-summary" class="hnsw-edge-summary font-mono text-xs"></span>
+
+        <!-- Top Layer Highway & Controls Bar -->
+        <div class="tab-toolbar hnsw-toolbar">
+          <div class="toolbar-left">
+            <label for="hnsw-coll-select" class="toolbar-label">Collection</label>
+            <div id="hnsw-coll-dropdown-wrap" class="toolbar-dropdown-wrap">
+              <input type="hidden" id="hnsw-coll-select" value="demo">
+            </div>
+            <div class="toolbar-divider" aria-hidden="true"></div>
+            <label for="hnsw-layer-slider" id="hnsw-layer-label" class="toolbar-label font-mono">Layer L0</label>
+            <input type="range" id="hnsw-layer-slider" min="0" max="0" value="0" class="input-range">
+            <div class="toolbar-divider" aria-hidden="true"></div>
+            <label for="hnsw-max-edges-select" class="toolbar-label">Max Edges</label>
+            <div id="hnsw-max-edges-dropdown-wrap" class="toolbar-dropdown-wrap">
+              <input type="hidden" id="hnsw-max-edges-select" value="20000">
+            </div>
+            <button type="button" id="hnsw-refresh-btn" class="btn btn-sm btn-ghost">Refresh</button>
           </div>
-          <span id="hnsw-edge-warn-badge" class="badge badge-warning hidden">Truncated</span>
+          <div class="toolbar-right">
+            <div class="hnsw-status-badge">
+              <span class="status-dot status-dot-healthy"></span>
+              <span id="hnsw-edge-summary" class="hnsw-edge-summary font-mono text-xs"></span>
+            </div>
+            <span id="hnsw-edge-warn-badge" class="badge badge-warning hidden">Truncated</span>
+          </div>
         </div>
-      </div>
-      <div class="viz-layout">
-        <div class="viz-main">
-          <div class="canvas-frame">
+
+        <!-- Main Graph Canvas Frame -->
+        <div class="hnsw-canvas-section">
+          <div class="canvas-frame hnsw-canvas-frame">
             <div class="canvas-panel-header">
-              <h2 class="canvas-panel-title" id="hnsw-graph-title">HNSW Graph &mdash; Layer L0</h2>
-              <p class="canvas-panel-subtitle" id="hnsw-graph-subtitle">A higher layer with sparser connections for faster navigation.</p>
+              <div>
+                <h2 class="canvas-panel-title" id="hnsw-graph-title">HNSW Graph &mdash; Layer L0</h2>
+                <p class="canvas-panel-subtitle" id="hnsw-graph-subtitle">A higher layer with sparser connections for faster navigation.</p>
+              </div>
             </div>
             <div class="canvas-wrapper">
-              <canvas id="hnsw-canvas" width="680" height="460"></canvas>
+              <canvas id="hnsw-canvas" width="900" height="420"></canvas>
             </div>
             <div class="legend-row hnsw-legend-row">
               <div class="legend-item">
@@ -398,40 +397,48 @@
             </div>
           </div>
         </div>
-        <aside class="viz-sidebar">
+
+        <!-- Full-Width Studio Playback & Telemetry Console Deck -->
+        <div class="hnsw-console-deck">
           <div id="hnsw-trace-notice" class="notice-box notice-neutral hidden">Search path trace is available for the Demo collection (documents index does not support step trace).</div>
-          <div id="hnsw-trace-section">
-            <div class="sidebar-header-with-action">
-              <div>
-                <h3 class="section-title">Search path trace</h3>
-                <p class="text-muted text-xs">Step through the HNSW search to see how the query navigates the graph.</p>
+          
+          <div id="hnsw-trace-section" class="hnsw-trace-grid">
+            <!-- Col 1: Query Launcher -->
+            <div class="hnsw-console-card hnsw-launcher-card">
+              <div class="hnsw-card-header">
+                <span class="hnsw-card-title">Search Target</span>
+                <button type="button" id="hnsw-trace-random-btn" class="btn btn-primary btn-sm">Random</button>
               </div>
-              <button type="button" id="hnsw-trace-random-btn" class="btn btn-primary btn-sm">Random</button>
+              <div class="form-stack mt-2">
+                <div class="form-row">
+                  <div class="form-group flex-1">
+                    <label for="hnsw-trace-k">k</label>
+                    <input type="number" id="hnsw-trace-k" class="input-text input-sm" value="5" min="1" max="50">
+                  </div>
+                  <div class="form-group flex-1">
+                    <label for="hnsw-trace-ef">efSearch</label>
+                    <input type="number" id="hnsw-trace-ef" class="input-text input-sm" value="16" min="1" max="500">
+                  </div>
+                </div>
+                <div class="form-row mt-1">
+                  <div class="form-group flex-2">
+                    <label for="hnsw-trace-id-input">Stored Vector ID</label>
+                    <input type="number" id="hnsw-trace-id-input" class="input-text input-sm" placeholder="e.g. 1" min="1">
+                  </div>
+                  <div class="form-group flex-1 align-end">
+                    <button type="button" id="hnsw-trace-id-btn" class="btn btn-secondary btn-sm w-100">Trace ID</button>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div class="form-stack mt-3">
-              <div class="form-row">
-                <div class="form-group flex-1">
-                  <label for="hnsw-trace-k">k</label>
-                  <input type="number" id="hnsw-trace-k" class="input-text" value="5" min="1" max="50">
-                </div>
-                <div class="form-group flex-1">
-                  <label for="hnsw-trace-ef">efSearch</label>
-                  <input type="number" id="hnsw-trace-ef" class="input-text" value="16" min="1" max="500">
-                </div>
+            <!-- Col 2: Xcode / VCR Playback Transport & Scrubber -->
+            <div class="hnsw-console-card hnsw-player-card">
+              <div class="hnsw-card-header">
+                <span class="hnsw-card-title">Playback Transport</span>
+                <span id="hnsw-step-counter" class="font-mono text-xs text-muted">Step 0 / 0</span>
               </div>
-              <div class="form-row mt-1">
-                <div class="form-group flex-2">
-                  <label for="hnsw-trace-id-input">Stored Vector ID</label>
-                  <input type="number" id="hnsw-trace-id-input" class="input-text" placeholder="e.g. 1" min="1">
-                </div>
-                <div class="form-group flex-1 align-end">
-                  <button type="button" id="hnsw-trace-id-btn" class="btn btn-secondary w-100">Trace ID</button>
-                </div>
-              </div>
-
-              <!-- Player Step Controls -->
-              <div class="hnsw-player-wrap mt-3">
+              <div class="hnsw-player-wrap mt-2">
                 <div class="player-bar">
                   <button type="button" id="hnsw-trace-prev-btn" class="btn btn-sm btn-ghost" title="Previous step">&larr;</button>
                   <button type="button" id="hnsw-trace-play-btn" class="btn btn-sm btn-secondary">Play</button>
@@ -442,21 +449,25 @@
                   </div>
                 </div>
                 <div class="step-slider-row mt-2">
-                  <span id="hnsw-step-counter" class="font-mono text-xs text-muted">Step 0 / 0</span>
                   <input type="range" id="hnsw-trace-slider" min="-1" max="-1" value="-1" class="input-range">
                 </div>
                 <div id="hnsw-trace-announcement" class="sr-only" aria-live="polite">Search trace ready</div>
                 <div id="hnsw-trace-missing" class="notice-box notice-warning hidden"></div>
               </div>
+            </div>
 
-              <!-- Current Step Stat Tiles -->
-              <div class="hnsw-step-tiles mt-3" id="hnsw-step-tiles">
+            <!-- Col 3: Live Step & Search Telemetry Bento -->
+            <div class="hnsw-console-card hnsw-telemetry-card">
+              <div class="hnsw-card-header">
+                <span class="hnsw-card-title">Step Telemetry &amp; Stats</span>
+              </div>
+              <div class="hnsw-step-tiles mt-2" id="hnsw-step-tiles">
                 <div class="hnsw-stat-tile">
-                  <span class="stat-tile-label">Current node</span>
+                  <span class="stat-tile-label">Node</span>
                   <span class="stat-tile-val font-mono" id="hnsw-curr-node">-</span>
                 </div>
                 <div class="hnsw-stat-tile">
-                  <span class="stat-tile-label">Distance to query</span>
+                  <span class="stat-tile-label">Distance</span>
                   <span class="stat-tile-val font-mono" id="hnsw-curr-dist">-</span>
                 </div>
                 <div class="hnsw-stat-tile">
@@ -464,14 +475,9 @@
                   <span class="stat-tile-val font-mono" id="hnsw-curr-layer">-</span>
                 </div>
               </div>
-            </div>
-
-            <!-- Search Statistics Section -->
-            <div class="viz-results-section mt-4">
-              <h3 class="section-title">Search statistics</h3>
-              <div class="hnsw-search-stats-grid" id="hnsw-trace-stats-box">
+              <div class="hnsw-search-stats-grid mt-2" id="hnsw-trace-stats-box">
                 <div class="hnsw-stat-tile">
-                  <span class="stat-tile-label">Distance computations</span>
+                  <span class="stat-tile-label">Distance comps</span>
                   <span class="stat-tile-val font-mono" id="hnsw-stat-dist-comps">-</span>
                 </div>
                 <div class="hnsw-stat-tile">
@@ -485,40 +491,39 @@
               </div>
             </div>
           </div>
-        </aside>
-      </div>
+        </div>
 
-      <!-- Bottom Topology Summary Strip -->
-      <div class="hnsw-topology-strip mt-3" id="hnsw-topology-strip">
-        <div class="strip-label-col">
-          <span class="strip-title">Topology summary</span>
-        </div>
-        <div class="strip-divider"></div>
-        <div class="strip-stat-item">
-          <span class="strip-icon" data-icon="database"></span>
-          <div class="strip-stat-meta">
-            <span class="strip-stat-label">Nodes</span>
-            <span class="strip-stat-val font-mono" id="hnsw-topo-nodes">-</span>
+        <!-- Bottom Topology Summary Strip -->
+        <div class="hnsw-topology-strip mt-3" id="hnsw-topology-strip">
+          <div class="strip-label-col">
+            <span class="strip-title">Topology summary</span>
           </div>
-        </div>
-        <div class="strip-divider"></div>
-        <div class="strip-stat-item">
-          <span class="strip-icon" data-icon="graph"></span>
-          <div class="strip-stat-meta">
-            <span class="strip-stat-label">Max level</span>
-            <span class="strip-stat-val font-mono" id="hnsw-topo-max-level">-</span>
+          <div class="strip-divider" aria-hidden="true"></div>
+          <div class="strip-stat-item">
+            <span class="strip-icon" data-icon="database"></span>
+            <div class="strip-stat-meta">
+              <span class="strip-stat-label">Nodes</span>
+              <span class="strip-stat-val font-mono" id="hnsw-topo-nodes">-</span>
+            </div>
           </div>
-        </div>
-        <div class="strip-divider"></div>
-        <div class="strip-stat-item">
-          <span class="strip-icon" data-icon="target"></span>
-          <div class="strip-stat-meta">
-            <span class="strip-stat-label">Entry point</span>
-            <span class="strip-stat-val font-mono" id="hnsw-topo-entry">-</span>
+          <div class="strip-divider" aria-hidden="true"></div>
+          <div class="strip-stat-item">
+            <span class="strip-icon" data-icon="graph"></span>
+            <div class="strip-stat-meta">
+              <span class="strip-stat-label">Max level</span>
+              <span class="strip-stat-val font-mono" id="hnsw-topo-max-level">-</span>
+            </div>
           </div>
+          <div class="strip-divider" aria-hidden="true"></div>
+          <div class="strip-stat-item">
+            <span class="strip-icon" data-icon="target"></span>
+            <div class="strip-stat-meta">
+              <span class="strip-stat-label">Entry point</span>
+              <span class="strip-stat-val font-mono" id="hnsw-topo-entry">-</span>
+            </div>
+          </div>
+          <div id="hnsw-info-box" class="hidden"></div>
         </div>
-        <div id="hnsw-info-box" class="hidden"></div>
-      </div>
       </div>
     </section>
 
