@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-15 by T-067
+Last updated: 2026-11-15 by T-068
 
 ## 1. Operating Model
 
@@ -186,6 +186,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 76. **Human-Confirmed on 2026-11-15 (/tests.html 135/135 and 137/137)**: Human verified `/tests.html` showed 135/135 passed after T-063, and 137/137 passed on 2026-11-15 20:56 after T-064 (builder claim was 137, matched).
 77. **Lesson (Card Spacing & Row Alignment)**: Spec wording 'spread with even generous spacing' produced floating sections with ~150px gaps and misaligned rows across cards; for multi-card comparison layouts, always specify aligned rows (identical grid-template-rows) and a maximum gap between blocks (<= 90px).
 78. **Lesson (Accurate Reporting of Test Exit Codes & Visual Measurements)**: The T-066 report claimed 'all 141 pass' while the log showed Node runs exiting with code 1 due to DOM stubs, and gave '0px delta' without measuring; reports must honestly state test runner exit codes and say 'not measured' when visual DOM layout bounding rects cannot be measured in a headless environment.
+79. **Lesson (Compare Cards Compact Proportions vs Fill Height)**: For Compare the human prefers compact content-sized cards over cards that fill the full height; the earlier 'panels must FILL the full screen height' preference does not apply to Compare cards. Brain wrote 'fill full height' without checking the mockup proportions; compare the real result with the mockup size before approving.
 
 ---
 

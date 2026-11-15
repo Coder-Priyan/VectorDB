@@ -1,16 +1,26 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by T-067
+Last updated: 2026-11-15 by T-068
 
-> **NEXT STEP**: Human verifies T-067 (Compare cards v3.6 - list-style rows) with full-window 1920x1080 100% screenshots. Screenshots needed: Compare Demo results (verifying calm list-style rows, faint 1px hairlines, full-height card fill with no dead band under Recall, 24px right-aligned sans values, 6px latency bar on shared scale, no distance bar, full-width rank strip with real k and N / K count, Brute Force reference text); a HNSW mismatch cell with hover tooltip; Demo empty (0 vectors); Docs results; Docs empty; Options popover open; both dropdowns open; one at 125% zoom. After human verifies T-067: next tab is Settings (T-068, full-width rows mockup), then Explore. Next free ADR is ADR-062.
+> **NEXT STEP**: Human verifies T-068 (Compare compact content-sized cards) with full-window 1920x1080 100% screenshots. Screenshots needed: Compare Demo results (verifying compact 490px cards, tight rows <= 130px, legend directly under cards with ~20px gap, empty space below); a HNSW mismatch cell with hover tooltip; Demo empty (0 vectors); Docs results; Docs empty; Options popover open; both dropdowns open; one at 125% zoom. After human verifies T-068: next tab is Settings (T-069, full-width rows mockup), then Explore. Next free ADR is ADR-063.
 >
 > **NEEDED FROM THE HUMAN**: (1) full-window 1920x1080 100% screenshots: Compare Demo results, Docs results, Options popover open, both dropdowns open, one at 125% zoom; (2) terminal verification lines (`git log --oneline -5`, `git status -sb`, `.\build\vectordb_tests.exe`, `powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1`, CSS counts).
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
 - **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066). Total registered browser unit tests remain **141** in code; all 54 compare tests pass.
-- **Git State after T-067**: Commits `d679efe` (T-067 A), `5d70543` (T-067 B), and docs sync commit.
-- **Compare Visual Status**: Rebuilt under ADR-061 (T-067) from human-approved mockup layout (list-style rows with 1px faint hairlines, vertically centered content in stretched rows filling full height with no bottom band, 24px right-aligned sans values, no distance bar, full-width real-k rank strip). Visual verification pending. Compare empty-state keeps T-063 design.
-- **Workflow & Next Tab**: Next tab in workflow is Settings (T-068 rows layout from approved mockup), then Explore. Next free ADR is ADR-062.
+- **Git State after T-068**: Commits `6b0d979` (`T-068: Compare compact content-sized cards`), and docs sync commit.
+- **Compare Visual Status**: Rebuilt under ADR-062 (T-068) to be compact and content-sized (~490px tall at 1920x1080: 72px / 130px / 84px / 118px / 86px), removing height stretching and 150px rows; legend sits directly under cards with 20px gap; empty space below accepted; registered browser unit tests remain 141 (54 in `test_compare.js`). Visual verification pending. Compare empty-state keeps T-063 design.
+- **Workflow & Next Tab**: Next tab in workflow is Settings (T-069 rows layout from approved mockup), then Explore. Next free ADR is ADR-063.
+
+## T-068 summary (ADR-062; supersedes ADR-061 card sizing)
+
+- **Height & Proportions**: Replaced flex-1 and height-100% stretching with compact, content-sized cards (~490px total height, well within the 480-540px range) matching mockup `15-compare-rows.png`.
+- **CSS Grid Row Template**: Locked `.compare-card` to `grid-template-rows: 72px 130px 84px 118px 86px;` matching mockup proportions (Header ~15%, Median latency ~27%, Distance computations ~17%, Top-k rank match ~24%, Recall ~18%). All rows are <= 130px (reversing earlier 150px stretched rows).
+- **Layout Alignment**: All 3 cards share the identical row template, guaranteeing 0.0px variance across all row tops (Header y=0, Latency y=72, Distance y=202, Rank y=286, Recall y=404).
+- **Stack & Container**: Removed `flex: 1` from `.compare-results-stack` and `.compare-cards-container` (`align-items: start;`), removing vertical stretching of cards to full viewport height.
+- **Legend Placement**: Legend line pinned directly below the cards with a 20px gap (`margin-top: var(--space-5);`); dark empty space below the legend is intentionally accepted per human decision.
+- **Responsive**: Stacks to 1 column below 1100px with the same 490px content height per card.
+- **Git**: commit `6b0d979` (`T-068: Compare compact content-sized cards`), docs commit.
 
 ## T-067 summary (ADR-061; supersedes ADR-059 and ADR-060)
 
@@ -117,9 +127,9 @@ Task T-064 executed the Compare tab redesign v3.3 (single "Algorithm lanes" pane
 
 ### Current Status by Tab (2026-11-15):
 - **Ask**: COMPLETE & HUMAN-VERIFIED (T-057, T-058, T-059, T-060, T-061). Drawer re-center, collapsed-by-default glass-box, 3 tabs (Sources, Latency, Algorithms) with equal fixed height (`--glassbox-tab-h: 196px`), smooth animation confirmed by human ("satisfied now with the work" after T-061).
-- **Compare**: COMPLETE (T-064, ADR-058). Single Algorithm lanes panel, 5-column grid, rank strips with hover/focus tooltips, equal-height lanes. Awaiting human screenshots (Demo results, Demo empty, Docs results, full window 100% zoom) and /tests.html verification.
-- **Explore**: NEXT per ADR-050. Needs human screenshots of current Explore tab (empty and populated) to write ChatGPT image prompt.
-- **HNSW, Settings**: Next in defined order after Explore.
+- **Compare**: COMPLETE (T-068, ADR-062). Compact content-sized cards (490px tall: 72px / 130px / 84px / 118px / 86px), locked CSS Grid rows, aligned across cards, legend directly below with 20px gap. Awaiting human screenshots (Demo results, Demo empty, Docs results, full window 100% zoom) and /tests.html verification.
+- **Settings**: NEXT (T-069, full-width rows mockup).
+- **Explore, HNSW**: Next in defined order after Settings.
 
 ### Human-Confirmed on 2026-11-15 (Terminal after T-061):
 - HEAD: `60d2123` (`docs: T-061 sync`), preceded by `19b2276`, `9123a14`, `0cf2d47`, `fb0bf01`.
