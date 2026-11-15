@@ -1,10 +1,10 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by T-063
+Last updated: 2026-11-15 by SYNC-010
 
-> **NEXT STEP**: Review the REPORT FOR BRAIN for T-063, verify Compare visually by human screenshots, then proceed to Explore tab redesign (T-064) per ADR-050.
+> **NEXT STEP**: Human verifies T-063 (Compare) and sends: /tests.html count; full-window 1920x1080 100% screenshots of Compare Demo results, Demo empty (0 vectors), Docs results, Docs empty, Options popover open, both dropdowns open, one at 125% zoom. Brain reviews them (ISS-057 gap and right-edge clipping first). Then next tab = Explore: the human works in the Design Chat (needs screenshots of the current Explore, empty and populated) and brings the FINAL SPEC plus approved mockup names (planned 12-explore-results.png, 13-explore-empty.png); Brain then writes ONE builder task. Do not write the Explore task before the FINAL SPEC.
 >
-> **NEEDED FROM THE HUMAN**: (1) run verify commands in Antigravity and review REPORT FOR BRAIN; (2) terminal lines: git log --oneline -4, git status -sb, last 3 lines of .\build\vectordb_tests.exe, /tests.html count; (3) screenshots, full window 100% zoom: Compare results (Demo), Compare empty (Demo), one Docs-mode screenshot; (4) save the two approved ChatGPT Compare mockups into docs/mockups/ as 08-compare-results.png and 09-compare-empty.png.
+> **NEEDED FROM THE HUMAN**: (1) /tests.html count; (2) full-window 1920x1080 100% screenshots of Compare Demo results, Demo empty (0 vectors), Docs results, Docs empty, Options popover open, both dropdowns open, one at 125% zoom; (3) save approved mockups as docs/mockups/10-compare-results-v2.png and 11-compare-empty-v2.png; (4) Explore design work in the Design Chat (send screenshots of current Explore tab).
 
 ## T-063 summary (Brain wrote it; supersedes T-062 layout per ADR-057)
 
@@ -12,7 +12,7 @@ Last updated: 2026-11-15 by T-063
 - **Lanes spec**: 3 lanes (Brute Force taupe `#9c8269`, KD-Tree moss `#708a78`, HNSW amber `#d9a441`) with 4-column shared CSS grid. Median latency 6px pill bar on shared scale with min-max range text in µs; distance computations 6px pill bar on shared linear scale (`computeBarScale`, replaces dot matrix); top-k recall squares for real $k$ (10x10px, 4px gap, filled in alg color, unfilled faint); muted legend line.
 - **Top-k ground truth diff spec**: collapsed design (`buildRankDiff`, replaces 10-column matrix). Per non-brute algorithm (KD-Tree, HNSW): header with colored dot, label, dot separator, "N of K same rank". If N=K, small stroke-only muted-moss check glyph and no chips. If mismatches exist, compact pill chips with muted amber dot ("Rank R: expected #GT, got #ID" or "got —" if missing) with mono IDs. Bottom muted note.
 - **Rules**: one primary amber button per view in every state (when collection has 0 items, benchmark buttons disabled, initial-run button hidden); zero box-shadows; zero hex outside colors.js; 28px main padding applied via tab-scoped margin/padding compensation (ISS-057 resolved); real data only.
-- **Git**: commit A (`96c2495`), commit B (`63b96f4`), docs commit.
+- **Git**: commit A (`96c2495`), commit B (`63b96f4`), docs commit (`9e36e5a`).
 
 ## 1. Current Status
 
@@ -352,9 +352,9 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
   - `ui-redesign`: Base v2 platform + T-039 docs polish.
   - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
   - `ui-quiet-studio`: Quiet Studio branch through T-054 and SYNC-005.
-  - `ui-redesign-v3`: Active branch containing T-055, T-055b, T-055c, T-056, T-057 (human-verified), T-058, T-059, T-060, T-061, T-062, and T-063.
+  - `ui-redesign-v3`: Active branch containing T-055, T-055b, T-055c, T-056, T-057 (human-verified), T-058, T-059, T-060, T-061, T-062 (superseded), and T-063.
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
-- **Tracking Status**: Local branch `ui-redesign-v3` without upstream tracking (commits unpushed per protocol; nothing pushed to origin).
+- **Tracking Status**: Local branch `ui-redesign-v3`, HEAD `9e36e5a` before SYNC-010 commit, without upstream tracking (commits unpushed per protocol; nothing pushed to origin).
 - **Working Tree**: Clean tracked files; only untracked test logs in `results/logs/`.
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
@@ -362,13 +362,14 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ## 5. Pending Human Actions
 
-1. **Verify Compare tab by screenshots**: Take screenshots of Compare tab (results Demo, empty Demo, Docs mode results/empty, 100% and 125% zoom, full window) to visually verify T-062.
-2. **Send Explore tab screenshots**: Take screenshots of current Explore tab (empty state and populated state, full browser window, 100% zoom) for the upcoming Explore redesign task.
-3. **Delete duplicate document**: Delete one of the two duplicate "VectorDB Intro" documents in the Documents drawer (causes duplicate Chunk rows in Sources).
-4. **Decide glass-box text size**: Decide whether to raise text size of glass-box strip title and tabs (Brain proposed strip title 14px, tabs 14px, chunk subtitle and footer buttons 13px; human has NOT decided; do not start without instruction).
-5. **License copyright name**: Fill `<YOUR NAME>` placeholder in `LICENSE`.
-6. **Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
-7. **No merge and no push**: Do NOT merge `ui-redesign-v3` into `main` and do NOT push to remote origin until approved.
+1. **Verify Compare tab by screenshots**: Take full-window 1920x1080 100% screenshots of Compare tab (Demo results, Demo empty with 0 vectors, Docs results, Docs empty, Options popover open, both dropdowns open, 125% zoom) to visually verify T-063.
+2. **Explore design work in Design Chat**: Work with the separate Design Chat (Design Director) on Explore image prompts and review, providing current Explore screenshots (empty and populated) to get the FINAL SPEC and approved mockup names (planned `12-explore-results.png`, `13-explore-empty.png`).
+3. **Save approved Compare mockups**: Save approved mockups as `docs/mockups/10-compare-results-v2.png` and `11-compare-empty-v2.png` (08 and 09 are obsolete).
+4. **Delete duplicate document**: Delete one of the two duplicate "VectorDB Intro" documents in the Documents drawer (causes duplicate Chunk rows in Sources).
+5. **Decide glass-box text size**: Decide whether to raise text size of glass-box strip title and tabs (Brain proposed strip title 14px, tabs 14px, chunk subtitle and footer buttons 13px; human has NOT decided; do not start without instruction).
+6. **License copyright name**: Fill `<YOUR NAME>` placeholder in `LICENSE`.
+7. **Decide Linux/macOS support tier & release timing**: Decide official support tier for Linux/macOS (ISS-029) and timing of public GitHub release.
+8. **No merge and no push**: Do NOT merge `ui-redesign-v3` into `main` and do NOT push to remote origin until approved.
 
 ---
 
@@ -377,11 +378,13 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 ### Open Follow-ups
 - **Redesign v3.1 per-tab rollout (ADR-050)**:
   - Ask tab: COMPLETE & HUMAN-VERIFIED (T-057 through T-061: drawer re-center, collapsed-by-default glass-box, 3 tabs with equal fixed height `--glassbox-tab-h: 196px`, 200ms smooth animation, `/tests.html` 127/127; human said "satisfied now with the work" after T-061).
-  - Compare tab: COMPLETE (T-062; visual verification pending). Rebuilt with run bar + lane sheet + rank matrix, `createDropdown`, 2px progress line, empty state, strictly <= 1 primary button per view, 107 browser unit tests.
-  - Explore tab: NEXT per ADR-050. Pending human screenshots of current Explore tab.
+  - Compare tab: COMPLETE (T-063, ADR-057; visual verification pending, T-062 layout rejected). Rebuilt with soft lanes with pill bars + collapsed top-k rank diff, raised control row with Options popover, 2px progress line, empty state, strictly <= 1 primary button per view. Browser test count unverified pending human run on `/tests.html`.
+  - Explore tab: NEXT per ADR-050. Pending human screenshots of current Explore tab and FINAL SPEC from Design Chat.
   - HNSW tab: PENDING (redesign v3.1 from human-approved mockup).
   - Settings tab: PENDING (redesign v3.1 from human-approved mockup).
 - **Pending Human Screenshots (Not Yet Seen)**:
+  - All T-063 visual states (Demo results, Demo empty with 0 vectors, Docs results, Docs empty, Options popover open, both dropdowns open, 125% zoom).
+  - ISS-057 visual result (sidebar gap and right-edge clipping on full-window 1920x1080 100%).
   - Open algorithm dropdown popup visual.
   - Sidebar collapsed 56px rail.
   - `[n]` citation pill click expanding the panel and scrolling to the card.
@@ -405,10 +408,9 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ## 7. Recommended Next Step
 
-1. **Human verifies Compare tab by screenshots** (results Demo, empty Demo, Docs mode results/empty, 100% and 125% zoom, full window).
-2. **Human sends screenshots of current Explore tab** (empty and populated).
-3. **Brain writes ChatGPT image prompt for Explore** (matching unified design system: 3 dark surfaces `#09090b`, `#121215`, `#18181c`, amber accent `#d9a441`, IBM Plex Sans, radii 6/10/14, 28px main padding, real PCA 2D scatter and nearest neighbours list cards).
-4. **Human generates Explore mockup**, Brain reviews it against real controls, then writes ONE builder task for Explore redesign.
+1. **Human verifies T-063 (Compare)** and sends: `/tests.html` count; full-window 1920x1080 100% screenshots of Compare Demo results, Demo empty (0 vectors), Docs results, Docs empty, Options popover open, both dropdowns open, one at 125% zoom. Brain reviews them (ISS-057 gap and right-edge clipping first).
+2. **Next tab = Explore**: the human works in the separate Design Chat (needs screenshots of the current Explore, empty and populated) and brings the FINAL SPEC plus approved mockup names (planned `12-explore-results.png`, `13-explore-empty.png`).
+3. **Brain writes ONE builder task**: Brain turns the FINAL SPEC into one builder task. Brain must NOT write the Explore task before it has the FINAL SPEC from the Design Chat.
 
 ---
 

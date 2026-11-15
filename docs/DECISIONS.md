@@ -1,6 +1,6 @@
 # Architectural Decision Records (ADR)
 
-Last updated: 2026-11-15 by T-063
+Last updated: 2026-11-15 by SYNC-010
 
 | ID | Date | Decision | Reason | Alternatives Rejected | Evidence Tag |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -68,12 +68,14 @@ Last updated: 2026-11-15 by T-063
 ### Process & Collaboration Notes (2026-11-14 / 2026-11-15)
 
 - **Per-Tab Workflow Status (ADR-050)**: Ask tab is complete, human-approved, and human-verified. Compare tab rebuilt under ADR-057 (T-063) with soft lanes and collapsed diff; visual verification by human screenshots pending. Next tab in defined order: Explore, then HNSW, Settings.
+- **Design Chat Split (2026-11-15)**: Mockup prompts and mockup reviews move to a separate Claude chat (Design Director). Brain stays for Antigravity tasks and report reviews. Reason: the single chat was getting long and token-expensive. The Design Chat holds the design system, the real-controls rule, the known ChatGPT habits and the approved Compare design as reference.
+- **Compare Design History**: T-062 layout (lane sheet with dot matrix + 10-column rank matrix) was visually rejected by the human on 2026-11-15 (spreadsheet feel, bold IDs, floating checks, dead space, content touching the sidebar). Two further ChatGPT directions were rejected (hero-sentence version too designed; brutalist feel). The approved direction is the soft version: slim control row, 'Algorithm lanes' with pill bars and recall squares, collapsed 'Top-k ground truth diff' with mismatch chips, both panels filling the height (ADR-057, implemented in T-063). Approved mockups are saved by the human as `docs/mockups/10-compare-results-v2.png` and `11-compare-empty-v2.png`; 08 and 09 are obsolete.
 - **Technical Design Delegation**: Human delegated technical design details to the builder; Brain gives outcome-level briefs and the builder decides the how (human instruction).
 - **Process Lesson (Rebuild vs Patching)**: Patching CSS on top of old rules (T-040) failed visually; structural HTML changes and a clean CSS rebuild (T-041/Quiet Studio) worked far better.
 - **AI Mockup Usage & Dual Mockup Rule**: Human uses ChatGPT / Gemini image generation for mockups (layout and feel only, never copy text), via a second Claude that writes the prompt, and passes the chosen image. The T-049 mockup showed only the empty state; always obtain BOTH empty-state and results mockups before implementation so builder does not invent results layouts.
 - **Builder Reports vs Visual Reality**: Builder reports claimed "zero deviations" three times (T-046, T-047, T-049) while human screenshots showed real deviations. Judge UI strictly by human screenshots at 100% browser zoom; builder claims are never proof.
 - **Communication Style**: Human writes Hinglish (Hindi in Roman letters), Brain replies in short Hinglish with one question at a time.
-- **Compare Status**: T-062 rebuilt Compare tab with run bar + lane sheet + rank matrix per ADR-056. Visual verification by human screenshots pending. Do not merge until human approves new design by screenshot.
+- **Compare Status**: T-063 rebuilt Compare tab with soft lanes with pill bars + collapsed top-k rank diff per ADR-057. Visual verification by human screenshots pending. Do not merge until human approves new design by screenshot.
 
 
 
