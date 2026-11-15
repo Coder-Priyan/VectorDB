@@ -8,7 +8,6 @@
 import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js";
 import { el, formatBytes, createDropdown } from "./ui.js";
 import { createIcon } from "./icons.js";
-import { getSettingsNextSectionIndex } from "./settings_helpers.js";
 
 export function initSettingsTab() {
   const healthBox = document.getElementById("settings-health-box");
@@ -24,66 +23,6 @@ export function initSettingsTab() {
   const ollamaStatusTextEl = document.getElementById("settings-ollama-status-text");
   const modelsChipsEl = document.getElementById("settings-models-chips");
   const metricDropdownWrap = document.getElementById("demo-metric-dropdown-wrap");
-
-  // Settings Two-Pane Navigation (5 sections)
-  const SECTIONS = [
-    { id: "server", tabId: "settings-tab-server", panelId: "settings-section-server" },
-    { id: "collection", tabId: "settings-tab-collection", panelId: "settings-section-collection" },
-    { id: "storage", tabId: "settings-tab-storage", panelId: "settings-section-storage" },
-    { id: "data", tabId: "settings-tab-data", panelId: "settings-section-data" },
-    { id: "danger", tabId: "settings-tab-danger", panelId: "settings-section-danger" }
-  ];
-
-  let currentSectionIndex = 0;
-
-  function switchSection(index) {
-    if (index < 0 || index >= SECTIONS.length) return;
-    currentSectionIndex = index;
-
-    SECTIONS.forEach((sec, idx) => {
-      const tabEl = document.getElementById(sec.tabId);
-      const panelEl = document.getElementById(sec.panelId);
-      const isActive = idx === index;
-
-      if (tabEl) {
-        if (isActive) {
-          tabEl.classList.add("active");
-          tabEl.setAttribute("aria-selected", "true");
-          tabEl.setAttribute("tabindex", "0");
-          tabEl.focus();
-        } else {
-          tabEl.classList.remove("active");
-          tabEl.setAttribute("aria-selected", "false");
-          tabEl.setAttribute("tabindex", "-1");
-        }
-      }
-
-      if (panelEl) {
-        if (isActive) {
-          panelEl.classList.remove("hidden");
-        } else {
-          panelEl.classList.add("hidden");
-        }
-      }
-    });
-  }
-
-  SECTIONS.forEach((sec, idx) => {
-    const tabEl = document.getElementById(sec.tabId);
-    if (!tabEl) return;
-
-    tabEl.addEventListener("click", () => {
-      switchSection(idx);
-    });
-
-    tabEl.addEventListener("keydown", (e) => {
-      const nextIdx = getSettingsNextSectionIndex(currentSectionIndex, SECTIONS.length, e.key);
-      if (nextIdx !== currentSectionIndex) {
-        e.preventDefault();
-        switchSection(nextIdx);
-      }
-    });
-  });
 
   // Mount custom dark dropdown for Metric selection
   let metricDropdown = null;
