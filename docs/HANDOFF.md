@@ -1,17 +1,20 @@
 # Project Handoff
 
-Last updated: 2026-11-15 by T-070
+Last updated: 2026-11-15 by SYNC-012
 
-> **NEXT STEP**: Human verifies T-070 (Settings full-width rows layout) and T-069 (Compare medium cards) with full-window 1920x1080 100% screenshots. Screenshots needed: Settings view (verifying left-aligned header, Server status panel with 8-metric strip and real Ollama model chips, 6 full-width rows, + Insert as the single primary button, custom Metric dropdown, and danger zone); two-step confirms (Clear Chat History, Reset Demo Collection); Settings at 125% zoom; responsive view under 1100px. Next tab is Explore (needs FINAL SPEC and mockups 12/13 from the Design Chat). Next free ADR is ADR-065.
+> **NEXT STEP**: Human brings his own new design for Compare and Settings (mockups or FINAL SPEC) in the next Brain chat. Brain must review the design against real controls and compare mockup size at 1920px scale BEFORE writing any task. The human must attach the mockup image to the builder prompt every time. After that, Explore (needs FINAL SPEC and mockups 12-explore-results.png and 13-explore-empty.png from the Design Chat), then HNSW. Next free ADR is ADR-065. Next free ISS is ISS-072. Next task number is T-071.
 >
-> **NEEDED FROM THE HUMAN**: (1) full-window 1920x1080 100% screenshots: Settings view, two-step confirms, 125% zoom, Compare Demo results, Docs results; (2) terminal verification lines (`git log --oneline -5`, `git status -sb`, `.\build\vectordb_tests.exe`, `powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1`, CSS counts).
+> **NEEDED FROM THE HUMAN**: (1) Bring new design / mockups for Compare and Settings in the next Brain chat; (2) Always attach the mockup image to the builder prompt.
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
-- **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066). Total registered browser unit tests remain **141** in code; all 54 compare tests pass.
-- **Git State after T-070**: Commit `0a804dc` (`T-070 A: Settings full-width rows layout`), `953421a` (`T-070 B: settings.js render, cleanup, tests`), and docs sync commit.
-- **Settings Visual Status**: Rebuilt under ADR-064 (T-070) into calm full-width rows (label left, controls right) with left-aligned header, Server status panel with real 8-metric strip and real Ollama model chips, single primary button (+ Insert), custom Metric dropdown, and preserved two-step confirms. Visual verification pending.
-- **Compare Visual Status**: Rebuilt under ADR-063 (T-069) to medium content-sized cards (580px tall at 1920x1080: 80px / 150px / 105px / 140px / 105px) with 17px secondary labels, 24px tabular sans values, 22px header, 80% opacity rank cells, larger 76px raised control row with 14px labels and 40px primary button; legend directly under cards with 24px gap; registered browser unit tests remain 141 (54 in `test_compare.js`). Visual verification pending. Compare empty-state keeps T-063 design.
-- **Workflow & Next Tab**: Next tab in workflow is Explore (needs FINAL SPEC and mockups 12/13 from Design Chat). Next free ADR is ADR-065.
+- **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Total registered browser unit tests remain **141** in code; all 54 compare tests pass.
+- **Git State**: Local branch `ui-redesign-v3`, clean working tree (only untracked `results/logs/`), commits unpushed per protocol.
+- **Current UI State**:
+  - Ask tab: COMPLETE and human-verified.
+  - Compare tab: T-069 implemented (ADR-063, 580px medium cards), human not satisfied (ISS-070).
+  - Settings tab: T-070 implemented (ADR-064, full-width rows), human not satisfied (ISS-070, ISS-071).
+  - Explore, HNSW tabs: not redesigned yet in v3.1.
+- **Workflow & Next Tab**: Next tab in workflow is Compare / Settings redesign from human's new design in next Brain chat, then Explore (needs FINAL SPEC and mockups 12/13 from Design Chat). Next free ADR is ADR-065. Next free ISS is ISS-072. Next task is T-071.
 
 ## T-070 summary (ADR-064; supersedes ADR-041 & Settings layout of ADR-048)
 
@@ -449,9 +452,9 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
   - `ui-redesign`: Base v2 platform + T-039 docs polish.
   - `ui-polish-2026`: T-040 experimental redesign (visually rejected by human due to line noise and box-shadows).
   - `ui-quiet-studio`: Quiet Studio branch through T-054 and SYNC-005.
-  - `ui-redesign-v3`: Active branch containing T-055, T-055b, T-055c, T-056, T-057 (human-verified), T-058, T-059, T-060, T-061, T-062 (superseded), and T-063.
+  - `ui-redesign-v3`: Active branch containing T-055 through T-070 and SYNC-012.
   - `backup-before-v2`: Safety backup prior to v2 unfreeze, confirmed intact.
-- **Tracking Status**: Local branch `ui-redesign-v3`, HEAD `9e36e5a` before SYNC-010 commit, without upstream tracking (commits unpushed per protocol; nothing pushed to origin).
+- **Tracking Status**: Local branch `ui-redesign-v3`, without upstream tracking (commits unpushed per protocol; nothing pushed to origin).
 - **Working Tree**: Clean tracked files; only untracked test logs in `results/logs/`.
 - Note: Git state in docs can go stale after pushes; always trust human's `git status -sb`.
 
@@ -459,9 +462,9 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ## 5. Pending Human Actions
 
-1. **Verify Compare tab by screenshots**: Take full-window 1920x1080 100% screenshots of Compare tab (Demo results, Demo empty with 0 vectors, Docs results, Docs empty, Options popover open, both dropdowns open, 125% zoom) to visually verify T-063.
-2. **Explore design work in Design Chat**: Work with the separate Design Chat (Design Director) on Explore image prompts and review, providing current Explore screenshots (empty and populated) to get the FINAL SPEC and approved mockup names (planned `12-explore-results.png`, `13-explore-empty.png`).
-3. **Save approved Compare mockups**: Save approved mockups as `docs/mockups/10-compare-results-v2.png` and `11-compare-empty-v2.png` (08 and 09 are obsolete).
+1. **Bring new design / mockups for Compare and Settings in the next Brain chat**: Provide mockups or specifications for Compare and Settings (reversing prior disliked iterations T-064..T-069 for Compare, T-070 for Settings).
+2. **Always attach the mockup image to the builder prompt**: Whenever writing a task for UI implementation, include the image directly in the prompt.
+3. **Explore design work in Design Chat**: Work with the separate Design Chat (Design Director) on Explore image prompts and review, providing current Explore screenshots (empty and populated) to get the FINAL SPEC and approved mockup names (`12-explore-results.png`, `13-explore-empty.png`).
 4. **Delete duplicate document**: Delete one of the two duplicate "VectorDB Intro" documents in the Documents drawer (causes duplicate Chunk rows in Sources).
 5. **Decide glass-box text size**: Decide whether to raise text size of glass-box strip title and tabs (Brain proposed strip title 14px, tabs 14px, chunk subtitle and footer buttons 13px; human has NOT decided; do not start without instruction).
 6. **License copyright name**: Fill `<YOUR NAME>` placeholder in `LICENSE`.
@@ -475,13 +478,13 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 ### Open Follow-ups
 - **Redesign v3.1 per-tab rollout (ADR-050)**:
   - Ask tab: COMPLETE & HUMAN-VERIFIED (T-057 through T-061: drawer re-center, collapsed-by-default glass-box, 3 tabs with equal fixed height `--glassbox-tab-h: 196px`, 200ms smooth animation, `/tests.html` 127/127; human said "satisfied now with the work" after T-061).
-  - Compare tab: COMPLETE (T-063, ADR-057; visual verification pending, T-062 layout rejected). Rebuilt with soft lanes with pill bars + collapsed top-k rank diff, raised control row with Options popover, 2px progress line, empty state, strictly <= 1 primary button per view. Browser test count unverified pending human run on `/tests.html`.
-  - Explore tab: NEXT per ADR-050. Pending human screenshots of current Explore tab and FINAL SPEC from Design Chat.
+  - Compare tab: T-069 implemented (ADR-063, 580px medium cards), human saw and not satisfied (ISS-070); pending human's new design in next Brain chat.
+  - Settings tab: T-070 implemented (ADR-064, full-width rows layout), human saw and not satisfied (ISS-070, ISS-071); pending human's new design in next Brain chat.
+  - Explore tab: NEXT after Compare/Settings design resolution per ADR-050. Pending human screenshots of current Explore tab and FINAL SPEC from Design Chat.
   - HNSW tab: PENDING (redesign v3.1 from human-approved mockup).
-  - Settings tab: PENDING (redesign v3.1 from human-approved mockup).
 - **Pending Human Screenshots (Not Yet Seen)**:
-  - All T-063 visual states (Demo results, Demo empty with 0 vectors, Docs results, Docs empty, Options popover open, both dropdowns open, 125% zoom).
-  - ISS-057 visual result (sidebar gap and right-edge clipping on full-window 1920x1080 100%).
+  - Compare Docs results, Compare Docs empty, Compare Options popover open, Compare dropdowns open, Compare at 125% zoom.
+  - ISS-057 visual result in Docs mode, empty states, and 125% zoom.
   - Open algorithm dropdown popup visual.
   - Sidebar collapsed 56px rail.
   - `[n]` citation pill click expanding the panel and scrolling to the card.
@@ -491,7 +494,7 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 - **Other Tab Items**:
   - Explore subtitle displays "document chunk" text on Demo Vectors (must depend on collection).
   - Explore empty state shows an active solid amber Random Query button that cannot work when empty (must be disabled).
-  - Settings title alignment differs from other tabs (verify).
+  - Settings title alignment and row styling (see ISS-071).
   - Ask "Compare algorithms" can show a cold-start KD-Tree outlier.
 - Optional C++ unit test for ISS-006 ingest rollback.
 
@@ -503,15 +506,7 @@ Open `http://127.0.0.1:8080` in any modern web browser. Automated browser unit t
 
 ---
 
-## 7. Recommended Next Step
-
-1. **Human verifies T-063 (Compare)** and sends: `/tests.html` count; full-window 1920x1080 100% screenshots of Compare Demo results, Demo empty (0 vectors), Docs results, Docs empty, Options popover open, both dropdowns open, one at 125% zoom. Brain reviews them (ISS-057 gap and right-edge clipping first).
-2. **Next tab = Explore**: the human works in the separate Design Chat (needs screenshots of the current Explore, empty and populated) and brings the FINAL SPEC plus approved mockup names (planned `12-explore-results.png`, `13-explore-empty.png`).
-3. **Brain writes ONE builder task**: Brain turns the FINAL SPEC into one builder task. Brain must NOT write the Explore task before it has the FINAL SPEC from the Design Chat.
-
----
-
-## 8. Important Warnings (Fragile Areas)
+## 7. Important Warnings (Fragile Areas)
 
 - **Zero-innerHTML rule**: Never introduce `innerHTML`, `outerHTML`, or `insertAdjacentHTML` in `web/js/`. Always verify using `powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1`.
 - **Strict POST Content-Type**: Every HTTP `POST` route requires header `Content-Type: application/json` (send `{}` for empty bodies); returns HTTP 415 otherwise.

@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-15 by T-070
+Last updated: 2026-11-15 by SYNC-012
 
 ## 1. Operating Model
 
@@ -189,25 +189,31 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 79. **Lesson (Compare Cards Compact Proportions vs Fill Height)**: For Compare the human prefers compact content-sized cards over cards that fill the full height; the earlier 'panels must FILL the full screen height' preference does not apply to Compare cards. Brain wrote 'fill full height' without checking the mockup proportions; compare the real result with the mockup size before approving.
 80. **Lesson (Mockup Proportions Factor & Compare Iterations)**: Compare took 5 rounds (T-064 to T-068) mainly because Brain's spec flipped (full height, compact, distance bar yes/no). Before writing a spec, compare mockup proportions at 1920px scale (factor mockup width to 1920) for type sizes and card height.
 81. **Lesson (Settings Full-Width Rows - T-070, ADR-064)**: Replaced cramped 3-column panel grid (which left ~250px dead space at bottom and had a centered title) with calm full-width rows (label left, controls right) and a left-aligned header matching other tabs. Server status panel features real 8-metric strip (Version, Dimension, Metric, M, efConstruction, efSearch, Vectors, Memory approx) and real Ollama model chips. Exactly one `.btn-primary` (+ Insert). All 22 original DOM IDs, two-step confirms, and live endpoints preserved.
+82. **Human Preference on Compare Cards (2026-11-15)**: Compare cards should be MEDIUM size (not very long like T-067 at 740px, not small like T-068 at 490px), content-sized (~560-600px), with an aesthetic type scale and a larger, aesthetic control row. The earlier 'panels must fill full height' preference does not apply to Compare cards.
+83. **Lesson (Attach Mockups to Builder Prompt - T-070 Settings)**: T-070 Settings was built WITHOUT the mockup attached (the human forgot to attach it; builder reported this honestly), so layout, input sizes and spacing differ from the approved mockup `VectorDB_Settings_Dashboard.png`. Always attach the mockup image to the builder prompt and confirm the builder saw it before execution.
+84. **Lesson (Builder Reporting Rigor Maintained)**: Builder reports must honestly state test runner exit codes and say 'not measured' when visual DOM bounding rects cannot be measured in a headless environment. T-069 and T-070 reports followed this strictly (reporting Node exit code 1 with 136/141 passed in Node stubs, 141 registered in code, and visual heights 'not measured').
+85. **Human-Confirmed on 2026-11-15 23:26 (Terminal & Screenshot after T-070)**: Human confirmed `/tests.html` 141/141 passed; HEAD `7352605` (`docs: T-070 sync`), preceded by `953421a` (T-070 B), `0a804dc` (T-070 A), `b7ee8da` (docs: T-069 sync), `386054b` (T-069), `3055786` (docs: T-068 sync); C++ hermetic suite 118/118 passed (529,813 assertions); web safety scanner 100% clean (28 files); `!important` count = 2; `box-shadow` count = 0; working tree has only untracked `results/logs/` files.
+86. **Browser Unit Test Count History**: 84 (P8/T-033) -> 88 (T-040) -> 99 (T-050/T-051) -> 105 (T-053) -> 113 (T-054) -> 114 (T-055c) -> 121 (T-058/T-059) -> 127 (T-060/T-061) -> 135 (T-063) -> 137 (T-064) -> 141 (T-065/T-066/T-067/T-068/T-069/T-070). Human-confirmed in real browser `/tests.html`: 141/141 on 2026-11-15 22:17 (after T-066), and 141/141 again at 23:26 (after T-070).
 
 ---
 
-## 7. Verification Status (as of 2026-11-15)
+## 7. Verification Status (as of 2026-11-15 23:26)
 
-- **Human-Confirmed on 2026-11-15 (Terminal & Browser after T-064)**:
-  - `/tests.html`: **137/137 passed** (human-confirmed 2026-11-15 20:56; builder claim 137 matched).
-  - Compare visual verification: pending human screenshots (Demo results, HNSW mismatch cell with hover tooltip, Demo empty 0 vectors, Docs results, Docs empty, Options popover open, both dropdowns open, 125% zoom).
-  - Git state after T-064 per builder report: HEAD `d8e4970` (`docs: T-064 sync`), preceded by `035eb9a` (T-064 B) and `467c0cb` (T-064 A); the human has not yet re-run git status/log/C++ tests/scanner after T-064 (those lines in the T-064 report are builder-reported). Builder ran git reset/amend during T-064 (nothing pushed).
-
-- **Antigravity Terminal Verification after T-064 (Builder-Reported)**:
-  - Commits: `467c0cb` (T-064 A), `035eb9a` (T-064 B).
+- **Human-Confirmed on 2026-11-15 23:26 (Terminal & Browser after T-070)**:
+  - `/tests.html`: **141/141 passed** (human-confirmed at 22:17 after T-066 and re-confirmed at 23:26 after T-070).
+  - Git state: HEAD `7352605` (`docs: T-070 sync`), preceded by `953421a` (T-070 B), `0a804dc` (T-070 A), `b7ee8da` (docs: T-069 sync), `386054b` (T-069).
   - C++ hermetic suite: 118/118 passed (529,813 assertions).
   - Web safety automated scanner: 28 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
-  - CSS Quality metrics: `!important` count = 2 (<= 3), `box-shadow` count = 0, zero hex color literals in `web/js` outside `colors.js`.
+  - CSS Quality metrics: `!important` count = 2 (<= 2), `box-shadow` count = 0, zero hex color literals in `web/js` outside `colors.js`.
   - Git engine check: `git diff --stat ui-quiet-studio -- src include tests` strictly empty.
-  - Helper cleanup: `buildRankDiff` completely removed from `web/js/` (zero matches).
-  - Browser unit tests registered in code: 137 (50 in `test_compare.js`).
-  - Working tree: clean tracked files; only untracked `results/logs/` files (no `scratch/`).
+  - Working tree: clean tracked files; only untracked `results/logs/` files.
+  - Human review of T-069 (Compare) and T-070 (Settings) via 1920x1080 100% screenshots at 23:26: neither layout is liked yet (Compare 'poora look pasand nahi', Settings 'maja nahi aaya'). Human will provide his own design in the next Brain chat.
+
+- **Antigravity Terminal Verification after T-070 (Builder-Reported)**:
+  - Commits: `0a804dc` (T-070 A), `953421a` (T-070 B), `7352605` (docs: T-070 sync).
+  - Registered browser unit tests in code: 141 (54 in `test_compare.js`). Node runner exited code 1 (136/141 passed in Node stubs, DOM element creation stubs missing).
+  - Single primary button rule: `#demo-insert-random-btn` is the only `.btn-primary` on Settings.
+  - All 22 original Settings DOM IDs and both two-step confirms preserved.
 
 - **Human-Confirmed on 2026-11-15 (Terminal after T-063)**:
   - HEAD: `9e36e5a` (`docs: T-063 sync`), preceded by `63b96f4` (T-063 B) and `96c2495` (T-063 A), then `9e0bb7f` (docs: SYNC-009).
