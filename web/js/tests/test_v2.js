@@ -9,7 +9,7 @@ import { describe, assert, assertEqual } from "./framework.js";
 import { createIcon } from "../icons.js";
 import { EXPLAINERS } from "../learn_content.js";
 import { parseCitations, getDropdownNextIndex, createDropdown } from "../ui.js";
-import { formatBenchmarkRows, formatTraceSummary, formatPipelineLatency } from "../ask_helpers.js";
+import { formatBenchmarkRows, formatTraceSummary, formatPipelineLatency, getTabNextIndex } from "../ask_helpers.js";
 
 export function registerV2Tests() {
   describe("v2: SVG Icon Registry", (test) => {
@@ -361,6 +361,46 @@ export function registerV2Tests() {
       assertEqual(changeCount, 2, "setValue fires onChange");
       assertEqual(dd.getValue(), "brute");
       assertEqual(hiddenInput.value, "brute");
+    });
+  });
+
+  describe("T-060: Ask Glass-Box Tab Keyboard Navigation (getTabNextIndex)", (test) => {
+    test("ArrowRight and ArrowDown advance to next tab and wrap at end", () => {
+      assertEqual(getTabNextIndex(0, 3, "ArrowRight"), 1);
+      assertEqual(getTabNextIndex(1, 3, "ArrowRight"), 2);
+      assertEqual(getTabNextIndex(2, 3, "ArrowRight"), 0, "Wraps from end to 0");
+      assertEqual(getTabNextIndex(0, 3, "ArrowDown"), 1);
+      assertEqual(getTabNextIndex(2, 3, "ArrowDown"), 0, "ArrowDown wraps to 0");
+    });
+
+    test("ArrowLeft and ArrowUp retreat to previous tab and wrap at start", () => {
+      assertEqual(getTabNextIndex(2, 3, "ArrowLeft"), 1);
+      assertEqual(getTabNextIndex(1, 3, "ArrowLeft"), 0);
+      assertEqual(getTabNextIndex(0, 3, "ArrowLeft"), 2, "Wraps from 0 to last index");
+      assertEqual(getTabNextIndex(2, 3, "ArrowUp"), 1);
+      assertEqual(getTabNextIndex(0, 3, "ArrowUp"), 2, "ArrowUp wraps to last index");
+    });
+
+    test("Home key returns first tab index 0", () => {
+      assertEqual(getTabNextIndex(0, 3, "Home"), 0);
+      assertEqual(getTabNextIndex(2, 3, "Home"), 0);
+    });
+
+    test("End key returns last tab index count - 1", () => {
+      assertEqual(getTabNextIndex(0, 3, "End"), 2);
+      assertEqual(getTabNextIndex(1, 3, "End"), 2);
+      assertEqual(getTabNextIndex(2, 3, "End"), 2);
+    });
+
+    test("Unknown key returns current index unchanged", () => {
+      assertEqual(getTabNextIndex(1, 3, "Tab"), 1);
+      assertEqual(getTabNextIndex(1, 3, "Enter"), 1);
+      assertEqual(getTabNextIndex(2, 3, "Escape"), 2);
+    });
+
+    test("count <= 0 returns -1 without throwing", () => {
+      assertEqual(getTabNextIndex(0, 0, "ArrowRight"), -1);
+      assertEqual(getTabNextIndex(0, -1, "Home"), -1);
     });
   });
 }
