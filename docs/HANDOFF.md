@@ -1,25 +1,58 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-073 sync
+Last updated: 2026-11-16 by T-075 sync
 
-> **NEXT STEP**: Human verifies T-073 (Redesign v4 Round 3 - Full-Project Visual & Viewport Alignment to Ask Tab Theme) in a real browser at 1920x1080 100% zoom across Explore, HNSW, Compare (Results view with benchmark completed, Empty state) and Settings (each of the 5 section panels: Server, Collection, Storage, Data and chats, Danger zone) and runs `/tests.html` (expect 152/152 passed); Brain reviews screenshots. Next free ADR is ADR-068. Next free ISS is ISS-074. Next task number is T-074.
+> **NEXT STEP**: Human verifies T-074 (Apple-Grade Renovation across Explore, HNSW, Compare, Settings) and T-075 (Compare 3-Card List Layout Matching Approved Mockup 15) in a real browser at 1920x1080 100% zoom across Explore, HNSW, Compare (Results view with benchmark completed, Empty state) and Settings (each of the 5 section panels: Server, Collection, Storage, Data and chats, Danger zone) and runs `/tests.html` (expect 156/156 passed); Brain reviews screenshots. Next free ADR is ADR-070. Next free ISS is ISS-076. Next task number is T-076.
 >
 > **NEEDED FROM THE HUMAN**: (1) Terminal verification on branch `ui-redesign-v4` (`git status -sb`, `git log --oneline -8`, `.\build\vectordb_tests.exe`, scanner, `/tests.html`); (2) Full-window 1920x1080 100% screenshots of Explore, HNSW, Compare, and Settings tabs.
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
-- **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Registered browser unit tests expanded to **152** in code (152/152 pass in test runner; human run at `/tests.html` pending).
+- **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Registered browser unit tests expanded to **156** in code (156/156 pass in test runner; human run at `/tests.html` pending).
 - **Git State**: Local branch `ui-redesign-v4`, clean working tree (only untracked `results/logs/`), commits unpushed per protocol.
 - **Current UI State**:
   - Ask tab: COMPLETE, human-approved, and human-verified (100% frozen).
-  - Compare tab: Centered 960px viewport (`.compare-viewport`), floating raised control row (64px height, `--bg-raised`, hairline border), and single-column card surfaces on `--bg-panel` with hairline borders (Headline, Latency race with 12px pill bars on shared scale, 4-column Detail Table, Footnote).
+  - Compare tab: 3-card list layout restored to approved mockup (`docs/mockups/15-compare-rows.png`), `#compare-cards-container` with 3 equal-width content-sized cards on `--bg-panel` with 14px radius, hairline borders, aligned rows (Header with dot + title + Baseline badge, Median latency with range and colored progress bar, Distance computations, Top-k rank match with 10 algorithm-colored square cells and count, Recall), and legend footnote with info circle icon.
   - Settings tab: Centered 1000px viewport (`.settings-viewport`), Two-Pane architecture (220px fixed left nav with hairline divider, right active section card on `--bg-panel` with hairline border, 28px 32px padding).
-  - Explore tab: Dedicated studio viewport (`.explore-viewport`), `--bg-panel` canvas frame with hairline border, elevated `--bg-raised` sidebar matching Ask docs drawer with hairline border, and pill chips with hairline borders.
-  - HNSW tab: Dedicated studio viewport (`.hnsw-viewport`), `--bg-panel` canvas frame with hairline border, elevated `--bg-raised` sidebar matching Ask docs drawer, player bar and stat tiles on `--bg-panel`, and bottom topology summary strip on `--bg-raised` with hairline border.
+  - Explore tab: Dedicated studio viewport (`.explore-viewport`), macOS Inspector-style sidebar, card-style neighbor rows with hover highlight, accent-tinted similarity match percentages, `--bg-panel` canvas frame with hairline border.
+  - HNSW tab: Dedicated studio viewport (`.hnsw-viewport`), segmented player transport cluster with ghost buttons, Apple stat tiles with uppercase labels and tabular numbers, bottom topology strip with 24px hairline dividers.
 - **Stale-Doc Watchlist**:
   - `docs/ARCHITECTURE.md`: Header reads "Last updated T-039"; directory tree predates v3/v4 design files.
-  - `docs/PROGRESS.md`: Feature table item 109 updated from 143 to 152 registered tests.
+  - `docs/PROGRESS.md`: Feature table item 109 updated to 156 registered tests.
   - `docs/DEMO_SCRIPT.md`: Steps 9-10 describe old Compare UI from v2/early v3.
-- **Workflow & Next Tab**: Next action is human screenshot verification of Explore, HNSW, Compare, and Settings on branch `ui-redesign-v4`. Next free ADR is ADR-068. Next free ISS is ISS-074. Next task is T-074.
+- **Workflow & Next Tab**: Next action is human screenshot verification of Explore, HNSW, Compare, and Settings on branch `ui-redesign-v4`. Next free ADR is ADR-070. Next free ISS is ISS-076. Next task is T-076.
+
+## T-075 summary (ADR-069; Compare 3-card list layout restored to approved mockup 15)
+
+- **Goal & Motivation**: Human uploaded `docs/mockups/15-compare-rows.png` (`media_1794762824941_c84003ad.jpg`) directly in chat. Compare tab rebuilt from single table/race layout into the approved 3-card layout with Apple-grade polish.
+- **Three Cards Architecture**:
+  - `#compare-cards-container`: 3 equal-width columns (`grid-template-columns: repeat(3, minmax(0, 1fr))`, collapses to 1 column below 1100px), `--bg-panel` (`#121215`), 14px radius, 1px hairline border, content-sized height (~480px, no empty vertical bands, no bottom gaps).
+  - Card Header: Algorithm dot (sand for Brute Force, emerald for KD-Tree, amber for HNSW) + 18.5px semibold title (`Brute Force`, `KD-Tree`, `HNSW`). Brute Force features subtle "Baseline" pill badge.
+  - Row 1: "Median latency" + "Range min - max µs" on left, tabular value on right, 6px algorithm-colored progress bar underneath.
+  - Row 2: "Distance computations" on left, tabular count on right.
+  - Row 3: "Top-k rank match" (Brute Force: "Reference for the other algorithms" subtitle + "—"; KD-Tree/HNSW: 10 rounded square cells colored in algorithm accent with hover/focus tooltips + "10 / 10" tabular count on right).
+  - Row 4: "Recall" on left, tabular percentage on right.
+  - Below cards: Legend footnote with `createIcon("info", 14)` icon.
+- **Helpers & Tests**:
+  - Exported and integrated pure helper `mapReportToCards(report, latencies)`.
+  - Added 4 unit tests in `test_compare.js` bringing total registered unit tests to 156 (156/156 passed).
+- **Strict Invariants**:
+  - Ask tab files (`web/js/ask.js`, `web/js/ask_helpers.js`), `#panel-ask` in HTML, and `.ask-*` CSS rules 100% frozen.
+  - Engine code (`src/`, `include/`, `tests/`) 100% frozen.
+  - Quality gates: zero innerHTML, zero box-shadow, !important count = 2, zero non-root hex, 156/156 unit tests passing, 118/118 C++ tests passing.
+
+## T-074 summary (ADR-068; Apple-grade design renovation across Explore, HNSW, Compare, Settings)
+
+- **Goal & Motivation**: User requested: "workclike a professional and renovate explore tab, hnsw tab, compare tab and setting tab just assume that that's a apple project toh unka jasa perfection chaiya, professionalism chaiya, smoothness chaiya aur feeling chaiyaaa jo apple deta haii but jo theme hai woh apna wala hee rahana chaiya thaa i give you full control just don't touch ask tab".
+- **Apple HIG & Pro App Aesthetics**:
+  - Tight SF Pro-inspired letter-spacing (-0.02em titles, -0.015em subtitles/headlines).
+  - Uppercase tracked section overlines (`font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted)`).
+  - Universal tabular numerals (`font-variant-numeric: tabular-nums`) on all data values, coordinates, metrics, and latencies.
+  - Tactile micro-interactions: cubic-bezier transitions (`0.16, 1, 0.3, 1`), active button press micro-scaling (`scale(0.98)`), smooth slider scrubber tracks with hover thumb scaling.
+  - Segmented toolbars with `.toolbar-divider` hairlines separating control groups.
+  - Explore & HNSW: macOS Inspector-style sidebars with card-style neighbor rows and accent-tinted similarity match percentages; Apple statusbar-style Topology strip.
+  - Settings: macOS System Settings grouped card architecture with 8px pill sidebar items, hairline row dividers, and clean active indicators.
+- **Strict Invariants**:
+  - Ask tab files and C++ engine 100% frozen. 152/152 unit tests passed, 118/118 C++ tests passed.
 
 ## T-073 summary (ADR-067; Redesign v4 round 3 - Full-project visual and viewport alignment to Ask tab theme)
 
