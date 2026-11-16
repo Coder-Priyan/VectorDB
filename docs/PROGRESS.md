@@ -1,8 +1,14 @@
 # Project Progress
 
-Last updated: 2026-11-16 by T-095 sync
+Last updated: 2026-11-16 by T-096 sync
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform
+
+- **T-096**: Compare "Metric switcher" and Settings "One-screen console" on branch `ui-redesign-v4`.
+  - **T-096 A (Commit `0899a83`)**: Compare "Metric switcher" - replaced 3-column spec sheet cards with an accessible segmented switcher (`Latency | Work | Accuracy`), verdict banner, three big horizontal rows on one shared linear scale per view, separate elements for values/labels, non-wrapping flexible rank cells with match/mismatch tooltips, and vertically centered results block eliminating dead bands and scroll at 1920x1080. Added 6 unit tests covering scale computation and key navigation.
+  - **T-096 B**: Settings "One-screen console" - replaced card stack with an unboxed console (1040px centered column): top 2x4 metrics strip (8 real values) with Ollama models chips, middle two-column workbench separated by one hairline divider (Demo collection left, Storage & maintenance right), and bottom slim Danger Zone row. Fits in $pprox 420	ext{px}$ with zero scroll at 1920x1080 100% zoom and no nested scrollbars. Preserved all 28 Settings DOM IDs and two-step confirmations.
+  - **Verification**: 172 total browser tests registered (167 pass in Node mock, 5 require real browser DOM); 118/118 C++ tests pass; 0 hex outside colors.js; 0 box-shadows; !important <= 2; strict CSP passed.
+
 
 - **T-095**: Fix concrete Explore, Compare, and Settings defects seen in human screenshots on branch `ui-redesign-v4`.
   - *Explore*: Moved canvas viewport hint pill outside `.explore-canvas-container` into `.explore-canvas-viewport`, freeing canvas plot area and preventing overlap with x-axis ticks or PC1 label.

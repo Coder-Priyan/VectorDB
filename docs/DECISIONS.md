@@ -405,3 +405,28 @@ Last updated: 2026-11-16 by T-072 sync
   5. **Phase 4 (Settings Rebuilt & ISS-092 Fixed)**: Rebuilt using Ask's centered 860px column layout with natural vertical inner scroll. Clean elevated cards for Server Health, Demo Collection Ingestion, and Storage/Danger Zone. Restored `#settings-start-tour-btn` and `#settings-tour-icon` in the UI, wired to `vectordb:start-tour` event (resolving ISS-092). Preserved all 26 baseline Settings DOM IDs + 2 restored IDs.
   6. **Supersessions**: ADR-087 completely supersedes earlier layout and styling ADRs for these 4 tabs (ADR-041 through ADR-085) including rigid 390px|1fr|390px workbenches, artificial zero-scroll cards, and widescreen bento grids.
   7. **Strict Invariants**: Ask tab, sidebar/app shell, C++ engine, and `docs/API.md` remained 100% frozen (byte-identical). Zero hex literals outside `colors.js`. Zero `box-shadow`. `!important` count <= 2. All 118 C++ tests and `check_web_safety.ps1` passed. All visual aspects marked as "not tested (visual)" / builder-reported only.
+---
+
+## ADR-088: Compare Metric Switcher and Settings One-Screen Console (T-096)
+
+- **Date**: 2026-11-16
+- **Status**: Accepted [CONFIRMED: human instruction in chat]
+- **Context**: Human was not satisfied with Compare and Settings layouts from T-094/T-095 (cards floating with dead bands; Settings still scrolls). Instructed new concepts: Compare = Metric switcher (Latency/Work/Accuracy) and Settings = one-screen console, replacing T-094/T-095 layouts for these tabs; theme unchanged; Explore, HNSW, Ask liked by human and frozen. [CONFIRMED: human instruction in chat]
+- **Decisions**:
+  1. **Compare Metric Switcher Architecture**:
+     - Retains Ask-style `.page-header` and bottom docked control bar (collection dropdown, repeats dropdown, docs query input, primary action button, Parameters popover).
+     - Verdict hero banner at the top (`buildCompareHeadline`), correctly stating "slower" vs "faster".
+     - Segmented control switcher: `Latency | Work | Accuracy` implemented as an accessible `tablist` with `150ms` transitions, respecting `prefers-reduced-motion` and full arrow-key keyboard navigation (`handleSegmentedKeyNav`).
+     - Three big horizontal rows (Brute Force, KD-Tree, HNSW) displaying algorithm dot + name + subtitle, a thick rounded bar on ONE shared linear scale per view (`computeSharedMetricBars`), and large tabular numbers with distinct labels and spacing (zero concatenated text).
+     - Accuracy view incorporates real-k rank indicator cells that flex to fill width without wrapping (`flex: 1 1 0; max-width: 16px; min-width: 4px; overflow: hidden`), eliminating the 10th-cell wrap defect seen in T-095, with interactive match/mismatch tooltips.
+     - Entire results block is vertically centered in the free viewport area with zero dead bands, no card stretching, and zero page scroll at 1920x1080.
+  2. **Settings One-Screen Console Architecture**:
+     - Ask-style `.page-header` with centered 1040px content column (`max-width: 1040px;`).
+     - Zero scroll at 1920x1080 100% zoom (console height $pprox 420	ext{px}$ fitting comfortably in viewport), zero nested scrollbars, and single page-level inner scroll fallback on smaller viewports.
+     - Top slim metrics strip: 8 real server values in a 2x4 grid (Version, Dimension, Metric, M, efConstruction, efSearch, Vectors, Memory) with tabular monospace numerals, and Ollama models chips.
+     - Middle two-column workbench separated by one hairline divider without boxed cards: Left = Demo collection hyperparameters and synthetic vector inserter with single primary amber button; Right = Disk persistence status, Clear Chat History with two-step confirm, Start Guided Tour button, and Interactive Test Suite link.
+     - Bottom slim Danger Zone row: Quiet red border, descriptive warning text, and "Reset Demo Collection" button with two-step confirmation.
+  3. **Strict Invariants**:
+     - All 40 Compare DOM IDs and 28 Settings DOM IDs preserved.
+     - Ask, Explore, HNSW, sidebar/shell, C++ engine, and `docs/API.md` byte-identical to `cbd7e81`.
+     - Zero hex literals outside `colors.js`, zero box-shadows, `!important` count <= 2, 118/118 C++ tests pass, strict CSP pass.

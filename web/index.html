@@ -808,33 +808,25 @@
             </div>
           </header>
 
-          <!-- Scrollable Center Thread (Inner scroll, max-width: 860px) -->
+          <!-- One-Screen Console Viewport (Zero scroll at 1920x1080) -->
           <div class="settings-thread">
-            <!-- Card 1: Server & Runtime Health -->
-            <div class="settings-card">
-              <div class="settings-card-header">
-                <span class="settings-card-title">Server &amp; Health</span>
-              </div>
-              <div class="settings-card-body">
-                <div class="settings-overline">System Telemetry &amp; Metrics</div>
-                <dl id="settings-health-box" class="settings-def-list" aria-label="Server status metrics"></dl>
-
-                <div class="settings-card-divider"></div>
-
-                <div class="settings-models-row">
-                  <div class="settings-overline">Installed Ollama Models</div>
-                  <div id="settings-models-chips" class="settings-models-list"></div>
-                </div>
+            <!-- 1. Top Slim Metrics Strip (8 values in 2x4 grid + Ollama chips) -->
+            <div class="settings-console-top">
+              <dl id="settings-health-box" class="settings-def-list" aria-label="Server status metrics"></dl>
+              <div class="settings-models-strip">
+                <span class="settings-strip-label">Ollama Models</span>
+                <div id="settings-models-chips" class="settings-models-list"></div>
               </div>
             </div>
 
-            <!-- Card 2: Demo Collection Parameters & Ingestion -->
-            <div class="settings-card">
-              <div class="settings-card-header">
-                <span class="settings-card-title">Demo Collection Hyperparameters</span>
-                <span id="settings-reset-status" class="badge badge-success hidden">Reset OK</span>
-              </div>
-              <div class="settings-card-body">
+            <!-- 2. Middle Two-Column Workbench (Separated by one hairline, no boxed cards) -->
+            <div class="settings-console-middle">
+              <!-- Left Column: Demo Collection Configuration -->
+              <div class="settings-console-col">
+                <div class="settings-console-section-title">
+                  <span>Demo Collection Hyperparameters</span>
+                </div>
+
                 <form id="settings-reset-demo-form" class="settings-grid-form">
                   <div class="settings-form-field">
                     <label for="demo-dim-input" class="settings-field-label">Dimension</label>
@@ -856,35 +848,33 @@
                   </div>
                 </form>
 
-                <div class="settings-card-divider"></div>
-
                 <div class="settings-insert-box">
-                  <div class="settings-overline">Insert Synthetic Vectors</div>
+                  <div class="settings-field-label">Insert Synthetic Vectors</div>
                   <form id="settings-random-demo-form" class="settings-inline-insert-form">
                     <input type="number" id="demo-random-count" class="input-text settings-input" value="100" min="1" max="20000" aria-label="Count">
-                    <button type="submit" id="demo-insert-random-btn" class="btn btn-secondary btn-sm">+ Insert Vectors</button>
+                    <button type="submit" id="demo-insert-random-btn" class="btn btn-primary btn-sm">+ Insert Vectors</button>
                   </form>
                   <div id="settings-random-status" class="settings-status-note hidden"></div>
                 </div>
               </div>
-            </div>
 
-            <!-- Card 3: Storage, History & Guided Tour -->
-            <div class="settings-card">
-              <div class="settings-card-header">
-                <span class="settings-card-title">Storage, History &amp; Tour</span>
-              </div>
-              <div class="settings-card-body">
+              <!-- Vertical hairline divider -->
+              <div class="settings-col-divider" aria-hidden="true"></div>
+
+              <!-- Right Column: Storage, History & Guided Tour -->
+              <div class="settings-console-col">
+                <div class="settings-console-section-title">
+                  <span>Storage &amp; Maintenance</span>
+                </div>
+
                 <div class="settings-storage-section">
-                  <div class="settings-storage-label">Disk Persistence</div>
+                  <div class="settings-field-label">Disk Persistence</div>
                   <div class="settings-persistence-row">
                     <span id="settings-persistence-status" class="badge badge-neutral">Disabled (in-memory only)</span>
                     <code id="settings-persistence-dir" class="settings-code-pill font-mono">none (ephemeral)</code>
                   </div>
                   <p id="settings-persistence-hint" class="settings-persistence-hint text-muted text-xs">Pass --data-dir on startup to persist collections.</p>
                 </div>
-
-                <div class="settings-card-divider"></div>
 
                 <div class="settings-maintenance-actions">
                   <div class="settings-action-row">
@@ -899,10 +889,10 @@
                   </div>
                   <div id="settings-clear-chats-status" class="settings-status-note hidden"></div>
 
-                  <div class="settings-action-row mt-3">
+                  <div class="settings-action-row">
                     <div class="settings-action-meta">
                       <span class="settings-action-title">Guided product tour</span>
-                      <span class="settings-action-desc">Take an interactive tour of VectorDB capabilities.</span>
+                      <span class="settings-action-desc">Interactive walkthrough of features.</span>
                     </div>
                     <button type="button" id="settings-start-tour-btn" class="btn btn-sm btn-secondary">
                       <span>Start Guided Tour</span>
@@ -910,10 +900,10 @@
                     </button>
                   </div>
 
-                  <div class="settings-action-row mt-3">
+                  <div class="settings-action-row">
                     <div class="settings-action-meta">
                       <span class="settings-action-title">Test runner</span>
-                      <span class="settings-action-desc">Open the browser-based interactive test suite.</span>
+                      <span class="settings-action-desc">Browser test suite.</span>
                     </div>
                     <a href="/tests.html" target="_blank" rel="noopener" class="btn btn-sm btn-ghost">Interactive Test Suite <span id="settings-tests-icon"></span></a>
                   </div>
@@ -921,17 +911,16 @@
               </div>
             </div>
 
-            <!-- Card 4: Danger Zone -->
-            <div class="settings-card settings-danger-card">
-              <div class="settings-card-header">
+            <!-- 3. Bottom Slim Danger Zone Row -->
+            <div class="settings-console-danger-row">
+              <div class="danger-meta-group">
                 <span class="danger-badge">Danger Zone</span>
+                <span class="danger-desc">Reset all vectors in the demo collection with new dimension and parameters.</span>
+                <span id="settings-reset-status" class="badge badge-success hidden">Reset OK</span>
               </div>
-              <div class="settings-card-body">
-                <p class="danger-desc">Reset all vectors in the demo collection with new dimension and parameters.</p>
-                <div class="danger-btn-row">
-                  <button type="button" id="demo-reset-btn" class="btn btn-danger btn-sm">Reset Demo Collection</button>
-                  <button type="button" id="demo-reset-cancel-btn" class="btn btn-ghost btn-sm hidden">Cancel</button>
-                </div>
+              <div class="danger-btn-row">
+                <button type="button" id="demo-reset-btn" class="btn btn-danger btn-sm">Reset Demo Collection</button>
+                <button type="button" id="demo-reset-cancel-btn" class="btn btn-ghost btn-sm hidden">Cancel</button>
               </div>
             </div>
           </div>

@@ -1,11 +1,11 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-095 sync
+Last updated: 2026-11-16 by T-096 sync
 
-> **NEXT STEP**: Review the human's full-window 1920x1080 100% screenshots of all 5 tabs (Ask, Explore, HNSW, Compare, Settings) after the T-095 defect fixes, and the terminal verification (git log --oneline -7, git status -sb, vectordb_tests.exe, check_web_safety.ps1, !important count, box-shadow count, hex count, DOM ID check), and get the human's feedback.
+> **NEXT STEP**: Review the human's full-window 1920x1080 100% screenshots of Compare "Metric switcher" and Settings "One-screen console", along with terminal verification (git log --oneline -6, git status -sb, vectordb_tests.exe, check_web_safety.ps1, !important count, box-shadow count, hex count, DOM ID check), and get the human's feedback.
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
-- **/tests.html**: **/tests.html 159/159 is human-confirmed on 2026-11-16 and all visuals are still human-reported only**. Registered browser unit tests expanded in code to 166 (161 pass in headless Node DOM mock, 5 require real browser DOM). All visual states for T-071 through T-095 are **not tested (visual)** / builder-reported only.
+- **/tests.html**: **/tests.html 166/166 human-confirmed 2026-11-16; all visuals human-reported only**. Registered browser unit tests expanded in code to 172 (167 pass in headless Node DOM mock, 5 require real browser DOM). All visual states for T-071 through T-096 are **not tested (visual)** / builder-reported only.
 - **Git State**: Local branch `ui-redesign-v4`, clean working tree (only untracked `results/logs/` and `scratch/`), commits unpushed per protocol.
 - **Current UI State (by tab)**:
   - **Ask tab**: COMPLETE, human-approved, and human-verified. Byte-identical and 100% frozen.
@@ -21,9 +21,29 @@ Last updated: 2026-11-16 by T-095 sync
 - Do not merge to main, do not push to remote origin.
 
 ## Next Free Identifiers
-- Next free ADR: **ADR-088**
-- Next free ISS: **ISS-103**
-- Next task number: **T-096**
+- Next free ADR: **ADR-089**
+- Next free ISS: **ISS-105**
+- Next task number: **T-097**
+
+## T-096 summary (ADR-088; Compare Metric Switcher & Settings One-Screen Console)
+
+- **Goal & Motivation**: Replaced T-094/T-095 layouts for Compare and Settings based on human instructions. Human disliked cards floating with dead bands in Compare and vertical scrolling in Settings. Implemented two clean, professional concepts matching the Ask calm theme.
+- **Compare "Metric Switcher" (T-096 A)**:
+  - Verdict banner at top with accurate "faster" vs "slower" wording.
+  - Accessible segmented control switcher (`Latency | Work | Accuracy`) with 150ms transitions, reduced-motion support, and keyboard arrow-key navigation.
+  - Three big horizontal rows (Brute Force, KD-Tree, HNSW) on ONE shared linear scale per view.
+  - Values and labels in separate elements with spacing; rank cells in Accuracy view flex dynamically without wrapping (`flex-wrap: nowrap; flex: 1 1 0; max-width: 16px; min-width: 4px; overflow: hidden`) fixing the 10th-cell wrap defect.
+  - Vertically centered results block without dead bands or scroll at 1920x1080.
+- **Settings "One-Screen Console" (T-096 B)**:
+  - Ask-style header with 1040px centered column.
+  - Zero scroll at 1920x1080 100% zoom (height $pprox 420	ext{px}$), zero nested scrollbars.
+  - Top slim metrics strip (8 values in 2x4 grid: Version, Dimension, Metric, M, efConstruction, efSearch, Vectors, Memory) + Ollama models chips.
+  - Middle two-column workbench separated by one hairline divider without boxed cards: Demo collection hyperparameters and inserter left, Disk persistence and maintenance actions right.
+  - Bottom slim Danger Zone row with quiet red border and two-step confirmation.
+- **Strict Invariants**:
+  - All 40 Compare DOM IDs and 28 Settings DOM IDs preserved.
+  - Ask, Explore, HNSW, sidebar/shell, C++ engine, and `docs/API.md` byte-identical to `cbd7e81`.
+  - 0 hex literals outside `colors.js`, 0 box-shadows, `!important` count <= 2, 118/118 C++ tests pass, strict CSP pass.
 
 ## T-095 summary (ADR-088 pending; Fix Explore, Compare, and Settings Concrete Defects)
 
