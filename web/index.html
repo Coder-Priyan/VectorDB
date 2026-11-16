@@ -471,92 +471,174 @@
 
     <!-- TAB 3: HNSW GRAPH -->
     <section id="panel-hnsw" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-hnsw">
-      <div class="hnsw-viewport">
-        <!-- Top Layer Highway Bar -->
-        <div class="tab-toolbar hnsw-toolbar">
-          <div class="toolbar-left">
-            <label for="hnsw-coll-select" class="toolbar-label">Collection</label>
-            <div id="hnsw-coll-dropdown-wrap" class="toolbar-dropdown-wrap">
-              <input type="hidden" id="hnsw-coll-select" value="demo">
+      <div class="hnsw-viewport hnsw-pro-workbench">
+        
+        <!-- COLUMN 1: CONFIG & TOPOLOGY (390px) -->
+        <aside class="hnsw-col hnsw-config-deck">
+          <!-- Card 1: Collection & Layer Config -->
+          <div class="studio-card hnsw-config-card">
+            <div class="studio-card-header">
+              <span class="studio-card-tag">Collection &amp; Layer</span>
+              <button type="button" id="hnsw-refresh-btn" class="btn btn-xs btn-ghost" title="Refresh graph">Refresh</button>
             </div>
-            <div class="toolbar-divider" aria-hidden="true"></div>
-            <label for="hnsw-layer-slider" id="hnsw-layer-label" class="toolbar-label font-mono">Layer L0</label>
-            <input type="range" id="hnsw-layer-slider" min="0" max="0" value="0" class="input-range">
-            <div class="toolbar-divider" aria-hidden="true"></div>
-            <label for="hnsw-max-edges-select" class="toolbar-label">Max Edges</label>
-            <div id="hnsw-max-edges-dropdown-wrap" class="toolbar-dropdown-wrap">
-              <input type="hidden" id="hnsw-max-edges-select" value="20000">
-            </div>
-            <button type="button" id="hnsw-refresh-btn" class="btn btn-sm btn-ghost">Refresh</button>
-          </div>
-          <div class="toolbar-right">
-            <div class="hnsw-status-badge">
-              <span class="status-dot status-dot-healthy"></span>
-              <span id="hnsw-edge-summary" class="hnsw-edge-summary font-mono text-xs"></span>
-            </div>
-            <span id="hnsw-edge-warn-badge" class="badge badge-warning hidden">Truncated</span>
-            <span id="hnsw-info-slot"></span>
-          </div>
-        </div>
-
-        <!-- Expansive Graph Canvas Frame -->
-        <div class="hnsw-canvas-section">
-          <div class="canvas-frame hnsw-canvas-frame">
-            <div class="canvas-panel-header">
-              <div>
-                <h2 class="canvas-panel-title" id="hnsw-graph-title">HNSW Graph &mdash; Layer L0</h2>
-                <p class="canvas-panel-subtitle" id="hnsw-graph-subtitle">A higher layer with sparser connections for faster navigation.</p>
-              </div>
-              <div class="legend-row hnsw-legend-row">
-                <div class="legend-item">
-                  <span class="hnsw-legend-ring entry-ring"></span>
-                  <span>Entry point</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-swatch swatch-hnsw"></span>
-                  <span>Visited (search path)</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-swatch hnsw-other-node"></span>
-                  <span>Other node</span>
-                </div>
-                <div class="legend-item">
-                  <span class="hnsw-legend-line"></span>
-                  <span>Edge (neighbor link)</span>
-                </div>
+            
+            <div class="hnsw-ctrl-group">
+              <label for="hnsw-coll-select" class="hnsw-ctrl-label">Collection</label>
+              <div id="hnsw-coll-dropdown-wrap" class="toolbar-dropdown-wrap w-100">
+                <input type="hidden" id="hnsw-coll-select" value="demo">
               </div>
             </div>
-            <div class="canvas-wrapper">
-              <canvas id="hnsw-canvas" width="900" height="420"></canvas>
+
+            <div class="hnsw-ctrl-group mt-2">
+              <div class="hnsw-slider-header">
+                <label for="hnsw-layer-slider" id="hnsw-layer-label" class="hnsw-ctrl-label font-mono">Layer L0</label>
+                <div class="hnsw-status-badge">
+                  <span class="status-dot status-dot-healthy"></span>
+                  <span id="hnsw-edge-summary" class="hnsw-edge-summary font-mono text-xs">Loading...</span>
+                </div>
+              </div>
+              <input type="range" id="hnsw-layer-slider" min="0" max="0" value="0" class="input-range w-100">
+            </div>
+
+            <div class="hnsw-ctrl-group mt-2">
+              <div class="hnsw-max-edges-row">
+                <label for="hnsw-max-edges-select" class="hnsw-ctrl-label">Max Edges Rendered</label>
+                <span id="hnsw-edge-warn-badge" class="badge badge-warning hidden">Truncated</span>
+                <span id="hnsw-info-slot"></span>
+              </div>
+              <div id="hnsw-max-edges-dropdown-wrap" class="toolbar-dropdown-wrap w-100">
+                <input type="hidden" id="hnsw-max-edges-select" value="20000">
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Full-Width Studio Playback & Telemetry Universal Dock (4 Columns) -->
-        <div class="hnsw-console-deck">
+          <!-- Card 2: Topology Summary Bento -->
+          <div class="studio-card hnsw-topology-card" id="hnsw-topology-strip">
+            <div class="studio-card-header">
+              <span class="studio-card-tag">Graph Topology Summary</span>
+            </div>
+            <div class="hnsw-topo-stats-stack">
+              <div class="strip-stat-item">
+                <span class="strip-icon" data-icon="database"></span>
+                <div class="strip-stat-meta">
+                  <span class="strip-stat-label">Total Nodes</span>
+                  <span class="strip-stat-val font-mono" id="hnsw-topo-nodes">-</span>
+                </div>
+              </div>
+              <div class="strip-stat-item">
+                <span class="strip-icon" data-icon="graph"></span>
+                <div class="strip-stat-meta">
+                  <span class="strip-stat-label">Max Level</span>
+                  <span class="strip-stat-val font-mono" id="hnsw-topo-max-level">-</span>
+                </div>
+              </div>
+              <div class="strip-stat-item">
+                <span class="strip-icon" data-icon="target"></span>
+                <div class="strip-stat-meta">
+                  <span class="strip-stat-label">Entry Point</span>
+                  <span class="strip-stat-val font-mono" id="hnsw-topo-entry">-</span>
+                </div>
+              </div>
+            </div>
+            <div class="hnsw-topo-meta-note">
+              <span>Hierarchical Small World &mdash; O(log N) Beam Search</span>
+            </div>
+            <div id="hnsw-info-box" class="hidden"></div>
+          </div>
+        </aside>
+
+        <!-- COLUMN 2: PRECISION GRAPH VIEWPORT (Hero Centerpiece, ~820px) -->
+        <main class="hnsw-col hnsw-canvas-viewport">
+          <div class="studio-card canvas-card-container">
+            <!-- Viewport Top Control Strip -->
+            <div class="viewport-header">
+              <div class="viewport-title-group">
+                <div class="viewport-title-row">
+                  <span class="viewport-title" id="hnsw-graph-title">HNSW Graph &mdash; Layer L0</span>
+                  <div class="viewport-status-badge">
+                    <span class="status-dot status-dot-healthy"></span>
+                    <span class="viewport-status-text">Indexed Topology</span>
+                  </div>
+                </div>
+                <p class="canvas-panel-subtitle" id="hnsw-graph-subtitle">Base layer containing all indexed vector nodes and full connectivity.</p>
+              </div>
+              <div class="viewport-actions">
+                <div class="legend-row hnsw-legend-row">
+                  <div class="legend-item">
+                    <span class="hnsw-legend-ring entry-ring"></span>
+                    <span>Entry point</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-swatch swatch-hnsw"></span>
+                    <span>Visited</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-swatch hnsw-other-node"></span>
+                    <span>Other</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="hnsw-legend-line"></span>
+                    <span>Edge</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dedicated Precision Canvas Area -->
+            <div class="canvas-wrapper hnsw-canvas-wrapper">
+              <canvas id="hnsw-canvas" width="820" height="520"></canvas>
+            </div>
+
+            <!-- Viewport Bottom Navigation Hints -->
+            <div class="viewport-footer">
+              <div class="canvas-hint-item">
+                <span class="hint-kbd">&#x2728; Click Node</span>
+                <span class="hint-text">Inspect connections</span>
+              </div>
+              <div class="canvas-hint-divider"></div>
+              <div class="canvas-hint-item">
+                <span class="hint-kbd">Wheel</span>
+                <span class="hint-text">Zoom at cursor</span>
+              </div>
+              <div class="canvas-hint-divider"></div>
+              <div class="canvas-hint-item">
+                <span class="hint-kbd">Drag</span>
+                <span class="hint-text">Pan graph</span>
+              </div>
+              <div class="canvas-hint-divider"></div>
+              <div class="canvas-hint-item">
+                <span class="hint-kbd">Slider</span>
+                <span class="hint-text">Traverse layer</span>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <!-- COLUMN 3: SEARCH LAUNCHER & PLAYBACK CONSOLE (390px, Exact Same Width as Left!) -->
+        <aside class="hnsw-col hnsw-console-deck">
           <div id="hnsw-trace-notice" class="notice-box notice-neutral hidden">Search path trace is available for the Demo collection (documents index does not support step trace).</div>
-          
-          <div id="hnsw-trace-section" class="hnsw-trace-grid">
-            <!-- Zone 1: Target Launcher -->
-            <div class="hnsw-console-card hnsw-launcher-card">
-              <div class="hnsw-card-header">
-                <span class="hnsw-card-title">Search Target</span>
-                <button type="button" id="hnsw-trace-random-btn" class="btn btn-primary btn-sm">Random</button>
+
+          <div id="hnsw-trace-section" class="hnsw-trace-stack">
+            <!-- Card 1: Search Target Launcher -->
+            <div class="studio-card hnsw-launcher-card">
+              <div class="studio-card-header">
+                <span class="studio-card-tag">Search Target</span>
+                <button type="button" id="hnsw-trace-random-btn" class="btn btn-primary btn-xs">Random</button>
               </div>
               <div class="form-stack">
                 <div class="form-row">
                   <div class="form-group flex-1">
-                    <label for="hnsw-trace-k">k</label>
+                    <label for="hnsw-trace-k" class="hnsw-ctrl-label">k</label>
                     <input type="number" id="hnsw-trace-k" class="input-text input-sm" value="5" min="1" max="50">
                   </div>
                   <div class="form-group flex-1">
-                    <label for="hnsw-trace-ef">efSearch</label>
+                    <label for="hnsw-trace-ef" class="hnsw-ctrl-label">efSearch</label>
                     <input type="number" id="hnsw-trace-ef" class="input-text input-sm" value="16" min="1" max="500">
                   </div>
                 </div>
                 <div class="form-row mt-1">
                   <div class="form-group flex-2">
-                    <label for="hnsw-trace-id-input">Stored Vector ID</label>
+                    <label for="hnsw-trace-id-input" class="hnsw-ctrl-label">Stored Vector ID</label>
                     <input type="number" id="hnsw-trace-id-input" class="input-text input-sm" placeholder="e.g. 1" min="1">
                   </div>
                   <div class="form-group flex-1 align-end">
@@ -566,10 +648,10 @@
               </div>
             </div>
 
-            <!-- Zone 2: VCR Playback Transport & Timeline Scrubber -->
-            <div class="hnsw-console-card hnsw-player-card">
-              <div class="hnsw-card-header">
-                <span class="hnsw-card-title">Playback Transport</span>
+            <!-- Card 2: VCR Playback Transport -->
+            <div class="studio-card hnsw-player-card">
+              <div class="studio-card-header">
+                <span class="studio-card-tag">Playback Transport</span>
                 <span id="hnsw-step-counter" class="font-mono text-xs text-muted">Step 0 / 0</span>
               </div>
               <div class="hnsw-player-wrap">
@@ -592,10 +674,10 @@
               </div>
             </div>
 
-            <!-- Zone 3: Live Step & Search Telemetry Bento -->
-            <div class="hnsw-console-card hnsw-telemetry-card">
-              <div class="hnsw-card-header">
-                <span class="hnsw-card-title">Step Telemetry &amp; Stats</span>
+            <!-- Card 3: Live Step Telemetry & Stats -->
+            <div class="studio-card hnsw-telemetry-card">
+              <div class="studio-card-header">
+                <span class="studio-card-tag">Step Telemetry &amp; Stats</span>
               </div>
               <div class="hnsw-step-tiles" id="hnsw-step-tiles">
                 <div class="hnsw-stat-tile">
@@ -611,7 +693,7 @@
                   <span class="stat-tile-val font-mono" id="hnsw-curr-layer">-</span>
                 </div>
               </div>
-              <div class="hnsw-search-stats-grid mt-1" id="hnsw-trace-stats-box">
+              <div class="hnsw-search-stats-grid mt-2" id="hnsw-trace-stats-box">
                 <div class="hnsw-stat-tile">
                   <span class="stat-tile-label">Distance comps</span>
                   <span class="stat-tile-val font-mono" id="hnsw-stat-dist-comps">-</span>
@@ -626,39 +708,9 @@
                 </div>
               </div>
             </div>
-
-            <!-- Zone 4: Integrated Topology Summary Card -->
-            <div class="hnsw-console-card hnsw-topology-card" id="hnsw-topology-strip">
-              <div class="hnsw-card-header">
-                <span class="hnsw-card-title">Topology Summary</span>
-              </div>
-              <div class="hnsw-topo-stats-stack">
-                <div class="strip-stat-item">
-                  <span class="strip-icon" data-icon="database"></span>
-                  <div class="strip-stat-meta">
-                    <span class="strip-stat-label">Total Nodes</span>
-                    <span class="strip-stat-val font-mono" id="hnsw-topo-nodes">-</span>
-                  </div>
-                </div>
-                <div class="strip-stat-item">
-                  <span class="strip-icon" data-icon="graph"></span>
-                  <div class="strip-stat-meta">
-                    <span class="strip-stat-label">Max Level</span>
-                    <span class="strip-stat-val font-mono" id="hnsw-topo-max-level">-</span>
-                  </div>
-                </div>
-                <div class="strip-stat-item">
-                  <span class="strip-icon" data-icon="target"></span>
-                  <div class="strip-stat-meta">
-                    <span class="strip-stat-label">Entry Point</span>
-                    <span class="strip-stat-val font-mono" id="hnsw-topo-entry">-</span>
-                  </div>
-                </div>
-              </div>
-              <div id="hnsw-info-box" class="hidden"></div>
-            </div>
           </div>
-        </div>
+        </aside>
+
       </div>
     </section>
 
