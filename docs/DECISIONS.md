@@ -183,6 +183,29 @@ Last updated: 2026-11-16 by T-072 sync
      - Settings: Bento grid set to `flex: 1 1 0; min-height: 0; overflow-y: auto;` with compact card padding (12px 16px) and 10px divider margins.
   6. **Safety & Invariants**: Ask tab and C++ engine 100% frozen. 118/118 C++ tests pass, 156/156 JS unit tests pass, zero web safety violations.
 
+### ADR-077: Edge-to-Edge Widescreen Studio Workspaces (T-084)
+- **Context**: The user provided screenshots demonstrating that the previous `max-width: 1180px/1240px` centered column left ~700px of dead empty black pillars on the left and right on 1080p widescreen displays, while simultaneously compressing content vertically (causing HNSW topology to clip at the bottom edge, Explore neighbor cards to feel squeezed, and Settings danger zone to get cut off). The user requested starting from zero with a fresh, professional, elegant, premium design using the entire horizontal width to achieve true zero-scroll single-screen workspaces.
+- **Decision**:
+  1. **Abolish Fixed Max-Width Gutters**: Set `.explore-viewport, .hnsw-viewport, .compare-viewport, .settings-viewport` to `width: 100%; max-width: 100%; height: 100%; min-height: 0; padding: 0 16px; margin: 0; overflow: hidden;`.
+  2. **Explore Tab: Master-Detail Studio Split (75% / 25%)**:
+     - *Left Studio Canvas (75% width)*: Integrated Highway Toolbar (`.explore-toolbar`, 38px) with collection picker, variance badge, and reset zoom; plus full-height spatial PCA canvas frame (`flex: 1 1 0; min-height: 160px;`).
+     - *Right Side-Car Inspector (25% width, ~360px)*: Top card for query parameters (k, Random Query, Vector ID search, docs query form); bottom card for Nearest Neighbors feed (`flex: 1 1 0; overflow-y: auto;`).
+  3. **HNSW Tab: Widescreen Graph Lab + 4-Zone Universal Dock**:
+     - Top Highway bar across 100% width (38px).
+     - Full widescreen graph canvas (`flex: 1 1 0; min-height: 200px;`).
+     - Bottom Universal Dock (135px) spanning the entire 1800px width with 4 zones side-by-side: Target Launcher (240px), VCR Player & Scrubber (1.2fr), Step Telemetry Bento (360px), and Integrated Topology Summary (220px). Eliminates all bottom clipping.
+  4. **Compare Tab: Full-Width Algorithm Arena**:
+     - 40px control bar + 40px hero callout banner.
+     - 3-column comparative spec sheet matrix spanning 100% width with equal distribution, hairline dividers, large tabular metrics, and comparative latency progress bars.
+  5. **Settings Tab: 3-Column Wide Bento Dashboard**:
+     - Converted vertical stack into a balanced 3-column grid (`grid-template-columns: 1fr 1fr 1fr; gap: 12px; height: 100%; overflow: hidden;`):
+       - Col 1: Server & Engine Health (Status, 4x2 metrics, installed models).
+       - Col 2: Demo Collection Parameters & Ingestion.
+       - Col 3: Storage, Maintenance & Danger Zone.
+     - Entire Settings tab fits into 1080p and laptop screens with zero bottom cutoff and zero page scroll.
+  6. **Safety & Invariants**: Ask tab and C++ engine 100% frozen. All DOM IDs preserved. 118/118 C++ tests pass, 156/156 JS unit tests pass, zero web safety violations.
+
+
 
 
 
