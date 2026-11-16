@@ -529,6 +529,10 @@
                 </div>
               </div>
             </div>
+            <div class="hnsw-topo-bento-tile">
+              <span class="topo-bento-label">Graph Architecture</span>
+              <span class="topo-bento-text">Hierarchical proximity graph with skip-list routing. Greedy beam search evaluates neighbors on each layer before descending to Layer 0.</span>
+            </div>
             <div class="hnsw-topo-meta-note">
               <span>Hierarchical Small World &mdash; O(log N) Beam Search</span>
             </div>
@@ -625,13 +629,11 @@
                     <input type="number" id="hnsw-trace-ef" class="input-text input-sm" value="16" min="1" max="500">
                   </div>
                 </div>
-                <div class="form-row mt-1">
-                  <div class="form-group flex-2">
-                    <label for="hnsw-trace-id-input" class="hnsw-ctrl-label">Stored Vector ID</label>
-                    <input type="number" id="hnsw-trace-id-input" class="input-text input-sm" placeholder="e.g. 1" min="1">
-                  </div>
-                  <div class="form-group flex-1 align-end">
-                    <button type="button" id="hnsw-trace-id-btn" class="btn btn-secondary btn-sm w-100">Trace ID</button>
+                <div class="hnsw-id-group mt-1">
+                  <label for="hnsw-trace-id-input" class="hnsw-ctrl-label">Stored Vector ID</label>
+                  <div class="hnsw-id-row">
+                    <input type="number" id="hnsw-trace-id-input" class="input-text input-sm flex-1 hnsw-id-input" placeholder="e.g. 1" min="1">
+                    <button type="button" id="hnsw-trace-id-btn" class="btn btn-secondary btn-sm hnsw-id-btn">Trace ID</button>
                   </div>
                 </div>
               </div>
@@ -668,6 +670,7 @@
               <div class="studio-card-header">
                 <span class="studio-card-tag">Step Telemetry &amp; Stats</span>
               </div>
+              <div class="telemetry-section-label">Active Step Coordinates</div>
               <div class="hnsw-step-tiles" id="hnsw-step-tiles">
                 <div class="hnsw-stat-tile">
                   <span class="stat-tile-label">Node</span>
@@ -682,7 +685,8 @@
                   <span class="stat-tile-val font-mono" id="hnsw-curr-layer">-</span>
                 </div>
               </div>
-              <div class="hnsw-search-stats-grid mt-2" id="hnsw-trace-stats-box">
+              <div class="telemetry-section-label mt-2">Search Diagnostics</div>
+              <div class="hnsw-search-stats-grid" id="hnsw-trace-stats-box">
                 <div class="hnsw-stat-tile">
                   <span class="stat-tile-label">Distance comps</span>
                   <span class="stat-tile-val font-mono" id="hnsw-stat-dist-comps">-</span>
@@ -695,6 +699,10 @@
                   <span class="stat-tile-label">Visited layers</span>
                   <span class="stat-tile-val font-mono" id="hnsw-stat-visited-layers">-</span>
                 </div>
+              </div>
+              <div class="hnsw-routing-desc-tile">
+                <span class="routing-desc-title">Beam Search Routing</span>
+                <span class="routing-desc-text">Greedy beam search trajectory from top entry node down to base layer, minimizing cosine distance to target vector.</span>
               </div>
             </div>
           </div>

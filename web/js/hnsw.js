@@ -5,7 +5,7 @@ import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js
 import { Viewport2D, setupCanvasDpr } from "./canvas.js";
 import { el, formatSimilarity, createDropdown } from "./ui.js";
 import { computeBounds, drawStar } from "./explore_helpers.js";
-import { getLayerColor, formatEdgeSummary, formatHnswTopologySummary, mapTraceToCoordinates, PlaybackController, isCanvasDrawable } from "./hnsw_helpers.js";
+import { getLayerColor, formatEdgeSummary, formatHnswTopologySummary, mapTraceToCoordinates, PlaybackController, isCanvasDrawable, getEdgeStrokeStyle } from "./hnsw_helpers.js";
 import { THEME } from "./colors.js";
 
 export function initHnswTab() {
@@ -186,10 +186,8 @@ export function initHnswTab() {
         offCtx.moveTo(sScr.x, sScr.y); offCtx.lineTo(tScr.x, tScr.y);
       }
     }
-    offCtx.strokeStyle = (currentGraph.layer > 0)
-      ? "rgba(217, 164, 65, 0.45)"
-      : "rgba(110, 106, 99, 0.25)";
-    offCtx.lineWidth = 1;
+    offCtx.strokeStyle = getEdgeStrokeStyle(currentGraph.layer, false);
+    offCtx.lineWidth = 0.65;
     offCtx.stroke();
     edgesDirty = false;
   }
@@ -286,7 +284,7 @@ export function initHnswTab() {
         ctx.fill();
 
         if (isCurrent) {
-          ctx.strokeStyle = "#ffffff";
+          ctx.strokeStyle = THEME.white;
           ctx.lineWidth = 2;
           ctx.stroke();
         }
@@ -299,14 +297,14 @@ export function initHnswTab() {
         const sy = curScr.y - 12;
 
         ctx.fillStyle = "rgba(18, 20, 26, 0.9)";
-        ctx.strokeStyle = isCurrent ? "#ffffff" : "rgba(217, 164, 65, 0.4)";
+        ctx.strokeStyle = isCurrent ? THEME.white : "rgba(217, 164, 65, 0.4)";
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.roundRect(sx, sy, sw, 14, 2);
         ctx.fill();
         ctx.stroke();
 
-        ctx.fillStyle = isCurrent ? "#ffffff" : THEME.accent;
+        ctx.fillStyle = isCurrent ? THEME.white : THEME.accent;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(stepLbl, sx + sw / 2, sy + 7);
@@ -330,7 +328,7 @@ export function initHnswTab() {
         ctx.stroke();
 
         ctx.fillStyle = THEME.accent;
-        ctx.strokeStyle = "#ffffff";
+        ctx.strokeStyle = THEME.white;
         ctx.lineWidth = 1.5;
         drawStar(ctx, qScr.x, qScr.y, 5, 8, 4);
         ctx.fill();

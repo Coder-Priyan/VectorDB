@@ -5,7 +5,7 @@ import { describe, assert, assertEqual, assertNear } from "./framework.js";
 import { Viewport2D } from "../canvas.js";
 import { findHitPoint, getDocColor, computeBounds, DOC_COLOR_PALETTE, getExploreCanvasSubtitle, isExploreActionDisabled, computeAxisTicks, clampTickEdge } from "../explore_helpers.js";
 import { DOC_FALLBACK_COLOR } from "../colors.js";
-import { getLayerColor, formatEdgeSummary, formatHnswTopologySummary, mapTraceToCoordinates, PlaybackController, LAYER_COLORS, isCanvasDrawable } from "../hnsw_helpers.js";
+import { getLayerColor, formatEdgeSummary, formatHnswTopologySummary, mapTraceToCoordinates, PlaybackController, LAYER_COLORS, isCanvasDrawable, getEdgeStrokeStyle } from "../hnsw_helpers.js";
 
 export function registerExploreHnswTests() {
   describe("Hit-Testing (explore_helpers.js)", (it) => {
@@ -116,6 +116,15 @@ export function registerExploreHnswTests() {
       const res2 = formatEdgeSummary(2000, 8500, true);
       assertEqual(res2.isTruncated, true);
       assertEqual(res2.label, "Showing 2,000 of 8,500 edges");
+    });
+
+    it("getEdgeStrokeStyle provides delicate alpha for base layer and prominent highlight on hover", () => {
+      const l0Style = getEdgeStrokeStyle(0, false);
+      assertEqual(l0Style, "rgba(255, 255, 255, 0.055)");
+      const l1Style = getEdgeStrokeStyle(1, false);
+      assertEqual(l1Style, "rgba(217, 164, 65, 0.22)");
+      const hoverStyle = getEdgeStrokeStyle(0, true);
+      assertEqual(hoverStyle, "rgba(217, 164, 65, 0.85)");
     });
 
     it("mapTraceToCoordinates maps present and missing nodes", () => {

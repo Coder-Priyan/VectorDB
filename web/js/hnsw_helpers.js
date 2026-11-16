@@ -195,3 +195,15 @@ export class PlaybackController {
   }
 }
 
+/**
+ * Computes subtle edge stroke style to prevent dense hairball on Layer 0 while highlighting active/hovered edges.
+ * Pure function.
+ *
+ * @param {number} layer
+ * @param {boolean} [isHovered=false]
+ * @returns {string}
+ */
+export function getEdgeStrokeStyle(layer, isHovered = false) {
+  if (isHovered) return "rgba(217, 164, 65, 0.85)";
+  return layer > 0 ? "rgba(217, 164, 65, 0.22)" : "rgba(255, 255, 255, 0.055)";
+}
