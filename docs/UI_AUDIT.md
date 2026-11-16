@@ -437,3 +437,16 @@ Ranked by visual and user experience impact across the application [CONFIRMED]:
   - CSS Hardcoded: `.btn-primary` (`#0b0b0b`), `.canvas-frame` (`#0a0a0a`), `.progress-track` (`#2a2a2a`), `#panel-compare .badge-success` (`#529b67`, `#132218`, `#1e402b`), swatches (`#9c8269`, `#708a78`, `#d9a441`) [web/css/app.css:455, 1301, 1380, 1440-1453](file:///f:/Desktop/vectordb/web/css/app.css#L455)
   - JS Canvas Hardcoded: `web/js/explore_helpers.js:10-17`, `web/js/hnsw_helpers.js:9-12`, `web/js/compare_helpers.js:6-8`, `web/js/explore.js:118, 152`, `web/js/hnsw.js:117, 180`.
 - **Visual Impact**: **Medium-Low** (Maintenance / Consistency). Hex colors in canvas scripts and button states bypass `:root` CSS custom properties, making future theme or contrast adjustments prone to omissions.
+
+---
+
+## 4. Addendum: T-098 Single-Screen Content Architecture & Card Unification
+
+Date: 2026-11-16  
+Status: [RESOLVED: Implemented and Verified in T-098 C & D]
+
+### Summary of Resolution for Compare & Settings Tabs:
+1. **Compare Tab Card Geometry**: Standardized row card heights (~50px) across Latency, Work, and Accuracy views to match the Work view baseline. Placed the 10 rank match indicator blocks inline in `.switcher-detail-row` next to top match chips. Removed the separate mismatch container below the matrix, integrating rank parity notes into the dynamic footnote. Zero vertical jitter on view toggling; docked bottom control bar overlap completely eliminated.
+2. **Settings Tab 3-Card Workbench**: Restructured from a monolithic single box with vertical divider lines into a cohesive 3-card grid (`.settings-workbench-grid` with `.settings-card`). Replaced `justify-content: space-between` with natural top-to-bottom layout (`gap: var(--space-3); justify-content: flex-start;`) and anchored footer notes (`margin-top: auto;`). Added quick preset chips (`+100`, `+500`, `+1k`) and memory/invariants specs, permanently eliminating dead voids in the center of columns.
+3. **Zero-Scroll Standard**: Both Compare and Settings fit completely within 1920x1080 at 100% zoom with zero page scrollbars. All 40 Compare DOM IDs and 40 Settings DOM IDs preserved.
+
