@@ -327,3 +327,21 @@ Last updated: 2026-11-16 by T-072 sync
   - Removed duplicate brace in web/js/hnsw.js.
   - Added Node.js dynamic import sanity check validating all 20 JS modules parse and evaluate with 0 syntax errors.
   - Verified 100% clean passes on check_web_safety.ps1 (0 violations) and vectordb_tests.exe (118/118 passed).
+
+### ADR-085: Explore Tab $5,000 Studio Elevation & Table-Flex Bug Resolution (2026-11-16)
+
+- **Context**: User requested focusing solely on the Explore tab, fixing existing bugs shown in screenshot (empty nearest neighbors feed, unbalanced column spacing), and upgrading the visual feel to a clean, smooth, minimal $5,000 professional standalone tool ("yeh explore tab haii aur explore tab mai sirf work karanga toh isma kaam kroo iskoo upgrade kroo aur wort 5k dollar sirf iskoo hee, isma issue bhi hai kuchh woh bhi fix kroo aur clean, smooth, minimal look denaaa and be asthetic").
+- **Issues Identified**:
+  1. **Empty Nearest Neighbors Card**: In `web/index.html`, `#explore-results-tbody` was inside a `<table>`, while in `web/css/app.css` line 3771 styled `#explore-results-tbody` with `display: flex; flex-direction: column;`. Blink/WebKit table layout engine collapses `tbody` with `display: flex` inside `table` to 0px height, rendering nearest neighbor rows completely invisible.
+  2. **Uninitialized Feed Void**: On initial page load, `loadData()` called `resultsTableBody?.replaceChildren()` without rendering the initial empty state, leaving a pitch-black box before any query was run.
+  3. **Canvas Point Coordinate Fallback**: In case `queryPca` returned neighbors without projected coordinates, geodesics and badges would fail to render.
+- **Architectural Upgrades**:
+  1. **Semantic Neighbor Feed**: Replaced `table` with clean semantic `<div id="explore-results-tbody" class="explore-neighbors-feed">` containing `.explore-neighbor-card` elements (rank badge, title, subtitle, monospace distance, and smooth animated similarity progress bar).
+  2. **Elevated Constellation Points**: Crisp luminous amber points (`r=3.5px`, `rgba(217, 164, 65, 0.75)`) with `0.8px` dark boundary stroke (`rgba(9, 9, 11, 0.95)`).
+  3. **Multi-Ring Radar Reticle**: Outer dashed ring (11px), inner solid ring (5.5px), center gold pip, crosshair ticks, and floating "QUERY TARGET" badge.
+  4. **Dynamic Coordinate Fallback**: Query handlers automatically map missing 2D coordinates from `currentPoints` if omitted by API.
+  5. **Balanced Symmetrical Ergonomics**: Adjusted card gaps and heights across the 3 columns (`390px | 1fr | 390px`), eliminating awkward empty black voids.
+- **Strict Invariants**:
+  - Ask, HNSW, Compare, and Settings tabs 100% frozen.
+  - Zero innerHTML, strict CSP verified (`check_web_safety.ps1` passed).
+  - 118/118 C++ tests pass.

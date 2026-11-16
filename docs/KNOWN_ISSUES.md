@@ -96,7 +96,9 @@ Last updated: 2026-11-16 by T-072 sync
 
 | ISS-090 | JavaScript Bug | Uncaught SyntaxError in `web/js/hnsw.js` caused by duplicate closing brace at line 362 prevented ES module evaluation in `main.js`, breaking `initTabs()` and leaving sidebar tab buttons completely non-responsive (T-091). User reported: "brooo mai open hee nhi krr pa rha hu tab ko ask tab sa kisi aur maii ja hee nhi paraaa". Fixed in T-091: Removed duplicate brace, verified all 20 JS modules parse and evaluate cleanly in Node.js, verified `check_web_safety.ps1` with 0 violations, and verified all 118 C++ tests pass. | `web/js/hnsw.js` | Critical | [CONFIRMED: user bug report in chat] | FIXED in code (T-091 commit `af18aba`) | 2026-11-16 |
 
-*(Optional polish, not an issue: Compare sidebar has empty space below Summary Metrics at 1920x1080. Next free ISS number is ISS-091.)*
+| ISS-091 | Layout & Rendering | In Explore tab, `#explore-results-tbody` was inside a `<table>` while styled with `display: flex; flex-direction: column;`, causing Blink/WebKit to collapse the table height to 0px and hide nearest neighbor rows; additionally uninitialized `loadData()` left a black void (T-092). User screenshot showed empty top right card. Fixed in T-092: Replaced table with `<div id="explore-results-tbody" class="explore-neighbors-feed">`, added `.explore-neighbor-card` with rank badges, distance, and similarity meters, added instant empty-state graphic, and elevated canvas constellation points. | `web/index.html`, `web/css/app.css`, `web/js/explore.js` | High | [CONFIRMED: user screenshot in chat] | FIXED in code (T-092 commit `c3d80b2`) | 2026-11-16 |
+
+*(Optional polish, not an issue: Compare sidebar has empty space below Summary Metrics at 1920x1080. Next free ISS number is ISS-092.)*
 
 ### Areas Not Yet Seen by the Human (as of 2026-11-15 23:26)
 - **Compare**: Options popover open, both dropdowns open, mismatch cell tooltip visible, Docs mode (empty and results), Demo empty (0 vectors), 125% zoom.

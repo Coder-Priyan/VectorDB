@@ -1,8 +1,8 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-091 sync
+Last updated: 2026-11-16 by T-092 sync
 
-> **NEXT STEP**: Human verifies T-090 ($10,000 Product-Grade Canvas Visualizers in Explore & HNSW: precision CAD coordinate plane, constellation vector points, multi-ring radar reticle, sequential beam search steps, and beacon diamonds) in a real browser at 1920x1080 100% zoom at `http://localhost:8080/#explore` and `http://localhost:8080/#hnsw`. Next task number is T-092.
+> **NEXT STEP**: Human verifies T-090 ($10,000 Product-Grade Canvas Visualizers in Explore & HNSW: precision CAD coordinate plane, constellation vector points, multi-ring radar reticle, sequential beam search steps, and beacon diamonds) in a real browser at 1920x1080 100% zoom at `http://localhost:8080/#explore` and `http://localhost:8080/#hnsw`. Next task number is T-093.
 >
 > **NEEDED FROM THE HUMAN**: (1) Browser check across tabs; (2) Feedback on the precision CAD canvas rendering.
 
@@ -15,6 +15,22 @@ Last updated: 2026-11-16 by T-091 sync
   - HNSW tab: COMPLETE & Symmetrical Studio Workbench (T-088, ADR-081, T-090). Perfectly balanced 3-column grid (`390px | 1fr | 390px`): Left (390px) = Collection/Layer Config card + Graph Topology Summary card; Center (~820px) = Hero Precision Graph Viewport with beacon diamonds for entry nodes, antialiased edge web, and sequential step indicators (`#1`, `#2`, `#3`) along the beam search path; Right (390px) = Target Launcher + VCR Playback + Live Step Telemetry.
   - Compare tab: COMPLETE & Zero-Waste Benchmark Arena (T-089, ADR-082). Full-height spec sheet (`flex: 1 1 0; min-height: 0;`), row-by-row horizontal metric alignment (Median Latency, Distance Comps, Top-K Recall) across all 3 algorithm columns (Brute Force, KD-Tree, HNSW), compact 42px toolbar, zero empty black space.
   - Settings tab: COMPLETE & 3-Column Symmetrical Studio Console (T-089, ADR-082). Server & Health column with 2-column metrics bento; Demo Collection column with hyperparameter forms + synthetic vector ingestion; Storage & Maintenance column with persistence telemetry, 2-step chat clear, and 2-step danger reset. All DOM IDs reconnected to `settings.js`.
+
+## T-092 summary (ADR-085; Explore Tab $5,000 Studio Elevation & Table-Flex Bug Resolution)
+
+- **Goal & Motivation**: Addressed user request to focus strictly on Explore tab ("explore tab mai sirf work karanga... upgrade kroo aur worth 5k dollar... issue bhi fix kroo"). Fixed the empty nearest neighbors card shown in screenshot and elevated the entire Explore studio.
+- **Root Cause & Architectural Fixes**:
+  - Identified that `#explore-results-tbody` was wrapped inside a `<table>` while given `display: flex; flex-direction: column;` in CSS. Blink/WebKit breaks table rendering when flex is applied to tbody inside table, collapsing height to 0.
+  - Replaced table with clean semantic `<div id="explore-results-tbody" class="explore-neighbors-feed">` containing `.explore-neighbor-card` components.
+  - Added instant empty-state graphic on initial load so right column never shows a black void.
+  - Elevated constellation points to luminous gold dots (`r=3.5px`, fill `rgba(217, 164, 65, 0.75)`, stroke `rgba(9, 9, 11, 0.95)`).
+  - Added precision radar target lock reticle (outer dashed circle, inner solid circle, center pip, crosshairs, floating QUERY TARGET badge) and connecting geodesics to nearest neighbors.
+  - Added automatic 2D coordinate fallback mapping from `currentPoints` in query handlers.
+  - Balanced card padding and column distribution across all 3 zones (`390px | 1fr | 390px`), eliminating awkward dead space.
+- **Strict Invariants**:
+  - Ask, HNSW, Compare, and Settings tabs 100% frozen.
+  - Zero innerHTML, strict CSP verified (`check_web_safety.ps1` passed).
+  - 118/118 C++ tests pass.
 
 ## T-091 summary (ADR-084; Fixed SyntaxError in hnsw.js Restoring App Boot and Tab Switching)
 
