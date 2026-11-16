@@ -4710,7 +4710,7 @@ input[type="number"] {
 .compare-metric-switcher-frame {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
   width: 100%;
 }
 
@@ -4953,6 +4953,16 @@ input[type="number"] {
   background: transparent;
 }
 
+.switcher-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 18px;
+  line-height: 1.2;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 .switcher-rank-strip-wrap {
   display: flex;
   align-items: center;
@@ -4969,8 +4979,8 @@ input[type="number"] {
   align-items: center;
   gap: 3px;
   flex-wrap: nowrap;
-  width: 100%;
-  max-width: 220px;
+  flex-shrink: 0;
+  max-width: 150px;
   overflow: hidden;
 }
 

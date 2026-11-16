@@ -258,3 +258,17 @@ All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count
   - Test suites: 187 registered browser tests (182 pass in headless Node mock, 5 require real DOM).
   - Preserved ALL 40 Compare DOM IDs and ALL 28 Settings DOM IDs.
   - Frozen files byte-identical.
+
+## Task T-098 C: Compare Tab Card Geometry Unification & Zero-Overlap Single Screen
+
+- **Status**: Completed
+- **Changes**:
+  - Unified row card height across Latency, Work, and Accuracy views to the clean Work-view baseline (~50px).
+  - Center column standardized across all views: exactly 1 bar track (.switcher-bar-track) + 1 compact details row (.switcher-detail-row).
+  - In Accuracy view, integrated the compact rank cells strip (.compare-rank-strip-flex) inline into .switcher-detail-row next to the top matches chips (Top: #48...), eliminating vertical card bloating.
+  - In Latency view, removed separate tick track from card middle (range already clearly indicated in right column).
+  - Eliminated the separate .switcher-mismatch-panel container below the matrix, integrating rank deviation telemetry directly into the dynamic footnote.
+  - Adjusted frame gap from ar(--space-4) to ar(--space-3).
+  - Zero layout shift when toggling between views; 100% single-screen zero-scroll fit with no clipping or overlap by the composer dock.
+- **Quality Gates**:
+  - All 185 unit tests pass, zero web safety violations, 100% DOM IDs preserved, frozen files untouched.

@@ -522,51 +522,28 @@ export function initCompareTab() {
         subEl
       );
 
-      // Center Column: Thick bar on shared linear scale + details
+      // Center Column: Thick bar on shared linear scale + details (Work-view baseline)
       const fillEl = el("div", {
         className: `switcher-bar-fill fill-${alg}`,
         style: `width: ${card.barWidthPct}%;`
       });
       const trackEl = el("div", { className: "switcher-bar-track" }, fillEl);
-      const centerCol = el("div", { className: "switcher-bar-col" }, trackEl);
 
-      // a. Latency view: timings strip of N repeat runs
-      if (currentMetricKey === "latency" && latencies && Array.isArray(latencies[alg]) && latencies[alg].length > 1) {
-        const timings = buildTimingsStrip(latencies[alg]);
-        const timingsTrack = el("div", {
-          className: "switcher-timings-track",
-          role: "group",
-          "aria-label": `${timings.ticks.length} iterations for ${card.label}`
-        });
-        timings.ticks.forEach(t => {
-          timingsTrack.appendChild(el("span", {
-            className: `switcher-timing-tick tick-${alg}`,
-            style: `left: ${t.pct}%;`,
-            title: `Run ${t.run}: ${t.value} µs`
-          }));
-        });
-        const timingsEl = el("div", { className: "switcher-timings-row text-xs text-muted font-mono" },
-          el("span", {}, `Runs (${timings.ticks.length}): ${timings.min}–${timings.max} µs`),
-          timingsTrack
-        );
-        centerCol.appendChild(timingsEl);
-      }
+      // Unified details row: exactly 1 compact line across all 3 views!
+      const detailRow = el("div", { className: "switcher-detail-row text-xs" });
 
-      // b. Accuracy view: real-k rank cells strip
+      // In Accuracy view: include compact rank cells inline
       if (currentMetricKey === "accuracy") {
-        let rankContent;
         if (card.isBrute) {
-          rankContent = el("div", { className: "switcher-rank-strip-wrap" },
-            el("span", { className: "switcher-rank-ref text-muted text-xs" }, "Reference for the other algorithms")
-          );
-        } else {
+          detailRow.appendChild(el("span", { className: "switcher-rank-ref text-muted text-xs font-mono" }, "Ground Truth Baseline"));
+        } else if (Array.isArray(card.rankStrip) && card.rankStrip.length > 0) {
           const stripEl = el("div", {
             className: "compare-rank-strip-flex",
             role: "group",
             "aria-label": `${card.total} rank match indicators`
           });
 
-          for (const cellData of (card.rankStrip || [])) {
+          for (const cellData of card.rankStrip) {
             const expectedText = cellData.expectedId !== null ? `#${cellData.expectedId}` : "-";
             const gotText = cellData.gotId !== null ? `#${cellData.gotId}` : "-";
             const ariaLabel = cellData.isMatch
@@ -592,13 +569,11 @@ export function initCompareTab() {
 
             stripEl.appendChild(cellEl);
           }
-
-          rankContent = el("div", { className: "switcher-rank-strip-wrap" }, stripEl);
+          detailRow.appendChild(stripEl);
         }
-        centerCol.appendChild(rankContent);
       }
 
-      // c. Top matches summary row (Mono IDs + match indicator)
+      // Top matches summary chips (identical across all 3 views)
       const topMatches = buildTopMatchesSummary(card.results, bruteResults, 5);
       if (topMatches.length > 0) {
         const topRow = el("div", { className: "switcher-top-matches-row text-xs" },
@@ -612,8 +587,10 @@ export function initCompareTab() {
             }, `#${m.id}`);
           })
         );
-        centerCol.appendChild(topRow);
+        detailRow.appendChild(topRow);
       }
+
+      const centerCol = el("div", { className: "switcher-bar-col" }, trackEl, detailRow);
 
       // Right Column: Large tabular number, sublabel, and speed/prune tag
       let rightCol;
@@ -701,35 +678,6 @@ export function initCompareTab() {
     );
     frameEl.appendChild(matrixCard);
 
-    // 5. Accuracy View Mismatch Summary (Explicit expected vs got)
-    if (currentMetricKey === "accuracy") {
-      const kdMismatches = buildMismatchSummary(report.algorithms?.kdtree?.results, bruteResults, report.k || 10);
-      const hnMismatches = buildMismatchSummary(report.algorithms?.hnsw?.results, bruteResults, report.k || 10);
-      const totalDeviations = kdMismatches.mismatchCount + hnMismatches.mismatchCount;
-
-      const mismatchPanel = el("div", { className: "switcher-mismatch-panel text-xs font-mono" });
-      if (totalDeviations === 0) {
-        mismatchPanel.appendChild(el("span", { className: "text-muted" }, "Ground-truth rank parity: 100% agreement across all k results."));
-      } else {
-        const deviations = [];
-        if (hnMismatches.mismatches.length > 0) {
-          hnMismatches.mismatches.slice(0, 3).forEach(m => {
-            deviations.push(el("span", { className: "mismatch-item" }, `HNSW Rank ${m.rank}: expected ${m.expectedId}, got ${m.gotId}`));
-          });
-        }
-        if (kdMismatches.mismatches.length > 0) {
-          kdMismatches.mismatches.slice(0, 3).forEach(m => {
-            deviations.push(el("span", { className: "mismatch-item" }, `KD-Tree Rank ${m.rank}: expected ${m.expectedId}, got ${m.gotId}`));
-          });
-        }
-        mismatchPanel.replaceChildren(
-          el("span", { className: "text-muted" }, "Rank deviations: "),
-          ...deviations
-        );
-      }
-      frameEl.appendChild(mismatchPanel);
-    }
-
     // 4. One Explanatory Line Derived Purely from Real Numbers
     const explanatoryText = buildExplanatoryLine(cardModels, report.count || 1000);
     const explanatoryEl = el("div", { className: "compare-explanatory-line text-muted text-xs" },
@@ -740,13 +688,21 @@ export function initCompareTab() {
 
     cardsContainer.appendChild(frameEl);
 
-    // 5. Update Footnote Text According to Active View
+    // 5. Update Footnote Text According to Active View (Single-screen zero-scroll architecture)
     if (footnoteEl) {
-      const noteText = (currentMetricKey === "accuracy")
-        ? "Filled = same rank as ground truth. Higher recall indicates exact match with Brute Force."
-        : (currentMetricKey === "work")
-          ? "Distance computations indicate exact vector comparisons performed by index."
-          : `Latencies measured via high-resolution wall-clock timer over ${repeatCount} iteration${repeatCount > 1 ? "s" : ""} (median reported).`;
+      let noteText = `Latencies measured via high-resolution wall-clock timer over ${repeatCount} iteration${repeatCount > 1 ? "s" : ""} (median reported).`;
+      if (currentMetricKey === "work") {
+        noteText = "Distance computations indicate exact vector comparisons performed by index.";
+      } else if (currentMetricKey === "accuracy") {
+        const kdMismatches = buildMismatchSummary(report.algorithms?.kdtree?.results, bruteResults, report.k || 10);
+        const hnMismatches = buildMismatchSummary(report.algorithms?.hnsw?.results, bruteResults, report.k || 10);
+        const totalDeviations = kdMismatches.mismatchCount + hnMismatches.mismatchCount;
+        if (totalDeviations === 0) {
+          noteText = "Filled blocks indicate exact ground-truth rank match (100% agreement across all k results).";
+        } else {
+          noteText = `Rank deviations detected (${totalDeviations} mismatch${totalDeviations > 1 ? "es" : ""}). Filled blocks indicate exact ground-truth rank match.`;
+        }
+      }
 
       footnoteEl.replaceChildren(
         el("span", { className: "compare-footnote-icon", id: "compare-footnote-icon" }, "ℹ"),
