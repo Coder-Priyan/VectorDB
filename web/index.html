@@ -785,134 +785,156 @@
 
     <!-- TAB 5: SETTINGS & SYSTEM CONFIG -->
     <section id="panel-settings" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-settings">
-      <div class="settings-viewport">
-        <!-- 3-Column Symmetrical Bento Dashboard -->
-        <div class="settings-bento-grid settings-three-col-layout">
-          
-          <!-- COLUMN 1: Server & Runtime Health -->
-          <div class="studio-card settings-card settings-card-server">
-            <div class="studio-card-header">
-              <span class="studio-card-tag">Server &amp; Health</span>
-              <div class="settings-server-status-cluster">
-                <div class="settings-status-badge">
-                  <span class="status-dot status-dot-healthy"></span>
-                  <span id="settings-status-text">Server ok</span>
+      <div class="settings-layout">
+        <div class="settings-viewport-centered">
+          <!-- Page Header (Ask pattern) -->
+          <header class="page-header settings-header">
+            <div class="page-title-group">
+              <div class="page-title-row">
+                <h1 class="page-title">Settings &amp; System Health</h1>
+                <span id="settings-info-slot" class="header-badge"></span>
+              </div>
+              <p class="page-subtitle">Server Telemetry &bull; Hyperparameters &bull; Persistence &bull; Diagnostics</p>
+            </div>
+            <div class="settings-header-actions">
+              <div class="settings-status-badge">
+                <span class="status-dot status-dot-healthy"></span>
+                <span id="settings-status-text">Server ok</span>
+              </div>
+              <span id="settings-ollama-status-text" class="settings-pill-chip">Ollama online</span>
+            </div>
+          </header>
+
+          <!-- Scrollable Center Thread (Inner scroll, max-width: 860px) -->
+          <div class="settings-thread">
+            <!-- Card 1: Server & Runtime Health -->
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <span class="settings-card-title">Server &amp; Health</span>
+              </div>
+              <div class="settings-card-body">
+                <div class="settings-overline">System Telemetry &amp; Metrics</div>
+                <dl id="settings-health-box" class="settings-def-list" aria-label="Server status metrics"></dl>
+
+                <div class="settings-card-divider"></div>
+
+                <div class="settings-models-row">
+                  <div class="settings-overline">Installed Ollama Models</div>
+                  <div id="settings-models-chips" class="settings-models-list"></div>
                 </div>
-                <span id="settings-ollama-status-text" class="settings-pill-chip">Ollama online</span>
               </div>
             </div>
 
-            <div class="settings-card-body">
-              <div class="settings-overline">System Telemetry &amp; Metrics</div>
-              <dl id="settings-health-box" class="settings-def-list" aria-label="Server status metrics"></dl>
-
-              <div class="settings-card-divider"></div>
-
-              <div class="settings-models-row">
-                <div class="settings-overline">Installed Ollama Models</div>
-                <div id="settings-models-chips" class="settings-models-list"></div>
+            <!-- Card 2: Demo Collection Parameters & Ingestion -->
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <span class="settings-card-title">Demo Collection Hyperparameters</span>
+                <span id="settings-reset-status" class="badge badge-success hidden">Reset OK</span>
               </div>
-            </div>
-          </div>
-
-          <!-- COLUMN 2: Demo Collection Parameters & Ingestion -->
-          <div class="studio-card settings-card settings-card-collection">
-            <div class="studio-card-header">
-              <span class="studio-card-tag">Demo Collection</span>
-              <span id="settings-reset-status" class="badge badge-success hidden">Reset OK</span>
-            </div>
-
-            <div class="settings-card-body">
-              <form id="settings-reset-demo-form" class="settings-grid-form">
-                <div class="settings-form-field">
-                  <label for="demo-dim-input" class="settings-field-label">Dimension</label>
-                  <input type="number" id="demo-dim-input" class="input-text settings-input" value="128" min="1" max="4096" required>
-                </div>
-                <div class="settings-form-field">
-                  <label for="demo-metric-select" class="settings-field-label">Distance metric</label>
-                  <div id="demo-metric-dropdown-wrap" class="settings-dropdown-wrap">
-                    <input type="hidden" id="demo-metric-select" value="cosine">
+              <div class="settings-card-body">
+                <form id="settings-reset-demo-form" class="settings-grid-form">
+                  <div class="settings-form-field">
+                    <label for="demo-dim-input" class="settings-field-label">Dimension</label>
+                    <input type="number" id="demo-dim-input" class="input-text settings-input" value="128" min="1" max="4096" required>
                   </div>
-                </div>
-                <div class="settings-form-field">
-                  <label for="demo-m-input" class="settings-field-label">M (Max edges)</label>
-                  <input type="number" id="demo-m-input" class="input-text settings-input" value="16" min="2" max="128">
-                </div>
-                <div class="settings-form-field">
-                  <label for="demo-efc-input" class="settings-field-label">efConstruction</label>
-                  <input type="number" id="demo-efc-input" class="input-text settings-input" value="200" min="4" max="1000">
-                </div>
-              </form>
-
-              <div class="settings-card-divider"></div>
-
-              <div class="settings-insert-box">
-                <div class="settings-overline">Insert Synthetic Vectors</div>
-                <form id="settings-random-demo-form" class="settings-inline-insert-form">
-                  <input type="number" id="demo-random-count" class="input-text settings-input" value="100" min="1" max="20000" aria-label="Count">
-                  <button type="submit" id="demo-insert-random-btn" class="btn btn-secondary btn-sm">+ Insert Vectors</button>
+                  <div class="settings-form-field">
+                    <label for="demo-metric-select" class="settings-field-label">Distance metric</label>
+                    <div id="demo-metric-dropdown-wrap" class="settings-dropdown-wrap">
+                      <input type="hidden" id="demo-metric-select" value="cosine">
+                    </div>
+                  </div>
+                  <div class="settings-form-field">
+                    <label for="demo-m-input" class="settings-field-label">M (Max edges)</label>
+                    <input type="number" id="demo-m-input" class="input-text settings-input" value="16" min="2" max="128">
+                  </div>
+                  <div class="settings-form-field">
+                    <label for="demo-efc-input" class="settings-field-label">efConstruction</label>
+                    <input type="number" id="demo-efc-input" class="input-text settings-input" value="200" min="4" max="1000">
+                  </div>
                 </form>
-                <div id="settings-random-status" class="settings-status-note hidden"></div>
+
+                <div class="settings-card-divider"></div>
+
+                <div class="settings-insert-box">
+                  <div class="settings-overline">Insert Synthetic Vectors</div>
+                  <form id="settings-random-demo-form" class="settings-inline-insert-form">
+                    <input type="number" id="demo-random-count" class="input-text settings-input" value="100" min="1" max="20000" aria-label="Count">
+                    <button type="submit" id="demo-insert-random-btn" class="btn btn-secondary btn-sm">+ Insert Vectors</button>
+                  </form>
+                  <div id="settings-random-status" class="settings-status-note hidden"></div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- COLUMN 3: Storage, History & Danger Zone -->
-          <div class="studio-card settings-card settings-card-maintenance">
-            <div class="studio-card-header">
-              <span class="studio-card-tag">Storage &amp; Controls</span>
-              <span id="settings-info-slot"></span>
+            <!-- Card 3: Storage, History & Guided Tour -->
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <span class="settings-card-title">Storage, History &amp; Tour</span>
+              </div>
+              <div class="settings-card-body">
+                <div class="settings-storage-section">
+                  <div class="settings-storage-label">Disk Persistence</div>
+                  <div class="settings-persistence-row">
+                    <span id="settings-persistence-status" class="badge badge-neutral">Disabled (in-memory only)</span>
+                    <code id="settings-persistence-dir" class="settings-code-pill font-mono">none (ephemeral)</code>
+                  </div>
+                  <p id="settings-persistence-hint" class="settings-persistence-hint text-muted text-xs">Pass --data-dir on startup to persist collections.</p>
+                </div>
+
+                <div class="settings-card-divider"></div>
+
+                <div class="settings-maintenance-actions">
+                  <div class="settings-action-row">
+                    <div class="settings-action-meta">
+                      <span class="settings-action-title">Chat history</span>
+                      <span class="settings-action-desc">Clear local conversation threads.</span>
+                    </div>
+                    <div class="btn-group">
+                      <button type="button" id="settings-clear-chats-btn" class="btn btn-sm btn-ghost">Clear Chat History</button>
+                      <button type="button" id="settings-clear-chats-cancel-btn" class="btn btn-sm btn-ghost hidden">Cancel</button>
+                    </div>
+                  </div>
+                  <div id="settings-clear-chats-status" class="settings-status-note hidden"></div>
+
+                  <div class="settings-action-row mt-3">
+                    <div class="settings-action-meta">
+                      <span class="settings-action-title">Guided product tour</span>
+                      <span class="settings-action-desc">Take an interactive tour of VectorDB capabilities.</span>
+                    </div>
+                    <button type="button" id="settings-start-tour-btn" class="btn btn-sm btn-secondary">
+                      <span>Start Guided Tour</span>
+                      <span id="settings-tour-icon"></span>
+                    </button>
+                  </div>
+
+                  <div class="settings-action-row mt-3">
+                    <div class="settings-action-meta">
+                      <span class="settings-action-title">Test runner</span>
+                      <span class="settings-action-desc">Open the browser-based interactive test suite.</span>
+                    </div>
+                    <a href="/tests.html" target="_blank" rel="noopener" class="btn btn-sm btn-ghost">Interactive Test Suite <span id="settings-tests-icon"></span></a>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div class="settings-card-body">
-              <div class="settings-storage-section">
-                <div class="settings-storage-label">Disk Persistence</div>
-                <div class="settings-persistence-row">
-                  <span id="settings-persistence-status" class="badge badge-neutral">Disabled (in-memory only)</span>
-                  <code id="settings-persistence-dir" class="settings-code-pill font-mono">none (ephemeral)</code>
-                </div>
-                <p id="settings-persistence-hint" class="settings-persistence-hint text-muted text-xs">Pass --data-dir on startup to persist collections.</p>
+            <!-- Card 4: Danger Zone -->
+            <div class="settings-card settings-danger-card">
+              <div class="settings-card-header">
+                <span class="danger-badge">Danger Zone</span>
               </div>
-
-              <div class="settings-card-divider"></div>
-
-              <div class="settings-maintenance-actions">
-                <div class="settings-action-row">
-                  <div class="settings-action-meta">
-                    <span class="settings-action-title">Chat history</span>
-                    <span class="settings-action-desc">Clear local conversation threads.</span>
-                  </div>
-                  <div class="btn-group">
-                    <button type="button" id="settings-clear-chats-btn" class="btn btn-sm btn-ghost">Clear Chat History</button>
-                    <button type="button" id="settings-clear-chats-cancel-btn" class="btn btn-sm btn-ghost hidden">Cancel</button>
-                  </div>
-                </div>
-                <div id="settings-clear-chats-status" class="settings-status-note hidden"></div>
-
-                <div class="settings-action-row mt-2">
-                  <a href="/tests.html" target="_blank" rel="noopener" class="btn btn-sm btn-ghost">Interactive Test Suite <span id="settings-tests-icon"></span></a>
-                </div>
-              </div>
-
-              <div class="settings-card-divider"></div>
-
-              <div class="settings-danger-block">
-                <div class="danger-header">
-                  <span class="danger-badge">Danger Zone</span>
-                </div>
+              <div class="settings-card-body">
                 <p class="danger-desc">Reset all vectors in the demo collection with new dimension and parameters.</p>
                 <div class="danger-btn-row">
-                  <button type="button" id="demo-reset-btn" class="btn btn-danger btn-sm w-100">Reset Demo Collection</button>
+                  <button type="button" id="demo-reset-btn" class="btn btn-danger btn-sm">Reset Demo Collection</button>
                   <button type="button" id="demo-reset-cancel-btn" class="btn btn-ghost btn-sm hidden">Cancel</button>
                 </div>
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </section>
-
   </main>
     </div>
   </div>
