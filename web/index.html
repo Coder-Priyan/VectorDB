@@ -414,217 +414,165 @@
 
     <!-- TAB 3: HNSW GRAPH -->
     <section id="panel-hnsw" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-hnsw">
-      <div class="hnsw-viewport hnsw-pro-workbench">
-        
-        <!-- COLUMN 1: CONFIG & TOPOLOGY (390px) -->
-        <aside class="hnsw-col hnsw-config-deck">
-          <!-- Card 1: Collection & Layer Config -->
-          <div class="studio-card hnsw-config-card">
-            <div class="studio-card-header">
-              <span class="studio-card-tag">Collection &amp; Layer</span>
-              <button type="button" id="hnsw-refresh-btn" class="btn btn-xs btn-ghost" title="Refresh graph">Refresh</button>
-            </div>
-            
-            <div class="hnsw-ctrl-group">
-              <label for="hnsw-coll-select" class="hnsw-ctrl-label">Collection</label>
-              <div id="hnsw-coll-dropdown-wrap" class="toolbar-dropdown-wrap w-100">
-                <input type="hidden" id="hnsw-coll-select" value="demo">
+      <div class="hnsw-layout drawer-collapsed">
+        <div class="hnsw-main-viewport">
+          <!-- Page Header (Ask pattern) -->
+          <header class="page-header hnsw-header">
+            <div class="page-title-group">
+              <div class="page-title-row">
+                <h1 class="page-title" id="hnsw-graph-title">HNSW Graph</h1>
+                <span id="hnsw-info-slot" class="header-badge"></span>
               </div>
+              <p class="page-subtitle" id="hnsw-graph-subtitle">Hierarchical Navigable Small World &bull; Layered Proximity Graph</p>
             </div>
-
-            <div class="hnsw-ctrl-group mt-2">
-              <div class="hnsw-slider-header">
-                <label for="hnsw-layer-slider" id="hnsw-layer-label" class="hnsw-ctrl-label font-mono">Layer L0</label>
-                <div class="hnsw-status-badge">
-                  <span class="status-dot status-dot-healthy"></span>
-                  <span id="hnsw-edge-summary" class="hnsw-edge-summary font-mono text-xs">Loading...</span>
+            <div class="hnsw-header-actions">
+              <div class="legend-row hnsw-legend-row">
+                <div class="legend-item">
+                  <span class="hnsw-legend-ring entry-ring"></span>
+                  <span>Entry point</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-swatch swatch-hnsw"></span>
+                  <span>Visited</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-swatch hnsw-other-node"></span>
+                  <span>Other</span>
+                </div>
+                <div class="legend-item">
+                  <span class="hnsw-legend-line"></span>
+                  <span>Edge</span>
                 </div>
               </div>
-              <input type="range" id="hnsw-layer-slider" min="0" max="0" value="0" class="input-range w-100">
+              <button type="button" id="hnsw-refresh-btn" class="btn btn-sm btn-secondary" title="Refresh graph">Refresh</button>
+              <button type="button" id="hnsw-drawer-toggle-btn" class="btn btn-sm btn-secondary hnsw-drawer-toggle" title="Toggle Telemetry Drawer" aria-label="Toggle Telemetry Drawer">
+                <span class="btn-icon" data-icon="layout"></span>
+                <span>Telemetry</span>
+              </button>
             </div>
+          </header>
 
-            <div class="hnsw-ctrl-group mt-2">
-              <div class="hnsw-max-edges-row">
-                <label for="hnsw-max-edges-select" class="hnsw-ctrl-label">Max Edges Rendered</label>
-                <span id="hnsw-edge-warn-badge" class="badge badge-warning hidden">Truncated</span>
-                <span id="hnsw-info-slot"></span>
-              </div>
-              <div id="hnsw-max-edges-dropdown-wrap" class="toolbar-dropdown-wrap w-100">
-                <input type="hidden" id="hnsw-max-edges-select" value="20000">
+          <!-- Hero Graph Canvas Viewport -->
+          <div class="hnsw-canvas-viewport">
+            <div class="hnsw-canvas-container">
+              <canvas id="hnsw-canvas" width="1000" height="600"></canvas>
+              <div class="canvas-viewport-hints">
+                <span class="hint-item"><span class="hint-kbd">&#x2728; Click Node</span> Inspect connections</span>
+                <span class="hint-sep">&bull;</span>
+                <span class="hint-item"><span class="hint-kbd">Wheel</span> Zoom at cursor</span>
+                <span class="hint-sep">&bull;</span>
+                <span class="hint-item"><span class="hint-kbd">Drag</span> Pan graph</span>
+                <span class="hint-sep">&bull;</span>
+                <span class="hint-item"><span class="hint-kbd">2x Click</span> Fit bounds</span>
               </div>
             </div>
           </div>
 
-          <!-- Card 2: Topology Summary Bento -->
-          <div class="studio-card hnsw-topology-card" id="hnsw-topology-strip">
-            <div class="studio-card-header">
-              <span class="studio-card-tag">Graph Topology Summary</span>
-            </div>
-            <div class="hnsw-topo-stats-stack">
-              <div class="strip-stat-item">
-                <span class="strip-icon" data-icon="database"></span>
-                <div class="strip-stat-meta">
-                  <span class="strip-stat-label">Total Nodes</span>
-                  <span class="strip-stat-val font-mono" id="hnsw-topo-nodes">-</span>
+          <!-- Docked Bottom Composer-Style Control Bar (Ask style) -->
+          <div class="hnsw-composer-dock">
+            <div class="hnsw-control-bar">
+              <!-- Top Row: Collection, Layer slider, Max edges, Topology Badges -->
+              <div class="hnsw-bar-top">
+                <div class="hnsw-bar-left">
+                  <div id="hnsw-coll-dropdown-wrap" class="hnsw-coll-dropdown-wrap">
+                    <input type="hidden" id="hnsw-coll-select" value="demo">
+                  </div>
+                  <div class="hnsw-layer-control-wrap">
+                    <label for="hnsw-layer-slider" id="hnsw-layer-label" class="hnsw-layer-label font-mono">Layer L0</label>
+                    <input type="range" id="hnsw-layer-slider" min="0" max="0" value="0" class="input-range hnsw-layer-slider">
+                    <span id="hnsw-edge-summary" class="hnsw-edge-summary font-mono text-xs">Loading...</span>
+                  </div>
+                  <div class="hnsw-max-edges-wrap">
+                    <span class="hnsw-sublabel">Edges:</span>
+                    <div id="hnsw-max-edges-dropdown-wrap" class="hnsw-max-edges-dropdown-wrap">
+                      <input type="hidden" id="hnsw-max-edges-select" value="20000">
+                    </div>
+                    <span id="hnsw-edge-warn-badge" class="badge badge-warning hidden">Truncated</span>
+                  </div>
                 </div>
-              </div>
-              <div class="strip-stat-item">
-                <span class="strip-icon" data-icon="graph"></span>
-                <div class="strip-stat-meta">
-                  <span class="strip-stat-label">Max Level</span>
-                  <span class="strip-stat-val font-mono" id="hnsw-topo-max-level">-</span>
-                </div>
-              </div>
-              <div class="strip-stat-item">
-                <span class="strip-icon" data-icon="target"></span>
-                <div class="strip-stat-meta">
-                  <span class="strip-stat-label">Entry Point</span>
-                  <span class="strip-stat-val font-mono" id="hnsw-topo-entry">-</span>
-                </div>
-              </div>
-            </div>
-            <div class="hnsw-topo-bento-tile">
-              <span class="topo-bento-label">Graph Architecture</span>
-              <span class="topo-bento-text">Hierarchical proximity graph with skip-list routing. Greedy beam search evaluates neighbors on each layer before descending to Layer 0.</span>
-            </div>
-            <div class="hnsw-topo-meta-note">
-              <span>Hierarchical Small World &mdash; O(log N) Beam Search</span>
-            </div>
-            <div id="hnsw-info-box" class="hidden"></div>
-          </div>
-        </aside>
 
-        <!-- COLUMN 2: PRECISION GRAPH VIEWPORT (Hero Centerpiece, ~820px) -->
-        <main class="hnsw-col hnsw-canvas-viewport">
-          <div class="studio-card canvas-card-container">
-            <!-- Viewport Top Control Strip -->
-            <div class="viewport-header">
-              <div class="viewport-title-group">
-                <div class="viewport-title-row">
-                  <span class="viewport-title" id="hnsw-graph-title">HNSW Graph &mdash; Layer L0</span>
-                  <div class="viewport-status-badge">
-                    <span class="status-dot status-dot-healthy"></span>
-                    <span class="viewport-status-text">Indexed Topology</span>
-                  </div>
-                </div>
-                <p class="canvas-panel-subtitle" id="hnsw-graph-subtitle">Base layer containing all indexed vector nodes and full connectivity.</p>
-              </div>
-              <div class="viewport-actions">
-                <div class="legend-row hnsw-legend-row">
-                  <div class="legend-item">
-                    <span class="hnsw-legend-ring entry-ring"></span>
-                    <span>Entry point</span>
-                  </div>
-                  <div class="legend-item">
-                    <span class="legend-swatch swatch-hnsw"></span>
-                    <span>Visited</span>
-                  </div>
-                  <div class="legend-item">
-                    <span class="legend-swatch hnsw-other-node"></span>
-                    <span>Other</span>
-                  </div>
-                  <div class="legend-item">
-                    <span class="hnsw-legend-line"></span>
-                    <span>Edge</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Dedicated Precision Canvas Area -->
-            <div class="canvas-wrapper hnsw-canvas-wrapper">
-              <canvas id="hnsw-canvas" width="820" height="520"></canvas>
-            </div>
-
-            <!-- Viewport Bottom Navigation Hints -->
-            <div class="viewport-footer">
-              <div class="canvas-hint-item">
-                <span class="hint-kbd">&#x2728; Click Node</span>
-                <span class="hint-text">Inspect connections</span>
-              </div>
-              <div class="canvas-hint-divider"></div>
-              <div class="canvas-hint-item">
-                <span class="hint-kbd">Wheel</span>
-                <span class="hint-text">Zoom at cursor</span>
-              </div>
-              <div class="canvas-hint-divider"></div>
-              <div class="canvas-hint-item">
-                <span class="hint-kbd">Drag</span>
-                <span class="hint-text">Pan graph</span>
-              </div>
-              <div class="canvas-hint-divider"></div>
-              <div class="canvas-hint-item">
-                <span class="hint-kbd">Slider</span>
-                <span class="hint-text">Traverse layer</span>
-              </div>
-            </div>
-          </div>
-        </main>
-
-        <!-- COLUMN 3: SEARCH LAUNCHER & PLAYBACK CONSOLE (390px, Exact Same Width as Left!) -->
-        <aside class="hnsw-col hnsw-console-deck">
-          <div id="hnsw-trace-notice" class="notice-box notice-neutral hidden">Search path trace is available for the Demo collection (documents index does not support step trace).</div>
-
-          <div id="hnsw-trace-section" class="hnsw-trace-stack">
-            <!-- Card 1: Search Target Launcher -->
-            <div class="studio-card hnsw-launcher-card">
-              <div class="studio-card-header">
-                <span class="studio-card-tag">Search Target</span>
-                <button type="button" id="hnsw-trace-random-btn" class="btn btn-primary btn-xs">Random</button>
-              </div>
-              <div class="form-stack">
-                <div class="form-row">
-                  <div class="form-group flex-1">
-                    <label for="hnsw-trace-k" class="hnsw-ctrl-label">k</label>
-                    <input type="number" id="hnsw-trace-k" class="input-text input-sm" value="5" min="1" max="50">
-                  </div>
-                  <div class="form-group flex-1">
-                    <label for="hnsw-trace-ef" class="hnsw-ctrl-label">efSearch</label>
-                    <input type="number" id="hnsw-trace-ef" class="input-text input-sm" value="16" min="1" max="500">
-                  </div>
-                </div>
-                <div class="hnsw-id-group mt-1">
-                  <label for="hnsw-trace-id-input" class="hnsw-ctrl-label">Stored Vector ID</label>
-                  <div class="hnsw-id-row">
-                    <input type="number" id="hnsw-trace-id-input" class="input-text input-sm flex-1 hnsw-id-input" placeholder="e.g. 1" min="1">
-                    <button type="button" id="hnsw-trace-id-btn" class="btn btn-secondary btn-sm hnsw-id-btn">Trace ID</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Card 2: VCR Playback Transport -->
-            <div class="studio-card hnsw-player-card">
-              <div class="studio-card-header">
-                <span class="studio-card-tag">Playback Transport</span>
-                <span id="hnsw-step-counter" class="font-mono text-xs text-muted">Step 0 / 0</span>
-              </div>
-              <div class="hnsw-player-wrap">
-                <div class="player-bar">
-                  <button type="button" id="hnsw-trace-prev-btn" class="btn btn-sm btn-ghost" title="Previous step">&larr;</button>
-                  <button type="button" id="hnsw-trace-play-btn" class="btn btn-sm btn-secondary">Play</button>
-                  <button type="button" id="hnsw-trace-next-btn" class="btn btn-sm btn-ghost" title="Next step">&rarr;</button>
-                  <button type="button" id="hnsw-trace-reset-btn" class="btn btn-sm btn-ghost" title="Reset trace">&#8635;</button>
-                  <div class="trace-speed-dropdown-wrap">
-                    <div id="hnsw-trace-speed-dropdown-wrap">
-                      <input type="hidden" id="hnsw-trace-speed" value="1">
+                <div class="hnsw-bar-right">
+                  <div class="hnsw-topo-pills">
+                    <div class="hnsw-topo-pill">
+                      <span class="pill-label">NODES</span>
+                      <span class="pill-val font-mono" id="hnsw-topo-nodes">-</span>
+                    </div>
+                    <div class="hnsw-topo-pill">
+                      <span class="pill-label">MAX LVL</span>
+                      <span class="pill-val font-mono" id="hnsw-topo-max-level">-</span>
+                    </div>
+                    <div class="hnsw-topo-pill">
+                      <span class="pill-label">ENTRY</span>
+                      <span class="pill-val font-mono" id="hnsw-topo-entry">-</span>
                     </div>
                   </div>
                 </div>
-                <div class="step-slider-row">
-                  <input type="range" id="hnsw-trace-slider" min="-1" max="-1" value="-1" class="input-range">
+              </div>
+
+              <!-- Bottom Row: Trace target launcher & VCR playback -->
+              <div class="hnsw-bar-bottom">
+                <div id="hnsw-trace-notice" class="notice-box notice-neutral hidden">Search path trace is available for Demo collection.</div>
+
+                <div id="hnsw-trace-section" class="hnsw-trace-row">
+                  <!-- Search target controls -->
+                  <div class="hnsw-target-controls">
+                    <div class="hnsw-k-ef-wrap">
+                      <span class="hnsw-sublabel">k</span>
+                      <input type="number" id="hnsw-trace-k" class="input-text input-sm hnsw-trace-num" value="5" min="1" max="50">
+                      <span class="hnsw-sublabel">ef</span>
+                      <input type="number" id="hnsw-trace-ef" class="input-text input-sm hnsw-trace-num" value="16" min="1" max="500">
+                    </div>
+                    <button type="button" id="hnsw-trace-random-btn" class="btn btn-sm btn-primary">
+                      <span class="btn-icon" data-icon="sparkle"></span>
+                      <span>Random Trace</span>
+                    </button>
+                    <div class="hnsw-id-trace-wrap">
+                      <input type="number" id="hnsw-trace-id-input" class="input-text input-sm hnsw-id-input" placeholder="Vector ID..." min="1">
+                      <button type="button" id="hnsw-trace-id-btn" class="btn btn-sm btn-secondary">Trace ID</button>
+                    </div>
+                  </div>
+
+                  <!-- Playback transport -->
+                  <div class="hnsw-playback-controls">
+                    <div class="player-buttons-group">
+                      <button type="button" id="hnsw-trace-prev-btn" class="btn btn-sm btn-ghost" title="Previous step">&larr;</button>
+                      <button type="button" id="hnsw-trace-play-btn" class="btn btn-sm btn-secondary">Play</button>
+                      <button type="button" id="hnsw-trace-next-btn" class="btn btn-sm btn-ghost" title="Next step">&rarr;</button>
+                      <button type="button" id="hnsw-trace-reset-btn" class="btn btn-sm btn-ghost" title="Reset trace">&#8635;</button>
+                      <div id="hnsw-trace-speed-dropdown-wrap" class="hnsw-speed-dropdown-wrap">
+                        <input type="hidden" id="hnsw-trace-speed" value="1">
+                      </div>
+                    </div>
+                    <div class="hnsw-slider-track-wrap">
+                      <input type="range" id="hnsw-trace-slider" min="-1" max="-1" value="-1" class="input-range hnsw-trace-slider">
+                      <span id="hnsw-step-counter" class="font-mono text-xs text-muted hnsw-step-counter">Step 0 / 0</span>
+                    </div>
+                    <div id="hnsw-trace-announcement" class="sr-only" aria-live="polite">Search trace ready</div>
+                    <div id="hnsw-trace-missing" class="notice-box notice-warning hidden"></div>
+                  </div>
                 </div>
-                <div id="hnsw-trace-announcement" class="sr-only" aria-live="polite">Search trace ready</div>
-                <div id="hnsw-trace-missing" class="notice-box notice-warning hidden"></div>
               </div>
             </div>
+          </div>
+        </div>
 
-            <!-- Card 3: Live Step Telemetry & Stats -->
-            <div class="studio-card hnsw-telemetry-card">
-              <div class="studio-card-header">
-                <span class="studio-card-tag">Step Telemetry &amp; Stats</span>
+        <!-- Slide-over Telemetry Drawer (Ask doc-drawer pattern) -->
+        <aside id="hnsw-telemetry-drawer" class="hnsw-drawer collapsed" aria-label="Search Telemetry &amp; Stats">
+          <div class="drawer-header">
+            <div class="drawer-title-group">
+              <h3 class="section-title">Telemetry &amp; Stats</h3>
+            </div>
+            <button type="button" id="hnsw-drawer-close-btn" class="btn btn-xs btn-ghost btn-icon-only" title="Close drawer" aria-label="Close drawer">
+              <span class="btn-icon" data-icon="x"></span>
+            </button>
+          </div>
+
+          <div class="drawer-scroll">
+            <!-- Active Step Coordinates Card -->
+            <div class="drawer-card">
+              <div class="drawer-card-header">
+                <span class="drawer-card-title">Active Step Coordinates</span>
               </div>
-              <div class="telemetry-section-label">Active Step Coordinates</div>
               <div class="hnsw-step-tiles" id="hnsw-step-tiles">
                 <div class="hnsw-stat-tile">
                   <span class="stat-tile-label">Node</span>
@@ -639,7 +587,13 @@
                   <span class="stat-tile-val font-mono" id="hnsw-curr-layer">-</span>
                 </div>
               </div>
-              <div class="telemetry-section-label mt-2">Search Diagnostics</div>
+            </div>
+
+            <!-- Search Diagnostics Card -->
+            <div class="drawer-card mt-3">
+              <div class="drawer-card-header">
+                <span class="drawer-card-title">Search Diagnostics</span>
+              </div>
               <div class="hnsw-search-stats-grid" id="hnsw-trace-stats-box">
                 <div class="hnsw-stat-tile">
                   <span class="stat-tile-label">Distance comps</span>
@@ -654,14 +608,25 @@
                   <span class="stat-tile-val font-mono" id="hnsw-stat-visited-layers">-</span>
                 </div>
               </div>
-              <div class="hnsw-routing-desc-tile">
+              <div class="hnsw-routing-desc-tile mt-2">
                 <span class="routing-desc-title">Beam Search Routing</span>
                 <span class="routing-desc-text">Greedy beam search trajectory from top entry node down to base layer, minimizing cosine distance to target vector.</span>
               </div>
             </div>
+
+            <!-- Graph Topology Bento Card -->
+            <div class="drawer-card mt-3" id="hnsw-topology-strip">
+              <div class="drawer-card-header">
+                <span class="drawer-card-title">Topology Summary</span>
+              </div>
+              <div class="hnsw-topo-bento-tile">
+                <span class="topo-bento-label">Graph Architecture</span>
+                <span class="topo-bento-text">Hierarchical proximity graph with skip-list routing. Greedy beam search evaluates neighbors on each layer before descending to Layer 0.</span>
+              </div>
+              <div id="hnsw-info-box" class="hidden"></div>
+            </div>
           </div>
         </aside>
-
       </div>
     </section>
 

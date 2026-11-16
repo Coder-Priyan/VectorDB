@@ -84,6 +84,21 @@ export function initHnswTab() {
   const traceSlider = byId("hnsw-trace-slider");
   const traceStepAnnounce = byId("hnsw-trace-announcement"), traceMissingNotice = byId("hnsw-trace-missing");
   const traceStatsBox = byId("hnsw-trace-stats-box");
+  const drawer = byId("hnsw-telemetry-drawer");
+  const drawerToggleBtn = byId("hnsw-drawer-toggle-btn");
+  const drawerCloseBtn = byId("hnsw-drawer-close-btn");
+  const hnswLayout = document.querySelector(".hnsw-layout");
+
+  function toggleDrawer(open) {
+    if (!drawer) return;
+    const shouldOpen = open !== undefined ? open : drawer.classList.contains("collapsed");
+    drawer.classList.toggle("collapsed", !shouldOpen);
+    hnswLayout?.classList.toggle("drawer-collapsed", !shouldOpen);
+    scheduleResize();
+  }
+
+  drawerToggleBtn?.addEventListener("click", () => toggleDrawer());
+  drawerCloseBtn?.addEventListener("click", () => toggleDrawer(false));
 
   const viewport = new Viewport2D(canvas.width, canvas.height, 45);
   const offscreenCanvas = document.createElement("canvas");
@@ -424,6 +439,7 @@ export function initHnswTab() {
       const res = await api.traceHnsw({ vector: vec, k, ef });
       const mapped = mapTraceToCoordinates(res.trace || [], pcaMap);
       mappedTraceSteps = mapped.mappedSteps;
+      toggleDrawer(true);
 
       if (traceMissingNotice) {
         traceMissingNotice.textContent = mapped.missingCount > 0 ? `${mapped.missingCount} visited nodes not on 2D map` : "";
