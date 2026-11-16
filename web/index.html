@@ -396,8 +396,9 @@
           </div>
         </main>
 
-        <!-- COLUMN 3: NEAREST NEIGHBORS & INSPECTION FEED (~520px) -->
+        <!-- COLUMN 3: NEAREST NEIGHBORS & INSPECTION FEED (390px, Exact Same Width as Left!) -->
         <aside class="explore-col explore-inspector-feed">
+          <!-- Top Card: Nearest Neighbors List -->
           <div class="studio-card results-card-container">
             <div class="results-card-header">
               <div class="results-header-left">
@@ -431,6 +432,36 @@
                   </tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          <!-- Bottom Card: Selected Vector Inspection Details -->
+          <div class="studio-card explore-vector-inspector-card">
+            <div class="studio-card-header">
+              <span class="studio-card-tag">Vector Inspection</span>
+              <span class="inspector-live-tag" id="explore-inspector-target-id">Top Match</span>
+            </div>
+            <div class="inspector-metrics-grid">
+              <div class="inspector-stat-tile">
+                <span class="stat-tile-label">PROJECTED PC1</span>
+                <span class="stat-tile-val font-mono" id="inspector-stat-pc1">-</span>
+              </div>
+              <div class="inspector-stat-tile">
+                <span class="stat-tile-label">PROJECTED PC2</span>
+                <span class="stat-tile-val font-mono" id="inspector-stat-pc2">-</span>
+              </div>
+              <div class="inspector-stat-tile">
+                <span class="stat-tile-label">COSINE DIST</span>
+                <span class="stat-tile-val font-mono" id="inspector-stat-dist">-</span>
+              </div>
+              <div class="inspector-stat-tile">
+                <span class="stat-tile-label">SIMILARITY</span>
+                <span class="stat-tile-val font-mono" id="inspector-stat-sim">-</span>
+              </div>
+            </div>
+            <div class="inspector-meta-row">
+              <span class="meta-row-label">EMBEDDING SPACE</span>
+              <span class="meta-row-val font-mono" id="inspector-stat-dim">128D Dense Vector</span>
             </div>
           </div>
         </aside>

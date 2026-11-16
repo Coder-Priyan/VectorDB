@@ -187,7 +187,7 @@ export function initExploreTab() {
 
     // Axes
     const orig = viewport.toScreen(0, 0);
-    ctx.strokeStyle = THEME.gridLine;
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, orig.y); ctx.lineTo(width, orig.y);
@@ -246,15 +246,18 @@ export function initExploreTab() {
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
 
-    const isDocs = collSelect.value === "docs";
+    const isDocs = collSelect ? collSelect.value === "docs" : false;
     for (let i = 0; i < currentPoints.length; i++) {
       const pt = currentPoints[i];
       const scr = viewport.toScreen(pt.x, pt.y);
       if (scr.x < -10 || scr.x > width + 10 || scr.y < -10 || scr.y > height + 10) continue;
       ctx.beginPath();
-      ctx.arc(scr.x, scr.y, 3.5, 0, Math.PI * 2);
+      ctx.arc(scr.x, scr.y, 4, 0, Math.PI * 2);
       ctx.fillStyle = isDocs ? getDocColor(pt.doc_id) : THEME.accent;
       ctx.fill();
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.4)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
     }
 
     if (queryStar && topKResults.length > 0) {
@@ -336,7 +339,7 @@ export function initExploreTab() {
       const simTrack = el("div", { className: "sim-meter-track" }, simFill);
       const simCellContent = el("div", { className: "sim-cell-wrap" }, simVal, simTrack);
 
-      return el("tr", { className: "explore-neighbor-row" },
+      const row = el("tr", { className: "explore-neighbor-row" },
         el("td", { className: "neighbor-rank-cell" }, rankBadge),
         el("td", { className: "neighbor-target-cell" },
           el("div", { className: "neighbor-target-meta" },
@@ -350,8 +353,39 @@ export function initExploreTab() {
         el("td", { className: "neighbor-dist-cell font-mono" }, distStr),
         el("td", { className: "neighbor-sim-cell" }, simCellContent)
       );
+
+      row.addEventListener("click", () => {
+        hoveredPoint = currentPoints.find(p => isDocs ? (p.doc_id === r.doc_id && p.chunk_index === r.chunk_index) : (p.id === r.id)) || r;
+        const targetIdEl = byId("explore-inspector-target-id");
+        if (targetIdEl) targetIdEl.textContent = isDocs ? `Doc ${r.doc_id || r.id}` : `Vector #${r.id}`;
+        const pc1El = byId("inspector-stat-pc1");
+        if (pc1El && r.x !== undefined) pc1El.textContent = r.x.toFixed(3);
+        const pc2El = byId("inspector-stat-pc2");
+        if (pc2El && r.y !== undefined) pc2El.textContent = r.y.toFixed(3);
+        const distEl = byId("inspector-stat-dist");
+        if (distEl && r.distance !== undefined) distEl.textContent = r.distance.toFixed(4);
+        const simEl = byId("inspector-stat-sim");
+        if (simEl) simEl.textContent = formatSimilarity(r.similarity);
+        render();
+      });
+
+      return row;
     });
     resultsTableBody.replaceChildren(...rows);
+
+    if (results && results.length > 0) {
+      const top = results[0];
+      const targetIdEl = byId("explore-inspector-target-id");
+      if (targetIdEl) targetIdEl.textContent = isDocs ? `Doc ${top.doc_id || top.id}` : `Vector #${top.id}`;
+      const pc1El = byId("inspector-stat-pc1");
+      if (pc1El) pc1El.textContent = top.x !== undefined ? top.x.toFixed(3) : "-";
+      const pc2El = byId("inspector-stat-pc2");
+      if (pc2El) pc2El.textContent = top.y !== undefined ? top.y.toFixed(3) : "-";
+      const distEl = byId("inspector-stat-dist");
+      if (distEl) distEl.textContent = top.distance !== undefined ? top.distance.toFixed(4) : "-";
+      const simEl = byId("inspector-stat-sim");
+      if (simEl) simEl.textContent = formatSimilarity(top.similarity);
+    }
   }
 
   canvas.addEventListener("wheel", (e) => {
@@ -389,7 +423,19 @@ export function initExploreTab() {
       render(); return;
     }
     const hit = findHitPoint(e.clientX - rect.left, e.clientY - rect.top, currentPoints, viewport, 8);
-    if (hit !== hoveredPoint) { hoveredPoint = hit; render(); }
+    if (hit !== hoveredPoint) {
+      hoveredPoint = hit;
+      if (hoveredPoint) {
+        const isDocs = collSelect ? collSelect.value === "docs" : false;
+        const targetIdEl = byId("explore-inspector-target-id");
+        if (targetIdEl) targetIdEl.textContent = isDocs ? `Doc ${hoveredPoint.doc_id}` : `Vector #${hoveredPoint.id}`;
+        const pc1El = byId("inspector-stat-pc1");
+        if (pc1El && hoveredPoint.x !== undefined) pc1El.textContent = hoveredPoint.x.toFixed(3);
+        const pc2El = byId("inspector-stat-pc2");
+        if (pc2El && hoveredPoint.y !== undefined) pc2El.textContent = hoveredPoint.y.toFixed(3);
+      }
+      render();
+    }
     if (hoveredPoint && tooltip) {
       const isDocs = collSelect.value === "docs";
       tooltip.textContent = isDocs ? `[Doc ${hoveredPoint.doc_id}] ${hoveredPoint.title || ""}\nChunk ${hoveredPoint.chunk_index}` : `Vector ID: ${hoveredPoint.id}`;
