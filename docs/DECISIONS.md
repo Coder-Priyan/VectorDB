@@ -205,6 +205,24 @@ Last updated: 2026-11-16 by T-072 sync
      - Entire Settings tab fits into 1080p and laptop screens with zero bottom cutoff and zero page scroll.
   6. **Safety & Invariants**: Ask tab and C++ engine 100% frozen. All DOM IDs preserved. 118/118 C++ tests pass, 156/156 JS unit tests pass, zero web safety violations.
 
+### ADR-078: Ultra-Aesthetic, Tactile Premium Refinement Across Widescreen Studio Tabs (2026-11-16)
+
+- **Context**: In T-084, all 4 tabs were restructured into widescreen edge-to-edge layouts. Following user feedback requesting a major step up in aesthetic elegance, smoothness, and professional polish, T-085 executed a comprehensive visual polish sweep.
+- **Architectural & Design Decisions**:
+  1. **CAD / Pro Studio Viewport Styling**:
+     - Upgraded `.explore-canvas-frame` and `.hnsw-canvas-frame` with micro-elevated styling, 26px subtle panel headers with clean hierarchy, and smooth hairline borders.
+     - Added smooth micro-interactions (`border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1)`) on hover across all cards and telemetry tiles.
+  2. **Tactile Input & Control Scoping**:
+     - Scoped all numeric, text, and button controls within `.hnsw-launcher-card`, `.explore-k-input`, `.explore-id-input`, etc. with 28-34px heights, 1px hairline borders, muted backgrounds (`--bg-raised`), and tabular monospace typography (`font-variant-numeric: tabular-nums`).
+     - Replaced abrupt default hover states with subtle luminance lifts (`rgba(255, 255, 255, 0.14)` border hover).
+  3. **Universal Dock & Bento Ergonomics**:
+     - Refined the 4-zone HNSW Universal Dock with polished 28px VCR transport buttons, consistent 6px gutters, and tabular telemetry readouts.
+     - Polished Settings 3-column bento tiles with 32px inputs, balanced vertical rhythm, and zero-scroll fitting.
+  4. **Quality Gates & Invariants**:
+     - Zero non-root hex colors (`0`), zero box shadows (`0`), `!important` count <= 2 (`2`).
+     - Ask tab and C++ engine 100% frozen. 118/118 C++ tests pass. Strict CSP and zero innerHTML verified.
+
+
 
 
 

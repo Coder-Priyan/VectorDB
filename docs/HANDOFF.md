@@ -1,8 +1,8 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-084 sync
+Last updated: 2026-11-16 by T-085 sync
 
-> **NEXT STEP**: Human verifies T-084 (Edge-to-Edge Widescreen Studio Workspaces across Explore, HNSW, Compare, and Settings: 75/25 Master-Detail Explore split, HNSW Widescreen Canvas + 4-Zone Universal Dock, Compare 3-Column Arena, and Settings 3-Column Bento) in a real browser at 1920x1080 100% zoom across Explore, HNSW, Compare, and Settings and runs `/tests.html` (expect 156/156 passed); Brain reviews screenshots. Next free ADR is ADR-078. Next free ISS is ISS-084. Next task number is T-085.
+> **NEXT STEP**: Human verifies T-085 (Ultra-Aesthetic, Tactile Premium Refinement Across Widescreen Studio Tabs: CAD viewport framing, scoped tactile inputs, smooth cubic-bezier transitions, micro-elevated styling, tabular typography) in a real browser at 1920x1080 100% zoom across Explore, HNSW, Compare, and Settings and runs `/tests.html` (expect 156/156 passed); Brain reviews screenshots. Next free ADR is ADR-079. Next free ISS is ISS-085. Next task number is T-086.
 >
 > **NEEDED FROM THE HUMAN**: (1) Terminal verification on branch `ui-redesign-v4` (`git status -sb`, `git log --oneline -8`, `.\build\vectordb_tests.exe`, scanner, `/tests.html`); (2) Full-window 1920x1080 100% screenshots of Explore, HNSW, Compare, and Settings tabs.
 
