@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-16 by T-099 sync
 
-> **NEXT STEP**: Merge `ui-redesign-v4` to `main`. Then: fill LICENSE copyright name, verify Linux/macOS build, update README with beginner setup steps and screenshots, add Docker or Windows release zip, write short learning path. UI work is FROZEN by human decision (2026-11-16). Known visual issues are deferred — see below.
+> **NEXT STEP**: Merge `ui-redesign-v4` to `main`. Then: verify Linux/macOS build, update README with beginner setup steps and screenshots, add Docker or Windows release zip, write short learning path. UI work is FROZEN by human decision (2026-11-16). Known visual issues are deferred — see below. LICENSE copyright filled (Coder-Priyan, T-100 ✅).
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
 - **/tests.html**: **190/190 human-confirmed 2026-11-16 22:26** (real browser). Registered browser test count is 190. Older numbers 172/185 are stale.
@@ -29,7 +29,7 @@ VectorDB is being repositioned as a **free, open-source, self-hosted learning pl
 
 **Planned post-merge order**:
 1. Merge `ui-redesign-v4` → `main`
-2. Fill LICENSE copyright name
+2. ~~Fill LICENSE copyright name~~ ✅ **Done** — `Copyright (c) 2026 Coder-Priyan` (T-100)
 3. Verify Linux/macOS build
 4. Update README: beginner-friendly setup steps + screenshots
 5. Add Docker support or Windows release zip (1-command setup)

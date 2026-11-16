@@ -1,8 +1,15 @@
 # Project Progress
 
-Last updated: 2026-11-16 by T-099 sync
+Last updated: 2026-11-16 by T-100 sync
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform
+
+- **T-100**: Fill LICENSE copyright holder on branch `ui-redesign-v4`.
+  - **Goal**: Replace `<YOUR NAME>` placeholder in LICENSE with `Coder-Priyan`.
+  - `LICENSE:3` now reads: `Copyright (c) 2026 Coder-Priyan`. No other text changed.
+  - Placeholder scan: `README.md`, `CONTRIBUTING.md`, `web/` — **zero matches**. `docs/PROJECT_CONTEXT.md` had 2 stale references (lines 20 and 276) — both updated to reflect the resolved state (not edited to match scope, only docs notes updated).
+  - Docs: `PROJECT_CONTEXT.md` license line and pending actions updated. `HANDOFF.md` NEXT STEP and planned order updated.
+  - One commit: `chore: set LICENSE copyright holder`.
 
 - **T-099**: Pre-merge cleanup (gitignore + docs sync) on branch `ui-redesign-v4`.
   - **Goal**: Prepare `ui-redesign-v4` for merge to `main`. Keep builder scratch files and old logs out of git; sync docs with human-confirmed state.

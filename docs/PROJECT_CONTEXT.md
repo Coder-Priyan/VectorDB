@@ -17,7 +17,7 @@ This project operates on a strict three-party workflow:
 - **Repository Remote URL**: `https://github.com/Coder-Priyan/VectorDB.git` [CONFIRMED: git remote -v]
 - **Current Active Branch**: `ui-redesign-v4` [CONFIRMED: git branch]
 - **Fork Status**: Direct repository; not recorded as a git fork [CONFIRMED: git remote -v]
-- **License**: MIT (LICENSE file in repo root; copyright holder placeholder <YOUR NAME> still to be filled by human); third-party headers `httplib.h` and `nlohmann/json.hpp` are licensed under the MIT License [CONFIRMED: LICENSE:3, third_party/README.md:14,26]
+- **License**: MIT (LICENSE file in repo root; copyright holder: **Coder-Priyan** [CONFIRMED: LICENSE:3, T-100, human decision 2026-11-16]); third-party headers `httplib.h` and `nlohmann/json.hpp` are licensed under the MIT License [CONFIRMED: third_party/README.md:14,26]
 - **Last Commit Author**: Coder-Priyan `<230001938+Coder-Priyan@users.noreply.github.com.>` [CONFIRMED: git log -n 1]
 - **What It Does**: VectorDB is a fully offline, zero-cloud C++17 vector database (in-memory by default, with atomic disk persistence via --data-dir) and retrieval-augmented generation (RAG) engine. It provides exact brute-force search, flat-array KD-Tree spatial indexing, hierarchical navigable small-world (HNSW) graphs, document chunking, matrix-free 2D PCA projection, a multi-threaded REST HTTP API server, and a dependency-free vanilla HTML5/ES6 web UI [CONFIRMED: README.md:1-80, src/].
 - **Target Users**: Academic evaluators, students, and engineers seeking an offline, inspectable semantic search and RAG engine without external cloud or proprietary vector database services [INFERRED from B.Tech Major Project context, zero-cloud architecture, and educational demo tabs].
@@ -273,7 +273,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
   - Small blue dot seen once at the top-left of the Ask composer in the empty state (unexplained, possibly browser or extension; ask human to report if it appears again).
 
 - **Pending Human Actions**:
-  - Fill `<YOUR NAME>` placeholder in `LICENSE`.
+  - ~~Fill `<YOUR NAME>` placeholder in `LICENSE`.~~ ✅ **Done** — `Copyright (c) 2026 Coder-Priyan` (T-100, human decision 2026-11-16).
   - Decide Linux/macOS support tier & release timing (ISS-029).
   - DO NOT merge `ui-redesign-v3` into `main` and DO NOT push to remote origin until human approves visuals.
   - After loading a corrected sample document the human must delete the old "VectorDB Intro" in the Documents drawer and press Sample again (the server keeps ingested documents in memory unless `--data-dir` is used).
