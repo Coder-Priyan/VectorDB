@@ -236,6 +236,22 @@ Last updated: 2026-11-16 by T-072 sync
   3. **Quality & Invariants**:
      - Ask tab and C++ engine 100% frozen. All 23 original Explore DOM IDs preserved. 0 non-root hex, 0 box-shadow, <= 2 !important, zero innerHTML, 118/118 C++ tests pass.
 
+### ADR-080: Symmetrical 3-Column Workbench (390px | 1fr | 390px) & Zero-Glow Serious Professional Aesthetic (2026-11-16)
+
+- **Context**: In T-086, Explore used unequal widths (340px Left vs 500px Right), which felt lopsided. The user requested: (1) Exact equal sizing for Left and Right cards (`390px` each), with the Center hero canvas comparatively larger (`~820px`); (2) Strictly professional, serious aesthetic with zero AI-slop and zero "glow-glow" effects; (3) Clean, comfortable typography with no congested feeling; (4) Fix the text spill bug at the bottom left.
+- **Architectural & Design Decisions**:
+  1. **Perfect Symmetrical 3-Column Grid**:
+     - Left Panel: `390px` (Collection & Dataset card, Query Control Center, PCA Variance Bento).
+     - Center Panel: `1fr` ($\approx 820\text{px}$) Hero Precision Canvas with crisp matte crosshairs, solid 4.5px amber points with 1px dark edge, zero glow filters.
+     - Right Panel: `390px` (Exact same width as Left!). Composed of two balanced cards:
+       - Top: Nearest Neighbors List (`flex: 1 1 0; min-height: 180px;`).
+       - Bottom: Vector Inspection Card (`165px`) showing selected/top vector's PC1/PC2 coordinates, distance, similarity, and embedding dimensions.
+  2. **Bug Fix & Accessibility Utility**:
+     - Added `.sr-only` utility in CSS to permanently hide `#explore-variance-note` visually while maintaining DOM/accessibility contracts.
+  3. **Strict Invariants**:
+     - Ask tab and C++ engine 100% frozen. All 23 Explore DOM IDs preserved. 0 non-root hex, 0 box-shadow, <= 2 !important, 118/118 C++ tests pass.
+
+
 
 
 
