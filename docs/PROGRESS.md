@@ -182,3 +182,20 @@ All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count
   - DOM IDs: all 38 Explore IDs and 44 HNSW IDs preserved.
   - Frozen tabs (Ask, Compare, Settings) and C++ engine completely untouched.
 
+## T-094: Rebuild Explore, HNSW, Compare, Settings from Zero Using the Ask Tab as the ONLY Design Reference
+
+- **Date**: 2026-11-16
+- **Status**: Complete on branch `ui-redesign-v4`
+- **Commits**:
+  - `2e519fa`: `T-094 P0: Ask design spec` (created `docs/ASK_DESIGN_SPEC.md` directly extracted from Ask code and CSS)
+  - `9caa24e`: `T-094 P1: Explore rebuilt from Ask design` (Hero Canvas centerpiece, Ask page header, docked bottom composer bar, slide-over inspector drawer matching `#doc-drawer`, all 38 baseline Explore IDs preserved)
+  - `b4b4835`: `T-094 P2: HNSW rebuilt from Ask design` (Hero Graph canvas centerpiece, Ask page header, docked bottom composer bar, slide-over telemetry drawer matching `#doc-drawer`, all 44 baseline HNSW IDs preserved)
+  - `21ea792`: `T-094 P3: Compare rebuilt from Ask design` (Centered 860px column layout matching Ask chat viewport, inner-scroll only, timing tiles & elevated comparative spec sheet cards, all 40 baseline Compare IDs preserved)
+  - `ff620ed`: `T-094 P4: Settings rebuilt from Ask design` (Centered 860px column layout matching Ask chat viewport, inner-scroll only, clean elevated cards, restored `#settings-start-tour-btn` and `#settings-tour-icon` fixing ISS-092, all 26 baseline IDs + 2 restored IDs preserved)
+- **Quality Gates**:
+  - Web safety scanner (`scripts/check_web_safety.ps1`): 100% clean (zero forbidden patterns in active code).
+  - C++ unit tests (`build/vectordb_tests.exe`): 118/118 passed (529,813 assertions).
+  - CSS invariants: `box-shadow` count = 0, `!important` count = 2, zero hex literals outside `colors.js`.
+  - JS syntax check: all 27 JS files pass `node --check` with 0 failures.
+  - Frozen files invariant: Ask tab (`web/js/ask.js`, `web/js/ask_helpers.js`), app shell, C++ engine, and `docs/API.md` byte-identical to baseline.
+  - Visuals: marked as "not tested (visual)" / builder-reported only; human verification via `/` in real Chrome is definitive.

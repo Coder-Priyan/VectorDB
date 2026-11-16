@@ -1,18 +1,18 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-093 sync
+Last updated: 2026-11-16 by T-094 sync
 
-> **NEXT STEP**: New Brain chat (MODE: RESUME) first reviews the human's full-window 1920x1080 100% screenshots of all 5 tabs (Ask, Explore, HNSW, Compare, Settings) and the terminal verification (git log --oneline -5, git status -sb, vectordb_tests.exe, check_web_safety.ps1, !important count, box-shadow count, hex count, /tests.html count), and asks the human which tabs he likes. No new task before that.
+> **NEXT STEP**: Review the human's full-window 1920x1080 100% screenshots of all 5 tabs (Ask, Explore, HNSW, Compare, Settings) after the T-094 rebuild from the Ask design spec, and the terminal verification (git log --oneline -7, git status -sb, vectordb_tests.exe, check_web_safety.ps1, !important count, box-shadow count, hex count, DOM ID check), and get the human's feedback.
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
-- **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Registered browser unit tests expanded to **159** in code (154/159 pass in Node runner due to DOM stubs; human run at `/tests.html` pending). Visual state for T-071 through T-093 is **NOT human-verified** (builder-reported only).
-- **Git State**: Local branch `ui-redesign-v4`, clean working tree (only untracked `results/logs/`), commits unpushed per protocol.
+- **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Registered browser unit tests expanded in code; human run at `/tests.html` pending. All visual states for T-071 through T-094 are **not tested (visual)** / builder-reported only.
+- **Git State**: Local branch `ui-redesign-v4`, clean working tree (only untracked `results/logs/` and `scratch/`), commits unpushed per protocol.
 - **Current UI State (by tab)**:
-  - **Ask tab**: COMPLETE, human-approved, and human-verified (SYNC-012, HEAD `7352605`). Untouched throughout T-071..T-092.
-  - **Explore tab**: Rebuilt in T-093 (ADR-086). Visual state [not seen by Brain / not tested (visual)]; builder claims: left column dead space resolved (query card content-sized, PCA variance bento expanded with metadata note); right card header rebuilt without wrapping or overlapping; vector inspector card given 200px clearance with zero clipping; canvas tick numerals moved to perimeter with quiet backing pills eliminating point collision; zero hex literals outside `colors.js`.
-  - **HNSW tab**: Rebuilt in T-093 (ADR-086). Visual state [not seen by Brain / not tested (visual)]; builder claims: left column topology summary empty space resolved (removed `justify-content: center`, top-aligned stats, added architecture bento tile); right column telemetry bento expanded with routing trajectory info eliminating 400px empty void; Layer 0 edges softened to `rgba(255, 255, 255, 0.055)` at `0.65px` width (`getEdgeStrokeStyle`), eliminating hairball; Trace ID button and input aligned on exact baseline with equal 34px height; zero hex literals outside `colors.js`.
-  - **Compare tab**: Rebuilt in T-072/T-078/T-079/T-089. Visual state [not seen by Brain]; builder claims unified spec sheet comparison matrix across 3 algorithms, zero-scroll single screen layout, and 42px studio control row.
-  - **Settings tab**: Rebuilt in T-077/T-082/T-089. Visual state [not seen by Brain]; builder claims 3-column studio console with 8-metric server bento, demo collection forms, disk persistence status, and isolated 2-step danger reset.
+  - **Ask tab**: COMPLETE, human-approved, and human-verified. Byte-identical and 100% frozen.
+  - **Explore tab**: Rebuilt from zero in T-094 P1 using Ask design spec (ADR-087). [not tested (visual) / builder-reported only]: Hero Canvas centerpiece fills viewport without voids; Ask page header with badges, Reset Zoom, Refresh, and Inspector drawer toggle; bottom docked composer bar for collection dropdown, badges, k presets + input, primary "Project Random Query" button, and ID search; slide-over inspector drawer (`#explore-inspector-drawer` matching `#doc-drawer` / 380px) for nearest neighbors and vector inspection. All 38 baseline Explore DOM IDs preserved.
+  - **HNSW tab**: Rebuilt from zero in T-094 P2 using Ask design spec (ADR-087). [not tested (visual) / builder-reported only]: Hero Graph canvas centerpiece fills viewport without voids; Ask page header with legend, Refresh, and Telemetry drawer toggle; bottom docked composer bar for layer slider, max edges selector, topology quick pills, primary "Random Trace" button, ID search, and VCR playback transport; slide-over telemetry drawer (`#hnsw-telemetry-drawer` matching `#doc-drawer` / 380px) for step coordinates and search diagnostics. All 44 baseline HNSW DOM IDs preserved.
+  - **Compare tab**: Rebuilt from zero in T-094 P3 using Ask design spec (ADR-087). [not tested (visual) / builder-reported only]: Centered 860px column layout matching Ask chat viewport; natural inner-scroll only; Ask page header; bottom docked composer bar (collection, repeat, query, primary benchmark button, parameters popover); timing tiles flow & elevated comparative cards. All 40 baseline Compare DOM IDs preserved.
+  - **Settings tab**: Rebuilt from zero in T-094 P4 using Ask design spec (ADR-087). [not tested (visual) / builder-reported only]: Centered 860px column layout matching Ask chat viewport; natural inner-scroll only; clean elevated cards for Server Health, Demo Collection Ingestion, and Storage/Danger Zone; restored `#settings-start-tour-btn` and `#settings-tour-icon` in the UI, wired to `vectordb:start-tour` event (resolving ISS-092). All 26 baseline Settings DOM IDs + 2 restored IDs preserved.
 
 ## Pending Human Actions
 - Delete duplicate 'VectorDB Intro' document in Documents drawer.
@@ -21,9 +21,9 @@ Last updated: 2026-11-16 by T-093 sync
 - Do not merge to main, do not push to remote origin.
 
 ## Next Free Identifiers
-- Next free ADR: **ADR-087**
+- Next free ADR: **ADR-088**
 - Next free ISS: **ISS-098**
-- Next task number: **T-094**
+- Next task number: **T-095**
 
 ## T-092 summary (ADR-085; Explore Tab $5,000 Studio Elevation & Table-Flex Bug Resolution)
 
