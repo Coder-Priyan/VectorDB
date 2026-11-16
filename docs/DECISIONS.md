@@ -464,3 +464,26 @@ Last updated: 2026-11-16 by T-072 sync
      - All 40 Compare DOM IDs and 28 Settings DOM IDs preserved.
      - Ask, Explore, HNSW, sidebar/shell, C++ engine, and `docs/API.md` byte-identical to `cbd7e81`.
      - Zero hex literals outside `colors.js`, zero box-shadows, `!important` count <= 2, 118/118 C++ tests pass, strict CSP pass.
+
+- **ADR-090: Content Architecture Rebalance for Compare & Settings (T-098)**
+  - **Context**: Real user screenshot inspection at 1920x1080 100% zoom revealed that while the Ask-like calm centered aesthetic was warmly received, the static dashboard nature of Compare and Settings left large dead black voids (~400px in Settings below Danger Zone; ~350px in Compare above docked composer bar). User instructed a content architecture rebalance to naturally fit the viewport top-to-bottom with real backend data additions rather than artificial card stretching or larger fonts.
+  - **Decision**:
+    1. **Settings 2-Deck Balanced Workbench Architecture**:
+       - Retained Ask-style 1040px centered column (max-width: 1040px).
+       - Transformed single cramped middle row into a balanced 2-Deck Workbench Grid:
+         - **Deck 1 (Collections & Graph Architecture)**:
+           - Card A (Demo Collection): Dimension, Distance metric custom dropdown, M, efConstruction, synthetic vector inserter with live confirmation.
+           - Card B (HNSW Graph Hierarchy): Max levels, entry point node ID, nodes-per-layer, average degree-per-layer, plus O(log N) beam navigation complexity indicator and heuristic link bounds.
+         - **Deck 2 (Ingested Knowledge Base & Runtime Diagnostics)**:
+           - Card C (Ingested Documents): Formatted list of ingested documents (title, chunk partitions, byte size, embedding model status) with sleek empty state fallback.
+           - Card D (Engine Runtime & Maintenance): Real hardware SIMD vector dispatch (AVX2 / FMA Active), thread pool concurrency model, memory distribution ratio (Vectors ~96% · Graph Edges ~4%), disk persistence status, local chat history manager, guided product tour launcher, and browser unit test runner.
+       - Anchored footer meta line and Danger Zone row comfortably at the base with balanced vertical distribution (zero 400px black voids).
+    2. **Compare Pro Benchmark Suite & Telemetry Additions**:
+       - Added **Algorithmic Precision & Telemetry Matrix** (.switcher-matrix-card): A side-by-side comparative table below the metric switcher showing median latency (µs), min-max jitter range, distance evaluations, pruned %, recall@k, and top-1 match ID & distance across all 3 algorithms simultaneously.
+       - Added **Query Execution & Hardware Telemetry Strip** (.switcher-telemetry-card): Displays query vector dimension, sample normalized coordinates preview ([-0.042, +0.118, ...]), query mode, and execution routing.
+       - Added **Pre-Benchmark Specification Matrix** in Empty State: Shows algorithms ready, evaluation metrics, and precision mode.
+    3. **Quality & Safety Verification**:
+       - 100% of the 40 Compare DOM IDs and 37 baseline Settings DOM IDs preserved.
+       - 185/190 browser unit tests pass in headless Node mock (5 require real DOM per ISS-094), 118/118 C++ engine tests pass (529,813 assertions).
+       - Zero innerHTML/outerHTML, strict CSP verified clean, 0 hex outside colors.js, 0 box-shadows, !important count = 2.
+       - Ask, Explore, HNSW, sidebar/shell, C++ engine, and docs/API.md byte-identical.

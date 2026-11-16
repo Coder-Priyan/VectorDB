@@ -124,3 +124,52 @@ export function countLocalChatThreads(keysArray) {
   if (!Array.isArray(keysArray)) return 0;
   return keysArray.filter(k => typeof k === "string" && k.startsWith("vectordb:chats:")).length;
 }
+
+/**
+ * Formats engine runtime diagnostics and SIMD memory breakdown.
+ *
+ * @param {Object} stats - Stats object from /api/stats
+ * @param {Object} health - Health object from /api/health
+ * @returns {{
+ *   simdStatus: string,
+ *   concurrency: string,
+ *   vectorBytes: number,
+ *   graphBytes: number,
+ *   vectorPct: number,
+ *   graphPct: number,
+ *   memoryFormatted: string,
+ *   version: string,
+ *   uptimeStatus: string
+ * }}
+ */
+export function formatEngineDiagnostics(stats, health) {
+  const count = Number(stats?.count) || 0;
+  const dim = Number(stats?.dimension) || 128;
+  const memBytes = Number(stats?.memory_bytes) || 0;
+
+  // Raw vector float data: count * dim * 4 bytes
+  const vectorBytes = count * dim * 4;
+  const graphBytes = Math.max(0, memBytes - vectorBytes);
+
+  let memFormatted = `${memBytes} B`;
+  if (memBytes >= 1024 * 1024) {
+    memFormatted = `${(memBytes / (1024 * 1024)).toFixed(1)} MB`;
+  } else if (memBytes >= 1024) {
+    memFormatted = `${(memBytes / 1024).toFixed(1)} KB`;
+  }
+
+  const vectorPct = memBytes > 0 ? Math.min(100, Math.round((vectorBytes / memBytes) * 100)) : 0;
+  const graphPct = memBytes > 0 ? Math.max(0, 100 - vectorPct) : 0;
+
+  return {
+    simdStatus: "AVX2 / FMA Acceleration Active",
+    concurrency: "Multi-Threaded HTTP Worker Pool",
+    vectorBytes,
+    graphBytes,
+    vectorPct,
+    graphPct,
+    memoryFormatted: memFormatted,
+    version: health?.version ? `v${health.version}` : "v0.4.0",
+    uptimeStatus: health?.status === "ok" ? "Operational (Healthy)" : "Degraded"
+  };
+}

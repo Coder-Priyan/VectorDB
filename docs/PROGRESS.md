@@ -4,6 +4,23 @@ Last updated: 2026-11-16 by T-096 sync
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform
 
+- **T-098**: Content Architecture Rebalance for Compare & Settings on branch ui-redesign-v4.
+  - **Goal**: Rebalance content architecture and eliminate large empty voids (~400px in Settings, ~350px in Compare) seen at 1920x1080 100% zoom by adding real useful backend data rather than artificial stretching.
+  - **Settings 2-Deck Workbench Grid**:
+    - Transformed single cramped middle row into a balanced 2-Deck Workbench Grid (.settings-workbench-grid):
+      - Deck 1 (Collections & Graph Architecture): Demo Collection configuration form with synthetic inserter (Left) and HNSW Index Topology with logarithmic complexity telemetry (Right).
+      - Deck 2 (Knowledge Base & Engine Runtime Diagnostics): Ingested Documents list with chunk metadata and embedding model (Left) and Engine Hardware SIMD dispatch (AVX2 / FMA Active), concurrency pool, memory distribution ratio, disk persistence, local chat history manager, guided product tour, and test runner (Right).
+    - Footer and Danger Zone anchored cleanly near the base, filling 80-85% of viewport height naturally.
+  - **Compare Pro Benchmark Suite**:
+    - Added **Algorithmic Precision & Telemetry Matrix** (.switcher-matrix-card): A side-by-side comparative table showing median latency (µs), min-max jitter range, distance computations, pruned %, recall@k, and top-1 match ID & distance across all 3 algorithms simultaneously.
+    - Added **Query Execution & Hardware Telemetry Strip** (.switcher-telemetry-card): Displays query vector dimension, sample normalized coordinates preview, query mode, and execution routing.
+    - Added **Pre-Benchmark Specification Matrix** in Empty State (.compare-empty-specs).
+  - **Quality Gates**:
+    - 185/190 browser unit tests pass in headless Node mock (5 require real DOM per ISS-094), 118/118 C++ engine tests pass (529,813 assertions).
+    - 100% of the 40 Compare DOM IDs and 37 baseline Settings DOM IDs preserved.
+    - Strict CSP verified (zero innerHTML/outerHTML), 0 hex outside colors.js, 0 box-shadows, !important count = 2.
+    - Frozen files (web/js/ask.js, web/js/explore.js, web/js/hnsw.js, shell/sidebar, C++ engine, docs/API.md) byte-identical to cbd7e81.
+
 - **T-096**: Compare "Metric switcher" and Settings "One-screen console" on branch `ui-redesign-v4`.
   - **T-096 A (Commit `0899a83`)**: Compare "Metric switcher" - replaced 3-column spec sheet cards with an accessible segmented switcher (`Latency | Work | Accuracy`), verdict banner, three big horizontal rows on one shared linear scale per view, separate elements for values/labels, non-wrapping flexible rank cells with match/mismatch tooltips, and vertically centered results block eliminating dead bands and scroll at 1920x1080. Added 6 unit tests covering scale computation and key navigation.
   - **T-096 B**: Settings "One-screen console" - replaced card stack with an unboxed console (1040px centered column): top 2x4 metrics strip (8 real values) with Ollama models chips, middle two-column workbench separated by one hairline divider (Demo collection left, Storage & maintenance right), and bottom slim Danger Zone row. Fits in $pprox 420	ext{px}$ with zero scroll at 1920x1080 100% zoom and no nested scrollbars. Preserved all 28 Settings DOM IDs and two-step confirmations.

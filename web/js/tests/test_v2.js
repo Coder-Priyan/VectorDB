@@ -14,7 +14,8 @@ import {
   getSettingsNextSectionIndex,
   formatHnswSummary,
   formatDocumentListSummary,
-  countLocalChatThreads
+  countLocalChatThreads,
+  formatEngineDiagnostics
 } from "../settings_helpers.js";
 
 export function registerV2Tests() {
@@ -502,6 +503,18 @@ export function registerV2Tests() {
       assertEqual(countLocalChatThreads(keys), 2);
       assertEqual(countLocalChatThreads([]), 0);
       assertEqual(countLocalChatThreads(null), 0);
+    });
+
+    test("formatEngineDiagnostics computes memory split and SIMD telemetry", () => {
+      const stats = { count: 300, dimension: 128, memory_bytes: 160000 };
+      const health = { version: "0.4.0", status: "ok" };
+      const diag = formatEngineDiagnostics(stats, health);
+      assertEqual(diag.simdStatus, "AVX2 / FMA Acceleration Active");
+      assertEqual(diag.version, "v0.4.0");
+      assertEqual(diag.uptimeStatus, "Operational (Healthy)");
+      assertEqual(diag.vectorBytes, 300 * 128 * 4);
+      assert(diag.vectorPct > 0 && diag.vectorPct <= 100, `Expected vectorPct in range: ${diag.vectorPct}`);
+      assert(diag.graphPct >= 0, `Expected non-negative graphPct: ${diag.graphPct}`);
     });
   });
 }

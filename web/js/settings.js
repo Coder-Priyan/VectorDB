@@ -11,7 +11,8 @@ import { createIcon } from "./icons.js";
 import {
   formatHnswSummary,
   formatDocumentListSummary,
-  countLocalChatThreads
+  countLocalChatThreads,
+  formatEngineDiagnostics
 } from "./settings_helpers.js";
 
 export function initSettingsTab() {
@@ -38,6 +39,11 @@ export function initSettingsTab() {
 
   // Right Column: Chat History count text element
   const chatsCountTextEl = document.getElementById("settings-chats-count-text");
+
+  // Engine Diagnostics Elements
+  const simdStatusEl = document.getElementById("settings-simd-status");
+  const concurrencyStatusEl = document.getElementById("settings-concurrency-status");
+  const memRatioStatusEl = document.getElementById("settings-mem-ratio-status");
 
   function updateChatCount() {
     if (!chatsCountTextEl) return;
@@ -220,6 +226,14 @@ export function initSettingsTab() {
             )
           );
         }
+      }
+
+      // Render Engine Runtime Diagnostics
+      const engineDiag = formatEngineDiagnostics(stats, health);
+      if (simdStatusEl) simdStatusEl.textContent = engineDiag.simdStatus;
+      if (concurrencyStatusEl) concurrencyStatusEl.textContent = engineDiag.concurrency;
+      if (memRatioStatusEl) {
+        memRatioStatusEl.textContent = `Vectors ~${engineDiag.vectorPct}% · Graph Edges ~${engineDiag.graphPct}%`;
       }
 
       // Update Chat History Count

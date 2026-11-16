@@ -1512,3 +1512,106 @@ export function buildExplanatoryLine(cards, vectorCount) {
 
   return `Evaluated against exact Brute Force baseline (${bruteDist.toLocaleString()} distance comparisons).`;
 }
+
+/**
+ * Builds the side-by-side comparative trade-off matrix data for all 3 algorithms.
+ *
+ * @param {Array<Object>} cardModels - Output from mapReportToCards
+ * @param {Object} report - Benchmark report object
+ * @returns {Array<{
+ *   alg: string,
+ *   label: string,
+ *   medianUs: number,
+ *   rangeText: string,
+ *   evalsText: string,
+ *   prunedText: string,
+ *   recallPercent: string,
+ *   topMatchText: string,
+ *   isWinner: boolean,
+ *   isBrute: boolean
+ * }>}
+ */
+export function buildComparativeMatrix(cardModels, report) {
+  if (!Array.isArray(cardModels) || cardModels.length === 0) return [];
+  const bruteCard = cardModels.find(c => c.alg === "brute") || cardModels[0];
+  const bruteDist = bruteCard ? Math.max(1, bruteCard.distanceComputations) : 1;
+
+  let minMed = Infinity;
+  let fastestAlg = "brute";
+  for (const c of cardModels) {
+    if (c.medianUs < minMed) {
+      minMed = c.medianUs;
+      fastestAlg = c.alg;
+    }
+  }
+
+  return cardModels.map(card => {
+    const isWinner = card.alg === fastestAlg;
+    const isBrute = card.alg === "brute";
+    const prunedText = formatPrunedText(isBrute, card.distanceComputations, bruteDist);
+
+    let topMatchText = "--";
+    if (Array.isArray(card.results) && card.results.length > 0) {
+      const top = card.results[0];
+      const dist = Number(top.distance);
+      const distStr = Number.isFinite(dist) ? dist.toFixed(4) : "-";
+      topMatchText = `#${top.id} (${distStr})`;
+    }
+
+    return {
+      alg: card.alg,
+      label: card.label,
+      medianUs: card.medianUs,
+      rangeText: card.rangeText || `${card.medianUs} µs`,
+      evalsText: `${card.distanceComputations.toLocaleString()}`,
+      prunedText: isBrute ? "0% (base)" : prunedText,
+      recallPercent: isBrute ? "100.0% (ref)" : card.recallPercent,
+      topMatchText,
+      isWinner,
+      isBrute
+    };
+  });
+}
+
+/**
+ * Formats sample coordinates and metadata for query telemetry inspection.
+ *
+ * @param {number[]} [queryVector]
+ * @param {boolean} [isDocs=false]
+ * @param {string} [queryText=""]
+ * @returns {{
+ *   typeLabel: string,
+ *   dimText: string,
+ *   sampleCoords: string,
+ *   metricLabel: string
+ * }}
+ */
+export function formatQueryTelemetry(queryVector, isDocs = false, queryText = "") {
+  const isDocQuery = Boolean(isDocs);
+  const typeLabel = isDocQuery
+    ? (queryText ? `Semantic Query ("${queryText.slice(0, 24)}${queryText.length > 24 ? "…" : ""}")` : "Semantic Text Query")
+    : "Synthetic Random Vector (Normalized)";
+
+  let dimText = "--";
+  let sampleCoords = "--";
+
+  if (Array.isArray(queryVector) && queryVector.length > 0) {
+    dimText = `${queryVector.length}d`;
+    const samples = queryVector.slice(0, 4).map(v => {
+      const num = Number(v) || 0;
+      const sign = num >= 0 ? "+" : "";
+      return `${sign}${num.toFixed(3)}`;
+    });
+    sampleCoords = `[${samples.join(", ")}, …]`;
+  } else if (isDocQuery) {
+    dimText = "768d (nomic-embed)";
+    sampleCoords = "[dense semantic embedding vector]";
+  }
+
+  return {
+    typeLabel,
+    dimText,
+    sampleCoords,
+    metricLabel: "Cosine Similarity"
+  };
+}

@@ -2763,17 +2763,16 @@ input[type="number"] {
   color: var(--text-secondary);
 }
 
-/* Settings Console Thread (Zero-scroll at 1920x1080) */
+/* Settings Console Thread (Natural balance at 1920x1080) */
 .settings-thread {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-3) 0;
+  gap: var(--space-4);
+  padding: var(--space-3) 0 var(--space-5) 0;
   box-sizing: border-box;
-  margin: auto 0;
 }
 
 /* 1. Top Metrics Strip (8 values in 2 rows of 4 + Ollama models) */
@@ -2867,46 +2866,105 @@ input[type="number"] {
   color: var(--text-secondary);
 }
 
-/* 2. Middle Three-Column Workbench (Separated by hairlines, no boxed cards) */
-.settings-console-middle {
-  display: grid;
-  grid-template-columns: 1fr 1px 1fr 1px 1fr;
-  background: var(--bg-panel);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-card);
-  padding: var(--space-4) var(--space-5);
-  box-sizing: border-box;
-  gap: var(--space-4);
-}
-
-@media (max-width: 900px) {
-  .settings-console-middle {
-    grid-template-columns: 1fr;
-  }
-  .settings-col-divider {
-    display: none;
-  }
-}
-
-.settings-col-divider {
-  background: var(--border-hairline);
-  width: 1px;
-  height: 100%;
-}
-
-.settings-console-col {
+/* 2. Balanced 2-Deck Workbench Console */
+.settings-workbench-grid {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  min-width: 0;
 }
 
-.settings-console-section-title {
-  font-size: 12px;
+.settings-deck {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+
+@media (max-width: 900px) {
+  .settings-deck {
+    grid-template-columns: 1fr;
+  }
+}
+
+.settings-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: var(--space-4);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 220px;
+}
+
+.settings-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.settings-card-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-card-title {
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.01em;
+}
+
+.settings-card-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Complexity Strip for HNSW */
+.settings-complexity-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  border-top: 1px solid var(--border-hairline);
+  padding-top: var(--space-2);
+  margin-top: auto;
+  flex-wrap: wrap;
+}
+
+.settings-complexity-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Engine Diagnostics */
+.settings-engine-diagnostics {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.settings-diag-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.settings-docs-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid var(--border-hairline);
+  padding-top: var(--space-2);
+  margin-top: auto;
 }
 
 /* Middle Column: HNSW Index Topology & Ingested Documents */
@@ -5010,6 +5068,137 @@ input[type="number"] {
   color: var(--accent);
   border-color: rgba(217, 164, 65, 0.35);
   font-weight: 500;
+}
+
+/* Algorithmic Trade-off Breakdown Matrix Table */
+.switcher-matrix-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.switcher-matrix-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.switcher-matrix-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+.switcher-matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.switcher-matrix-table th {
+  padding: 6px 8px;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.switcher-matrix-table td {
+  padding: 8px;
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.switcher-matrix-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.matrix-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.matrix-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Query Execution & Hardware Telemetry Strip */
+.switcher-telemetry-card {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  gap: var(--space-4);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: var(--space-3) var(--space-4);
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .switcher-telemetry-card {
+    grid-template-columns: 1fr;
+  }
+  .switcher-telemetry-divider {
+    display: none;
+  }
+}
+
+.switcher-telemetry-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.switcher-telemetry-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.switcher-telemetry-divider {
+  background: var(--border-hairline);
+  width: 1px;
+  height: 100%;
+}
+
+/* Pre-Benchmark Specification Matrix in Empty State */
+.compare-empty-specs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: var(--space-3) 0;
+  width: 100%;
+  max-width: 440px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  box-sizing: border-box;
+}
+
+.compare-empty-spec-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 /* Accuracy View: Mismatch Summary Panel */

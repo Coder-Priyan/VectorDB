@@ -35,7 +35,9 @@ import {
   buildTimingsStrip,
   buildTopMatchesSummary,
   buildMismatchSummary,
-  buildExplanatoryLine
+  buildExplanatoryLine,
+  buildComparativeMatrix,
+  formatQueryTelemetry
 } from "../compare_helpers.js";
 
 // Real raw benchmark response fixture captured from running server with 10 top-k items (ADR-036, docs/API.md sec 9)
@@ -1357,6 +1359,39 @@ export function registerCompareTests() {
     it("falls back to baseline note on empty or default input", () => {
       const text = buildExplanatoryLine([], 1000);
       assertEqual(text, "Benchmark completed across all algorithms.");
+    });
+  });
+
+  describe("T-098: Compare Breakdown Matrix and Query Telemetry", (it) => {
+    it("builds comparative trade-off matrix with correct fields and winner badge", () => {
+      const dummyCards = [
+        { alg: "brute", label: "Brute Force", medianUs: 106, distanceComputations: 300, results: [{ id: 92, distance: 0.142 }] },
+        { alg: "kdtree", label: "KD-Tree", medianUs: 111, distanceComputations: 300, results: [{ id: 92, distance: 0.142 }] },
+        { alg: "hnsw", label: "HNSW", medianUs: 177, distanceComputations: 273, results: [{ id: 92, distance: 0.142 }] }
+      ];
+
+      const matrix = buildComparativeMatrix(dummyCards, { k: 10 });
+      assertEqual(matrix.length, 3);
+      assertEqual(matrix[0].alg, "brute");
+      assertEqual(matrix[0].isWinner, true);
+      assertEqual(matrix[0].isBrute, true);
+      assertEqual(matrix[0].recallPercent, "100.0% (ref)");
+      assert(matrix[0].topMatchText.includes("#92"), `Expected #92 in topMatchText: ${matrix[0].topMatchText}`);
+
+      assertEqual(matrix[2].alg, "hnsw");
+      assertEqual(matrix[2].isWinner, false);
+      assertEqual(matrix[2].isBrute, false);
+    });
+
+    it("formats query telemetry correctly for synthetic and doc modes", () => {
+      const synth = formatQueryTelemetry([0.1, -0.2, 0.3, 0.4]);
+      assertEqual(synth.dimText, "4d");
+      assert(synth.sampleCoords.includes("+0.100"), `Expected sample coordinates: ${synth.sampleCoords}`);
+      assertEqual(synth.metricLabel, "Cosine Similarity");
+
+      const doc = formatQueryTelemetry([], true, "vector search query");
+      assert(doc.typeLabel.includes("Semantic Query"), `Expected semantic label: ${doc.typeLabel}`);
+      assertEqual(doc.dimText, "768d (nomic-embed)");
     });
   });
 }
