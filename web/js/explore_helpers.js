@@ -133,3 +133,34 @@ export function isExploreActionDisabled(count) {
   return !count || count <= 0;
 }
 
+/**
+ * Computes axis ticks and labels for 2D coordinate canvas.
+ * Pure function.
+ *
+ * @param {number} minVal
+ * @param {number} maxVal
+ * @param {number} step
+ * @returns {Array<{val: number, label: string}>}
+ */
+export function computeAxisTicks(minVal = -0.8, maxVal = 0.85, step = 0.2) {
+  const ticks = [];
+  for (let v = minVal; v <= maxVal; v += step) {
+    const rounded = Math.round(v * 100) / 100;
+    const label = Math.abs(rounded) < 0.001 ? "0.0" : rounded.toFixed(1);
+    ticks.push({ val: rounded, label });
+  }
+  return ticks;
+}
+
+/**
+ * Calculates a safe perimeter position for axis tick labels to prevent data collision.
+ * Pure function.
+ *
+ * @param {number} coord - Projected screen coordinate
+ * @param {number} edge - Canvas edge boundary
+ * @param {number} margin - Safe inset margin
+ * @returns {number} Clamped safe coordinate
+ */
+export function clampTickEdge(coord, edge, margin = 24) {
+  return Math.min(Math.max(coord, margin), edge - margin);
+}

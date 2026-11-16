@@ -3,7 +3,7 @@
  */
 import { describe, assert, assertEqual, assertNear } from "./framework.js";
 import { Viewport2D } from "../canvas.js";
-import { findHitPoint, getDocColor, computeBounds, DOC_COLOR_PALETTE, getExploreCanvasSubtitle, isExploreActionDisabled } from "../explore_helpers.js";
+import { findHitPoint, getDocColor, computeBounds, DOC_COLOR_PALETTE, getExploreCanvasSubtitle, isExploreActionDisabled, computeAxisTicks, clampTickEdge } from "../explore_helpers.js";
 import { DOC_FALLBACK_COLOR } from "../colors.js";
 import { getLayerColor, formatEdgeSummary, formatHnswTopologySummary, mapTraceToCoordinates, PlaybackController, LAYER_COLORS, isCanvasDrawable } from "../hnsw_helpers.js";
 
@@ -84,6 +84,20 @@ export function registerExploreHnswTests() {
       assertEqual(isExploreActionDisabled(undefined), true);
       assertEqual(isExploreActionDisabled(1), false);
       assertEqual(isExploreActionDisabled(500), false);
+    });
+
+    it("computeAxisTicks generates predictable ticks and string labels", () => {
+      const ticks = computeAxisTicks(-0.4, 0.45, 0.2);
+      assertEqual(ticks.length, 5);
+      assertEqual(ticks[0].label, "-0.4");
+      assertEqual(ticks[2].label, "0.0");
+      assertEqual(ticks[4].label, "0.4");
+    });
+
+    it("clampTickEdge prevents tick labels from escaping viewport bounds", () => {
+      assertEqual(clampTickEdge(10, 800, 24), 24);
+      assertEqual(clampTickEdge(400, 800, 24), 400);
+      assertEqual(clampTickEdge(790, 800, 24), 776);
     });
   });
 

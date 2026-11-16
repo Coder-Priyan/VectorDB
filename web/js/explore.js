@@ -5,7 +5,7 @@ import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js
 import { Viewport2D, setupCanvasDpr } from "./canvas.js";
 import { el, formatSimilarity, createDropdown } from "./ui.js";
 import { createIcon } from "./icons.js";
-import { getDocColor, computeBounds, findHitPoint, drawStar, getExploreCanvasSubtitle, isExploreActionDisabled } from "./explore_helpers.js";
+import { getDocColor, computeBounds, findHitPoint, drawStar, getExploreCanvasSubtitle, isExploreActionDisabled, computeAxisTicks, clampTickEdge } from "./explore_helpers.js";
 import { isCanvasDrawable } from "./hnsw_helpers.js";
 import { THEME } from "./colors.js";
 
@@ -214,37 +214,56 @@ export function initExploreTab() {
     ctx.moveTo(orig.x, 0); ctx.lineTo(orig.x, height);
     ctx.stroke();
 
-    // 3. Axis Ticks & Tick Numerals
+    // 3. Axis Ticks & Tick Numerals (positioned at perimeter with quiet backing pills to prevent collision with data points)
     ctx.fillStyle = THEME.textMuted;
     ctx.font = "10.5px 'IBM Plex Mono', monospace";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "top";
 
-    for (let xVal = -0.8; xVal <= 0.85; xVal += 0.2) {
+    const xTicks = computeAxisTicks(-0.8, 0.85, 0.2);
+    for (let i = 0; i < xTicks.length; i++) {
+      const { val: xVal, label: lbl } = xTicks[i];
       const scr = viewport.toScreen(xVal, 0);
       if (scr.x >= 35 && scr.x <= width - 35) {
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+        ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(scr.x, orig.y - 3);
         ctx.lineTo(scr.x, orig.y + 3);
         ctx.stroke();
-        const lbl = Math.abs(xVal) < 0.001 ? "0.0" : xVal.toFixed(1);
-        ctx.fillText(lbl, scr.x, Math.min(Math.max(orig.y + 6, 12), height - 16));
+
+        // Quiet pill backing at bottom edge to avoid point collisions
+        const tw = ctx.measureText(lbl).width;
+        const tickY = height - 24;
+        ctx.fillStyle = "rgba(9, 9, 11, 0.85)";
+        ctx.fillRect(scr.x - tw / 2 - 3, tickY - 2, tw + 6, 13);
+        ctx.fillStyle = THEME.textMuted;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        ctx.fillText(lbl, scr.x, tickY);
       }
     }
 
-    ctx.textAlign = "right";
-    ctx.textBaseline = "middle";
-    for (let yVal = -0.8; yVal <= 0.85; yVal += 0.2) {
+    const yTicks = computeAxisTicks(-0.8, 0.85, 0.2);
+    for (let i = 0; i < yTicks.length; i++) {
+      const { val: yVal, label: lbl } = yTicks[i];
       if (Math.abs(yVal) < 0.001) continue;
       const scr = viewport.toScreen(0, yVal);
       if (scr.y >= 20 && scr.y <= height - 20) {
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+        ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(orig.x - 3, scr.y);
         ctx.lineTo(orig.x + 3, scr.y);
         ctx.stroke();
-        ctx.fillText(yVal.toFixed(1), Math.max(orig.x - 6, 26), scr.y);
+
+        // Quiet pill backing at left edge to avoid point collisions
+        const tw = ctx.measureText(lbl).width;
+        const tickX = 28;
+        ctx.fillStyle = "rgba(9, 9, 11, 0.85)";
+        ctx.fillRect(tickX - tw - 3, scr.y - 6, tw + 6, 13);
+        ctx.fillStyle = THEME.textMuted;
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        ctx.fillText(lbl, tickX, scr.y);
       }
     }
 
@@ -314,7 +333,7 @@ export function initExploreTab() {
         ctx.stroke();
 
         // White core dot
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = THEME.white;
         ctx.beginPath();
         ctx.arc(rScr.x, rScr.y, 2.5, 0, Math.PI * 2);
         ctx.fill();
@@ -365,7 +384,7 @@ export function initExploreTab() {
       ctx.restore();
 
       // Inner solid reticle ring
-      ctx.strokeStyle = "#ffffff";
+      ctx.strokeStyle = THEME.white;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.arc(qScr.x, qScr.y, 5, 0, Math.PI * 2);
@@ -404,7 +423,7 @@ export function initExploreTab() {
     // 7. Hover Reticle & Coordinate Inspection
     if (hoveredPoint) {
       const hScr = viewport.toScreen(hoveredPoint.x, hoveredPoint.y);
-      ctx.strokeStyle = "#ffffff";
+      ctx.strokeStyle = THEME.white;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.arc(hScr.x, hScr.y, 7, 0, Math.PI * 2);

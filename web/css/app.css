@@ -3306,8 +3306,7 @@ input[type="number"] {
 
 /* Query Card */
 .explore-query-card {
-  flex: 1 1 0;
-  min-height: 0;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -3481,10 +3480,28 @@ input[type="number"] {
 
 /* Variance Card (Zone 1 Bottom) */
 .explore-variance-card {
-  height: 185px;
-  flex-shrink: 0;
+  flex: 1 1 0;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   overflow: hidden;
   box-sizing: border-box;
+}
+
+.variance-desc-tile {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  margin-top: auto;
+}
+
+.variance-desc-text {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  display: block;
 }
 
 .variance-bento {
@@ -3721,19 +3738,25 @@ input[type="number"] {
 
 .results-card-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 30px;
-  height: 30px;
+  flex-direction: column;
+  gap: 4px;
   flex-shrink: 0;
   border-bottom: 1px solid var(--border-hairline);
-  padding-bottom: 4px;
+  padding-bottom: 6px;
 }
 
-.results-header-left {
+.results-header-main {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.results-header-sub {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
 }
 
 .results-target-badge {
@@ -3942,7 +3965,7 @@ input[type="number"] {
 
 /* Zone 3 Bottom: Vector Inspection Card */
 .explore-vector-inspector-card {
-  height: 175px;
+  height: 200px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
