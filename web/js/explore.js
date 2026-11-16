@@ -47,6 +47,21 @@ export function initExploreTab() {
   const resultsTableBody = byId("explore-results-tbody"), varianceNote = byId("explore-variance-note");
   const legendContainer = byId("explore-legend-container"), emptyStateBox = byId("explore-empty-state");
   const tooltip = byId("explore-tooltip");
+  const drawer = byId("explore-inspector-drawer");
+  const drawerToggleBtn = byId("explore-drawer-toggle-btn");
+  const drawerCloseBtn = byId("explore-drawer-close-btn");
+  const exploreLayout = document.querySelector(".explore-layout");
+
+  function toggleDrawer(open) {
+    if (!drawer) return;
+    const shouldOpen = open !== undefined ? open : drawer.classList.contains("collapsed");
+    drawer.classList.toggle("collapsed", !shouldOpen);
+    exploreLayout?.classList.toggle("drawer-collapsed", !shouldOpen);
+    scheduleResize();
+  }
+
+  drawerToggleBtn?.addEventListener("click", () => toggleDrawer());
+  drawerCloseBtn?.addEventListener("click", () => toggleDrawer(false));
 
   const viewport = new Viewport2D(canvas.width, canvas.height, 45);
   let currentPoints = [], explainedRatios = [0, 0], queryStar = null, topKResults = [];
@@ -530,6 +545,7 @@ export function initExploreTab() {
     resultsTableBody.replaceChildren(...cards);
 
     if (results && results.length > 0) {
+      toggleDrawer(true);
       const top = results[0];
       const targetIdEl = byId("explore-inspector-target-id");
       if (targetIdEl) targetIdEl.textContent = isDocs ? `Doc ${top.doc_id || top.id}` : `Vector #${top.id}`;

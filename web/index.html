@@ -225,236 +225,190 @@
 
     <!-- TAB 2: EXPLORE (PCA) -->
     <section id="panel-explore" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-explore">
-      <div class="explore-viewport explore-pro-workbench">
-        
-        <!-- COLUMN 1: COMMAND & TELEMETRY DECK (~340px) -->
-        <aside class="explore-col explore-command-deck">
-          <!-- Card 1: Collection & Dataset Profile -->
-          <div class="studio-card explore-dataset-card">
-            <div class="studio-card-header">
-              <span class="studio-card-tag">Collection &amp; Dataset</span>
-              <button type="button" id="explore-refresh-btn" class="btn btn-xs btn-ghost" title="Reload PCA dataset">Refresh</button>
-            </div>
-            <div class="explore-coll-row">
-              <div id="explore-coll-dropdown-wrap" class="toolbar-dropdown-wrap flex-1">
-                <input type="hidden" id="explore-coll-select" value="demo">
+      <div class="explore-layout drawer-collapsed">
+        <div class="explore-main-viewport">
+          <!-- Page Header (Ask pattern) -->
+          <header class="page-header explore-header">
+            <div class="page-title-group">
+              <div class="page-title-row">
+                <h1 class="page-title">Explore</h1>
+                <span id="explore-info-slot" class="header-badge"></span>
               </div>
+              <p class="page-subtitle" id="explore-canvas-subtitle">Vector Space (PCA 2D) &bull; Power Iteration &amp; Rayleigh Deflation</p>
             </div>
-            <div class="explore-meta-strip">
-              <div class="explore-meta-pill">
-                <span class="meta-dot"></span>
-                <span class="meta-label">SPACE</span>
-                <span class="meta-val">128D &rarr; 2D</span>
-              </div>
-              <div class="explore-meta-pill">
-                <span class="meta-label">POINTS</span>
-                <span class="meta-val" id="explore-points-count-badge">200 Vectors</span>
-              </div>
+            <div class="explore-header-actions">
+              <div id="explore-legend-container" class="legend-row"></div>
+              <button type="button" id="explore-reset-view-btn" class="btn btn-sm btn-secondary" title="Reset View (Double-click canvas)">Reset Zoom</button>
+              <button type="button" id="explore-refresh-btn" class="btn btn-sm btn-secondary" title="Reload PCA dataset">Refresh</button>
+              <button type="button" id="explore-drawer-toggle-btn" class="btn btn-sm btn-secondary explore-drawer-toggle" title="Toggle Inspector Drawer" aria-label="Toggle Inspector Drawer">
+                <span class="btn-icon" data-icon="layout"></span>
+                <span>Inspector</span>
+              </button>
             </div>
-          </div>
+          </header>
 
-          <!-- Card 2: Query Control Center -->
-          <div class="studio-card explore-query-card">
-            <div class="studio-card-header">
-              <span class="studio-card-tag">Query Control Center</span>
-            </div>
-            <!-- Demo Controls -->
-            <div id="explore-demo-controls" class="explore-demo-controls">
-              <div class="explore-k-section">
-                <div class="explore-k-header">
-                  <label for="explore-demo-k" class="explore-ctrl-label">Nearest Neighbors (k)</label>
-                  <div class="explore-k-presets" aria-label="Quick k presets">
-                    <button type="button" class="btn-k-preset active" data-preset="3">3</button>
-                    <button type="button" class="btn-k-preset" data-preset="5">5</button>
-                    <button type="button" class="btn-k-preset" data-preset="10">10</button>
-                  </div>
-                </div>
-                <input type="number" id="explore-demo-k" class="input-text input-sm explore-k-input w-100" value="3" min="1" max="50">
-              </div>
-
-              <div class="explore-action-block">
-                <button type="button" id="explore-demo-random-btn" class="btn btn-sm btn-primary w-100 explore-hero-btn">
-                  <span class="btn-icon" data-icon="sparkle"></span>
-                  <span>Project Random Query</span>
-                </button>
-              </div>
-
-              <div class="explore-divider-label">
-                <span>OR SEARCH BY VECTOR ID</span>
-              </div>
-
-              <div class="explore-id-row">
-                <input type="number" id="explore-demo-id-input" class="input-text input-sm explore-id-input flex-1" placeholder="e.g. 42" min="1">
-                <button type="button" id="explore-demo-id-btn" class="btn btn-sm btn-secondary">Search ID</button>
-              </div>
-            </div>
-
-            <!-- Docs Controls (hidden by default) -->
-            <div id="explore-docs-controls" class="explore-docs-controls hidden">
-              <form id="explore-query-docs-form" class="explore-docs-form">
-                <div class="explore-docs-field">
-                  <label for="explore-query-docs-input" class="explore-ctrl-label">Semantic Query Text</label>
-                  <input type="text" id="explore-query-docs-input" class="input-text input-sm explore-docs-input w-100" placeholder="e.g. search documentation..." required>
-                </div>
-                <div class="explore-k-section mt-2">
-                  <div class="explore-k-header">
-                    <label for="explore-query-docs-k" class="explore-ctrl-label">k</label>
-                  </div>
-                  <input type="number" id="explore-query-docs-k" class="input-text input-sm explore-k-input w-100" value="3" min="1" max="50">
-                </div>
-                <button type="submit" id="explore-query-docs-btn" class="btn btn-sm btn-primary w-100 mt-2">
-                  <span class="btn-icon" data-icon="send"></span>
-                  <span>Search Vector Space</span>
-                </button>
-              </form>
-            </div>
-          </div>
-
-          <!-- Card 3: PCA Variance & Dimensionality Bento -->
-          <div class="studio-card explore-variance-card">
-            <div class="studio-card-header">
-              <span class="studio-card-tag">PCA Dimensionality Reduction</span>
-              <span id="explore-info-slot"></span>
-            </div>
-            <div class="variance-bento">
-              <div class="variance-hero-tile">
-                <div class="variance-hero-label">Total Explained Variance (2D)</div>
-                <div class="variance-hero-val" id="explore-total-variance-val">6.7%</div>
-                <div class="variance-hero-sub">Power Iteration &amp; Rayleigh Deflation</div>
-              </div>
-              <div class="variance-axis-grid">
-                <div class="variance-axis-tile">
-                  <div class="axis-header">
-                    <span class="axis-name">PC1 (X-Axis)</span>
-                    <span class="axis-val" id="explore-pc1-variance-val">3.4%</span>
-                  </div>
-                  <div class="axis-bar-track"><div class="axis-bar-fill" id="explore-pc1-bar"></div></div>
-                </div>
-                <div class="variance-axis-tile">
-                  <div class="axis-header">
-                    <span class="axis-name">PC2 (Y-Axis)</span>
-                    <span class="axis-val" id="explore-pc2-variance-val">3.3%</span>
-                  </div>
-                  <div class="axis-bar-track"><div class="axis-bar-fill" id="explore-pc2-bar"></div></div>
-                </div>
-              </div>
-              <div class="variance-desc-tile">
-                <span class="variance-desc-text">2D projection via matrix-free power iteration and Rayleigh deflation. Preserves maximal variance of high-dimensional embeddings.</span>
-              </div>
-              <span id="explore-variance-note" class="explore-variance-note sr-only">Loading variance...</span>
-            </div>
-          </div>
-        </aside>
-
-        <!-- COLUMN 2: PRECISION 2D VIEWPORT (Hero Centerpiece, ~740px) -->
-        <main class="explore-col explore-canvas-viewport">
-          <div class="studio-card canvas-card-container">
-            <!-- Viewport Top Control Strip -->
-            <div class="viewport-header">
-              <div class="viewport-title-group">
-                <div class="viewport-title-row">
-                  <span class="viewport-title">Vector Space (PCA, 2D)</span>
-                  <div class="viewport-status-badge">
-                    <span class="status-dot status-dot-healthy"></span>
-                    <span class="viewport-status-text">Active Projection</span>
-                  </div>
-                </div>
-                <p class="canvas-panel-subtitle" id="explore-canvas-subtitle">Each point is a demo vector, projected to 2D using PCA.</p>
-              </div>
-              <div class="viewport-actions">
-                <div id="explore-legend-container" class="legend-row"></div>
-                <button type="button" id="explore-reset-view-btn" class="btn btn-xs btn-ghost canvas-reset-btn" title="Reset View (Double-click canvas)">Reset Zoom</button>
-              </div>
-            </div>
-
-            <!-- Dedicated Precision Canvas Area -->
-            <div class="canvas-wrapper explore-canvas-wrapper">
-              <canvas id="explore-canvas" width="760" height="520"></canvas>
+          <!-- Hero Canvas Viewport (Canvas fills available space, calm and aesthetic) -->
+          <div class="explore-canvas-viewport">
+            <div class="explore-canvas-container">
+              <canvas id="explore-canvas" width="1000" height="600"></canvas>
               <div id="explore-tooltip" class="canvas-tooltip hidden" role="tooltip"></div>
               <div id="explore-empty-state" class="empty-state-box hidden"></div>
-            </div>
-
-            <!-- Viewport Bottom Navigation Hints -->
-            <div class="viewport-footer">
-              <div class="canvas-hint-item">
-                <span class="hint-kbd">&#x2728; Click Point</span>
-                <span class="hint-text">Inspect &amp; find neighbors</span>
-              </div>
-              <div class="canvas-hint-divider"></div>
-              <div class="canvas-hint-item">
-                <span class="hint-kbd">Wheel</span>
-                <span class="hint-text">Zoom at cursor</span>
-              </div>
-              <div class="canvas-hint-divider"></div>
-              <div class="canvas-hint-item">
-                <span class="hint-kbd">Drag</span>
-                <span class="hint-text">Pan viewport</span>
-              </div>
-              <div class="canvas-hint-divider"></div>
-              <div class="canvas-hint-item">
-                <span class="hint-kbd">2x Click</span>
-                <span class="hint-text">Fit bounds</span>
+              <div class="canvas-viewport-hints">
+                <span class="hint-item"><span class="hint-kbd">&#x2728; Click</span> Inspect &amp; find neighbors</span>
+                <span class="hint-sep">&bull;</span>
+                <span class="hint-item"><span class="hint-kbd">Wheel</span> Zoom at cursor</span>
+                <span class="hint-sep">&bull;</span>
+                <span class="hint-item"><span class="hint-kbd">Drag</span> Pan viewport</span>
+                <span class="hint-sep">&bull;</span>
+                <span class="hint-item"><span class="hint-kbd">2x Click</span> Fit bounds</span>
               </div>
             </div>
           </div>
-        </main>
 
-        <!-- COLUMN 3: NEAREST NEIGHBORS & INSPECTION FEED (390px, Exact Same Width as Left!) -->
-        <aside class="explore-col explore-inspector-feed">
-          <!-- Top Card: Nearest Neighbors List -->
-          <div class="studio-card results-card-container">
-            <div class="results-card-header">
-              <div class="results-header-main">
-                <span class="studio-card-tag" id="explore-results-heading">Nearest neighbours (k = 3)</span>
-                <span class="results-target-badge" id="explore-results-badge">Live Query</span>
+          <!-- Docked Bottom Composer-Style Control Bar (Ask composer-box style) -->
+          <div class="explore-composer-dock">
+            <div class="explore-control-bar">
+              <!-- Top Row of Control Bar: Collection, Points Badge, Variance Micro-Meter -->
+              <div class="explore-bar-top">
+                <div class="explore-bar-left">
+                  <div id="explore-coll-dropdown-wrap" class="explore-coll-dropdown-wrap">
+                    <input type="hidden" id="explore-coll-select" value="demo">
+                  </div>
+                  <div class="explore-badge-pill">
+                    <span class="badge-pill-label">SPACE</span>
+                    <span class="badge-pill-val">128D &rarr; 2D</span>
+                  </div>
+                  <div class="explore-badge-pill">
+                    <span class="badge-pill-label">POINTS</span>
+                    <span class="badge-pill-val" id="explore-points-count-badge">200 Vectors</span>
+                  </div>
+                </div>
+
+                <div class="explore-bar-right">
+                  <div class="explore-variance-pill" title="Total Explained Variance via Power Iteration &amp; Rayleigh Deflation">
+                    <span class="variance-pill-label">VAR 2D</span>
+                    <span class="variance-pill-val font-mono" id="explore-total-variance-val">6.7%</span>
+                    <div class="variance-bars-mini">
+                      <div class="mini-bar-item" title="PC1">
+                        <span class="mini-bar-track"><span class="mini-bar-fill" id="explore-pc1-bar"></span></span>
+                        <span class="mini-bar-val font-mono" id="explore-pc1-variance-val">3.4%</span>
+                      </div>
+                      <div class="mini-bar-item" title="PC2">
+                        <span class="mini-bar-track"><span class="mini-bar-fill" id="explore-pc2-bar"></span></span>
+                        <span class="mini-bar-val font-mono" id="explore-pc2-variance-val">3.3%</span>
+                      </div>
+                    </div>
+                    <span id="explore-variance-note" class="sr-only">Loading variance...</span>
+                  </div>
+                </div>
               </div>
-              <div class="results-header-sub">
-                <span class="results-metric-label">Cosine Similarity</span>
-              </div>
-            </div>
-            
-            <div class="explore-neighbors-list" id="explore-neighbors-list">
-              <div id="explore-results-tbody" class="explore-neighbors-feed">
-                <div class="empty-feed-graphic">
-                  <div class="empty-feed-icon">&#x25C9;</div>
-                  <div class="empty-feed-title">No Active Query</div>
-                  <div class="empty-feed-desc">Click &quot;Project Random Query&quot; or click any point on the canvas to inspect nearest neighbors.</div>
+
+              <!-- Bottom Row of Control Bar: Query controls -->
+              <div class="explore-bar-bottom">
+                <!-- Demo Controls -->
+                <div id="explore-demo-controls" class="explore-demo-row">
+                  <div class="explore-k-wrap">
+                    <span class="explore-label-sub">k</span>
+                    <div class="explore-k-presets" aria-label="Quick k presets">
+                      <button type="button" class="btn-k-preset active" data-preset="3">3</button>
+                      <button type="button" class="btn-k-preset" data-preset="5">5</button>
+                      <button type="button" class="btn-k-preset" data-preset="10">10</button>
+                    </div>
+                    <input type="number" id="explore-demo-k" class="input-text input-sm explore-k-input" value="3" min="1" max="50">
+                  </div>
+
+                  <div class="explore-actions-inline">
+                    <button type="button" id="explore-demo-random-btn" class="btn btn-sm btn-primary">
+                      <span class="btn-icon" data-icon="sparkle"></span>
+                      <span>Project Random Query</span>
+                    </button>
+                    <div class="explore-id-search-wrap">
+                      <input type="number" id="explore-demo-id-input" class="input-text input-sm explore-id-input" placeholder="Vector ID..." min="1">
+                      <button type="button" id="explore-demo-id-btn" class="btn btn-sm btn-secondary">Search ID</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Docs Controls (hidden by default) -->
+                <div id="explore-docs-controls" class="explore-docs-row hidden">
+                  <form id="explore-query-docs-form" class="explore-docs-inline-form">
+                    <input type="text" id="explore-query-docs-input" class="input-text input-sm explore-docs-input flex-1" placeholder="Search documentation vectors..." required>
+                    <div class="explore-k-wrap">
+                      <span class="explore-label-sub">k</span>
+                      <input type="number" id="explore-query-docs-k" class="input-text input-sm explore-k-input" value="3" min="1" max="50">
+                    </div>
+                    <button type="submit" id="explore-query-docs-btn" class="btn btn-sm btn-primary">
+                      <span class="btn-icon" data-icon="send"></span>
+                      <span>Search Space</span>
+                    </button>
+                  </form>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Bottom Card: Selected Vector Inspection Details -->
-          <div class="studio-card explore-vector-inspector-card">
-            <div class="studio-card-header">
-              <span class="studio-card-tag">Vector Inspection</span>
-              <span class="inspector-live-tag" id="explore-inspector-target-id">Top Match</span>
+        <!-- Slide-over Inspector Drawer (Ask doc-drawer pattern) -->
+        <aside id="explore-inspector-drawer" class="explore-drawer collapsed" aria-label="Vector Inspector">
+          <div class="drawer-header">
+            <div class="drawer-title-group">
+              <h3 class="section-title">Vector Inspector</h3>
+              <span class="results-target-badge" id="explore-results-badge">Live Query</span>
             </div>
-            <div class="inspector-metrics-grid">
-              <div class="inspector-stat-tile">
-                <span class="stat-tile-label">PROJECTED PC1</span>
-                <span class="stat-tile-val font-mono" id="inspector-stat-pc1">-</span>
+            <button type="button" id="explore-drawer-close-btn" class="btn btn-xs btn-ghost btn-icon-only" title="Close drawer" aria-label="Close drawer">
+              <span class="btn-icon" data-icon="x"></span>
+            </button>
+          </div>
+
+          <div class="drawer-scroll">
+            <!-- Inspection Target Card -->
+            <div class="drawer-card">
+              <div class="drawer-card-header">
+                <span class="drawer-card-title">Selected Vector</span>
+                <span class="inspector-live-tag" id="explore-inspector-target-id">None</span>
               </div>
-              <div class="inspector-stat-tile">
-                <span class="stat-tile-label">PROJECTED PC2</span>
-                <span class="stat-tile-val font-mono" id="inspector-stat-pc2">-</span>
+              <div class="inspector-metrics-grid">
+                <div class="inspector-stat-tile">
+                  <span class="stat-tile-label">PROJECTED PC1</span>
+                  <span class="stat-tile-val font-mono" id="inspector-stat-pc1">-</span>
+                </div>
+                <div class="inspector-stat-tile">
+                  <span class="stat-tile-label">PROJECTED PC2</span>
+                  <span class="stat-tile-val font-mono" id="inspector-stat-pc2">-</span>
+                </div>
+                <div class="inspector-stat-tile">
+                  <span class="stat-tile-label">COSINE DIST</span>
+                  <span class="stat-tile-val font-mono" id="inspector-stat-dist">-</span>
+                </div>
+                <div class="inspector-stat-tile">
+                  <span class="stat-tile-label">SIMILARITY</span>
+                  <span class="stat-tile-val font-mono" id="inspector-stat-sim">-</span>
+                </div>
               </div>
-              <div class="inspector-stat-tile">
-                <span class="stat-tile-label">COSINE DIST</span>
-                <span class="stat-tile-val font-mono" id="inspector-stat-dist">-</span>
-              </div>
-              <div class="inspector-stat-tile">
-                <span class="stat-tile-label">SIMILARITY</span>
-                <span class="stat-tile-val font-mono" id="inspector-stat-sim">-</span>
+              <div class="inspector-meta-row">
+                <span class="meta-row-label">EMBEDDING SPACE</span>
+                <span class="meta-row-val font-mono" id="inspector-stat-dim">128D Dense Vector</span>
               </div>
             </div>
-            <div class="inspector-meta-row">
-              <span class="meta-row-label">EMBEDDING SPACE</span>
-              <span class="meta-row-val font-mono" id="inspector-stat-dim">128D Dense Vector</span>
+
+            <!-- Nearest Neighbors Results List -->
+            <div class="drawer-card mt-3">
+              <div class="drawer-card-header">
+                <span class="drawer-card-title" id="explore-results-heading">Nearest neighbours (k = 3)</span>
+                <span class="metric-badge">Cosine Similarity</span>
+              </div>
+              <div class="explore-neighbors-list" id="explore-neighbors-list">
+                <div id="explore-results-tbody" class="explore-neighbors-feed">
+                  <div class="empty-feed-graphic">
+                    <div class="empty-feed-icon">&#x25C9;</div>
+                    <div class="empty-feed-title">No Active Query</div>
+                    <div class="empty-feed-desc">Click &quot;Project Random Query&quot; or click any point on the canvas to inspect nearest neighbors.</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </aside>
-
       </div>
     </section>
 
