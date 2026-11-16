@@ -819,12 +819,12 @@
               </div>
             </div>
 
-            <!-- 2. Middle Two-Column Workbench (Separated by one hairline, no boxed cards) -->
+            <!-- 2. Middle Three-Column Workbench (Separated by hairlines, no boxed cards) -->
             <div class="settings-console-middle">
               <!-- Left Column: Demo Collection Configuration -->
               <div class="settings-console-col">
                 <div class="settings-console-section-title">
-                  <span>Demo Collection Hyperparameters</span>
+                  <span>Demo Collection</span>
                 </div>
 
                 <form id="settings-reset-demo-form" class="settings-grid-form">
@@ -861,6 +861,45 @@
               <!-- Vertical hairline divider -->
               <div class="settings-col-divider" aria-hidden="true"></div>
 
+              <!-- Middle Column: HNSW & Document Telemetry (Read-only) -->
+              <div class="settings-console-col">
+                <div class="settings-console-section-title">
+                  <span>HNSW &amp; Documents</span>
+                </div>
+
+                <div class="settings-telemetry-section">
+                  <div class="settings-field-label">HNSW Index Topology</div>
+                  <dl id="settings-hnsw-summary" class="settings-telemetry-list">
+                    <div class="settings-telemetry-row">
+                      <dt class="text-muted">Levels</dt>
+                      <dd id="settings-hnsw-max-level" class="font-mono">--</dd>
+                    </div>
+                    <div class="settings-telemetry-row">
+                      <dt class="text-muted">Entry point</dt>
+                      <dd id="settings-hnsw-entry-point" class="font-mono">--</dd>
+                    </div>
+                    <div class="settings-telemetry-row">
+                      <dt class="text-muted">Nodes / layer</dt>
+                      <dd id="settings-hnsw-nodes-layers" class="font-mono text-xs">--</dd>
+                    </div>
+                    <div class="settings-telemetry-row">
+                      <dt class="text-muted">Avg degree</dt>
+                      <dd id="settings-hnsw-avg-degree" class="font-mono text-xs">--</dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <div class="settings-docs-section">
+                  <div class="settings-field-label">Ingested Documents</div>
+                  <div id="settings-docs-list" class="settings-docs-list">
+                    <p class="text-muted text-xs settings-empty-note">No documents ingested</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Vertical hairline divider -->
+              <div class="settings-col-divider" aria-hidden="true"></div>
+
               <!-- Right Column: Storage, History & Guided Tour -->
               <div class="settings-console-col">
                 <div class="settings-console-section-title">
@@ -880,7 +919,7 @@
                   <div class="settings-action-row">
                     <div class="settings-action-meta">
                       <span class="settings-action-title">Chat history</span>
-                      <span class="settings-action-desc">Clear local conversation threads.</span>
+                      <span id="settings-chats-count-text" class="settings-action-desc text-muted">0 conversations stored</span>
                     </div>
                     <div class="btn-group">
                       <button type="button" id="settings-clear-chats-btn" class="btn btn-sm btn-ghost">Clear Chat History</button>
@@ -909,6 +948,15 @@
                   </div>
                 </div>
               </div>
+            </div>
+
+            <!-- Quiet Row: Ctrl+K, MIT License, Version -->
+            <div id="settings-meta-row" class="settings-console-meta-row text-muted text-xs">
+              <span>Press <kbd class="settings-kbd font-mono">Ctrl+K</kbd> for Command Palette</span>
+              <span class="dot-sep">&bull;</span>
+              <span>MIT License</span>
+              <span class="dot-sep">&bull;</span>
+              <span id="footer-version">v0.4.0</span>
             </div>
 
             <!-- 3. Bottom Slim Danger Zone Row -->

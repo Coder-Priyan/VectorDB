@@ -10,7 +10,12 @@ import { createIcon } from "../icons.js";
 import { EXPLAINERS } from "../learn_content.js";
 import { parseCitations, getDropdownNextIndex, createDropdown } from "../ui.js";
 import { formatBenchmarkRows, formatTraceSummary, formatPipelineLatency, getTabNextIndex } from "../ask_helpers.js";
-import { getSettingsNextSectionIndex } from "../settings_helpers.js";
+import {
+  getSettingsNextSectionIndex,
+  formatHnswSummary,
+  formatDocumentListSummary,
+  countLocalChatThreads
+} from "../settings_helpers.js";
 
 export function registerV2Tests() {
   describe("v2: SVG Icon Registry", (test) => {
@@ -442,6 +447,61 @@ export function registerV2Tests() {
     test("totalCount <= 0 returns 0 without throwing", () => {
       assertEqual(getSettingsNextSectionIndex(0, 0, "ArrowDown"), 0);
       assertEqual(getSettingsNextSectionIndex(2, -1, "Home"), 0);
+    });
+  });
+
+  describe("T-097: Settings HNSW & Documents pure telemetry helpers", (test) => {
+    test("formatHnswSummary handles null or missing info gracefully", () => {
+      const empty = formatHnswSummary(null);
+      assertEqual(empty.available, false);
+      assertEqual(empty.maxLevel, 0);
+      assertEqual(empty.entryPoint, "--");
+      assertEqual(empty.layersText, "None");
+      assertEqual(empty.degreeText, "--");
+    });
+
+    test("formatHnswSummary formats real HNSW graph telemetry correctly", () => {
+      const summary = formatHnswSummary({
+        maxLevel: 3,
+        entryPointId: 42,
+        nodesPerLayer: [1000, 120, 15, 2],
+        avgDegreePerLayer: [16.2, 12.0, 6.5, 2.0]
+      });
+      assertEqual(summary.available, true);
+      assertEqual(summary.maxLevel, 3);
+      assertEqual(summary.entryPoint, "#42");
+      assertEqual(summary.layersText, "L0: 1000 · L1: 120 · L2: 15 · L3: 2");
+      assertEqual(summary.degreeText, "L0: 16.2 · L1: 12.0 · L2: 6.5 · L3: 2.0");
+    });
+
+    test("formatDocumentListSummary formats document items and chunk counts", () => {
+      const docs = [
+        { id: 1, title: "Architecture Guide", bytes: 2048, chunks: 5 },
+        { id: 2, title: "Quickstart", bytes: 512, chunks: 1 }
+      ];
+      const list = formatDocumentListSummary(docs, 4);
+      assertEqual(list.length, 2);
+      assertEqual(list[0].id, 1);
+      assertEqual(list[0].title, "Architecture Guide");
+      assertEqual(list[0].chunksText, "5 chunks");
+      assertEqual(list[0].sizeText, "2.0 KB");
+
+      assertEqual(list[1].id, 2);
+      assertEqual(list[1].title, "Quickstart");
+      assertEqual(list[1].chunksText, "1 chunk");
+      assertEqual(list[1].sizeText, "512 B");
+    });
+
+    test("formatDocumentListSummary returns empty array for empty or null docs", () => {
+      assertEqual(formatDocumentListSummary([]).length, 0);
+      assertEqual(formatDocumentListSummary(null).length, 0);
+    });
+
+    test("countLocalChatThreads counts keys starting with vectordb:chats:", () => {
+      const keys = ["vectordb:chats:abc", "vectordb:chats:def", "vectordb:chats", "other"];
+      assertEqual(countLocalChatThreads(keys), 2);
+      assertEqual(countLocalChatThreads([]), 0);
+      assertEqual(countLocalChatThreads(null), 0);
     });
   });
 }

@@ -8,6 +8,11 @@
 import { api, showGlobalError, clearGlobalError, withButtonBusy } from "./api.js";
 import { el, formatBytes, createDropdown } from "./ui.js";
 import { createIcon } from "./icons.js";
+import {
+  formatHnswSummary,
+  formatDocumentListSummary,
+  countLocalChatThreads
+} from "./settings_helpers.js";
 
 export function initSettingsTab() {
   const healthBox = document.getElementById("settings-health-box");
@@ -23,6 +28,27 @@ export function initSettingsTab() {
   const ollamaStatusTextEl = document.getElementById("settings-ollama-status-text");
   const modelsChipsEl = document.getElementById("settings-models-chips");
   const metricDropdownWrap = document.getElementById("demo-metric-dropdown-wrap");
+
+  // Middle Column: HNSW & Document Telemetry Elements
+  const hnswMaxLevelEl = document.getElementById("settings-hnsw-max-level");
+  const hnswEntryPointEl = document.getElementById("settings-hnsw-entry-point");
+  const hnswNodesLayersEl = document.getElementById("settings-hnsw-nodes-layers");
+  const hnswAvgDegreeEl = document.getElementById("settings-hnsw-avg-degree");
+  const docsListEl = document.getElementById("settings-docs-list");
+
+  // Right Column: Chat History count text element
+  const chatsCountTextEl = document.getElementById("settings-chats-count-text");
+
+  function updateChatCount() {
+    if (!chatsCountTextEl) return;
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k) keys.push(k);
+    }
+    const count = countLocalChatThreads(keys);
+    chatsCountTextEl.textContent = `${count} conversation${count === 1 ? "" : "s"} stored locally`;
+  }
 
   // Mount custom dark dropdown for Metric selection
   let metricDropdown = null;
@@ -67,17 +93,26 @@ export function initSettingsTab() {
   resetDemoCancelBtn?.addEventListener("click", cancelResetPrompt);
 
   /**
-   * Loads and renders system health, config, and collection statistics.
+   * Loads and renders system health, config, collection statistics, and HNSW/docs telemetry.
    */
   async function loadSystemStatus() {
     if (!healthBox) return;
     try {
-      const [health, config, stats, ollama] = await Promise.all([
+      const [healthRes, configRes, statsRes, ollamaRes, hnswRes, docsRes] = await Promise.allSettled([
         api.getHealth(),
         api.getConfig(),
         api.getStats(),
-        api.getOllamaStatus().catch(() => ({ reachable: false, models: [] }))
+        api.getOllamaStatus(),
+        api.getHnswInfo(),
+        api.getDocs()
       ]);
+
+      const health = healthRes.status === "fulfilled" ? healthRes.value : { status: "offline" };
+      const config = configRes.status === "fulfilled" ? configRes.value : null;
+      const stats = statsRes.status === "fulfilled" ? statsRes.value : null;
+      const ollama = ollamaRes.status === "fulfilled" ? ollamaRes.value : { reachable: false, models: [] };
+      const hnswInfo = hnswRes.status === "fulfilled" ? hnswRes.value : null;
+      const docsData = docsRes.status === "fulfilled" ? docsRes.value : null;
 
       const dimInput = document.getElementById("demo-dim-input");
       const metricSelect = document.getElementById("demo-metric-select");
@@ -159,6 +194,37 @@ export function initSettingsTab() {
         makeDefRow("Vectors", String(stats?.count ?? 0)),
         makeDefRow("Memory (approx)", formatBytes(stats?.memory_bytes || 0))
       );
+
+      // Render Middle Column: HNSW Index Topology
+      const hnswSummary = formatHnswSummary(hnswInfo);
+      if (hnswMaxLevelEl) hnswMaxLevelEl.textContent = hnswSummary.available ? String(hnswSummary.maxLevel) : "Unavailable";
+      if (hnswEntryPointEl) hnswEntryPointEl.textContent = hnswSummary.entryPoint;
+      if (hnswNodesLayersEl) hnswNodesLayersEl.textContent = hnswSummary.layersText;
+      if (hnswAvgDegreeEl) hnswAvgDegreeEl.textContent = hnswSummary.degreeText;
+
+      // Render Middle Column: Ingested Documents List
+      if (docsListEl) {
+        const docs = docsData?.documents || [];
+        const docItems = formatDocumentListSummary(docs, 4);
+        if (docItems.length === 0) {
+          docsListEl.replaceChildren(
+            el("p", { className: "text-muted text-xs settings-empty-note" }, "No documents ingested")
+          );
+        } else {
+          docsListEl.replaceChildren(
+            el("ul", { className: "settings-docs-summary-list" },
+              ...docItems.map(d => el("li", { className: "settings-doc-item font-mono text-xs" },
+                el("span", { className: "settings-doc-title text-secondary" }, d.title),
+                el("span", { className: "settings-doc-meta text-muted" }, `${d.chunksText} · ${d.sizeText}`)
+              ))
+            )
+          );
+        }
+      }
+
+      // Update Chat History Count
+      updateChatCount();
+
     } catch (err) {
       healthBox.replaceChildren(
         el("p", { className: "text-muted" }, `Failed to load system status: ${err.message}`)
@@ -288,6 +354,7 @@ export function initSettingsTab() {
         keysToRemove.forEach(k => localStorage.removeItem(k));
         window.dispatchEvent(new CustomEvent("vectordb:chats-updated", { detail: { activeChatId: null } }));
         window.dispatchEvent(new CustomEvent("vectordb:clear-all-chats"));
+        updateChatCount();
         if (clearChatsStatus) {
           clearChatsStatus.textContent = "Chat history cleared successfully.";
           clearChatsStatus.classList.remove("hidden");
@@ -306,6 +373,11 @@ export function initSettingsTab() {
       window.dispatchEvent(new CustomEvent("vectordb:start-tour"));
     });
   }
+
+  // Update chat count whenever chats change
+  window.addEventListener("vectordb:chats-updated", () => {
+    updateChatCount();
+  });
 
   // Refresh status when Settings tab is activated
   const settingsTabBtn = document.getElementById("tab-btn-settings");

@@ -216,3 +216,28 @@ All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count
   - JS syntax check: all 27 JS files pass `node --check` with 0 failures.
   - Frozen files invariant: Ask tab (`web/js/ask.js`, `web/js/ask_helpers.js`), app shell, C++ engine, and `docs/API.md` byte-identical to baseline.
   - Visuals: marked as "not tested (visual)" / builder-reported only; human verification via `/` in real Chrome is definitive.
+
+## Task T-097: Compare Bars Fix & Real-Content Layout; Settings 3-Column Console
+
+- **Status**: Completed (2 commits: `7bed516` Part A, Part B in progress)
+- **Goal & Motivation**: In human screenshots at 1920x1080 100% zoom, Compare and Settings appeared half-empty with 150-300px dead bands, and Compare bars failed to render (showing only tiny half-moons at x~868). Filled both tabs with MORE REAL CONTENT without stretching boxes or inflating type:
+  - *Part A (Compare)*:
+    - Root-cause fix for missing bars: replaced undefined `var(--bg-input)` and flex container on track with `display: block; width: 100%; height: 12px; background: rgba(255, 255, 255, 0.06); border-radius: 6px;` and fill `display: block; height: 100%; border-radius: 6px;`.
+    - Real available content: Query details line ($k$, $efSearch$, collection, vector count, repeats); Timings spread tick strip (`buildTimingsStrip`); Top matches row with mono IDs and match indicator (`buildTopMatchesSummary`); Mismatch summary panel (`buildMismatchSummary`); Computed index efficiency explanation line (`buildExplanatoryLine`).
+    - Hid speedup chip when Brute Force is winner; dynamic footnote per view; removed `margin: auto 0;`.
+    - Unit tests in `web/js/tests/test_compare.js`.
+  - *Part B (Settings)*:
+    - Zero page scroll at 1920x1080 100% zoom (console height $pprox 520	ext{px}$).
+    - Top 8-value metrics strip (2x4 grid) + Ollama model chips.
+    - Middle Three-Column Workbench separated by hairlines: Col 1 = Demo collection hyperparameters and inserter; Col 2 = HNSW graph topology from `/api/hnsw/info` and ingested documents list from `/api/docs` with quiet empty state; Col 3 = Storage persistence status, chat history count from localStorage, tour, and tests.
+    - Quiet meta row: Ctrl+K command palette hint, MIT license, version.
+    - Slim Danger Zone row with quiet red border and two-step confirmation.
+    - Unit tests in `web/js/tests/test_v2.js` and helpers in `web/js/settings_helpers.js`.
+- **Quality Gates**:
+  - Web safety scanner (`scripts/check_web_safety.ps1`): 100% clean (zero forbidden patterns in active code).
+  - C++ unit tests (`build/vectordb_tests.exe`): 118/118 passed (529,813 assertions).
+  - CSS invariants: `box-shadow` count = 0, `!important` count = 2, zero hex literals outside `colors.js`.
+  - JS syntax check: all modules pass dynamic import check with 0 failures.
+  - Test suites: 187 registered browser tests (182 pass in headless Node mock, 5 require real DOM).
+  - Preserved ALL 40 Compare DOM IDs and ALL 28 Settings DOM IDs.
+  - Frozen files byte-identical.

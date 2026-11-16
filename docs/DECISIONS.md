@@ -430,3 +430,37 @@ Last updated: 2026-11-16 by T-072 sync
      - All 40 Compare DOM IDs and 28 Settings DOM IDs preserved.
      - Ask, Explore, HNSW, sidebar/shell, C++ engine, and `docs/API.md` byte-identical to `cbd7e81`.
      - Zero hex literals outside `colors.js`, zero box-shadows, `!important` count <= 2, 118/118 C++ tests pass, strict CSP pass.
+
+## ADR-089: Compare and Settings Real-Content Elevation and Bar Track Fix (T-097)
+
+- **Date**: 2026-11-16
+- **Status**: Accepted [CONFIRMED: human instruction in chat]
+- **Context**: In real 1920x1080 100% zoom screenshots, Compare and Settings appeared half empty with 150-300px dead bands, and Compare bars failed to render (showing only tiny half-moons at x~868). Human instructed: "keep the centered calm column like Ask, do NOT stretch boxes and do NOT rely on bigger type or spacing to fill. Fill the space with MORE REAL CONTENT that the app already has, arranged smartly. Target: calm, premium, '$15k product', Ask-like feel, theme unchanged". Compare bars to fill free width between label and number, thick (10-12px), rounded, faint track, shared linear scale. Big screen only. [CONFIRMED: human instruction in chat]
+- **Decisions**:
+  1. **Root-Cause Resolution for Missing Compare Bars**:
+     - Identified that `.switcher-bar-track` had `background: var(--bg-input);` which was undefined in CSS tokens (evaluating to transparent), and had `display: flex;` with unconstrained flex children. In addition, `.compare-metric-row` middle column lacked explicit block track width, collapsing to the 4px `min-width` fallback cap (`width: 4px; height: 16px; border-radius: 8px;`), which appeared in screenshots as a "tiny half-moon at x~868".
+     - Fixed `.switcher-bar-col` to `width: 100%; min-width: 0; display: flex; flex-direction: column;`.
+     - Fixed `.switcher-bar-track` to `display: block; width: 100%; height: 12px; background: rgba(255, 255, 255, 0.06); border-radius: 6px; overflow: hidden;`.
+     - Fixed `.switcher-bar-fill` to `display: block; height: 100%; border-radius: 6px; transition: width 200ms cubic-bezier(0.16, 1, 0.3, 1);` with accessible contrast on dark theme.
+  2. **Compare Real Available Content Layout**:
+     - Query details metadata strip under hero banner: $k$, $efSearch$, collection name, vector count, and repeats count.
+     - Timings spread strip (`buildTimingsStrip`): renders normalized tick marks for all $N$ repeat runs across latency iterations.
+     - Top matches row (`buildTopMatchesSummary`): displays top matches with rank, monospace vector ID, 4-decimal distance, and ground-truth match indicator dot. In docs mode includes document title.
+     - Mismatch summary panel (`buildMismatchSummary`): visibly lists explicit rank deviations (`expected #X vs got #Y`) in Accuracy view, or confirms 100% parity.
+     - Computed explanatory line (`buildExplanatoryLine`): dynamically computes index efficiency sentences (e.g. HNSW pruning rate vs brute-force comparisons, or KD-Tree scan percentage in high dimensions) purely from returned numbers without hardcoded text.
+     - Speedup chip condition: when Brute Force is fastest (ratio <= 1.0), hides the "1.0x Speedup" chip.
+     - Footnote dynamically switches based on active metric tab (Latency, Work, Accuracy).
+     - Removed `margin: auto 0;` on `.compare-results-view` so content starts cleanly under header with consistent spacing down to the docked control bar.
+  3. **Settings Three-Column Console Architecture**:
+     - Maintained centered Ask-style 1040px column (`max-width: 1040px;`) with ZERO page scroll at 1920x1080 100% zoom.
+     - Top slim metrics strip: 8 server telemetry metrics in 2x4 grid + Ollama model chips.
+     - Middle Three-Column Workbench separated by two hairline dividers without boxed cards:
+       - Col 1 (Demo Collection): Dimension, custom Distance metric dropdown, M, efConstruction, and synthetic vector inserter with single primary amber button.
+       - Col 2 (HNSW & Documents, read-only): Real HNSW graph topology (maxLevel, entryPointId, nodesPerLayer, avgDegreePerLayer from `/api/hnsw/info`), and real ingested document chunk list (title, chunks, bytes from `/api/docs`) with quiet empty state fallback.
+       - Col 3 (Storage & Maintenance): Disk persistence status + `--data-dir` hint, chat history count from `localStorage`, Clear Chat History with two-step confirm, Start Guided Tour button, and Interactive Test Suite link.
+     - Quiet metadata row: `Ctrl+K` command palette shortcut hint, MIT license, and version number.
+     - Slim Danger Zone row: Quiet low-contrast red hairline, warning text, and Reset Demo Collection with two-step confirmation.
+  4. **Strict Invariants**:
+     - All 40 Compare DOM IDs and 28 Settings DOM IDs preserved.
+     - Ask, Explore, HNSW, sidebar/shell, C++ engine, and `docs/API.md` byte-identical to `cbd7e81`.
+     - Zero hex literals outside `colors.js`, zero box-shadows, `!important` count <= 2, 118/118 C++ tests pass, strict CSP pass.
