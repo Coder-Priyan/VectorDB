@@ -132,6 +132,20 @@ export function initExploreTab() {
     let text = `Explained variance (PCA, 2D): ${sum}% (PC1: ${r1}%, PC2: ${r2}%)`;
     if (count < 10) text += " — Note: PCA projection is not statistically meaningful with fewer than 10 vectors.";
     varianceNote.textContent = text;
+
+    const totalEl = byId("explore-total-variance-val");
+    if (totalEl) totalEl.textContent = `${sum}%`;
+    const pc1El = byId("explore-pc1-variance-val");
+    if (pc1El) pc1El.textContent = `${r1}%`;
+    const pc2El = byId("explore-pc2-variance-val");
+    if (pc2El) pc2El.textContent = `${r2}%`;
+    const pc1Bar = byId("explore-pc1-bar");
+    if (pc1Bar) pc1Bar.style.setProperty("width", `${Math.min(100, Math.max(0, (ratios[0] || 0) * 100))}%`);
+    const pc2Bar = byId("explore-pc2-bar");
+    if (pc2Bar) pc2Bar.style.setProperty("width", `${Math.min(100, Math.max(0, (ratios[1] || 0) * 100))}%`);
+    const countBadge = byId("explore-points-count-badge");
+    const isDocs = collSelect ? collSelect.value === "docs" : false;
+    if (countBadge) countBadge.textContent = isDocs ? `${count} Chunks` : `${count} Vectors`;
   }
 
   function updateLegend(isDocs, points) {
@@ -284,21 +298,46 @@ export function initExploreTab() {
     const kVal = isDocs ? (queryDocsK ? queryDocsK.value : 3) : (queryDemoK ? queryDemoK.value : 3);
     if (heading) heading.textContent = `Nearest neighbours (k = ${kVal})`;
 
+    const badge = byId("explore-results-badge");
+    if (badge) {
+      if (queryStar) {
+        badge.textContent = isDocs ? "Doc Query" : (queryDemoIdInput && queryDemoIdInput.value ? `Vector #${queryDemoIdInput.value}` : "Random Vector");
+      } else {
+        badge.textContent = "Live Query";
+      }
+    }
+
     if (!results || results.length === 0) {
       const emptyRow = el("tr", {},
-        el("td", { colSpan: 3, className: "text-muted empty-state" }, "Run a query to inspect nearest neighbours.")
+        el("td", { colSpan: 4, className: "text-muted empty-state" },
+          el("div", { className: "empty-feed-graphic" },
+            el("div", { className: "empty-feed-icon" }, "\u25C9"),
+            el("div", { className: "empty-feed-title" }, "No Active Query"),
+            el("div", { className: "empty-feed-desc" }, "Click \"Project Random Query\" or click any dot on the 2D canvas to inspect top nearest neighbors.")
+          )
+        )
       );
       resultsTableBody.appendChild(emptyRow);
       return;
     }
 
-    const rows = results.map((r) => {
+    const rows = results.map((r, i) => {
       const docTitle = isDocs ? (r.title || `Doc ${r.doc_id}`) : `Vector #${r.id}`;
       const chunkSub = isDocs ? `Chunk #${r.chunk_index}` : `ID: ${r.id}`;
       const distStr = r.distance !== undefined ? r.distance.toFixed(4) : "-";
       const simStr = formatSimilarity(r.similarity);
+      const simNum = (r.similarity !== null && r.similarity !== undefined) ? Math.min(100, Math.max(0, r.similarity * 100)) : 0;
+
+      const rankBadge = el("span", { className: `neighbor-rank-badge ${i === 0 ? "rank-top" : ""}` }, `#${i + 1}`);
+
+      const simVal = el("span", { className: "sim-val-text font-mono" }, simStr);
+      const simFill = el("div", { className: "sim-meter-fill" });
+      simFill.style.setProperty("width", `${simNum.toFixed(1)}%`);
+      const simTrack = el("div", { className: "sim-meter-track" }, simFill);
+      const simCellContent = el("div", { className: "sim-cell-wrap" }, simVal, simTrack);
 
       return el("tr", { className: "explore-neighbor-row" },
+        el("td", { className: "neighbor-rank-cell" }, rankBadge),
         el("td", { className: "neighbor-target-cell" },
           el("div", { className: "neighbor-target-meta" },
             createIcon(isDocs ? "document" : "database", 14, "neighbor-icon-svg"),
@@ -308,8 +347,8 @@ export function initExploreTab() {
             )
           )
         ),
-        el("td", { className: "neighbor-dist-cell" }, distStr),
-        el("td", { className: "neighbor-sim-cell" }, simStr)
+        el("td", { className: "neighbor-dist-cell font-mono" }, distStr),
+        el("td", { className: "neighbor-sim-cell" }, simCellContent)
       );
     });
     resultsTableBody.replaceChildren(...rows);
@@ -322,8 +361,26 @@ export function initExploreTab() {
     render();
   }, { passive: false });
 
-  canvas.addEventListener("mousedown", (e) => { isDragging = true; dragStart = { x: e.clientX, y: e.clientY }; });
-  window.addEventListener("mouseup", () => { isDragging = false; });
+  let mouseDownPos = { x: 0, y: 0 };
+  canvas.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    dragStart = { x: e.clientX, y: e.clientY };
+    mouseDownPos = { x: e.clientX, y: e.clientY };
+  });
+  window.addEventListener("mouseup", (e) => {
+    if (isDragging) {
+      const dx = Math.abs(e.clientX - mouseDownPos.x);
+      const dy = Math.abs(e.clientY - mouseDownPos.y);
+      if (dx < 5 && dy < 5 && hoveredPoint) {
+        const isDocs = collSelect ? collSelect.value === "docs" : false;
+        if (!isDocs && hoveredPoint.id) {
+          if (queryDemoIdInput) queryDemoIdInput.value = hoveredPoint.id;
+          if (queryDemoIdBtn) queryDemoIdBtn.click();
+        }
+      }
+    }
+    isDragging = false;
+  });
   canvas.addEventListener("mousemove", (e) => {
     const rect = canvas.getBoundingClientRect();
     if (isDragging) {
@@ -412,6 +469,26 @@ export function initExploreTab() {
       loadData();
     });
   });
+  const presetBtns = document.querySelectorAll(".btn-k-preset");
+  presetBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      presetBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const k = btn.dataset.preset;
+      if (queryDemoK) queryDemoK.value = k;
+      if (queryDocsK) queryDocsK.value = k;
+      if (queryStar) {
+        if (collSelect && collSelect.value === "demo") {
+          if (queryDemoIdInput && queryDemoIdInput.value) {
+            queryDemoIdBtn?.click();
+          } else {
+            queryDemoRandomBtn?.click();
+          }
+        }
+      }
+    });
+  });
+
   window.addEventListener("resize", scheduleResize);
   loadData();
 }
