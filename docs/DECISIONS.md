@@ -372,3 +372,21 @@ Last updated: 2026-11-16 by T-072 sync
 5. **Ask**: 100% frozen and untouched dark Claude-style RAG chat with collapsible documents drawer.
 
 ---
+
+## ADR-086: Explore & HNSW Premium Redesign as One Coherent Instrument Family (T-093)
+
+- **Date**: 2026-11-16
+- **Status**: Accepted [CONFIRMED: human instruction in chat]
+- **Context**: Human gave full design permission for Explore and HNSW tabs only ("Target: a clean, smooth, premium, aesthetic, '$10k product' feel, with Explore and HNSW looking like one coherent instrument family. Keep the existing theme: 3 dark surfaces (--bg-page, --bg-panel, --bg-raised), amber accent #d9a441, IBM Plex Sans (Mono only for IDs and tabular numbers), radii 6/10/14. Everything else from older design rules may be dropped if it blocks a better result").
+- **Decisions**:
+  1. **Explore Left Column Rebalance (Defect 1)**: Removed `flex: 1 1 0` from `.explore-query-card` to eliminate the ~300px dead black space. Rebalanced column with `.explore-dataset-card` (~135px), `.explore-query-card` (~270px), and an expanded `.explore-variance-card` (~360px) featuring a total explained variance hero tile, PC1/PC2 variance bars, and a projection metadata note.
+  2. **Explore Header Wrap & Overlap Resolution (Defect 2)**: Restructured `.results-card-header` into a two-line flex layout: row 1 hosts `#explore-results-heading` (left) and `#explore-results-badge` (right); row 2 cleanly hosts `.results-metric-label` ("Cosine Similarity"). Zero wrapping, zero overlap.
+  3. **Explore Vector Inspection Clipping Fix (Defect 3)**: Raised `.explore-vector-inspector-card` to `height: 200px` with comfortable margins, ensuring the "Embedding space" row (`#inspector-stat-dim`) is 100% visible with generous clearance and zero clipping at 1920x1080.
+  4. **Explore Canvas Tick Collision Resolution (Defect 4)**: Moved axis tick numerals to the canvas perimeter (X ticks along bottom at `height - 24`, Y ticks along left at `x = 28`), backed by quiet pills (`rgba(9, 9, 11, 0.85)`). Completely eliminated collisions with data points and axes.
+  5. **HNSW Left Column Topology Proportions (Defect 5)**: Removed `justify-content: center` from `.hnsw-topo-stats-stack`, aligned stats to the top of `.hnsw-topology-card`, and added a graph architecture bento tile. Eliminated the ~250px empty space above tiles.
+  6. **HNSW Right Column Telemetry Proportions (Defect 6)**: Structured `.hnsw-telemetry-card` with active step coordinates, search diagnostics, and beam search routing telemetry, eliminating the ~400px empty void without introducing fake data.
+  7. **HNSW Canvas Hairball Edge Mitigation (Defect 7)**: Reduced Layer 0 edge alpha to `rgba(255, 255, 255, 0.055)` and line width to `0.65px` (`getEdgeStrokeStyle`), transforming the dense hairball of 1,324 edges into a delicate, constellation-grade background web while elevating entry node beacons and beam search trajectory steps (`#1`, `#2`, `#3`) as hero elements.
+  8. **HNSW Trace ID Alignment (Defect 8)**: Wrapped `#hnsw-trace-id-input` and `#hnsw-trace-id-btn` in `.hnsw-id-row` with matched `34px` heights, ensuring perfect baseline alignment.
+  9. **Zero-Hex Rule Invariant (Defect 9 / ISS-093)**: Replaced all 7 occurrences of `#ffffff` in `explore.js` and `hnsw.js` with `THEME.white`. Grep verified 0 hex literals outside `colors.js`.
+  10. **Strict Invariants**: All 38 Explore DOM IDs and 44 HNSW DOM IDs preserved. Ask, Compare, Settings, and C++ engine 100% frozen.
+

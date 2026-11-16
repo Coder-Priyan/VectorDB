@@ -1,6 +1,6 @@
 # Project Progress
 
-Last updated: 2026-11-16 by T-075 sync
+Last updated: 2026-11-16 by T-093 sync
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform (Task T-033 Complete across all 9 Phases P0-P8, Branch `ui-redesign-v3`)
 
@@ -160,4 +160,25 @@ All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count
 | **Automated Browser E2E Click Tests** | Headless browser execution suite (Playwright / Selenium) | [CONFIRMED: docs/KNOWN_ISSUES.md:15] | NOT STARTED |
 | **Streaming Document Ingestion** | Real-time progress updates during multi-document chunk embedding | [CONFIRMED: docs/KNOWN_ISSUES.md:9] | NOT STARTED |
 
+## T-093: Explore + HNSW Premium Redesign (One Design Language, Zero-Scroll, Polished Canvases)
+
+- **Date**: 2026-11-16
+- **Status**: Complete on branch `ui-redesign-v4` (commits `4a06698` T-093 A, `793dff6` T-093 B)
+- **Defects Addressed & Resolved**:
+  1. **Explore Left Column Dead Space (Defect 1)**: Converted `.explore-query-card` to content-sized (`flex: 0 0 auto`), eliminating the ~300px dead band. Expanded `.explore-variance-card` to `flex: 1 1 0` with a full PCA bento (total explained variance hero tile, PC1/PC2 variance bars, and projection metadata note).
+  2. **Explore Right Card Header Overlap (Defect 2)**: Rebuilt `.results-card-header` as a two-line flex layout: row 1 hosts `#explore-results-heading` (left) and `#explore-results-badge` (right); row 2 hosts `.results-metric-label` ("Cosine Similarity"). Zero wrapping, zero overlap.
+  3. **Explore Vector Inspection Clipping (Defect 3)**: Sized `.explore-vector-inspector-card` to `200px` with comfortable margins, fully exposing the "Embedding space" row (`#inspector-stat-dim`) with zero clipping.
+  4. **Explore Canvas Tick Collision (Defect 4)**: Moved axis tick numerals to the canvas perimeter (X ticks at bottom `height - 24`, Y ticks at left `x = 28`) with quiet backing pills (`rgba(9, 9, 11, 0.85)`). Zero collision with data points or axes.
+  5. **HNSW Left Column Topology Empty Space (Defect 5)**: Removed `justify-content: center` from `.hnsw-topo-stats-stack`, aligned stats to the top of `.hnsw-topology-card`, and added a graph architecture bento tile, eliminating the ~250px dead void.
+  6. **HNSW Right Column Telemetry Empty Space (Defect 6)**: Restructured `.hnsw-telemetry-card` into active step coordinates, search diagnostics, and beam search routing telemetry, eliminating the ~400px empty void with real data only.
+  7. **HNSW Canvas Hairball Edge Mitigation (Defect 7)**: Softened Layer 0 edge alpha to `rgba(255, 255, 255, 0.055)` and width to `0.65px` via pure helper `getEdgeStrokeStyle`, eliminating the hairball while elevating entry node beacons and beam search trajectory steps (`#1`, `#2`, `#3`).
+  8. **HNSW Trace ID Alignment (Defect 8)**: Realigned `#hnsw-trace-id-input` and `#hnsw-trace-id-btn` in `.hnsw-id-row` with matching `34px` height and shared baseline.
+  9. **Zero-Hex Rule Invariant (Defect 9 / ISS-093)**: Replaced all 7 occurrences of `#ffffff` in `explore.js` and `hnsw.js` with `THEME.white`. Grep verified 0 hex literals outside `colors.js`.
+- **Quality Gates**:
+  - Web safety scan: 100% clean (zero forbidden patterns).
+  - C++ unit tests: 118/118 passed (529,813 assertions).
+  - Browser tests: expanded from 156 to 159 registered tests; 3 new pure-logic tests added and passing. Real browser verification pending human run at `/tests.html`.
+  - CSS invariants: `box-shadow` count = 0, `!important` count = 2.
+  - DOM IDs: all 38 Explore IDs and 44 HNSW IDs preserved.
+  - Frozen tabs (Ask, Compare, Settings) and C++ engine completely untouched.
 

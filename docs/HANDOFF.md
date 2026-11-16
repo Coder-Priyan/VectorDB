@@ -1,16 +1,16 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by SYNC-013
+Last updated: 2026-11-16 by T-093 sync
 
 > **NEXT STEP**: New Brain chat (MODE: RESUME) first reviews the human's full-window 1920x1080 100% screenshots of all 5 tabs (Ask, Explore, HNSW, Compare, Settings) and the terminal verification (git log --oneline -5, git status -sb, vectordb_tests.exe, check_web_safety.ps1, !important count, box-shadow count, hex count, /tests.html count), and asks the human which tabs he likes. No new task before that.
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
-- **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Registered browser unit tests expanded to **156** in code (156/156 pass in test runner; human run at `/tests.html` pending).
+- **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Registered browser unit tests expanded to **159** in code (154/159 pass in Node runner due to DOM stubs; human run at `/tests.html` pending). Visual state for T-071 through T-093 is **NOT human-verified** (builder-reported only).
 - **Git State**: Local branch `ui-redesign-v4`, clean working tree (only untracked `results/logs/`), commits unpushed per protocol.
 - **Current UI State (by tab)**:
   - **Ask tab**: COMPLETE, human-approved, and human-verified (SYNC-012, HEAD `7352605`). Untouched throughout T-071..T-092.
-  - **Explore tab**: Rebuilt in T-080/T-087/T-090/T-092. Visual state [not seen by Brain]; builder claims 3-column studio layout (`390px | 1fr | 390px`), precision CAD coordinate canvas, luminous constellation points, radar target lock reticle, and neighbor feed (`#explore-results-tbody` converted from table to flex div).
-  - **HNSW tab**: Rebuilt in T-081/T-088/T-090/T-091. Visual state [not seen by Brain]; builder claims 3-column studio layout (`390px | 1fr | 390px`), graph canvas with entry node beacon diamond, sequential beam search steps (`#1`, `#2`, `#3`), VCR playback transport, and telemetry bento.
+  - **Explore tab**: Rebuilt in T-093 (ADR-086). Visual state [not seen by Brain / not tested (visual)]; builder claims: left column dead space resolved (query card content-sized, PCA variance bento expanded with metadata note); right card header rebuilt without wrapping or overlapping; vector inspector card given 200px clearance with zero clipping; canvas tick numerals moved to perimeter with quiet backing pills eliminating point collision; zero hex literals outside `colors.js`.
+  - **HNSW tab**: Rebuilt in T-093 (ADR-086). Visual state [not seen by Brain / not tested (visual)]; builder claims: left column topology summary empty space resolved (removed `justify-content: center`, top-aligned stats, added architecture bento tile); right column telemetry bento expanded with routing trajectory info eliminating 400px empty void; Layer 0 edges softened to `rgba(255, 255, 255, 0.055)` at `0.65px` width (`getEdgeStrokeStyle`), eliminating hairball; Trace ID button and input aligned on exact baseline with equal 34px height; zero hex literals outside `colors.js`.
   - **Compare tab**: Rebuilt in T-072/T-078/T-079/T-089. Visual state [not seen by Brain]; builder claims unified spec sheet comparison matrix across 3 algorithms, zero-scroll single screen layout, and 42px studio control row.
   - **Settings tab**: Rebuilt in T-077/T-082/T-089. Visual state [not seen by Brain]; builder claims 3-column studio console with 8-metric server bento, demo collection forms, disk persistence status, and isolated 2-step danger reset.
 
@@ -21,9 +21,9 @@ Last updated: 2026-11-16 by SYNC-013
 - Do not merge to main, do not push to remote origin.
 
 ## Next Free Identifiers
-- Next free ADR: **ADR-086**
+- Next free ADR: **ADR-087**
 - Next free ISS: **ISS-098**
-- Next task number: **T-093**
+- Next task number: **T-094**
 
 ## T-092 summary (ADR-085; Explore Tab $5,000 Studio Elevation & Table-Flex Bug Resolution)
 
