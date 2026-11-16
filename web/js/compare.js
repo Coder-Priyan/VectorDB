@@ -10,7 +10,10 @@ import {
   mapReportToCards,
   buildCompareHeadline,
   formatSpeedComparison,
-  formatPrunedText
+  formatPrunedText,
+  METRIC_SWITCHER_TABS,
+  computeSharedMetricBars,
+  handleSegmentedKeyNav
 } from "./compare_helpers.js";
 
 export function initCompareTab() {
@@ -194,6 +197,7 @@ export function initCompareTab() {
 
   let currentDim = 128;
   let lastReportData = null;
+  let currentMetricKey = "latency";
 
   function showResultsView() {
     emptyStateBox?.classList.add("hidden");
@@ -219,6 +223,7 @@ export function initCompareTab() {
 
   function resetCompareView() {
     lastReportData = null;
+    currentMetricKey = "latency";
     hideTooltip();
     cardsContainer?.replaceChildren();
     if (statusNotice) statusNotice.textContent = "Ready to benchmark.";
@@ -394,141 +399,186 @@ export function initCompareTab() {
     if (chipSpeedup) chipSpeedup.textContent = `${headlineData.ratioText} Speedup`;
     if (chipRecall) chipRecall.textContent = `${headlineData.recallPercent} Recall`;
 
-    renderSpecSheet(report, latencies, headlineData);
+    renderMetricSwitcher(report, latencies, headlineData);
   }
 
-  function renderSpecSheet(report, latencies, headlineData) {
+  function renderMetricSwitcher(report, latencies, headlineData) {
     if (!cardsContainer) return;
     cardsContainer.replaceChildren();
 
     const cardModels = mapReportToCards(report, latencies);
+    if (!cardModels || cardModels.length === 0) return;
+
     const bruteCard = cardModels.find(c => c.alg === "brute") || cardModels[0];
     const bruteMed = bruteCard ? Math.max(1, bruteCard.medianUs) : 1;
     const bruteDist = bruteCard ? Math.max(1, bruteCard.distanceComputations) : 1;
 
-    for (const card of cardModels) {
-      const alg = card.alg;
-      const isFastest = (alg === headlineData.fastestKey);
+    // Outer frame for the metric switcher
+    const frameEl = el("div", { className: "compare-metric-switcher-frame" });
 
-      // Column Container
-      const colEl = el("div", {
-        className: `compare-spec-col spec-col-${alg}${isFastest ? " is-winner" : ""}`,
-        "data-alg": alg,
-        role: "region",
-        "aria-label": `${card.label} specifications`
+    // 1. Accessible Segmented Control Bar (tablist)
+    const tablistEl = el("div", {
+      className: "compare-segmented-bar",
+      role: "tablist",
+      "aria-label": "Benchmark metric selection"
+    });
+
+    METRIC_SWITCHER_TABS.forEach((tab, idx) => {
+      const isActive = tab.key === currentMetricKey;
+      const tabBtn = el("button", {
+        type: "button",
+        role: "tab",
+        id: `compare-tab-${tab.key}`,
+        className: `compare-segmented-btn${isActive ? " active" : ""}`,
+        "aria-selected": String(isActive),
+        "aria-controls": "compare-rows-panel",
+        tabIndex: isActive ? 0 : -1
+      }, tab.label);
+
+      tabBtn.addEventListener("click", () => {
+        if (currentMetricKey === tab.key) return;
+        currentMetricKey = tab.key;
+        renderMetricSwitcher(report, latencies, headlineData);
+        const newTab = document.getElementById(`compare-tab-${tab.key}`);
+        newTab?.focus();
       });
 
-      // 1. Header Block
+      tabBtn.addEventListener("keydown", (e) => {
+        const nextIdx = handleSegmentedKeyNav(e, idx, METRIC_SWITCHER_TABS.length);
+        if (nextIdx !== null) {
+          e.preventDefault();
+          const targetTab = METRIC_SWITCHER_TABS[nextIdx];
+          currentMetricKey = targetTab.key;
+          renderMetricSwitcher(report, latencies, headlineData);
+          const newTab = document.getElementById(`compare-tab-${targetTab.key}`);
+          newTab?.focus();
+        }
+      });
+
+      tablistEl.appendChild(tabBtn);
+    });
+
+    frameEl.appendChild(tablistEl);
+
+    // 2. Horizontal Rows Container (tabpanel)
+    const rowsContainer = el("div", {
+      id: "compare-rows-panel",
+      className: "compare-rows-container",
+      role: "tabpanel",
+      "aria-labelledby": `compare-tab-${currentMetricKey}`
+    });
+
+    // Compute cards enriched with shared scale bar widths
+    const enrichedCards = computeSharedMetricBars(currentMetricKey, cardModels);
+
+    for (const card of enrichedCards) {
+      const alg = card.alg;
+      const isWinner = (alg === headlineData.fastestKey);
+
+      // Left Column: Dot + Name + Subtitle
+      let subText = "Exact Baseline";
+      if (alg === "kdtree") subText = "Spatial Partition";
+      if (alg === "hnsw") subText = "Hierarchical Graph";
+
       const dotEl = el("span", { className: `compare-alg-dot dot-${alg}` });
-      const titleEl = el("span", { className: "spec-col-title-text" }, card.label);
-      const headerLeft = el("div", { className: "spec-col-header-left" }, dotEl, titleEl);
-
-      let badgeText = "Fast Tree";
-      let badgeClass = "spec-col-badge";
-      if (card.isBrute) {
-        badgeText = "Baseline";
-        badgeClass = "spec-col-badge badge-baseline";
-      } else if (alg === "hnsw") {
-        badgeText = isFastest ? "Fastest" : "Graph Index";
-        badgeClass = isFastest ? "spec-col-badge badge-winner" : "spec-col-badge";
-      }
-      const badgeEl = el("span", { className: badgeClass }, badgeText);
-      const colHeader = el("div", { className: "spec-col-header" }, headerLeft, badgeEl);
-      colEl.appendChild(colHeader);
-
-      // 2. Section: Latency Hero
-      let speedupRatioText = "1.0x (Baseline)";
-      if (!card.isBrute) {
-        speedupRatioText = formatSpeedComparison(card.medianUs, bruteMed);
-      }
-      const latencySection = el("div", { className: "spec-section spec-section-latency" },
-        el("div", { className: "spec-section-label" }, "MEDIAN LATENCY"),
-        el("div", { className: "spec-latency-hero-row" },
-          el("span", { className: `spec-latency-value${isFastest ? " text-accent" : ""}` }, `${card.medianUs} µs`),
-          el("span", { className: `spec-speedup-tag${isFastest ? " tag-winner" : ""}` }, speedupRatioText)
-        ),
-        el("div", { className: "spec-range-subline text-muted" }, `Range ${card.rangeText}`),
-        el("div", { className: "spec-latency-bar-track" },
-          el("div", {
-            className: `spec-latency-bar-fill fill-${alg}`,
-            style: `width: ${card.barWidthPct}%;`
-          })
-        )
+      const nameEl = el("span", { className: "switcher-alg-name" }, card.label);
+      const subEl = el("span", { className: "switcher-alg-sub text-muted" }, subText);
+      const leftCol = el("div", { className: "switcher-alg-col" },
+        el("div", { className: "switcher-alg-header" }, dotEl, nameEl),
+        subEl
       );
-      colEl.appendChild(latencySection);
 
-      // 3. Section: Computational Workload
-      const pruneText = formatPrunedText(card.isBrute, card.distanceComputations, bruteDist);
-      const distSection = el("div", { className: "spec-section spec-section-dist" },
-        el("div", { className: "spec-section-label" }, "DISTANCE COMPUTATIONS"),
-        el("div", { className: "spec-dist-hero-row" },
-          el("span", { className: "spec-dist-value font-mono" }, card.distanceComputations.toLocaleString()),
-          el("span", { className: "spec-prune-tag" }, pruneText)
-        )
-      );
-      colEl.appendChild(distSection);
+      // Center Column: Thick bar on shared linear scale + optional rank cells for Accuracy
+      const fillEl = el("div", {
+        className: `switcher-bar-fill fill-${alg}`,
+        style: `width: ${card.barWidthPct}%;`
+      });
+      const trackEl = el("div", { className: "switcher-bar-track" }, fillEl);
+      const centerCol = el("div", { className: "switcher-bar-col" }, trackEl);
 
-      // 4. Section: Accuracy & Top-K Match
-      let rankContent;
-      if (card.isBrute) {
-        rankContent = el("div", { className: "spec-rank-ref-box" },
-          el("span", { className: "text-muted text-xs" }, "Ground truth reference for all ranks")
+      if (currentMetricKey === "accuracy") {
+        let rankContent;
+        if (card.isBrute) {
+          rankContent = el("div", { className: "switcher-rank-strip-wrap" },
+            el("span", { className: "switcher-rank-ref text-muted text-xs" }, "Reference for the other algorithms")
+          );
+        } else {
+          const stripEl = el("div", {
+            className: "compare-rank-strip-flex",
+            role: "group",
+            "aria-label": `${card.total} rank match indicators`
+          });
+
+          for (const cellData of (card.rankStrip || [])) {
+            const expectedText = cellData.expectedId !== null ? `#${cellData.expectedId}` : "-";
+            const gotText = cellData.gotId !== null ? `#${cellData.gotId}` : "-";
+            const ariaLabel = cellData.isMatch
+              ? `Rank ${cellData.rank}: matched vector ${expectedText}`
+              : `Rank ${cellData.rank}: expected ${expectedText}, got ${gotText}`;
+
+            const cellEl = el("span", {
+              className: `compare-rank-cell ${cellData.isMatch ? `filled fill-${alg}` : "empty"}`,
+              tabIndex: 0,
+              "aria-label": ariaLabel
+            });
+
+            cellEl.addEventListener("mouseenter", () => showTooltip(cellEl, cellData));
+            cellEl.addEventListener("mouseleave", hideTooltip);
+            cellEl.addEventListener("focus", () => showTooltip(cellEl, cellData));
+            cellEl.addEventListener("blur", hideTooltip);
+            cellEl.addEventListener("keydown", (e) => {
+              if (e.key === "Escape") {
+                hideTooltip();
+                cellEl.blur();
+              }
+            });
+
+            stripEl.appendChild(cellEl);
+          }
+
+          rankContent = el("div", { className: "switcher-rank-strip-wrap" }, stripEl);
+        }
+        centerCol.appendChild(rankContent);
+      }
+
+      // Right Column: Large tabular number, sublabel, and speed/prune tag
+      let rightCol;
+      if (currentMetricKey === "latency") {
+        const speedText = card.isBrute ? "1.0x (Baseline)" : formatSpeedComparison(card.medianUs, bruteMed);
+        rightCol = el("div", { className: "switcher-metric-end" },
+          el("span", { className: `switcher-val font-mono${isWinner ? " text-accent" : ""}` }, `${card.medianUs} µs`),
+          el("span", { className: "switcher-range text-muted font-mono" }, `Range ${card.rangeText}`),
+          el("span", { className: `switcher-tag${isWinner ? " tag-winner" : ""}` }, speedText)
+        );
+      } else if (currentMetricKey === "work") {
+        const pruneText = formatPrunedText(card.isBrute, card.distanceComputations, bruteDist);
+        rightCol = el("div", { className: "switcher-metric-end" },
+          el("span", { className: "switcher-val font-mono" }, card.distanceComputations.toLocaleString()),
+          el("span", { className: "switcher-num-sub text-muted" }, "computations"),
+          el("span", { className: "switcher-tag" }, pruneText)
         );
       } else {
-        const stripEl = el("div", {
-          className: "compare-rank-strip",
-          role: "group",
-          "aria-label": `${card.total} rank match indicators`
-        });
-
-        for (const cellData of (card.rankStrip || [])) {
-          const expectedText = cellData.expectedId !== null ? `#${cellData.expectedId}` : "-";
-          const gotText = cellData.gotId !== null ? `#${cellData.gotId}` : "-";
-          const ariaLabel = cellData.isMatch
-            ? `Rank ${cellData.rank}: matched vector ${expectedText}`
-            : `Rank ${cellData.rank}: expected ${expectedText}, got ${gotText}`;
-
-          const cellEl = el("span", {
-            className: `compare-rank-cell ${cellData.isMatch ? `filled fill-${alg}` : "empty"}`,
-            tabIndex: 0,
-            "aria-label": ariaLabel
-          });
-
-          cellEl.addEventListener("mouseenter", () => showTooltip(cellEl, cellData));
-          cellEl.addEventListener("mouseleave", hideTooltip);
-          cellEl.addEventListener("focus", () => showTooltip(cellEl, cellData));
-          cellEl.addEventListener("blur", hideTooltip);
-          cellEl.addEventListener("keydown", (e) => {
-            if (e.key === "Escape") {
-              hideTooltip();
-              cellEl.blur();
-            }
-          });
-
-          stripEl.appendChild(cellEl);
-        }
-
-        rankContent = el("div", { className: "spec-rank-interactive-wrap" },
-          stripEl,
-          el("span", {
-            className: "spec-rank-count font-mono",
-            "aria-label": `${card.sameCount} of ${card.total} same rank`
-          }, `${card.sameCount} / ${card.total} matched`)
+        // Accuracy
+        rightCol = el("div", { className: "switcher-metric-end" },
+          el("span", { className: "switcher-val font-mono" }, card.recallPercent),
+          el("span", { className: "switcher-num-sub text-muted" }, "Recall @ k"),
+          el("span", { className: "switcher-tag font-mono text-muted text-xs" },
+            card.isBrute ? `k = ${card.total}` : `${card.sameCount} / ${card.total} matched`
+          )
         );
       }
 
-      const accuracySection = el("div", { className: "spec-section spec-section-accuracy" },
-        el("div", { className: "spec-section-label" }, "ACCURACY & VERIFICATION"),
-        el("div", { className: "spec-recall-row" },
-          el("span", { className: "spec-recall-value" }, card.recallPercent),
-          el("span", { className: "spec-recall-sublabel text-muted" }, "Recall @ k")
-        ),
-        rankContent
-      );
-      colEl.appendChild(accuracySection);
+      const rowEl = el("div", {
+        className: `compare-metric-row row-${alg}`,
+        role: "region",
+        "aria-label": `${card.label} ${currentMetricKey}`
+      }, leftCol, centerCol, rightCol);
 
-      cardsContainer.appendChild(colEl);
+      rowsContainer.appendChild(rowEl);
     }
+
+    frameEl.appendChild(rowsContainer);
+    cardsContainer.appendChild(frameEl);
   }
 
   // Event Handlers

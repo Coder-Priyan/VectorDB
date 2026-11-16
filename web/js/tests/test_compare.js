@@ -28,7 +28,10 @@ import {
   mapReportToCards,
   formatSpeedComparison,
   computePrunedPercent,
-  formatPrunedText
+  formatPrunedText,
+  METRIC_SWITCHER_TABS,
+  computeSharedMetricBars,
+  handleSegmentedKeyNav
 } from "../compare_helpers.js";
 
 // Real raw benchmark response fixture captured from running server with 10 top-k items (ADR-036, docs/API.md sec 9)
@@ -1182,6 +1185,70 @@ export function registerCompareTests() {
       assertEqual(formatPrunedText(false, 112, 100), "0% pruned");
       assertEqual(formatPrunedText(false, 20, 100), "80% pruned");
       assertEqual(formatPrunedText(false, 0, 100), "100% pruned");
+    });
+  });
+  describe("Metric Switcher helpers (T-096)", (it) => {
+    it("METRIC_SWITCHER_TABS defines 3 standard metric tabs", () => {
+      assertEqual(METRIC_SWITCHER_TABS.length, 3);
+      assertEqual(METRIC_SWITCHER_TABS[0].key, "latency");
+      assertEqual(METRIC_SWITCHER_TABS[1].key, "work");
+      assertEqual(METRIC_SWITCHER_TABS[2].key, "accuracy");
+    });
+
+    it("computeSharedMetricBars scales latency bars relative to max latency", () => {
+      const cards = [
+        { alg: "brute", medianUs: 100 },
+        { alg: "kdtree", medianUs: 40 },
+        { alg: "hnsw", medianUs: 20 }
+      ];
+      const scaled = computeSharedMetricBars("latency", cards);
+      assertEqual(scaled.length, 3);
+      assertEqual(scaled[0].barWidthPct, 100);
+      assertEqual(scaled[1].barWidthPct, 40);
+      assertEqual(scaled[2].barWidthPct, 20);
+    });
+
+    it("computeSharedMetricBars scales work bars relative to max distance computations", () => {
+      const cards = [
+        { alg: "brute", distanceComputations: 200 },
+        { alg: "kdtree", distanceComputations: 100 },
+        { alg: "hnsw", distanceComputations: 50 }
+      ];
+      const scaled = computeSharedMetricBars("work", cards);
+      assertEqual(scaled.length, 3);
+      assertEqual(scaled[0].barWidthPct, 100);
+      assertEqual(scaled[1].barWidthPct, 50);
+      assertEqual(scaled[2].barWidthPct, 25);
+    });
+
+    it("computeSharedMetricBars scales accuracy bars strictly on 0-100% scale", () => {
+      const cards = [
+        { alg: "brute", recallPercent: "100.0%" },
+        { alg: "kdtree", recallPercent: "75.0%" },
+        { alg: "hnsw", recallPercent: "50.0%" }
+      ];
+      const scaled = computeSharedMetricBars("accuracy", cards);
+      assertEqual(scaled.length, 3);
+      assertEqual(scaled[0].barWidthPct, 100);
+      assertEqual(scaled[1].barWidthPct, 75);
+      assertEqual(scaled[2].barWidthPct, 50);
+    });
+
+    it("computeSharedMetricBars handles empty, null or invalid inputs gracefully", () => {
+      assertEqual(computeSharedMetricBars("latency", null).length, 0);
+      assertEqual(computeSharedMetricBars("latency", []).length, 0);
+      assertEqual(computeSharedMetricBars("latency", [{ alg: "brute", medianUs: 0 }])[0].barWidthPct, 4);
+    });
+
+    it("handleSegmentedKeyNav cycles correctly across ArrowLeft, ArrowRight, Home, End", () => {
+      assertEqual(handleSegmentedKeyNav({ key: "ArrowRight" }, 0, 3), 1);
+      assertEqual(handleSegmentedKeyNav({ key: "ArrowRight" }, 2, 3), 0);
+      assertEqual(handleSegmentedKeyNav({ key: "ArrowLeft" }, 0, 3), 2);
+      assertEqual(handleSegmentedKeyNav({ key: "ArrowLeft" }, 1, 3), 0);
+      assertEqual(handleSegmentedKeyNav({ key: "Home" }, 2, 3), 0);
+      assertEqual(handleSegmentedKeyNav({ key: "End" }, 0, 3), 2);
+      assertEqual(handleSegmentedKeyNav({ key: "Enter" }, 0, 3), null);
+      assertEqual(handleSegmentedKeyNav(null, 0, 3), null);
     });
   });
 }

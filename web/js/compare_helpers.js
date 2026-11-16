@@ -1300,3 +1300,77 @@ export function formatPrunedText(isBrute, computations, bruteComputations) {
   const pct = computePrunedPercent(computations, bruteComputations);
   return `${pct}% pruned`;
 }
+
+/**
+ * Tab definitions for the Metric Switcher.
+ */
+export const METRIC_SWITCHER_TABS = [
+  { key: "latency", label: "Latency", unit: "µs", desc: "Execution time & relative speedup" },
+  { key: "work", label: "Work", unit: "computations", desc: "Distance calculations & pruning rate" },
+  { key: "accuracy", label: "Accuracy", unit: "recall", desc: "Recall @ k & rank-by-rank verification" }
+];
+
+/**
+ * Computes shared linear scale and bar widths for three algorithm cards
+ * under the chosen metric view.
+ *
+ * @param {string} metricKey - "latency" | "work" | "accuracy"
+ * @param {Array<Object>} cards - Card models from mapReportToCards
+ * @returns {Array<Object>} Enriched cards with shared barWidthPct
+ */
+export function computeSharedMetricBars(metricKey, cards) {
+  if (!Array.isArray(cards) || cards.length === 0) return [];
+
+  if (metricKey === "work") {
+    const maxVal = Math.max(1, ...cards.map(c => Number(c.distanceComputations) || 0));
+    return cards.map(c => {
+      const val = Number(c.distanceComputations) || 0;
+      const pct = Math.max(4, Math.min(100, Math.round((val / maxVal) * 100)));
+      return { ...c, metricVal: val, barWidthPct: pct, maxScale: maxVal };
+    });
+  }
+
+  if (metricKey === "accuracy") {
+    // Shared 0-100% scale
+    return cards.map(c => {
+      const rawPct = parseFloat(c.recallPercent) || 0;
+      const pct = Math.max(4, Math.min(100, Math.round(rawPct)));
+      return { ...c, metricVal: rawPct, barWidthPct: pct, maxScale: 100 };
+    });
+  }
+
+  // Default: latency
+  const maxVal = Math.max(1, ...cards.map(c => Number(c.medianUs) || 0));
+  return cards.map(c => {
+    const val = Number(c.medianUs) || 0;
+    const pct = Math.max(4, Math.min(100, Math.round((val / maxVal) * 100)));
+    return { ...c, metricVal: val, barWidthPct: pct, maxScale: maxVal };
+  });
+}
+
+/**
+ * Handles keyboard navigation for a segmented control / tablist.
+ * Supports ArrowLeft, ArrowRight, Home, End.
+ *
+ * @param {KeyboardEvent} event
+ * @param {number} currentIndex
+ * @param {number} totalTabs
+ * @returns {number|null} New active index, or null if key unhandled
+ */
+export function handleSegmentedKeyNav(event, currentIndex, totalTabs) {
+  if (!event || totalTabs <= 0) return null;
+  const key = event.key;
+  if (key === "ArrowRight") {
+    return (currentIndex + 1) % totalTabs;
+  }
+  if (key === "ArrowLeft") {
+    return (currentIndex - 1 + totalTabs) % totalTabs;
+  }
+  if (key === "Home") {
+    return 0;
+  }
+  if (key === "End") {
+    return totalTabs - 1;
+  }
+  return null;
+}
