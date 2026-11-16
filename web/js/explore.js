@@ -56,10 +56,9 @@ export function initExploreTab() {
     clearGlobalError();
     emptyStateBox?.classList.add("hidden");
     hoveredPoint = null; queryStar = null; topKResults = [];
-    resultsTableBody?.replaceChildren();
-    if (varianceNote) varianceNote.textContent = "";
-
     const isDocs = collSelect ? collSelect.value === "docs" : false;
+    renderTable([], isDocs);
+    if (varianceNote) varianceNote.textContent = "";
     byId("explore-docs-controls")?.classList.toggle("hidden", !isDocs);
     byId("explore-demo-controls")?.classList.toggle("hidden", isDocs);
 
@@ -276,15 +275,15 @@ export function initExploreTab() {
 
       ctx.beginPath();
       ctx.arc(scr.x, scr.y, 3.5, 0, Math.PI * 2);
-      ctx.fillStyle = isDocs ? getDocColor(pt.doc_id) : "rgba(217, 164, 65, 0.55)";
+      ctx.fillStyle = isDocs ? getDocColor(pt.doc_id) : "rgba(217, 164, 65, 0.75)";
       ctx.fill();
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.6)";
+      ctx.strokeStyle = "rgba(9, 9, 11, 0.95)";
       ctx.lineWidth = 0.8;
       ctx.stroke();
     }
 
     // 6. Nearest Neighbor Geodesics & Highlighting
-    if (queryStar && topKResults.length > 0) {
+    if (queryStar && typeof queryStar.x === "number" && typeof queryStar.y === "number") {
       const qScr = viewport.toScreen(queryStar.x, queryStar.y);
 
       // Draw connecting geodesics
@@ -331,7 +330,8 @@ export function initExploreTab() {
         ctx.strokeStyle = "rgba(217, 164, 65, 0.4)";
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.roundRect(rx, ry, rw, 15, 3);
+        if (ctx.roundRect) ctx.roundRect(rx, ry, rw, 15, 3);
+        else ctx.rect(rx, ry, rw, 15);
         ctx.fill();
         ctx.stroke();
 
@@ -388,7 +388,8 @@ export function initExploreTab() {
       ctx.strokeStyle = THEME.accent;
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.roundRect(tx, ty, tw, 16, 3);
+      if (ctx.roundRect) ctx.roundRect(tx, ty, tw, 16, 3);
+      else ctx.rect(tx, ty, tw, 16);
       ctx.fill();
       ctx.stroke();
 
@@ -409,7 +410,10 @@ export function initExploreTab() {
       ctx.arc(hScr.x, hScr.y, 7, 0, Math.PI * 2);
       ctx.stroke();
 
-      const tipText = `ID #${hoveredPoint.id} (${hoveredPoint.x.toFixed(2)}, ${hoveredPoint.y.toFixed(2)})`;
+      const isDocsPoint = collSelect ? collSelect.value === "docs" : false;
+      const tipText = isDocsPoint
+        ? `Doc ${hoveredPoint.doc_id} · Ch ${hoveredPoint.chunk_index} (${hoveredPoint.x.toFixed(2)}, ${hoveredPoint.y.toFixed(2)})`
+        : `Vector #${hoveredPoint.id} (${hoveredPoint.x.toFixed(2)}, ${hoveredPoint.y.toFixed(2)})`;
       ctx.font = "10.5px 'IBM Plex Mono', monospace";
       const tipW = ctx.measureText(tipText).width + 12;
       const tipX = Math.min(width - tipW - 8, Math.max(8, hScr.x - tipW / 2));
@@ -419,7 +423,8 @@ export function initExploreTab() {
       ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.roundRect(tipX, tipY, tipW, 18, 4);
+      if (ctx.roundRect) ctx.roundRect(tipX, tipY, tipW, 18, 4);
+      else ctx.rect(tipX, tipY, tipW, 18);
       ctx.fill();
       ctx.stroke();
 
@@ -449,22 +454,18 @@ export function initExploreTab() {
     }
 
     if (!results || results.length === 0) {
-      const emptyRow = el("tr", {},
-        el("td", { colSpan: 4, className: "text-muted empty-state" },
-          el("div", { className: "empty-feed-graphic" },
-            el("div", { className: "empty-feed-icon" }, "\u25C9"),
-            el("div", { className: "empty-feed-title" }, "No Active Query"),
-            el("div", { className: "empty-feed-desc" }, "Click \"Project Random Query\" or click any dot on the 2D canvas to inspect top nearest neighbors.")
-          )
-        )
+      const emptyGraphic = el("div", { className: "empty-feed-graphic" },
+        el("div", { className: "empty-feed-icon" }, "\u25C9"),
+        el("div", { className: "empty-feed-title" }, "No Active Query"),
+        el("div", { className: "empty-feed-desc" }, "Click \"Project Random Query\" or click any point on the canvas to inspect nearest neighbors.")
       );
-      resultsTableBody.appendChild(emptyRow);
+      resultsTableBody.appendChild(emptyGraphic);
       return;
     }
 
-    const rows = results.map((r, i) => {
+    const cards = results.map((r, i) => {
       const docTitle = isDocs ? (r.title || `Doc ${r.doc_id}`) : `Vector #${r.id}`;
-      const chunkSub = isDocs ? `Chunk #${r.chunk_index}` : `ID: ${r.id}`;
+      const chunkSub = isDocs ? `Chunk #${r.chunk_index}` : `128D Dense`;
       const distStr = r.distance !== undefined ? r.distance.toFixed(4) : "-";
       const simStr = formatSimilarity(r.similarity);
       const simNum = (r.similarity !== null && r.similarity !== undefined) ? Math.min(100, Math.max(0, r.similarity * 100)) : 0;
@@ -477,22 +478,20 @@ export function initExploreTab() {
       const simTrack = el("div", { className: "sim-meter-track" }, simFill);
       const simCellContent = el("div", { className: "sim-cell-wrap" }, simVal, simTrack);
 
-      const row = el("tr", { className: "explore-neighbor-row" },
-        el("td", { className: "neighbor-rank-cell" }, rankBadge),
-        el("td", { className: "neighbor-target-cell" },
-          el("div", { className: "neighbor-target-meta" },
-            createIcon(isDocs ? "document" : "database", 14, "neighbor-icon-svg"),
-            el("div", { className: "neighbor-info" },
-              el("span", { className: "neighbor-title" }, docTitle),
-              el("span", { className: "neighbor-sub" }, chunkSub)
-            )
+      const card = el("div", { className: `explore-neighbor-card ${i === 0 ? "is-top-match" : ""}` },
+        rankBadge,
+        el("div", { className: "neighbor-target-meta" },
+          createIcon(isDocs ? "document" : "database", 14, "neighbor-icon-svg"),
+          el("div", { className: "neighbor-info" },
+            el("span", { className: "neighbor-title" }, docTitle),
+            el("span", { className: "neighbor-sub" }, chunkSub)
           )
         ),
-        el("td", { className: "neighbor-dist-cell font-mono" }, distStr),
-        el("td", { className: "neighbor-sim-cell" }, simCellContent)
+        el("span", { className: "neighbor-dist-val font-mono" }, distStr),
+        simCellContent
       );
 
-      row.addEventListener("click", () => {
+      card.addEventListener("click", () => {
         hoveredPoint = currentPoints.find(p => isDocs ? (p.doc_id === r.doc_id && p.chunk_index === r.chunk_index) : (p.id === r.id)) || r;
         const targetIdEl = byId("explore-inspector-target-id");
         if (targetIdEl) targetIdEl.textContent = isDocs ? `Doc ${r.doc_id || r.id}` : `Vector #${r.id}`;
@@ -507,9 +506,9 @@ export function initExploreTab() {
         render();
       });
 
-      return row;
+      return card;
     });
-    resultsTableBody.replaceChildren(...rows);
+    resultsTableBody.replaceChildren(...cards);
 
     if (results && results.length > 0) {
       const top = results[0];
@@ -603,7 +602,14 @@ export function initExploreTab() {
     await withButtonBusy(queryDocsBtn, async () => {
       try {
         const res = await api.queryDocsPca({ query, k: parseInt(queryDocsK.value, 10) || 5 });
-        queryStar = res.query_projected || null; topKResults = res.results || [];
+        queryStar = res.query_projected || null;
+        topKResults = (res.results || []).map(r => {
+          if (typeof r.x !== "number" || typeof r.y !== "number") {
+            const pt = currentPoints.find(p => p.doc_id === r.doc_id && p.chunk_index === r.chunk_index);
+            if (pt) { r.x = pt.x; r.y = pt.y; }
+          }
+          return r;
+        });
         renderTable(topKResults, true); render();
       } catch (err) { showGlobalError(err.code, err.message); }
     });
@@ -614,7 +620,14 @@ export function initExploreTab() {
     await withButtonBusy(queryDemoRandomBtn, async () => {
       try {
         const res = await api.queryPca({ vector: vec, k: parseInt(queryDemoK.value, 10) || 5 });
-        queryStar = res.query_projected || null; topKResults = res.results || [];
+        queryStar = res.query_projected || null;
+        topKResults = (res.results || []).map(r => {
+          if (typeof r.x !== "number" || typeof r.y !== "number") {
+            const pt = currentPoints.find(p => p.id === r.id);
+            if (pt) { r.x = pt.x; r.y = pt.y; }
+          }
+          return r;
+        });
         renderTable(topKResults, false); render();
       } catch (err) { showGlobalError(err.code, err.message); }
     });
@@ -627,7 +640,14 @@ export function initExploreTab() {
       try {
         const stored = await api.getVector(id);
         const res = await api.queryPca({ vector: stored.vector, k: parseInt(queryDemoK.value, 10) || 5 });
-        queryStar = res.query_projected || null; topKResults = res.results || [];
+        queryStar = res.query_projected || null;
+        topKResults = (res.results || []).map(r => {
+          if (typeof r.x !== "number" || typeof r.y !== "number") {
+            const pt = currentPoints.find(p => p.id === r.id);
+            if (pt) { r.x = pt.x; r.y = pt.y; }
+          }
+          return r;
+        });
         renderTable(topKResults, false); render();
       } catch (err) { showGlobalError(err.code, err.message); }
     });

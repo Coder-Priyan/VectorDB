@@ -411,27 +411,13 @@
             </div>
             
             <div class="explore-neighbors-list" id="explore-neighbors-list">
-              <table class="info-table explore-neighbors-table">
-                <thead>
-                  <tr>
-                    <th>Rank</th>
-                    <th>Target Vector / Document</th>
-                    <th>Distance</th>
-                    <th>Similarity</th>
-                  </tr>
-                </thead>
-                <tbody id="explore-results-tbody">
-                  <tr>
-                    <td colspan="4" class="text-muted empty-state">
-                      <div class="empty-feed-graphic">
-                        <div class="empty-feed-icon">&#x25C9;</div>
-                        <div class="empty-feed-title">No Active Query</div>
-                        <div class="empty-feed-desc">Click "Project Random Query" or click any dot on the 2D canvas to inspect top nearest neighbors.</div>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <div id="explore-results-tbody" class="explore-neighbors-feed">
+                <div class="empty-feed-graphic">
+                  <div class="empty-feed-icon">&#x25C9;</div>
+                  <div class="empty-feed-title">No Active Query</div>
+                  <div class="empty-feed-desc">Click &quot;Project Random Query&quot; or click any point on the canvas to inspect nearest neighbors.</div>
+                </div>
+              </div>
             </div>
           </div>
 
