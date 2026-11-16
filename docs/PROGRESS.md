@@ -272,3 +272,16 @@ All 118 C++ tests pass, scanner 100% clean, !important count 2, box-shadow count
   - Zero layout shift when toggling between views; 100% single-screen zero-scroll fit with no clipping or overlap by the composer dock.
 - **Quality Gates**:
   - All 185 unit tests pass, zero web safety violations, 100% DOM IDs preserved, frozen files untouched.
+
+## Task T-098 D: Settings Tab Workbench Card Architecture & Zero-Void Single Screen
+
+- **Status**: Completed
+- **Changes**:
+  - Restructured Settings middle console from a monolithic flat grid into a 3-card workbench grid (.settings-workbench-grid with .settings-card).
+  - Replaced justify-content: space-between with natural top-to-bottom layout (gap: var(--space-3); justify-content: flex-start;) and anchored footer notes (margin-top: auto;), permanently eliminating middle voids.
+  - Card 1: Added Construction Hyperparameters section, Synthetic Vector Generator with quick preset chips (+100, +500, +1k), and Memory/Layout Spec box.
+  - Card 2: Added HNSW Graph Hierarchy section, Ingested RAG Documents section, and Index Graph Invariants spec box.
+  - Card 3: Added Hardware Acceleration section, Persistence & Storage section, and System Tools section.
+  - Maintained single-screen zero-scroll fit at 1920x1080 100% zoom.
+- **Quality Gates**:
+  - All 185 unit tests pass, zero web safety violations, 100% DOM IDs preserved (40/40), frozen files untouched.

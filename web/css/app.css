@@ -2868,63 +2868,179 @@ input[type="number"] {
   color: var(--text-secondary);
 }
 
-/* 2. Single-Deck 3-Column Workbench (Zero-scroll flex fill) */
-.settings-console-middle {
+/* 2. Three-Column Workbench Grid (Zero-scroll, naturally balanced cards) */
+.settings-workbench-grid {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: 1fr 1px 1fr 1px 1fr;
-  background: var(--bg-panel);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-card);
-  padding: var(--space-4) var(--space-5);
-  box-sizing: border-box;
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-4);
+  box-sizing: border-box;
 }
 
 @media (max-width: 900px) {
-  .settings-console-middle {
+  .settings-workbench-grid {
     grid-template-columns: 1fr;
     overflow-y: auto;
   }
-  .settings-col-divider {
-    display: none;
-  }
 }
 
-.settings-col-divider {
-  background: var(--border-hairline);
-  width: 1px;
-  height: 100%;
-}
-
-.settings-console-col {
+.settings-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  transition: border-color var(--transition-fast);
+}
+
+.settings-card:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.settings-card-header {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  min-width: 0;
-  height: 100%;
-}
-
-.settings-col-header {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding-bottom: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: rgba(255, 255, 255, 0.02);
   border-bottom: 1px solid var(--border-hairline);
+  flex-shrink: 0;
 }
 
-.settings-console-section-title {
+.settings-card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-card-icon {
+  color: var(--accent);
+  font-size: 13px;
+  line-height: 1;
+}
+
+.settings-card-title {
   font-size: 12px;
   font-weight: 600;
   color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 0.03em;
+  margin: 0;
 }
 
-.settings-col-subtitle {
-  font-size: 11px;
+.settings-card-badge {
+  font-size: 10px;
+  font-family: var(--font-mono);
   color: var(--text-muted);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-hairline);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.02em;
+}
+
+.settings-card-body {
+  flex: 1;
+  min-height: 0;
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  justify-content: flex-start;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-section-title {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-hairline);
+  padding-bottom: 3px;
+}
+
+.settings-card-footer-note {
+  margin-top: auto;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border-hairline);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.settings-preset-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.settings-preset-label {
+  font-size: 10px;
+}
+
+.settings-preset-btn {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-hairline);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  padding: 1px 7px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.settings-preset-btn:hover {
+  background: var(--bg-active);
+  color: var(--accent);
+  border-color: rgba(217, 164, 65, 0.35);
+}
+
+.settings-spec-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+.settings-spec-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+}
+
+/* Backward-compatible aliases */
+.settings-console-middle {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  box-sizing: border-box;
+}
+
+.settings-console-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
 }
 
 /* Complexity Strip for HNSW */

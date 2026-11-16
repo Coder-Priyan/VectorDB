@@ -497,3 +497,12 @@ Last updated: 2026-11-16 by T-072 sync
   - **Context**: In Compare tab, switching between Latency, Work, and Accuracy views produced vertical layout jitter because card heights differed (70px vs 50px vs 74px) due to varying inner structures (Runs tick track in Latency, stacked rankContent in Accuracy, and an appended mismatchPanel below the matrix). In Accuracy view, this additional height pushed the bottom explanatory spark line and footnote under the docked composer bar (.compare-composer-dock), causing clipping.
   - **Decision**: Standardize all three switcher views to the clean Work-view card geometry: exactly 1 bar track + 1 compact details row (.switcher-detail-row). In Accuracy view, integrate the rank match chips inline into .switcher-detail-row next to the top matches chips. Remove the redundant separate mismatch container below the matrix, integrating any mismatch telemetry directly into the dynamic footnote.
   - **Consequences**: Zero layout shift when toggling between Latency, Work, and Accuracy; perfectly identical card heights (~50px); zero overlap with the composer dock; 100% single-screen zero-scroll fit at 1920x1080 100% zoom.
+
+- **ADR-092: Settings Tab Workbench Card Architecture & Zero-Void Single Screen (T-098 D)**:
+  - **Context**: In Settings tab at 1920x1080 100% zoom, the console middle area had awkward empty voids in the center of columns because justify-content: space-between on .settings-console-col stretched a monolithic single-box layout, leaving the form inputs and badges floating in the middle of black voids.
+  - **Decision**: Restructure the middle console into a cohesive 3-card workbench (.settings-workbench-grid with .settings-card):
+    1. Card 1 (Demo Collection): Grouped construction hyperparameters, synthetic vector generator with quick preset chips (+100, +500, +1k), and memory footprint spec.
+    2. Card 2 (HNSW & Documents): Grouped HNSW graph hierarchy telemetry, ingested RAG documents list, and index graph invariants.
+    3. Card 3 (Engine & Maintenance): Grouped hardware SIMD kernel telemetry, persistence storage specs, and system maintenance tools.
+    - Inside each card, content flows with standard top-to-bottom layout (gap: var(--space-3); justify-content: flex-start;) and an anchored footer note (margin-top: auto).
+  - **Consequences**: Completely eliminates awkward empty voids in the center of columns; creates a crisp, symmetrical, high-tech command center; retains 100% single-screen zero-scroll fit at 1920x1080 100% zoom; preserves 100% of the 40 Settings DOM IDs.

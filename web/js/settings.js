@@ -98,6 +98,18 @@ export function initSettingsTab() {
 
   resetDemoCancelBtn?.addEventListener("click", cancelResetPrompt);
 
+  // Preset chips for Synthetic Vector Generator (+100, +500, +1k)
+  const presetBtns = document.querySelectorAll(".settings-preset-btn");
+  presetBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const count = btn.getAttribute("data-count");
+      const randomCountInput = document.getElementById("demo-random-count");
+      if (randomCountInput && count) {
+        randomCountInput.value = count;
+      }
+    });
+  });
+
   /**
    * Loads and renders system health, config, collection statistics, and HNSW/docs telemetry.
    */
