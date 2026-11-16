@@ -218,30 +218,39 @@ export function initHnswTab() {
       const scr = viewport.toScreen(n.x, n.y);
       if (scr.x < -10 || scr.x > width + 10 || scr.y < -10 || scr.y > height + 10) continue;
       const isEntry = n.id === entryId;
+
       ctx.beginPath();
-      ctx.arc(scr.x, scr.y, isEntry ? 6.5 : 4, 0, Math.PI * 2);
-      ctx.fillStyle = isEntry ? THEME.accent : THEME.textMuted;
+      ctx.arc(scr.x, scr.y, isEntry ? 6 : 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = isEntry ? THEME.accent : "rgba(161, 161, 170, 0.6)";
       ctx.fill();
+
       if (isEntry) {
+        // Beacon Diamond Outer Ring
         ctx.strokeStyle = THEME.accent;
-        ctx.lineWidth = 2.5;
+        ctx.lineWidth = 1.8;
         ctx.beginPath();
-        ctx.arc(scr.x, scr.y, 10, 0, Math.PI * 2);
+        ctx.arc(scr.x, scr.y, 11, 0, Math.PI * 2);
         ctx.stroke();
 
-        // Entry point badge as in mockup: "Entry (L2)"
-        const badgeText = `Entry (L${currentGraph.layer || 0})`;
-        ctx.font = "11px 'IBM Plex Sans', -apple-system, sans-serif";
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(scr.x, scr.y, 6, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Entry point badge pill
+        const badgeText = `ENTRY NODE (L${currentGraph.layer || 0})`;
+        ctx.font = "bold 9.5px 'IBM Plex Mono', monospace";
         const badgeW = ctx.measureText(badgeText).width + 12;
-        const badgeH = 20;
+        const badgeH = 18;
         const badgeX = scr.x - badgeW / 2;
         const badgeY = scr.y - 28;
 
-        ctx.fillStyle = "rgba(18, 18, 21, 0.85)";
+        ctx.fillStyle = "rgba(18, 20, 26, 0.95)";
         ctx.strokeStyle = THEME.accent;
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 4);
+        ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 3);
         ctx.fill();
         ctx.stroke();
 
@@ -254,7 +263,7 @@ export function initHnswTab() {
       }
     }
 
-    // Render Search Path
+    // Render Search Path Progression
     const state = playback.getState();
     if (state.currentIndex >= 0 && mappedTraceSteps.length > 0) {
       let prevScr = null;
@@ -264,37 +273,82 @@ export function initHnswTab() {
         const curScr = viewport.toScreen(step.x, step.y);
         if (prevScr) {
           ctx.strokeStyle = THEME.accent;
-          ctx.lineWidth = 2;
-          ctx.beginPath(); ctx.moveTo(prevScr.x, prevScr.y); ctx.lineTo(curScr.x, curScr.y); ctx.stroke();
+          ctx.lineWidth = 2.2;
+          ctx.beginPath();
+          ctx.moveTo(prevScr.x, prevScr.y);
+          ctx.lineTo(curScr.x, curScr.y);
+          ctx.stroke();
         }
         const isCurrent = i === state.currentIndex;
-        ctx.fillStyle = isCurrent ? THEME.accent : THEME.accent;
-        ctx.beginPath(); ctx.arc(curScr.x, curScr.y, isCurrent ? 6.5 : 5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = THEME.accent;
+        ctx.beginPath();
+        ctx.arc(curScr.x, curScr.y, isCurrent ? 7.5 : 5, 0, Math.PI * 2);
+        ctx.fill();
+
         if (isCurrent) {
-          ctx.strokeStyle = THEME.white;
+          ctx.strokeStyle = "#ffffff";
           ctx.lineWidth = 2;
           ctx.stroke();
         }
-        prevScr = curScr;
-      }
-      if (traceQueryStar) {
-        const qScr = viewport.toScreen(traceQueryStar.x, traceQueryStar.y);
-        ctx.fillStyle = THEME.accent; ctx.strokeStyle = THEME.textInverse; ctx.lineWidth = 1.5;
-        drawStar(ctx, qScr.x, qScr.y, 5, 9, 4.5); ctx.fill(); ctx.stroke();
 
-        // Query badge as in mockup
-        const qText = "Query";
-        ctx.font = "11px 'IBM Plex Sans', -apple-system, sans-serif";
-        const qW = ctx.measureText(qText).width + 12;
-        const qH = 20;
-        const qX = qScr.x + 10;
-        const qY = qScr.y - 10;
+        // Draw Step Indicator Pill
+        const stepLbl = `#${i + 1}`;
+        ctx.font = "bold 9px 'IBM Plex Mono', monospace";
+        const sw = ctx.measureText(stepLbl).width + 6;
+        const sx = curScr.x + 8;
+        const sy = curScr.y - 12;
 
-        ctx.fillStyle = "rgba(18, 18, 21, 0.85)";
-        ctx.strokeStyle = THEME.borderSubtle;
+        ctx.fillStyle = "rgba(18, 20, 26, 0.9)";
+        ctx.strokeStyle = isCurrent ? "#ffffff" : "rgba(217, 164, 65, 0.4)";
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.roundRect(qX, qY, qW, qH, 4);
+        ctx.roundRect(sx, sy, sw, 14, 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = isCurrent ? "#ffffff" : THEME.accent;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(stepLbl, sx + sw / 2, sy + 7);
+        ctx.textAlign = "left";
+        ctx.textBaseline = "alphabetic";
+
+        prevScr = curScr;
+      }
+
+      if (traceQueryStar) {
+        const qScr = viewport.toScreen(traceQueryStar.x, traceQueryStar.y);
+
+        // Target Crosshair
+        ctx.strokeStyle = THEME.accent;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(qScr.x - 12, qScr.y); ctx.lineTo(qScr.x - 5, qScr.y);
+        ctx.moveTo(qScr.x + 5, qScr.y); ctx.lineTo(qScr.x + 12, qScr.y);
+        ctx.moveTo(qScr.x, qScr.y - 12); ctx.lineTo(qScr.x, qScr.y - 5);
+        ctx.moveTo(qScr.x, qScr.y + 5); ctx.lineTo(qScr.x, qScr.y + 12);
+        ctx.stroke();
+
+        ctx.fillStyle = THEME.accent;
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1.5;
+        drawStar(ctx, qScr.x, qScr.y, 5, 8, 4);
+        ctx.fill();
+        ctx.stroke();
+
+        // Target badge
+        const qText = "TARGET";
+        ctx.font = "bold 9.5px 'IBM Plex Mono', monospace";
+        const qW = ctx.measureText(qText).width + 10;
+        const qH = 16;
+        const qX = qScr.x + 12;
+        const qY = qScr.y - 8;
+
+        ctx.fillStyle = "rgba(18, 20, 26, 0.92)";
+        ctx.strokeStyle = THEME.accent;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(qX, qY, qW, qH, 3);
         ctx.fill();
         ctx.stroke();
 
@@ -305,7 +359,7 @@ export function initHnswTab() {
         ctx.textAlign = "left";
         ctx.textBaseline = "alphabetic";
       }
-    }
+    }    }
   }
 
   // Animation Loop

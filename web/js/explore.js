@@ -185,112 +185,250 @@ export function initExploreTab() {
     viewport.width = width; viewport.height = height;
     ctx.clearRect(0, 0, width, height);
 
-    // Axes
     const orig = viewport.toScreen(0, 0);
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+
+    // 1. Precision CAD Coordinate Grid
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.025)";
     ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let gx = -1.0; gx <= 1.05; gx += 0.1) {
+      const scrX = viewport.toScreen(gx, 0).x;
+      if (scrX >= 0 && scrX <= width) {
+        ctx.moveTo(scrX, 0);
+        ctx.lineTo(scrX, height);
+      }
+    }
+    for (let gy = -1.0; gy <= 1.05; gy += 0.1) {
+      const scrY = viewport.toScreen(0, gy).y;
+      if (scrY >= 0 && scrY <= height) {
+        ctx.moveTo(0, scrY);
+        ctx.lineTo(width, scrY);
+      }
+    }
+    ctx.stroke();
+
+    // 2. Primary Axes (Zero Planes)
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+    ctx.lineWidth = 1.2;
     ctx.beginPath();
     ctx.moveTo(0, orig.y); ctx.lineTo(width, orig.y);
     ctx.moveTo(orig.x, 0); ctx.lineTo(orig.x, height);
     ctx.stroke();
 
-    // Axis Ticks & Tick Labels
+    // 3. Axis Ticks & Tick Numerals
     ctx.fillStyle = THEME.textMuted;
-    ctx.font = "11px 'IBM Plex Sans', -apple-system, sans-serif";
+    ctx.font = "10.5px 'IBM Plex Mono', monospace";
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
 
-    // Ticks along X-axis
-    for (let xVal = -0.6; xVal <= 0.65; xVal += 0.2) {
+    for (let xVal = -0.8; xVal <= 0.85; xVal += 0.2) {
       const scr = viewport.toScreen(xVal, 0);
-      if (scr.x >= 30 && scr.x <= width - 30) {
+      if (scr.x >= 35 && scr.x <= width - 35) {
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
         ctx.beginPath();
-        ctx.moveTo(scr.x, orig.y);
-        ctx.lineTo(scr.x, orig.y + 4);
+        ctx.moveTo(scr.x, orig.y - 3);
+        ctx.lineTo(scr.x, orig.y + 3);
         ctx.stroke();
         const lbl = Math.abs(xVal) < 0.001 ? "0.0" : xVal.toFixed(1);
-        ctx.fillText(lbl, scr.x, Math.min(Math.max(orig.y + 7, 15), height - 18));
+        ctx.fillText(lbl, scr.x, Math.min(Math.max(orig.y + 6, 12), height - 16));
       }
     }
 
-    // Ticks along Y-axis
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
-    for (let yVal = -0.6; yVal <= 0.65; yVal += 0.2) {
-      if (Math.abs(yVal) < 0.001) continue; // 0.0 handled
+    for (let yVal = -0.8; yVal <= 0.85; yVal += 0.2) {
+      if (Math.abs(yVal) < 0.001) continue;
       const scr = viewport.toScreen(0, yVal);
       if (scr.y >= 20 && scr.y <= height - 20) {
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
         ctx.beginPath();
-        ctx.moveTo(orig.x - 4, scr.y);
-        ctx.lineTo(orig.x, scr.y);
+        ctx.moveTo(orig.x - 3, scr.y);
+        ctx.lineTo(orig.x + 3, scr.y);
         ctx.stroke();
-        ctx.fillText(yVal.toFixed(1), Math.max(orig.x - 7, 24), scr.y);
+        ctx.fillText(yVal.toFixed(1), Math.max(orig.x - 6, 26), scr.y);
       }
     }
 
-    // Axis Titles (PC1 & PC2)
+    // 4. Subtle Axis Identifiers
     ctx.fillStyle = THEME.textSecondary;
-    ctx.font = "12px 'IBM Plex Sans', -apple-system, sans-serif";
+    ctx.font = "11px 'IBM Plex Mono', monospace";
     ctx.textAlign = "center";
     ctx.textBaseline = "bottom";
-    ctx.fillText("PC1", width / 2, height - 6);
+    ctx.fillText("PC1 (Axis 1)", width / 2, height - 6);
 
     ctx.save();
     ctx.translate(14, height / 2);
     ctx.rotate(-Math.PI / 2);
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
-    ctx.fillText("PC2", 0, 0);
+    ctx.fillText("PC2 (Axis 2)", 0, 0);
     ctx.restore();
 
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
 
+    // 5. High-Dimensional Vector Points (Constellation)
     const isDocs = collSelect ? collSelect.value === "docs" : false;
     for (let i = 0; i < currentPoints.length; i++) {
       const pt = currentPoints[i];
       const scr = viewport.toScreen(pt.x, pt.y);
       if (scr.x < -10 || scr.x > width + 10 || scr.y < -10 || scr.y > height + 10) continue;
+
       ctx.beginPath();
-      ctx.arc(scr.x, scr.y, 4, 0, Math.PI * 2);
-      ctx.fillStyle = isDocs ? getDocColor(pt.doc_id) : THEME.accent;
+      ctx.arc(scr.x, scr.y, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = isDocs ? getDocColor(pt.doc_id) : "rgba(217, 164, 65, 0.55)";
       ctx.fill();
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.4)";
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.6)";
+      ctx.lineWidth = 0.8;
       ctx.stroke();
     }
 
+    // 6. Nearest Neighbor Geodesics & Highlighting
     if (queryStar && topKResults.length > 0) {
       const qScr = viewport.toScreen(queryStar.x, queryStar.y);
+
+      // Draw connecting geodesics
+      ctx.save();
+      ctx.setLineDash([3, 4]);
+      ctx.strokeStyle = "rgba(217, 164, 65, 0.35)";
+      ctx.lineWidth = 1.2;
       for (let i = 0; i < topKResults.length; i++) {
         const res = topKResults[i];
         const rScr = viewport.toScreen(res.x, res.y);
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.25)"; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(qScr.x, qScr.y); ctx.lineTo(rScr.x, rScr.y); ctx.stroke();
-        ctx.strokeStyle = THEME.accent; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(rScr.x, rScr.y, 6.5, 0, Math.PI * 2); ctx.stroke();
-
-        // Node ID label next to ring as in mockup (e.g. 102, 087, 215)
-        const idLabel = `#${res.id ?? (res.chunk_index !== undefined ? res.chunk_index : i + 1)}`;
-        ctx.fillStyle = THEME.textPrimary;
-        ctx.font = "11px 'IBM Plex Sans', -apple-system, sans-serif";
-        ctx.fillText(idLabel, rScr.x + 9, rScr.y + 4);
+        ctx.beginPath();
+        ctx.moveTo(qScr.x, qScr.y);
+        ctx.lineTo(rScr.x, rScr.y);
+        ctx.stroke();
       }
-      ctx.fillStyle = THEME.accent; ctx.strokeStyle = THEME.bgCanvas; ctx.lineWidth = 1.5;
-      drawStar(ctx, qScr.x, qScr.y, 5, 9, 4.5);
-      ctx.fill(); ctx.stroke();
+      ctx.restore();
+
+      // Draw match rings and rank badges
+      for (let i = 0; i < topKResults.length; i++) {
+        const res = topKResults[i];
+        const rScr = viewport.toScreen(res.x, res.y);
+
+        // Outer gold halo
+        ctx.strokeStyle = THEME.accent;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(rScr.x, rScr.y, 7.5, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // White core dot
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(rScr.x, rScr.y, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rank pill badge (e.g. #1, #2)
+        const rankText = `#${i + 1}`;
+        ctx.font = "bold 10px 'IBM Plex Mono', monospace";
+        const rw = ctx.measureText(rankText).width + 8;
+        const rx = rScr.x + 10;
+        const ry = rScr.y - 7;
+
+        ctx.fillStyle = "rgba(18, 20, 26, 0.9)";
+        ctx.strokeStyle = "rgba(217, 164, 65, 0.4)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(rx, ry, rw, 15, 3);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = THEME.accent;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(rankText, rx + rw / 2, ry + 7.5);
+        ctx.textAlign = "left";
+        ctx.textBaseline = "alphabetic";
+      }
+
+      // Draw Precision Radar Target Reticle at query position
+      // Crosshairs ticks
+      ctx.strokeStyle = THEME.accent;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(qScr.x - 14, qScr.y); ctx.lineTo(qScr.x - 6, qScr.y);
+      ctx.moveTo(qScr.x + 6, qScr.y); ctx.lineTo(qScr.x + 14, qScr.y);
+      ctx.moveTo(qScr.x, qScr.y - 14); ctx.lineTo(qScr.x, qScr.y - 6);
+      ctx.moveTo(qScr.x, qScr.y + 6); ctx.lineTo(qScr.x, qScr.y + 14);
+      ctx.stroke();
+
+      // Outer dashed reticle ring
+      ctx.save();
+      ctx.setLineDash([2, 3]);
+      ctx.strokeStyle = THEME.accent;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(qScr.x, qScr.y, 10, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      // Inner solid reticle ring
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(qScr.x, qScr.y, 5, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Center gold dot
+      ctx.fillStyle = THEME.accent;
+      ctx.beginPath();
+      ctx.arc(qScr.x, qScr.y, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Target Label Pill
+      const targetLbl = "QUERY TARGET";
+      ctx.font = "bold 9.5px 'IBM Plex Mono', monospace";
+      const tw = ctx.measureText(targetLbl).width + 10;
+      const tx = qScr.x - tw / 2;
+      const ty = qScr.y + 16;
+
+      ctx.fillStyle = "rgba(18, 20, 26, 0.92)";
+      ctx.strokeStyle = THEME.accent;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(tx, ty, tw, 16, 3);
+      ctx.fill();
+      ctx.stroke();
 
       ctx.fillStyle = THEME.textPrimary;
-      ctx.font = "11px 'IBM Plex Sans', -apple-system, sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText("Query", qScr.x, qScr.y + 16);
+      ctx.textBaseline = "middle";
+      ctx.fillText(targetLbl, tx + tw / 2, ty + 8);
       ctx.textAlign = "left";
+      ctx.textBaseline = "alphabetic";
     }
 
+    // 7. Hover Reticle & Coordinate Inspection
     if (hoveredPoint) {
       const hScr = viewport.toScreen(hoveredPoint.x, hoveredPoint.y);
-      ctx.strokeStyle = THEME.textPrimary; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.arc(hScr.x, hScr.y, 6.5, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(hScr.x, hScr.y, 7, 0, Math.PI * 2);
+      ctx.stroke();
+
+      const tipText = `ID #${hoveredPoint.id} (${hoveredPoint.x.toFixed(2)}, ${hoveredPoint.y.toFixed(2)})`;
+      ctx.font = "10.5px 'IBM Plex Mono', monospace";
+      const tipW = ctx.measureText(tipText).width + 12;
+      const tipX = Math.min(width - tipW - 8, Math.max(8, hScr.x - tipW / 2));
+      const tipY = hScr.y - 24 > 10 ? hScr.y - 24 : hScr.y + 12;
+
+      ctx.fillStyle = "rgba(18, 20, 26, 0.95)";
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(tipX, tipY, tipW, 18, 4);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = THEME.textPrimary;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(tipText, tipX + tipW / 2, tipY + 9);
+      ctx.textAlign = "left";
+      ctx.textBaseline = "alphabetic";
     }
   }
 
