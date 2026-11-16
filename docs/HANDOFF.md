@@ -1,10 +1,10 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-085 sync
+Last updated: 2026-11-16 by T-086 sync
 
-> **NEXT STEP**: Human verifies T-085 (Ultra-Aesthetic, Tactile Premium Refinement Across Widescreen Studio Tabs: CAD viewport framing, scoped tactile inputs, smooth cubic-bezier transitions, micro-elevated styling, tabular typography) in a real browser at 1920x1080 100% zoom across Explore, HNSW, Compare, and Settings and runs `/tests.html` (expect 156/156 passed); Brain reviews screenshots. Next free ADR is ADR-079. Next free ISS is ISS-085. Next task number is T-086.
+> **NEXT STEP**: Human verifies T-086 (Explore Tab Transformed into 3-Column Pro Vector Workbench: Zone 1 Command & Telemetry Deck with $k$-presets and Variance Bento, Zone 2 Calibrated 2D Viewport with CAD crosshairs and click-to-query, Zone 3 Deep Nearest Neighbors Feed with `#1` gold rank badges and similarity meter progress fills) in a real browser at 1920x1080 100% zoom at `http://localhost:8080/#explore`; Brain reviews screenshot and proceeds to the next tab with the user. Next free ADR is ADR-080. Next free ISS is ISS-086. Next task number is T-087.
 >
-> **NEEDED FROM THE HUMAN**: (1) Terminal verification on branch `ui-redesign-v4` (`git status -sb`, `git log --oneline -8`, `.\build\vectordb_tests.exe`, scanner, `/tests.html`); (2) Full-window 1920x1080 100% screenshots of Explore, HNSW, Compare, and Settings tabs.
+> **NEEDED FROM THE HUMAN**: (1) Browser check at `http://localhost:8080/#explore`; (2) Screenshot or feedback on the new 3-Column Explore layout.
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
 - **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Registered browser unit tests expanded to **156** in code (156/156 pass in test runner; human run at `/tests.html` pending).

@@ -222,6 +222,21 @@ Last updated: 2026-11-16 by T-072 sync
      - Zero non-root hex colors (`0`), zero box shadows (`0`), `!important` count <= 2 (`2`).
      - Ask tab and C++ engine 100% frozen. 118/118 C++ tests pass. Strict CSP and zero innerHTML verified.
 
+### ADR-079: Transformation of Explore Tab into 3-Column Pro Vector Workbench (2026-11-16)
+
+- **Context**: In T-085, the Explore tab used a 75/25 split where the 2D PCA canvas occupied an enormous ~1250px x 800px area. The user noted that the canvas felt bloated, empty, and amateurish ("beech mai canvas itna bada ho gyaa jo bilkul professional type nhi lgraaa").
+- **Architectural Decisions**:
+  1. **3-Column Pro Vector Workbench**:
+     - **Zone 1: Command & Telemetry Deck (~340px)**: Collection switcher with dataset metadata pills (`128D -> 2D`, `200 Vectors`), Query Control Center with quick $k$-preset buttons (3, 5, 10), prominent amber "Project Random Query" hero button, Vector ID search row, and PCA Variance Bento (total variance readout, Rayleigh deflation note, PC1 & PC2 horizontal progress meters).
+     - **Zone 2: Precision 2D Viewport (~740px / 1fr)**: Calibrated centered viewport with clear CAD crosshairs, active projection pulse badge, legend container, Reset Zoom button, and sleek keyboard/mouse hint footer (Click point, Wheel zoom, Drag pan, 2x Click fit).
+     - **Zone 3: Nearest Neighbors & Inspection Feed (~500px)**: Deep inspection feed displaying ranked nearest neighbors (`#1`, `#2`, `#3` gold badges), target vector/document metadata, tabular mono distances, and similarity percentage meters with dynamic progress fills.
+  2. **Interactive Enhancements**:
+     - Canvas click-to-query: Clicking any point on the canvas automatically inputs its ID and searches its nearest neighbors.
+     - Preset $k$ pills: 1-click switching between 3, 5, and 10 neighbors.
+  3. **Quality & Invariants**:
+     - Ask tab and C++ engine 100% frozen. All 23 original Explore DOM IDs preserved. 0 non-root hex, 0 box-shadow, <= 2 !important, zero innerHTML, 118/118 C++ tests pass.
+
+
 
 
 
