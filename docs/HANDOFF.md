@@ -1,20 +1,29 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-092 sync
+Last updated: 2026-11-16 by SYNC-013
 
-> **NEXT STEP**: Human verifies T-090 ($10,000 Product-Grade Canvas Visualizers in Explore & HNSW: precision CAD coordinate plane, constellation vector points, multi-ring radar reticle, sequential beam search steps, and beacon diamonds) in a real browser at 1920x1080 100% zoom at `http://localhost:8080/#explore` and `http://localhost:8080/#hnsw`. Next task number is T-093.
->
-> **NEEDED FROM THE HUMAN**: (1) Browser check across tabs; (2) Feedback on the precision CAD canvas rendering.
+> **NEXT STEP**: New Brain chat (MODE: RESUME) first reviews the human's full-window 1920x1080 100% screenshots of all 5 tabs (Ask, Explore, HNSW, Compare, Settings) and the terminal verification (git log --oneline -5, git status -sb, vectordb_tests.exe, check_web_safety.ps1, !important count, box-shadow count, hex count, /tests.html count), and asks the human which tabs he likes. No new task before that.
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
 - **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Registered browser unit tests expanded to **156** in code (156/156 pass in test runner; human run at `/tests.html` pending).
 - **Git State**: Local branch `ui-redesign-v4`, clean working tree (only untracked `results/logs/`), commits unpushed per protocol.
-- **Current UI State**:
-  - Ask tab: COMPLETE, human-approved, and human-verified.
-  - Explore tab: COMPLETE & Symmetrical Studio Workbench (T-087, ADR-080, T-090). Perfectly balanced 3-column grid (`390px | 1fr | 390px`): Left (390px) = Dataset & Variance Bento; Center (~820px) = Precision 2D CAD Coordinate Plane with constellation vector points, multi-ring radar target reticle, and dashed connecting geodesics; Right (390px) = Ranked Neighbors + Selected Vector Inspection card.
-  - HNSW tab: COMPLETE & Symmetrical Studio Workbench (T-088, ADR-081, T-090). Perfectly balanced 3-column grid (`390px | 1fr | 390px`): Left (390px) = Collection/Layer Config card + Graph Topology Summary card; Center (~820px) = Hero Precision Graph Viewport with beacon diamonds for entry nodes, antialiased edge web, and sequential step indicators (`#1`, `#2`, `#3`) along the beam search path; Right (390px) = Target Launcher + VCR Playback + Live Step Telemetry.
-  - Compare tab: COMPLETE & Zero-Waste Benchmark Arena (T-089, ADR-082). Full-height spec sheet (`flex: 1 1 0; min-height: 0;`), row-by-row horizontal metric alignment (Median Latency, Distance Comps, Top-K Recall) across all 3 algorithm columns (Brute Force, KD-Tree, HNSW), compact 42px toolbar, zero empty black space.
-  - Settings tab: COMPLETE & 3-Column Symmetrical Studio Console (T-089, ADR-082). Server & Health column with 2-column metrics bento; Demo Collection column with hyperparameter forms + synthetic vector ingestion; Storage & Maintenance column with persistence telemetry, 2-step chat clear, and 2-step danger reset. All DOM IDs reconnected to `settings.js`.
+- **Current UI State (by tab)**:
+  - **Ask tab**: COMPLETE, human-approved, and human-verified (SYNC-012, HEAD `7352605`). Untouched throughout T-071..T-092.
+  - **Explore tab**: Rebuilt in T-080/T-087/T-090/T-092. Visual state [not seen by Brain]; builder claims 3-column studio layout (`390px | 1fr | 390px`), precision CAD coordinate canvas, luminous constellation points, radar target lock reticle, and neighbor feed (`#explore-results-tbody` converted from table to flex div).
+  - **HNSW tab**: Rebuilt in T-081/T-088/T-090/T-091. Visual state [not seen by Brain]; builder claims 3-column studio layout (`390px | 1fr | 390px`), graph canvas with entry node beacon diamond, sequential beam search steps (`#1`, `#2`, `#3`), VCR playback transport, and telemetry bento.
+  - **Compare tab**: Rebuilt in T-072/T-078/T-079/T-089. Visual state [not seen by Brain]; builder claims unified spec sheet comparison matrix across 3 algorithms, zero-scroll single screen layout, and 42px studio control row.
+  - **Settings tab**: Rebuilt in T-077/T-082/T-089. Visual state [not seen by Brain]; builder claims 3-column studio console with 8-metric server bento, demo collection forms, disk persistence status, and isolated 2-step danger reset.
+
+## Pending Human Actions
+- Delete duplicate 'VectorDB Intro' document in Documents drawer.
+- Fill `<YOUR NAME>` placeholder in `LICENSE`.
+- Decide Linux/macOS support tier & release timing (ISS-029).
+- Do not merge to main, do not push to remote origin.
+
+## Next Free Identifiers
+- Next free ADR: **ADR-086**
+- Next free ISS: **ISS-098**
+- Next task number: **T-093**
 
 ## T-092 summary (ADR-085; Explore Tab $5,000 Studio Elevation & Table-Flex Bug Resolution)
 

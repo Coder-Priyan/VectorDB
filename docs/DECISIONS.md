@@ -345,3 +345,30 @@ Last updated: 2026-11-16 by T-072 sync
   - Ask, HNSW, Compare, and Settings tabs 100% frozen.
   - Zero innerHTML, strict CSP verified (`check_web_safety.ps1` passed).
   - 118/118 C++ tests pass.
+
+---
+
+## Process Note (2026-11-16): Autonomous Builder Execution (T-071 to T-092)
+
+- **Context & Operational Mode**: Tasks T-071 through T-092 were executed by the human directly with Antigravity (the builder) WITHOUT the Brain (Claude chat ran out of tokens).
+- **Status of Records**: ADR-065 through ADR-085 were written by the builder based on direct human chat instructions and **have NOT been reviewed by the Brain**.
+- **Git State**: All work was performed on local branch `ui-redesign-v4` (branched after SYNC-012, commit `489e3f5`). **Nothing has been pushed to remote; nothing has been merged into main**.
+
+### Design System Contradictions & Supersessions (ADR-047/ADR-048 vs ADR-065..085)
+
+| Design System Dimension | ADR-047 / ADR-048 Baseline Spec | Contradicting Later ADR (T-071..T-092) | Superseded Status | Quoted Later ADR Text & Human Context |
+| :--- | :--- | :--- | :--- | :--- |
+| **Card Borders & Hairlines** | *"hairlines allowed only in tables, metric strips and sidebar section dividers"* (cards had no borders, surface contrast only) | **ADR-067 (T-073), ADR-070 (T-076), ADR-072 (T-078), ADR-080 (T-087), ADR-081 (T-088), ADR-082 (T-089)** | **SUPERSEDES ADR-047 card hairline restriction** | *"Standardized cards across Explore, HNSW, Compare, and Settings on `--bg-panel` with hairline borders (`var(--border-hairline)`)."* Hairlines applied repo-wide per human request for crisp panel definitions. |
+| **Typography & Fonts** | *"IBM Plex Sans only"* | **ADR-068 (T-074), ADR-078 (T-085), ADR-080 (T-087), ADR-083 (T-090)** | **SUPERSEDES ADR-047 font restriction for telemetry** | *"Applied ultra-aesthetic, premium styling... Monospace tabular numbers (`'IBM Plex Mono', monospace`) for all coordinates, distances, latency numbers, step indicators, and metrics."* |
+| **Viewport Widths** | Centered 1180px / 860px max-width containers derived from original mockups | **ADR-077 (T-084), ADR-080 (T-087), ADR-081 (T-088)** | **SUPERSEDES ADR-047 centered container widths** | *"Fixed max-width gutters (wasting ~700px on 1920p) abolished; rebuilt Explore, HNSW, Compare, and Settings as Edge-to-Edge Widescreen Studio Workspaces (`width: 100%; max-width: 100%`)."* [CONFIRMED: human instruction in chat] |
+| **Page Scrolling** | Standard vertical document scrolling allowed across tabs | **ADR-076 (T-083)** | **SUPERSEDES ADR-047 scrollable page layout** | *"Vertical page scrolling across Explore, HNSW, Compare, and Settings eliminated; converted to True Zero-Scroll Single-Screen Viewports matching Ask tab (`overflow: hidden; height: 100%`)."* [CONFIRMED: human instruction in chat] |
+| **Design Vibe & Metaphors** | *"Reference apps: Claude app (Ask), Obsidian (Explore/HNSW), Vercel dashboard (Compare/Settings); vibe calm/minimal with a slight technical touch"* | **ADR-068 (T-074), ADR-073 (T-079), ADR-083 (T-090)** | **SUPERSEDES ADR-047 Obsidian/Vercel reference metaphor** | *"Elevated the UI from scratch as a top-tier lead developer designing a $10,000 product with zero AI-slop, zero neon glow, matching Linear/Raycast/Supabase/Cursor quality."* [CONFIRMED: human instruction in chat] |
+
+### Current Design Direction Summary Since T-073 (5 Lines)
+1. **Compare**: Zero-waste edge-to-edge Apple-grade hardware spec sheet comparison matrix (Brute Force vs KD-Tree vs HNSW) with dynamic winner hero banner, horizontally aligned metric rows (Latency, Distance workload, Recall), and 42px compact toolbar.
+2. **Explore**: Widescreen zero-scroll symmetrical 3-column workbench (`390px | 1fr | 390px`) featuring precision CAD coordinate radar, luminous amber constellation points, multi-ring target lock reticle, connecting geodesics, and semantic neighbor feed.
+3. **HNSW**: Widescreen zero-scroll symmetrical 3-column studio workbench (`390px | 1fr | 390px`) featuring multi-layer graph viewport with beacon diamond rings for entry nodes, sequential step routing indicators (`#1`, `#2`, `#3`), VCR playback transport, and live telemetry.
+4. **Settings**: Single-screen zero-scroll symmetrical 3-column Bento studio dashboard (Health Bento + Synthetics Generator + Storage/Maintenance) with tabular monospace metric tiles and two-step danger confirmations; guided tour button removed from UI.
+5. **Ask**: 100% frozen and untouched dark Claude-style RAG chat with collapsible documents drawer.
+
+---
