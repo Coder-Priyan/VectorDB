@@ -653,12 +653,20 @@ export function initCompareTab() {
 
     frameEl.appendChild(rowsContainer);
 
-    // 3. Algorithmic Precision & Telemetry Matrix Table
+    // 3. Compact Algorithmic Precision & Telemetry Matrix (Single-screen fit)
     const matrixData = buildComparativeMatrix(cardModels, report);
+    const isDocsMode = isDocs;
+    const queryVector = report._queryVector || null;
+    const queryTelemetry = formatQueryTelemetry(
+      queryVector,
+      isDocsMode,
+      isDocsMode ? (byId("compare-docs-query-input")?.value || "") : ""
+    );
+
     const matrixCard = el("div", { className: "switcher-matrix-card" },
       el("div", { className: "switcher-matrix-header" },
-        el("span", { className: "switcher-matrix-title" }, "Algorithmic Precision & Trade-off Matrix"),
-        el("span", { className: "text-muted text-xs font-mono" }, `k = ${report.k || 10} · All 3 Algorithms`)
+        el("span", { className: "switcher-matrix-title" }, "Algorithmic Precision Matrix"),
+        el("span", { className: "text-muted text-xs font-mono" }, `Query: ${queryTelemetry.dimText} · Cosine SIMD · k = ${report.k || 10}`)
       ),
       el("table", { className: "switcher-matrix-table font-mono text-xs", "aria-label": "Comprehensive benchmark comparison matrix" },
         el("thead", {},
@@ -666,7 +674,7 @@ export function initCompareTab() {
             el("th", { className: "text-left col-alg" }, "Algorithm"),
             el("th", { className: "text-right col-med" }, "Median (µs)"),
             el("th", { className: "text-right col-range" }, "Range"),
-            el("th", { className: "text-right col-evals" }, "Distance Evals"),
+            el("th", { className: "text-right col-evals" }, "Evaluations"),
             el("th", { className: "text-right col-pruned" }, "Pruned %"),
             el("th", { className: "text-right col-recall" }, "Recall @ k"),
             el("th", { className: "text-right col-top" }, "Top-1 Match")
@@ -692,30 +700,6 @@ export function initCompareTab() {
       )
     );
     frameEl.appendChild(matrixCard);
-
-    // 4. Query Execution & Vector Telemetry Strip
-    const isDocsMode = isDocs;
-    const queryVector = report._queryVector || null;
-    const queryTelemetry = formatQueryTelemetry(
-      queryVector,
-      isDocsMode,
-      isDocsMode ? (byId("compare-docs-query-input")?.value || "") : ""
-    );
-
-    const telemetryCard = el("div", { className: "switcher-telemetry-card" },
-      el("div", { className: "switcher-telemetry-col" },
-        el("span", { className: "switcher-telemetry-label text-muted text-xs uppercase" }, "Query Vector"),
-        el("div", { className: "font-mono text-xs text-primary" }, queryTelemetry.typeLabel),
-        el("div", { className: "font-mono text-xs text-muted" }, `${queryTelemetry.dimText} · ${queryTelemetry.sampleCoords}`)
-      ),
-      el("div", { className: "switcher-telemetry-divider", "aria-hidden": "true" }),
-      el("div", { className: "switcher-telemetry-col" },
-        el("span", { className: "switcher-telemetry-label text-muted text-xs uppercase" }, "Execution Routing"),
-        el("div", { className: "font-mono text-xs text-secondary" }, "Cosine Similarity · In-Memory SIMD Kernel"),
-        el("div", { className: "font-mono text-xs text-muted" }, `Evaluated across ${repeatCount} iterations with 1 warm-up pass`)
-      )
-    );
-    frameEl.appendChild(telemetryCard);
 
     // 5. Accuracy View Mismatch Summary (Explicit expected vs got)
     if (currentMetricKey === "accuracy") {

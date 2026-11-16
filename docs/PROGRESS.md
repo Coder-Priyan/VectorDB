@@ -4,7 +4,7 @@ Last updated: 2026-11-16 by T-096 sync
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform
 
-- **T-098**: Content Architecture Rebalance for Compare & Settings on branch ui-redesign-v4.
+- **T-098**: Content Architecture Rebalance for Compare & Settings (Single-Screen, Zero-Scroll) on branch ui-redesign-v4.
   - **Goal**: Rebalance content architecture and eliminate large empty voids (~400px in Settings, ~350px in Compare) seen at 1920x1080 100% zoom by adding real useful backend data rather than artificial stretching.
   - **Settings 2-Deck Workbench Grid**:
     - Transformed single cramped middle row into a balanced 2-Deck Workbench Grid (.settings-workbench-grid):

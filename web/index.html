@@ -833,187 +833,156 @@
               </div>
             </div>
 
-            <!-- 2. Balanced 2-Deck Workbench Console -->
-            <div class="settings-workbench-grid">
-              <!-- DECK 1: Collections & Graph Architecture (2 columns) -->
-              <div class="settings-deck settings-deck-top">
-                <!-- Card 1: Demo Collection Hyperparameters & Inserter -->
-                <div class="settings-card">
-                  <div class="settings-card-header">
-                    <div class="settings-card-title-group">
-                      <span class="settings-card-title">Demo Collection</span>
-                      <span class="settings-card-subtitle">Dimensionality &amp; construction parameters</span>
-                    </div>
-                    <span class="badge badge-neutral">Active Index</span>
-                  </div>
-
-                  <form id="settings-reset-demo-form" class="settings-grid-form">
-                    <div class="settings-form-field">
-                      <label for="demo-dim-input" class="settings-field-label">Dimension</label>
-                      <input type="number" id="demo-dim-input" class="input-text settings-input" value="128" min="1" max="4096" required>
-                    </div>
-                    <div class="settings-form-field">
-                      <label for="demo-metric-select" class="settings-field-label">Distance metric</label>
-                      <div id="demo-metric-dropdown-wrap" class="settings-dropdown-wrap">
-                        <input type="hidden" id="demo-metric-select" value="cosine">
-                      </div>
-                    </div>
-                    <div class="settings-form-field">
-                      <label for="demo-m-input" class="settings-field-label">M (Max edges)</label>
-                      <input type="number" id="demo-m-input" class="input-text settings-input" value="16" min="2" max="128">
-                    </div>
-                    <div class="settings-form-field">
-                      <label for="demo-efc-input" class="settings-field-label">efConstruction</label>
-                      <input type="number" id="demo-efc-input" class="input-text settings-input" value="200" min="4" max="1000">
-                    </div>
-                  </form>
-
-                  <div class="settings-insert-box">
-                    <div class="settings-field-label">Insert Synthetic Vectors</div>
-                    <form id="settings-random-demo-form" class="settings-inline-insert-form">
-                      <input type="number" id="demo-random-count" class="input-text settings-input" value="100" min="1" max="20000" aria-label="Count">
-                      <button type="submit" id="demo-insert-random-btn" class="btn btn-primary btn-sm">+ Insert Vectors</button>
-                    </form>
-                    <div id="settings-random-status" class="settings-status-note hidden"></div>
-                  </div>
+            <!-- 2. Single-Deck 3-Column Workbench (Zero-scroll, naturally fills viewport) -->
+            <div class="settings-console-middle">
+              <!-- Left Column: Demo Collection Configuration -->
+              <div class="settings-console-col">
+                <div class="settings-col-header">
+                  <div class="settings-console-section-title">Demo Collection</div>
+                  <span class="settings-col-subtitle text-muted text-xs">Dimensionality &amp; construction parameters</span>
                 </div>
 
-                <!-- Card 2: HNSW Index Topology & Multi-Layer Telemetry -->
-                <div class="settings-card">
-                  <div class="settings-card-header">
-                    <div class="settings-card-title-group">
-                      <span class="settings-card-title">HNSW Graph Hierarchy</span>
-                      <span class="settings-card-subtitle">Layer connectivity &amp; entry node routing</span>
-                    </div>
-                    <span class="badge badge-neutral">Graph Topology</span>
+                <form id="settings-reset-demo-form" class="settings-grid-form">
+                  <div class="settings-form-field">
+                    <label for="demo-dim-input" class="settings-field-label">Dimension</label>
+                    <input type="number" id="demo-dim-input" class="input-text settings-input" value="128" min="1" max="4096" required>
                   </div>
+                  <div class="settings-form-field">
+                    <label for="demo-metric-select" class="settings-field-label">Distance metric</label>
+                    <div id="demo-metric-dropdown-wrap" class="settings-dropdown-wrap">
+                      <input type="hidden" id="demo-metric-select" value="cosine">
+                    </div>
+                  </div>
+                  <div class="settings-form-field">
+                    <label for="demo-m-input" class="settings-field-label">M (Max edges)</label>
+                    <input type="number" id="demo-m-input" class="input-text settings-input" value="16" min="2" max="128">
+                  </div>
+                  <div class="settings-form-field">
+                    <label for="demo-efc-input" class="settings-field-label">efConstruction</label>
+                    <input type="number" id="demo-efc-input" class="input-text settings-input" value="200" min="4" max="1000">
+                  </div>
+                </form>
 
-                  <div class="settings-telemetry-section">
-                    <dl id="settings-hnsw-summary" class="settings-telemetry-list">
-                      <div class="settings-telemetry-row">
-                        <dt class="text-muted">Levels</dt>
-                        <dd id="settings-hnsw-max-level" class="font-mono">--</dd>
-                      </div>
-                      <div class="settings-telemetry-row">
-                        <dt class="text-muted">Entry point</dt>
-                        <dd id="settings-hnsw-entry-point" class="font-mono">--</dd>
-                      </div>
-                      <div class="settings-telemetry-row">
-                        <dt class="text-muted">Nodes / layer</dt>
-                        <dd id="settings-hnsw-nodes-layers" class="font-mono text-xs">--</dd>
-                      </div>
-                      <div class="settings-telemetry-row">
-                        <dt class="text-muted">Avg degree</dt>
-                        <dd id="settings-hnsw-avg-degree" class="font-mono text-xs">--</dd>
-                      </div>
-                    </dl>
-                  </div>
-
-                  <div class="settings-complexity-strip">
-                    <div class="settings-complexity-item">
-                      <span class="text-muted text-xs">Search Complexity:</span>
-                      <span class="font-mono text-xs text-primary">O(log N) Beam Navigation</span>
-                    </div>
-                    <div class="settings-complexity-item">
-                      <span class="text-muted text-xs">Heuristic Links:</span>
-                      <span class="font-mono text-xs text-primary">M_max = 32 &bull; M0 = 32</span>
-                    </div>
-                  </div>
+                <div class="settings-insert-box">
+                  <div class="settings-field-label">Insert Synthetic Vectors</div>
+                  <form id="settings-random-demo-form" class="settings-inline-insert-form">
+                    <input type="number" id="demo-random-count" class="input-text settings-input" value="100" min="1" max="20000" aria-label="Count">
+                    <button type="submit" id="demo-insert-random-btn" class="btn btn-primary btn-sm">+ Insert Vectors</button>
+                  </form>
+                  <div id="settings-random-status" class="settings-status-note hidden"></div>
                 </div>
               </div>
 
-              <!-- DECK 2: Ingested Knowledge Base & Engine Runtime Diagnostics (2 columns) -->
-              <div class="settings-deck settings-deck-bottom">
-                <!-- Card 3: Ingested Documents & RAG Knowledge Store -->
-                <div class="settings-card">
-                  <div class="settings-card-header">
-                    <div class="settings-card-title-group">
-                      <span class="settings-card-title">Ingested Documents</span>
-                      <span class="settings-card-subtitle">Active text partitions &amp; semantic embeddings</span>
-                    </div>
-                    <span class="badge badge-neutral">RAG Store</span>
-                  </div>
+              <!-- Vertical hairline divider -->
+              <div class="settings-col-divider" aria-hidden="true"></div>
 
-                  <div class="settings-docs-section">
-                    <div id="settings-docs-list" class="settings-docs-list">
-                      <p class="text-muted text-xs settings-empty-note">No documents ingested</p>
-                    </div>
-                  </div>
+              <!-- Middle Column: HNSW Index Topology & Ingested Documents -->
+              <div class="settings-console-col">
+                <div class="settings-col-header">
+                  <div class="settings-console-section-title">HNSW &amp; Documents</div>
+                  <span class="settings-col-subtitle text-muted text-xs">Multi-layer topology &amp; RAG store</span>
+                </div>
 
-                  <div class="settings-docs-footer text-muted text-xs">
-                    <span>Embeddings: <span class="font-mono text-secondary">nomic-embed-text</span></span>
-                    <span class="dot-sep">&bull;</span>
-                    <span>Cosine Similarity</span>
+                <div class="settings-telemetry-section">
+                  <div class="settings-field-label">HNSW Index Topology</div>
+                  <dl id="settings-hnsw-summary" class="settings-telemetry-list">
+                    <div class="settings-telemetry-row">
+                      <dt class="text-muted">Levels</dt>
+                      <dd id="settings-hnsw-max-level" class="font-mono">--</dd>
+                    </div>
+                    <div class="settings-telemetry-row">
+                      <dt class="text-muted">Entry point</dt>
+                      <dd id="settings-hnsw-entry-point" class="font-mono">--</dd>
+                    </div>
+                    <div class="settings-telemetry-row">
+                      <dt class="text-muted">Nodes / layer</dt>
+                      <dd id="settings-hnsw-nodes-layers" class="font-mono text-xs">--</dd>
+                    </div>
+                    <div class="settings-telemetry-row">
+                      <dt class="text-muted">Avg degree</dt>
+                      <dd id="settings-hnsw-avg-degree" class="font-mono text-xs">--</dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <div class="settings-docs-section">
+                  <div class="settings-field-label">Ingested Documents</div>
+                  <div id="settings-docs-list" class="settings-docs-list">
+                    <p class="text-muted text-xs settings-empty-note">No documents ingested</p>
                   </div>
                 </div>
 
-                <!-- Card 4: Engine Diagnostics, Persistence & Maintenance -->
-                <div class="settings-card">
-                  <div class="settings-card-header">
-                    <div class="settings-card-title-group">
-                      <span class="settings-card-title">Engine Runtime &amp; Storage</span>
-                      <span class="settings-card-subtitle">Hardware acceleration &amp; persistence telemetry</span>
+                <div class="settings-complexity-strip">
+                  <span class="text-muted text-xs">Complexity: <span class="font-mono text-primary">O(log N) Beam Navigation</span></span>
+                </div>
+              </div>
+
+              <!-- Vertical hairline divider -->
+              <div class="settings-col-divider" aria-hidden="true"></div>
+
+              <!-- Right Column: Engine Runtime & Storage Maintenance -->
+              <div class="settings-console-col">
+                <div class="settings-col-header">
+                  <div class="settings-console-section-title">Engine &amp; Maintenance</div>
+                  <span class="settings-col-subtitle text-muted text-xs">Hardware SIMD &amp; utilities</span>
+                </div>
+
+                <!-- Engine Hardware Diagnostics -->
+                <div class="settings-engine-diagnostics">
+                  <div class="settings-diag-row">
+                    <span class="settings-diag-label text-muted text-xs">SIMD Kernel:</span>
+                    <span id="settings-simd-status" class="settings-diag-val font-mono text-xs text-accent">AVX2 / FMA Active</span>
+                  </div>
+                  <div class="settings-diag-row">
+                    <span class="settings-diag-label text-muted text-xs">Concurrency:</span>
+                    <span id="settings-concurrency-status" class="settings-diag-val font-mono text-xs text-secondary">Worker Pool Active</span>
+                  </div>
+                  <div class="settings-diag-row">
+                    <span class="settings-diag-label text-muted text-xs">Memory Ratio:</span>
+                    <span id="settings-mem-ratio-status" class="settings-diag-val font-mono text-xs text-secondary">Vectors ~96% &bull; Graph ~4%</span>
+                  </div>
+                </div>
+
+                <!-- Disk Persistence Row -->
+                <div class="settings-storage-section">
+                  <div class="settings-persistence-row">
+                    <span id="settings-persistence-status" class="badge badge-neutral">Disabled (in-memory only)</span>
+                    <code id="settings-persistence-dir" class="settings-code-pill font-mono">none (ephemeral)</code>
+                  </div>
+                  <p id="settings-persistence-hint" class="settings-persistence-hint text-muted text-xs">Pass --data-dir on startup to persist collections.</p>
+                </div>
+
+                <!-- Maintenance Actions -->
+                <div class="settings-maintenance-actions">
+                  <div class="settings-action-row">
+                    <div class="settings-action-meta">
+                      <span class="settings-action-title">Chat history</span>
+                      <span id="settings-chats-count-text" class="settings-action-desc text-muted">0 conversations stored</span>
                     </div>
-                    <span class="badge badge-neutral">C++ Core</span>
+                    <div class="btn-group">
+                      <button type="button" id="settings-clear-chats-btn" class="btn btn-sm btn-ghost">Clear Chat History</button>
+                      <button type="button" id="settings-clear-chats-cancel-btn" class="btn btn-sm btn-ghost hidden">Cancel</button>
+                    </div>
+                  </div>
+                  <div id="settings-clear-chats-status" class="settings-status-note hidden"></div>
+
+                  <div class="settings-action-row">
+                    <div class="settings-action-meta">
+                      <span class="settings-action-title">Guided product tour</span>
+                      <span class="settings-action-desc">Interactive walkthrough of features.</span>
+                    </div>
+                    <button type="button" id="settings-start-tour-btn" class="btn btn-sm btn-secondary">
+                      <span>Start Guided Tour</span>
+                      <span id="settings-tour-icon"></span>
+                    </button>
                   </div>
 
-                  <!-- Engine Hardware Diagnostics -->
-                  <div class="settings-engine-diagnostics">
-                    <div class="settings-diag-row">
-                      <span class="settings-diag-label text-muted text-xs">SIMD Dispatch:</span>
-                      <span id="settings-simd-status" class="settings-diag-val font-mono text-xs text-accent">AVX2 / FMA Active</span>
+                  <div class="settings-action-row">
+                    <div class="settings-action-meta">
+                      <span class="settings-action-title">Test runner</span>
+                      <span class="settings-action-desc">Browser test suite.</span>
                     </div>
-                    <div class="settings-diag-row">
-                      <span class="settings-diag-label text-muted text-xs">Concurrency:</span>
-                      <span id="settings-concurrency-status" class="settings-diag-val font-mono text-xs text-secondary">Multi-Thread Worker Pool</span>
-                    </div>
-                    <div class="settings-diag-row">
-                      <span class="settings-diag-label text-muted text-xs">Memory Ratio:</span>
-                      <span id="settings-mem-ratio-status" class="settings-diag-val font-mono text-xs text-secondary">Vectors ~96% &bull; Graph Edges ~4%</span>
-                    </div>
-                  </div>
-
-                  <!-- Disk Persistence Row -->
-                  <div class="settings-storage-section">
-                    <div class="settings-persistence-row">
-                      <span id="settings-persistence-status" class="badge badge-neutral">Disabled (in-memory only)</span>
-                      <code id="settings-persistence-dir" class="settings-code-pill font-mono">none (ephemeral)</code>
-                    </div>
-                    <p id="settings-persistence-hint" class="settings-persistence-hint text-muted text-xs">Pass --data-dir on startup to persist collections across restarts.</p>
-                  </div>
-
-                  <!-- Utilities and Actions -->
-                  <div class="settings-maintenance-actions">
-                    <div class="settings-action-row">
-                      <div class="settings-action-meta">
-                        <span class="settings-action-title">Chat history</span>
-                        <span id="settings-chats-count-text" class="settings-action-desc text-muted">0 conversations stored</span>
-                      </div>
-                      <div class="btn-group">
-                        <button type="button" id="settings-clear-chats-btn" class="btn btn-sm btn-ghost">Clear Chat History</button>
-                        <button type="button" id="settings-clear-chats-cancel-btn" class="btn btn-sm btn-ghost hidden">Cancel</button>
-                      </div>
-                    </div>
-                    <div id="settings-clear-chats-status" class="settings-status-note hidden"></div>
-
-                    <div class="settings-action-row">
-                      <div class="settings-action-meta">
-                        <span class="settings-action-title">Guided product tour</span>
-                        <span class="settings-action-desc">Interactive walkthrough of features.</span>
-                      </div>
-                      <button type="button" id="settings-start-tour-btn" class="btn btn-sm btn-secondary">
-                        <span>Start Guided Tour</span>
-                        <span id="settings-tour-icon"></span>
-                      </button>
-                    </div>
-
-                    <div class="settings-action-row">
-                      <div class="settings-action-meta">
-                        <span class="settings-action-title">Test runner</span>
-                        <span class="settings-action-desc">Browser test suite.</span>
-                      </div>
-                      <a href="/tests.html" target="_blank" rel="noopener" class="btn btn-sm btn-ghost">Interactive Test Suite <span id="settings-tests-icon"></span></a>
-                    </div>
+                    <a href="/tests.html" target="_blank" rel="noopener" class="btn btn-sm btn-ghost">Interactive Test Suite <span id="settings-tests-icon"></span></a>
                   </div>
                 </div>
               </div>

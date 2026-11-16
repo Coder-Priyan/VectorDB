@@ -487,3 +487,8 @@ Last updated: 2026-11-16 by T-072 sync
        - 185/190 browser unit tests pass in headless Node mock (5 require real DOM per ISS-094), 118/118 C++ engine tests pass (529,813 assertions).
        - Zero innerHTML/outerHTML, strict CSP verified clean, 0 hex outside colors.js, 0 box-shadows, !important count = 2.
        - Ask, Explore, HNSW, sidebar/shell, C++ engine, and docs/API.md byte-identical.
+
+  - **Single-Screen Refinement (Zero-Scroll at 1920x1080)**:
+    - User explicitly confirmed preference for a single-screen dashboard experience without any vertical scrollbar.
+    - Settings: Removed vertically stacked 2-deck layout; streamlined into a single-deck 3-column workbench with flex-fill and justify-content: space-between, anchoring the Danger Zone cleanly at the bottom of the viewport with 0 scroll.
+    - Compare: Integrated query telemetry into the header of the Precision Matrix table, reducing vertical footprint so benchmark results and docked composer bar fit simultaneously on a single screen without scrolling.
