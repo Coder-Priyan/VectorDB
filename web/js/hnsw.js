@@ -359,7 +359,7 @@ export function initHnswTab() {
         ctx.textAlign = "left";
         ctx.textBaseline = "alphabetic";
       }
-    }    }
+    }
   }
 
   // Animation Loop
