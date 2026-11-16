@@ -253,15 +253,15 @@
               <canvas id="explore-canvas" width="1000" height="600"></canvas>
               <div id="explore-tooltip" class="canvas-tooltip hidden" role="tooltip"></div>
               <div id="explore-empty-state" class="empty-state-box hidden"></div>
-              <div class="canvas-viewport-hints">
-                <span class="hint-item"><span class="hint-kbd">&#x2728; Click</span> Inspect &amp; find neighbors</span>
-                <span class="hint-sep">&bull;</span>
-                <span class="hint-item"><span class="hint-kbd">Wheel</span> Zoom at cursor</span>
-                <span class="hint-sep">&bull;</span>
-                <span class="hint-item"><span class="hint-kbd">Drag</span> Pan viewport</span>
-                <span class="hint-sep">&bull;</span>
-                <span class="hint-item"><span class="hint-kbd">2x Click</span> Fit bounds</span>
-              </div>
+            </div>
+            <div class="canvas-viewport-hints explore-canvas-hints-outside">
+              <span class="hint-item"><span class="hint-kbd">&#x2728; Click</span> Inspect &amp; find neighbors</span>
+              <span class="hint-sep">&bull;</span>
+              <span class="hint-item"><span class="hint-kbd">Wheel</span> Zoom at cursor</span>
+              <span class="hint-sep">&bull;</span>
+              <span class="hint-item"><span class="hint-kbd">Drag</span> Pan viewport</span>
+              <span class="hint-sep">&bull;</span>
+              <span class="hint-item"><span class="hint-kbd">2x Click</span> Fit bounds</span>
             </div>
           </div>
 
@@ -298,7 +298,7 @@
                         <span class="mini-bar-val font-mono" id="explore-pc2-variance-val">3.3%</span>
                       </div>
                     </div>
-                    <span id="explore-variance-note" class="sr-only">Loading variance...</span>
+                    <span id="explore-variance-note" class="sr-only"></span>
                   </div>
                 </div>
               </div>
@@ -353,7 +353,7 @@
           <div class="drawer-header">
             <div class="drawer-title-group">
               <h3 class="section-title">Vector Inspector</h3>
-              <span class="results-target-badge" id="explore-results-badge">Live Query</span>
+              <span class="results-target-badge hidden" id="explore-results-badge">Live Query</span>
             </div>
             <button type="button" id="explore-drawer-close-btn" class="btn btn-xs btn-ghost btn-icon-only" title="Close drawer" aria-label="Close drawer">
               <span class="btn-icon" data-icon="x"></span>
@@ -365,7 +365,10 @@
             <div class="drawer-card">
               <div class="drawer-card-header">
                 <span class="drawer-card-title">Selected Vector</span>
-                <span class="inspector-live-tag" id="explore-inspector-target-id">None</span>
+                <span class="inspector-live-tag" id="explore-inspector-target-id">None selected</span>
+              </div>
+              <div id="explore-inspector-empty-note" class="drawer-empty-note text-muted text-xs">
+                Click any point or run a query to inspect coordinates and nearest neighbors.
               </div>
               <div class="inspector-metrics-grid">
                 <div class="inspector-stat-tile">

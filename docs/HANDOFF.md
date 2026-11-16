@@ -1,11 +1,11 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-094 sync
+Last updated: 2026-11-16 by T-095 sync
 
-> **NEXT STEP**: Review the human's full-window 1920x1080 100% screenshots of all 5 tabs (Ask, Explore, HNSW, Compare, Settings) after the T-094 rebuild from the Ask design spec, and the terminal verification (git log --oneline -7, git status -sb, vectordb_tests.exe, check_web_safety.ps1, !important count, box-shadow count, hex count, DOM ID check), and get the human's feedback.
+> **NEXT STEP**: Review the human's full-window 1920x1080 100% screenshots of all 5 tabs (Ask, Explore, HNSW, Compare, Settings) after the T-095 defect fixes, and the terminal verification (git log --oneline -7, git status -sb, vectordb_tests.exe, check_web_safety.ps1, !important count, box-shadow count, hex count, DOM ID check), and get the human's feedback.
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
-- **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Registered browser unit tests expanded in code; human run at `/tests.html` pending. All visual states for T-071 through T-094 are **not tested (visual)** / builder-reported only.
+- **/tests.html**: **/tests.html 159/159 is human-confirmed on 2026-11-16 and all visuals are still human-reported only**. Registered browser unit tests expanded in code to 166 (161 pass in headless Node DOM mock, 5 require real browser DOM). All visual states for T-071 through T-095 are **not tested (visual)** / builder-reported only.
 - **Git State**: Local branch `ui-redesign-v4`, clean working tree (only untracked `results/logs/` and `scratch/`), commits unpushed per protocol.
 - **Current UI State (by tab)**:
   - **Ask tab**: COMPLETE, human-approved, and human-verified. Byte-identical and 100% frozen.
@@ -22,8 +22,28 @@ Last updated: 2026-11-16 by T-094 sync
 
 ## Next Free Identifiers
 - Next free ADR: **ADR-088**
-- Next free ISS: **ISS-098**
-- Next task number: **T-095**
+- Next free ISS: **ISS-103**
+- Next task number: **T-096**
+
+## T-095 summary (ADR-088 pending; Fix Explore, Compare, and Settings Concrete Defects)
+
+- **Goal & Motivation**: Fix concrete visual, interaction, and logical defects reported in human screenshots without redesigning layouts:
+  1. *Explore*: Moved canvas viewport hint pill outside `.explore-canvas-container` so it never overlaps x-axis tick marks or "PC1 (Axis 1)" label.
+  2. *Explore*: Eliminated duplicate variance readout by adding `.sr-only` CSS utility for accessibility note and displaying clean short notice if <10 vectors.
+  3. *Explore*: Cleaned inspector drawer empty state to show "None selected" and designed empty note until a real query or click occurs; decoupled hover from mutating persistent inspector state.
+  4. *Compare*: Separated distance computations and prune tags, recall percentages and sublabels with dedicated flex layouts, resolving "100Full scan", "1120% pruned", and "100.0%Recall @ k".
+  5. *Compare*: Added `formatSpeedComparison` helper to correctly label candidates as "Nx faster", "Nx slower", or "1.0x (Equal)".
+  6. *Compare*: Added `computePrunedPercent` and `formatPrunedText` helpers with strict 0% to 100% clamping (e.g. 112 on 100 is 0% pruned, not negative).
+  7. *Compare*: Rendered top-k rank indicator cells with styled filled/empty squares and interactive tooltips for both matches and mismatches.
+  8. *Compare*: Eliminated ~300px dead band under cards by naturally centering `.compare-results-view` in Ask's centered thread.
+  9. *Settings*: Styled Distance metric dropdown button to match text input height (32px), dark background, and subtle border; aligned danger card right edge and removed nested scrollbars with `overflow: visible`.
+- **Strict Invariants**:
+  - Ask tab, sidebar/shell, C++ engine, and `docs/API.md` byte-identical to `cbd7e81`.
+  - 0 hex literals outside `colors.js`.
+  - 0 box-shadows.
+  - `!important` count <= 2 (exactly 2).
+  - All DOM IDs preserved across panels.
+  - 118/118 C++ tests pass.
 
 ## T-092 summary (ADR-085; Explore Tab $5,000 Studio Elevation & Table-Flex Bug Resolution)
 

@@ -1245,4 +1245,58 @@ export function mapReportToCards(report, latencies) {
   });
 }
 
+/**
+ * Formats speedup or slowdown comparison relative to Brute Force.
+ * If candidate is faster than baseline: "Nx faster"
+ * If candidate is slower than baseline: "Nx slower"
+ * If equal: "1.0x (Equal)"
+ * If invalid: "1.0x (Baseline)"
+ *
+ * @param {number} medianUs - Candidate median latency
+ * @param {number} bruteMedianUs - Brute Force baseline median latency
+ * @returns {string} Formatted speed comparison text
+ */
+export function formatSpeedComparison(medianUs, bruteMedianUs) {
+  const m = Number(medianUs) || 0;
+  const bm = Number(bruteMedianUs) || 0;
+  if (m <= 0 || bm <= 0) return "1.0x (Baseline)";
+  if (Math.abs(m - bm) < 0.001) return "1.0x (Equal)";
+  if (m < bm) {
+    const ratio = (bm / m).toFixed(1);
+    return `${ratio}x faster`;
+  } else {
+    const ratio = (m / bm).toFixed(1);
+    return `${ratio}x slower`;
+  }
+}
 
+/**
+ * Computes pruned percentage relative to brute-force computations,
+ * strictly clamped between 0% and 100%.
+ * If candidate computations >= brute computations, returns 0.
+ *
+ * @param {number} computations - Candidate distance computations
+ * @param {number} bruteComputations - Brute Force baseline distance computations
+ * @returns {number} Clamped integer percentage (0 to 100)
+ */
+export function computePrunedPercent(computations, bruteComputations) {
+  const dist = Number(computations) || 0;
+  const bruteDist = Number(bruteComputations) || 0;
+  if (bruteDist <= 0 || dist >= bruteDist) return 0;
+  const pct = Math.round(((bruteDist - dist) / bruteDist) * 100);
+  return Math.max(0, Math.min(100, pct));
+}
+
+/**
+ * Formats pruned percentage text for benchmark display.
+ *
+ * @param {boolean} isBrute - Whether candidate is Brute Force
+ * @param {number} computations - Candidate distance computations
+ * @param {number} bruteComputations - Brute Force distance computations
+ * @returns {string} E.g. "Full scan (0% pruned)" or "85% pruned"
+ */
+export function formatPrunedText(isBrute, computations, bruteComputations) {
+  if (isBrute) return "Full scan (0% pruned)";
+  const pct = computePrunedPercent(computations, bruteComputations);
+  return `${pct}% pruned`;
+}

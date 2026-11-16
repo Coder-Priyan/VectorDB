@@ -1,8 +1,19 @@
 # Project Progress
 
-Last updated: 2026-11-16 by T-093 sync
+Last updated: 2026-11-16 by T-095 sync
 
-## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform (Task T-033 Complete across all 9 Phases P0-P8, Branch `ui-redesign-v3`)
+## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform
+
+- **T-095**: Fix concrete Explore, Compare, and Settings defects seen in human screenshots on branch `ui-redesign-v4`.
+  - *Explore*: Moved canvas viewport hint pill outside `.explore-canvas-container` into `.explore-canvas-viewport`, freeing canvas plot area and preventing overlap with x-axis ticks or PC1 label.
+  - *Explore*: Removed duplicate variance note via `.sr-only` utility, displaying clean single readout in composer pill.
+  - *Explore*: Replaced premature dummy values in inspector drawer with clean empty state and decoupled mouse hover from inspector selection state.
+  - *Compare*: Styled distance computation and recall hero rows with proper flex spacing, fixing "100Full scan", "1120% pruned", and "100.0%Recall @ k".
+  - *Compare*: Implemented and tested `formatSpeedComparison` (proper "Nx faster" / "Nx slower" / "1.0x (Equal)"), `computePrunedPercent` (strictly clamped 0-100%), and `formatPrunedText`.
+  - *Compare*: Rendered visible top-k rank cells with filled/outline indicators and tooltips across all ranks; centered results view vertically to eliminate ~300px dead band.
+  - *Settings*: Styled Distance metric custom dropdown to match 32px height and border of text inputs; aligned danger card right edge and eliminated card-level scrollbars.
+  - *Verification*: 166 total browser tests registered (161 pass in Node mock, 5 require real browser DOM); 118/118 C++ tests pass; 0 hex outside colors.js; 0 box-shadows; !important <= 2; strict CSP passed.
+ (Task T-033 Complete across all 9 Phases P0-P8, Branch `ui-redesign-v3`)
 
 **Direction Change (2026-11-14)**: ADR-017 (engine freeze) was cancelled by the human after safety backup (`backup-before-v2`). Direction pivoted to an open-source, fully offline, transparent "glass-box" vector database and RAG learning product (ADR-029). The aggressive T-033 master build unfreezing the engine and implementing the full glass-box product across 9 phases (P0 to P8) is 100% complete on branch `ui-redesign`. All 9 phases are completed and committed:
 - **P0**: Pre-flight unfreezing (ADR-029, ADR-030, ADR-031), CSS fixes, HNSW toolbar stabilization.

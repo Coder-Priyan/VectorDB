@@ -8,7 +8,9 @@ import { createIcon } from "./icons.js";
 import {
   getCompareEmptyStateConfig,
   mapReportToCards,
-  buildCompareHeadline
+  buildCompareHeadline,
+  formatSpeedComparison,
+  formatPrunedText
 } from "./compare_helpers.js";
 
 export function initCompareTab() {
@@ -93,12 +95,19 @@ export function initCompareTab() {
     const expectedText = cellData.expectedId !== null ? `#${cellData.expectedId}` : "-";
     const gotText = cellData.gotId !== null ? `#${cellData.gotId}` : "-";
 
-    rankTooltipEl.replaceChildren(
-      document.createTextNode(`Rank ${cellData.rank}: expected `),
-      el("span", { className: "font-mono" }, expectedText),
-      document.createTextNode(", got "),
-      el("span", { className: "font-mono" }, gotText)
-    );
+    if (cellData.isMatch) {
+      rankTooltipEl.replaceChildren(
+        document.createTextNode(`Rank ${cellData.rank}: matched vector `),
+        el("span", { className: "font-mono" }, expectedText)
+      );
+    } else {
+      rankTooltipEl.replaceChildren(
+        document.createTextNode(`Rank ${cellData.rank}: expected `),
+        el("span", { className: "font-mono" }, expectedText),
+        document.createTextNode(", got "),
+        el("span", { className: "font-mono" }, gotText)
+      );
+    }
 
     const cellRect = cell.getBoundingClientRect();
     const containerRect = resultsView.getBoundingClientRect();
@@ -429,9 +438,8 @@ export function initCompareTab() {
 
       // 2. Section: Latency Hero
       let speedupRatioText = "1.0x (Baseline)";
-      if (!card.isBrute && card.medianUs > 0) {
-        const ratio = (bruteMed / card.medianUs).toFixed(1);
-        speedupRatioText = `${ratio}x faster`;
+      if (!card.isBrute) {
+        speedupRatioText = formatSpeedComparison(card.medianUs, bruteMed);
       }
       const latencySection = el("div", { className: "spec-section spec-section-latency" },
         el("div", { className: "spec-section-label" }, "MEDIAN LATENCY"),
@@ -450,11 +458,7 @@ export function initCompareTab() {
       colEl.appendChild(latencySection);
 
       // 3. Section: Computational Workload
-      let pruneText = "Full scan (0% pruned)";
-      if (!card.isBrute) {
-        const pruned = Math.max(0, Math.round(((bruteDist - card.distanceComputations) / bruteDist) * 100));
-        pruneText = `${pruned}% pruned`;
-      }
+      const pruneText = formatPrunedText(card.isBrute, card.distanceComputations, bruteDist);
       const distSection = el("div", { className: "spec-section spec-section-dist" },
         el("div", { className: "spec-section-label" }, "DISTANCE COMPUTATIONS"),
         el("div", { className: "spec-dist-hero-row" },
@@ -478,30 +482,30 @@ export function initCompareTab() {
         });
 
         for (const cellData of (card.rankStrip || [])) {
-          if (cellData.isMatch) {
-            stripEl.appendChild(el("span", { className: `compare-rank-cell filled fill-${alg}` }));
-          } else {
-            const expectedText = cellData.expectedId !== null ? `#${cellData.expectedId}` : "-";
-            const gotText = cellData.gotId !== null ? `#${cellData.gotId}` : "-";
-            const emptyCell = el("span", {
-              className: "compare-rank-cell empty",
-              tabIndex: 0,
-              "aria-label": `Rank ${cellData.rank}: expected ${expectedText}, got ${gotText}`
-            });
+          const expectedText = cellData.expectedId !== null ? `#${cellData.expectedId}` : "-";
+          const gotText = cellData.gotId !== null ? `#${cellData.gotId}` : "-";
+          const ariaLabel = cellData.isMatch
+            ? `Rank ${cellData.rank}: matched vector ${expectedText}`
+            : `Rank ${cellData.rank}: expected ${expectedText}, got ${gotText}`;
 
-            emptyCell.addEventListener("mouseenter", () => showTooltip(emptyCell, cellData));
-            emptyCell.addEventListener("mouseleave", hideTooltip);
-            emptyCell.addEventListener("focus", () => showTooltip(emptyCell, cellData));
-            emptyCell.addEventListener("blur", hideTooltip);
-            emptyCell.addEventListener("keydown", (e) => {
-              if (e.key === "Escape") {
-                hideTooltip();
-                emptyCell.blur();
-              }
-            });
+          const cellEl = el("span", {
+            className: `compare-rank-cell ${cellData.isMatch ? `filled fill-${alg}` : "empty"}`,
+            tabIndex: 0,
+            "aria-label": ariaLabel
+          });
 
-            stripEl.appendChild(emptyCell);
-          }
+          cellEl.addEventListener("mouseenter", () => showTooltip(cellEl, cellData));
+          cellEl.addEventListener("mouseleave", hideTooltip);
+          cellEl.addEventListener("focus", () => showTooltip(cellEl, cellData));
+          cellEl.addEventListener("blur", hideTooltip);
+          cellEl.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+              hideTooltip();
+              cellEl.blur();
+            }
+          });
+
+          stripEl.appendChild(cellEl);
         }
 
         rankContent = el("div", { className: "spec-rank-interactive-wrap" },

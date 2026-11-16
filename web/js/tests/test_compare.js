@@ -25,7 +25,10 @@ import {
   buildCompareHeadline,
   buildLatencyRaceRows,
   buildDetailTableRows,
-  mapReportToCards
+  mapReportToCards,
+  formatSpeedComparison,
+  computePrunedPercent,
+  formatPrunedText
 } from "../compare_helpers.js";
 
 // Real raw benchmark response fixture captured from running server with 10 top-k items (ADR-036, docs/API.md sec 9)
@@ -1139,5 +1142,46 @@ export function registerCompareTests() {
       assertEqual(hnswCard.recallPercent, "50.0%");
     });
   });
-}
+  describe("formatSpeedComparison helper", (it) => {
+    it("formats faster candidates with correct ratio", () => {
+      assertEqual(formatSpeedComparison(40, 100), "2.5x faster");
+      assertEqual(formatSpeedComparison(50, 100), "2.0x faster");
+    });
 
+    it("formats slower candidates with correct slowdown ratio", () => {
+      assertEqual(formatSpeedComparison(250, 100), "2.5x slower");
+      assertEqual(formatSpeedComparison(200, 100), "2.0x slower");
+    });
+
+    it("formats equal latency as 1.0x (Equal)", () => {
+      assertEqual(formatSpeedComparison(100, 100), "1.0x (Equal)");
+    });
+
+    it("handles non-positive or missing inputs with 1.0x (Baseline)", () => {
+      assertEqual(formatSpeedComparison(0, 100), "1.0x (Baseline)");
+      assertEqual(formatSpeedComparison(100, 0), "1.0x (Baseline)");
+      assertEqual(formatSpeedComparison(null, 100), "1.0x (Baseline)");
+    });
+  });
+
+  describe("computePrunedPercent and formatPrunedText helpers", (it) => {
+    it("clamps pruned percent strictly between 0 and 100", () => {
+      // 112 computations on 100 baseline is 0% pruned (not negative)
+      assertEqual(computePrunedPercent(112, 100), 0);
+      assertEqual(computePrunedPercent(100, 100), 0);
+      assertEqual(computePrunedPercent(20, 100), 80);
+      assertEqual(computePrunedPercent(0, 100), 100);
+      assertEqual(computePrunedPercent(50, 0), 0);
+    });
+
+    it("formats pruned text for Brute Force baseline", () => {
+      assertEqual(formatPrunedText(true, 100, 100), "Full scan (0% pruned)");
+    });
+
+    it("formats pruned text for candidate algorithms with clamping", () => {
+      assertEqual(formatPrunedText(false, 112, 100), "0% pruned");
+      assertEqual(formatPrunedText(false, 20, 100), "80% pruned");
+      assertEqual(formatPrunedText(false, 0, 100), "100% pruned");
+    });
+  });
+}

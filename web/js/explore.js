@@ -139,13 +139,34 @@ export function initExploreTab() {
     }
   }
 
+  function resetInspector() {
+    const badge = byId("explore-results-badge");
+    if (badge) badge.classList.add("hidden");
+    const emptyNote = byId("explore-inspector-empty-note");
+    if (emptyNote) emptyNote.classList.remove("hidden");
+    const targetIdEl = byId("explore-inspector-target-id");
+    if (targetIdEl) targetIdEl.textContent = "None selected";
+    const pc1El = byId("inspector-stat-pc1");
+    if (pc1El) pc1El.textContent = "-";
+    const pc2El = byId("inspector-stat-pc2");
+    if (pc2El) pc2El.textContent = "-";
+    const distEl = byId("inspector-stat-dist");
+    if (distEl) distEl.textContent = "-";
+    const simEl = byId("inspector-stat-sim");
+    if (simEl) simEl.textContent = "-";
+  }
+
   function updateVarianceNotice(count, ratios) {
     if (!varianceNote) return;
     const r1 = ((ratios[0] || 0) * 100).toFixed(1), r2 = ((ratios[1] || 0) * 100).toFixed(1);
     const sum = (((ratios[0] || 0) + (ratios[1] || 0)) * 100).toFixed(1);
-    let text = `Explained variance (PCA, 2D): ${sum}% (PC1: ${r1}%, PC2: ${r2}%)`;
-    if (count < 10) text += " — Note: PCA projection is not statistically meaningful with fewer than 10 vectors.";
-    varianceNote.textContent = text;
+    if (count < 10) {
+      varianceNote.textContent = "PCA needs ≥10 vectors";
+      varianceNote.classList.remove("sr-only");
+    } else {
+      varianceNote.textContent = "";
+      varianceNote.classList.add("sr-only");
+    }
 
     const totalEl = byId("explore-total-variance-val");
     if (totalEl) totalEl.textContent = `${sum}%`;
@@ -478,16 +499,8 @@ export function initExploreTab() {
     const kVal = isDocs ? (queryDocsK ? queryDocsK.value : 3) : (queryDemoK ? queryDemoK.value : 3);
     if (heading) heading.textContent = `Nearest neighbours (k = ${kVal})`;
 
-    const badge = byId("explore-results-badge");
-    if (badge) {
-      if (queryStar) {
-        badge.textContent = isDocs ? "Doc Query" : (queryDemoIdInput && queryDemoIdInput.value ? `Vector #${queryDemoIdInput.value}` : "Random Vector");
-      } else {
-        badge.textContent = "Live Query";
-      }
-    }
-
     if (!results || results.length === 0) {
+      resetInspector();
       const emptyGraphic = el("div", { className: "empty-feed-graphic" },
         el("div", { className: "empty-feed-icon" }, "\u25C9"),
         el("div", { className: "empty-feed-title" }, "No Active Query"),
@@ -495,6 +508,18 @@ export function initExploreTab() {
       );
       resultsTableBody.appendChild(emptyGraphic);
       return;
+    }
+
+    const emptyNote = byId("explore-inspector-empty-note");
+    if (emptyNote) emptyNote.classList.add("hidden");
+    const badge = byId("explore-results-badge");
+    if (badge) {
+      badge.classList.remove("hidden");
+      if (queryStar) {
+        badge.textContent = isDocs ? "Doc Query" : (queryDemoIdInput && queryDemoIdInput.value ? `Vector #${queryDemoIdInput.value}` : "Random Vector");
+      } else {
+        badge.textContent = "Live Query";
+      }
     }
 
     const cards = results.map((r, i) => {
@@ -527,6 +552,10 @@ export function initExploreTab() {
 
       card.addEventListener("click", () => {
         hoveredPoint = currentPoints.find(p => isDocs ? (p.doc_id === r.doc_id && p.chunk_index === r.chunk_index) : (p.id === r.id)) || r;
+        const emptyNote = byId("explore-inspector-empty-note");
+        if (emptyNote) emptyNote.classList.add("hidden");
+        const badge = byId("explore-results-badge");
+        if (badge) badge.classList.remove("hidden");
         const targetIdEl = byId("explore-inspector-target-id");
         if (targetIdEl) targetIdEl.textContent = isDocs ? `Doc ${r.doc_id || r.id}` : `Vector #${r.id}`;
         const pc1El = byId("inspector-stat-pc1");
@@ -597,15 +626,6 @@ export function initExploreTab() {
     const hit = findHitPoint(e.clientX - rect.left, e.clientY - rect.top, currentPoints, viewport, 8);
     if (hit !== hoveredPoint) {
       hoveredPoint = hit;
-      if (hoveredPoint) {
-        const isDocs = collSelect ? collSelect.value === "docs" : false;
-        const targetIdEl = byId("explore-inspector-target-id");
-        if (targetIdEl) targetIdEl.textContent = isDocs ? `Doc ${hoveredPoint.doc_id}` : `Vector #${hoveredPoint.id}`;
-        const pc1El = byId("inspector-stat-pc1");
-        if (pc1El && hoveredPoint.x !== undefined) pc1El.textContent = hoveredPoint.x.toFixed(3);
-        const pc2El = byId("inspector-stat-pc2");
-        if (pc2El && hoveredPoint.y !== undefined) pc2El.textContent = hoveredPoint.y.toFixed(3);
-      }
       render();
     }
     if (hoveredPoint && tooltip) {

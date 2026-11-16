@@ -132,6 +132,19 @@
   --glassbox-tab-h: 196px;
 }
 
+/* Screen reader utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -2763,6 +2776,10 @@ input[type="number"] {
 
 /* Settings Card */
 .settings-card {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0;
   background: var(--bg-panel);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-card);
@@ -2771,6 +2788,7 @@ input[type="number"] {
   flex-direction: column;
   gap: var(--space-3);
   transition: border-color 0.15s ease;
+  overflow: visible;
 }
 
 .settings-card:hover {
@@ -2795,6 +2813,7 @@ input[type="number"] {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  overflow: visible;
 }
 
 .settings-card-divider {
@@ -2887,6 +2906,38 @@ input[type="number"] {
   width: 100%;
 }
 
+.settings-dropdown-wrap .custom-dropdown {
+  width: 100%;
+}
+
+.settings-dropdown-wrap .custom-dropdown-btn {
+  width: 100%;
+  height: 32px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-3);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.settings-dropdown-wrap .custom-dropdown-btn:hover {
+  background: var(--bg-raised);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.settings-dropdown-wrap .custom-dropdown-popup {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 /* Inline Insert Box */
 .settings-insert-box {
   display: flex;
@@ -2975,11 +3026,15 @@ input[type="number"] {
 }
 
 /* Danger Zone Card */
-.settings-danger-card {
+.settings-card.settings-danger-card {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0;
   border-color: rgba(239, 68, 68, 0.25);
 }
 
-.settings-danger-card:hover {
+.settings-card.settings-danger-card:hover {
   border-color: rgba(239, 68, 68, 0.4);
 }
 
@@ -3111,7 +3166,7 @@ input[type="number"] {
 .explore-canvas-container {
   position: relative;
   width: 100%;
-  height: 100%;
+  flex: 1;
   min-height: 0;
   background: var(--bg-panel);
   border: 1px solid var(--border-subtle);
@@ -3120,6 +3175,18 @@ input[type="number"] {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.explore-canvas-hints-outside {
+  position: static;
+  transform: none;
+  margin: 6px auto 0;
+  flex-shrink: 0;
+}
+
+.drawer-empty-note {
+  padding: var(--space-2) 0;
+  line-height: 1.4;
 }
 
 #explore-canvas {
@@ -4270,6 +4337,118 @@ input[type="number"] {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  margin: auto 0;
+  padding: var(--space-2) 0;
+}
+
+.spec-dist-hero-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.spec-dist-value {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.spec-prune-tag {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.spec-recall-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.spec-recall-value {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.spec-recall-sublabel {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.spec-rank-interactive-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: 24px;
+}
+
+.spec-rank-ref-box {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+}
+
+.compare-rank-strip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.compare-rank-cell {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  box-sizing: border-box;
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+  cursor: pointer;
+}
+
+.compare-rank-cell:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.compare-rank-cell.filled {
+  background: var(--text-muted);
+  border: 1px solid transparent;
+}
+
+.compare-rank-cell.filled.fill-kdtree {
+  background: var(--accent);
+}
+
+.compare-rank-cell.filled.fill-hnsw {
+  background: var(--accent);
+}
+
+.compare-rank-cell.empty {
+  background: transparent;
+  border: 1px dashed var(--border-subtle);
+}
+
+.compare-rank-cell:hover {
+  transform: scale(1.25);
+  z-index: 2;
+}
+
+.spec-rank-count {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
 }
 
 /* Hero Callout Banner */
