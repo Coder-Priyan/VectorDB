@@ -13,7 +13,11 @@ import {
   formatPrunedText,
   METRIC_SWITCHER_TABS,
   computeSharedMetricBars,
-  handleSegmentedKeyNav
+  handleSegmentedKeyNav,
+  buildTimingsStrip,
+  buildTopMatchesSummary,
+  buildMismatchSummary,
+  buildExplanatoryLine
 } from "./compare_helpers.js";
 
 export function initCompareTab() {
@@ -81,6 +85,7 @@ export function initCompareTab() {
   const resultsView = byId("compare-results-view");
   const cardsContainer = byId("compare-cards-container");
   const rankTooltipEl = byId("compare-rank-tooltip");
+  const footnoteEl = byId("compare-footnote");
   const footnoteIconSlot = byId("compare-footnote-icon");
 
   const heroHeadline = byId("compare-hero-headline");
@@ -396,7 +401,14 @@ export function initCompareTab() {
       heroSubtitle.textContent = `k = ${headlineData.k} · ${headlineData.vectorCount.toLocaleString()} vectors · ${repeatCount} run${repeatCount > 1 ? "s" : ""} median`;
     }
     if (chipWinner) chipWinner.textContent = `Fastest: ${headlineData.fastestLabel}`;
-    if (chipSpeedup) chipSpeedup.textContent = `${headlineData.ratioText} Speedup`;
+    if (chipSpeedup) {
+      if (headlineData.isBruteFastest || parseFloat(headlineData.ratioText) <= 1.0) {
+        chipSpeedup.classList.add("hidden");
+      } else {
+        chipSpeedup.classList.remove("hidden");
+        chipSpeedup.textContent = `${headlineData.ratioText} Speedup`;
+      }
+    }
     if (chipRecall) chipRecall.textContent = `${headlineData.recallPercent} Recall`;
 
     renderMetricSwitcher(report, latencies, headlineData);
@@ -412,9 +424,27 @@ export function initCompareTab() {
     const bruteCard = cardModels.find(c => c.alg === "brute") || cardModels[0];
     const bruteMed = bruteCard ? Math.max(1, bruteCard.medianUs) : 1;
     const bruteDist = bruteCard ? Math.max(1, bruteCard.distanceComputations) : 1;
+    const bruteResults = Array.isArray(report.algorithms?.brute?.results) ? report.algorithms.brute.results : [];
+
+    const isDocs = collDropdown?.getValue() === "docs";
+    const collLabel = isDocs ? "Document Chunks" : "Demo Vectors";
+    const efSearchVal = isDocs ? (docsEfInput?.value || "50") : (demoEfInput?.value || "50");
+    const repeatCount = parseInt(repeatDropdown?.getValue() || "5", 10);
 
     // Outer frame for the metric switcher
     const frameEl = el("div", { className: "compare-metric-switcher-frame" });
+
+    // 0. Query Details Line (Real parameters, fills the top naturally)
+    const queryDetailsEl = el("div", { className: "compare-query-details text-muted text-xs font-mono" },
+      el("span", {}, `k = ${report.k || 10}`),
+      el("span", { className: "dot-sep" }, "·"),
+      el("span", {}, `efSearch = ${efSearchVal}`),
+      el("span", { className: "dot-sep" }, "·"),
+      el("span", {}, `Collection: ${collLabel} (${(report.count || 0).toLocaleString()} vectors)`),
+      el("span", { className: "dot-sep" }, "·"),
+      el("span", {}, `${repeatCount} repeat${repeatCount > 1 ? "s" : ""}`)
+    );
+    frameEl.appendChild(queryDetailsEl);
 
     // 1. Accessible Segmented Control Bar (tablist)
     const tablistEl = el("div", {
@@ -488,7 +518,7 @@ export function initCompareTab() {
         subEl
       );
 
-      // Center Column: Thick bar on shared linear scale + optional rank cells for Accuracy
+      // Center Column: Thick bar on shared linear scale + details
       const fillEl = el("div", {
         className: `switcher-bar-fill fill-${alg}`,
         style: `width: ${card.barWidthPct}%;`
@@ -496,6 +526,29 @@ export function initCompareTab() {
       const trackEl = el("div", { className: "switcher-bar-track" }, fillEl);
       const centerCol = el("div", { className: "switcher-bar-col" }, trackEl);
 
+      // a. Latency view: timings strip of N repeat runs
+      if (currentMetricKey === "latency" && latencies && Array.isArray(latencies[alg]) && latencies[alg].length > 1) {
+        const timings = buildTimingsStrip(latencies[alg]);
+        const timingsTrack = el("div", {
+          className: "switcher-timings-track",
+          role: "group",
+          "aria-label": `${timings.ticks.length} iterations for ${card.label}`
+        });
+        timings.ticks.forEach(t => {
+          timingsTrack.appendChild(el("span", {
+            className: `switcher-timing-tick tick-${alg}`,
+            style: `left: ${t.pct}%;`,
+            title: `Run ${t.run}: ${t.value} µs`
+          }));
+        });
+        const timingsEl = el("div", { className: "switcher-timings-row text-xs text-muted font-mono" },
+          el("span", {}, `Runs (${timings.ticks.length}): ${timings.min}–${timings.max} µs`),
+          timingsTrack
+        );
+        centerCol.appendChild(timingsEl);
+      }
+
+      // b. Accuracy view: real-k rank cells strip
       if (currentMetricKey === "accuracy") {
         let rankContent;
         if (card.isBrute) {
@@ -541,6 +594,23 @@ export function initCompareTab() {
         centerCol.appendChild(rankContent);
       }
 
+      // c. Top matches summary row (Mono IDs + match indicator)
+      const topMatches = buildTopMatchesSummary(card.results, bruteResults, 5);
+      if (topMatches.length > 0) {
+        const topRow = el("div", { className: "switcher-top-matches-row text-xs" },
+          el("span", { className: "text-muted" }, "Top: "),
+          ...topMatches.map(m => {
+            const chipClass = m.isMatch ? "match-chip-hit" : "match-chip-miss";
+            const titleText = isDocs && m.title ? ` (${m.title})` : "";
+            return el("span", {
+              className: `switcher-match-chip font-mono ${chipClass}`,
+              title: `Rank #${m.rank}: ${m.id} (dist: ${m.distance})${titleText}`
+            }, `#${m.id}`);
+          })
+        );
+        centerCol.appendChild(topRow);
+      }
+
       // Right Column: Large tabular number, sublabel, and speed/prune tag
       let rightCol;
       if (currentMetricKey === "latency") {
@@ -578,7 +648,59 @@ export function initCompareTab() {
     }
 
     frameEl.appendChild(rowsContainer);
+
+    // 3. Accuracy View Mismatch Summary (Explicit expected vs got)
+    if (currentMetricKey === "accuracy") {
+      const kdMismatches = buildMismatchSummary(report.algorithms?.kdtree?.results, bruteResults, report.k || 10);
+      const hnMismatches = buildMismatchSummary(report.algorithms?.hnsw?.results, bruteResults, report.k || 10);
+      const totalDeviations = kdMismatches.mismatchCount + hnMismatches.mismatchCount;
+
+      const mismatchPanel = el("div", { className: "switcher-mismatch-panel text-xs font-mono" });
+      if (totalDeviations === 0) {
+        mismatchPanel.appendChild(el("span", { className: "text-muted" }, "Ground-truth rank parity: 100% agreement across all k results."));
+      } else {
+        const deviations = [];
+        if (hnMismatches.mismatches.length > 0) {
+          hnMismatches.mismatches.slice(0, 3).forEach(m => {
+            deviations.push(el("span", { className: "mismatch-item" }, `HNSW Rank ${m.rank}: expected ${m.expectedId}, got ${m.gotId}`));
+          });
+        }
+        if (kdMismatches.mismatches.length > 0) {
+          kdMismatches.mismatches.slice(0, 3).forEach(m => {
+            deviations.push(el("span", { className: "mismatch-item" }, `KD-Tree Rank ${m.rank}: expected ${m.expectedId}, got ${m.gotId}`));
+          });
+        }
+        mismatchPanel.replaceChildren(
+          el("span", { className: "text-muted" }, "Rank deviations: "),
+          ...deviations
+        );
+      }
+      frameEl.appendChild(mismatchPanel);
+    }
+
+    // 4. One Explanatory Line Derived Purely from Real Numbers
+    const explanatoryText = buildExplanatoryLine(cardModels, report.count || 1000);
+    const explanatoryEl = el("div", { className: "compare-explanatory-line text-muted text-xs" },
+      el("span", { className: "compare-spark-icon", "aria-hidden": "true" }, "⚡"),
+      el("span", {}, explanatoryText)
+    );
+    frameEl.appendChild(explanatoryEl);
+
     cardsContainer.appendChild(frameEl);
+
+    // 5. Update Footnote Text According to Active View
+    if (footnoteEl) {
+      const noteText = (currentMetricKey === "accuracy")
+        ? "Filled = same rank as ground truth. Higher recall indicates exact match with Brute Force."
+        : (currentMetricKey === "work")
+          ? "Distance computations indicate exact vector comparisons performed by index."
+          : `Latencies measured via high-resolution wall-clock timer over ${repeatCount} iteration${repeatCount > 1 ? "s" : ""} (median reported).`;
+
+      footnoteEl.replaceChildren(
+        el("span", { className: "compare-footnote-icon", id: "compare-footnote-icon" }, "ℹ"),
+        el("span", {}, noteText)
+      );
+    }
   }
 
   // Event Handlers

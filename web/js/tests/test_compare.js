@@ -31,7 +31,11 @@ import {
   formatPrunedText,
   METRIC_SWITCHER_TABS,
   computeSharedMetricBars,
-  handleSegmentedKeyNav
+  handleSegmentedKeyNav,
+  buildTimingsStrip,
+  buildTopMatchesSummary,
+  buildMismatchSummary,
+  buildExplanatoryLine
 } from "../compare_helpers.js";
 
 // Real raw benchmark response fixture captured from running server with 10 top-k items (ADR-036, docs/API.md sec 9)
@@ -1249,6 +1253,110 @@ export function registerCompareTests() {
       assertEqual(handleSegmentedKeyNav({ key: "End" }, 0, 3), 2);
       assertEqual(handleSegmentedKeyNav({ key: "Enter" }, 0, 3), null);
       assertEqual(handleSegmentedKeyNav(null, 0, 3), null);
+    });
+  });
+
+  describe("T-097: buildTimingsStrip helper", (it) => {
+    it("handles empty or invalid latencies gracefully", () => {
+      assertEqual(buildTimingsStrip(null).ticks.length, 0);
+      assertEqual(buildTimingsStrip([]).ticks.length, 0);
+      assertEqual(buildTimingsStrip([]).spreadUs, 0);
+    });
+
+    it("normalizes tick positions on spread scale", () => {
+      const res = buildTimingsStrip([100, 150, 200]);
+      assertEqual(res.min, 100);
+      assertEqual(res.max, 200);
+      assertEqual(res.spreadUs, 100);
+      assertEqual(res.ticks.length, 3);
+      assertEqual(res.ticks[0].pct, 0);
+      assertEqual(res.ticks[1].pct, 50);
+      assertEqual(res.ticks[2].pct, 100);
+    });
+
+    it("defaults to 50% when all runs have identical latencies", () => {
+      const res = buildTimingsStrip([120, 120, 120]);
+      assertEqual(res.spreadUs, 0);
+      assertEqual(res.ticks[0].pct, 50);
+      assertEqual(res.ticks[1].pct, 50);
+      assertEqual(res.ticks[2].pct, 50);
+    });
+  });
+
+  describe("T-097: buildTopMatchesSummary helper", (it) => {
+    it("extracts top matches up to maxCount and flags ground-truth matches", () => {
+      const cand = [
+        { id: 10, distance: 0.1234, title: "Doc A" },
+        { id: 20, distance: 0.5678, title: "Doc B" }
+      ];
+      const brute = [
+        { id: 10, distance: 0.1234 },
+        { id: 99, distance: 0.3000 }
+      ];
+      const summary = buildTopMatchesSummary(cand, brute, 5);
+      assertEqual(summary.length, 2);
+      assertEqual(summary[0].rank, 1);
+      assertEqual(summary[0].id, 10);
+      assertEqual(summary[0].distance, "0.1234");
+      assertEqual(summary[0].isMatch, true);
+      assertEqual(summary[0].title, "Doc A");
+
+      assertEqual(summary[1].rank, 2);
+      assertEqual(summary[1].id, 20);
+      assertEqual(summary[1].distance, "0.5678");
+      assertEqual(summary[1].isMatch, false);
+      assertEqual(summary[1].title, "Doc B");
+    });
+
+    it("handles null or empty candidate results", () => {
+      assertEqual(buildTopMatchesSummary(null, []).length, 0);
+      assertEqual(buildTopMatchesSummary([], null).length, 0);
+    });
+  });
+
+  describe("T-097: buildMismatchSummary helper", (it) => {
+    it("detects exact rank mismatches between candidate and brute force", () => {
+      const cand = [{ id: 1 }, { id: 2 }, { id: 5 }];
+      const brute = [{ id: 1 }, { id: 2 }, { id: 3 }];
+      const res = buildMismatchSummary(cand, brute, 3);
+      assertEqual(res.mismatchCount, 1);
+      assertEqual(res.mismatches[0].rank, 3);
+      assertEqual(res.mismatches[0].expectedId, "#3");
+      assertEqual(res.mismatches[0].gotId, "#5");
+    });
+
+    it("reports zero mismatches when lists match perfectly", () => {
+      const cand = [{ id: 1 }, { id: 2 }];
+      const brute = [{ id: 1 }, { id: 2 }];
+      const res = buildMismatchSummary(cand, brute, 2);
+      assertEqual(res.mismatchCount, 0);
+      assertEqual(res.mismatches.length, 0);
+    });
+  });
+
+  describe("T-097: buildExplanatoryLine helper", (it) => {
+    it("explains HNSW pruning when pruning occurs", () => {
+      const cards = [
+        { alg: "brute", distanceComputations: 1000 },
+        { alg: "hnsw", distanceComputations: 150, recallPercent: "98.0%" }
+      ];
+      const text = buildExplanatoryLine(cards, 1000);
+      assert(text.includes("HNSW pruned 85%"), `Expected HNSW pruned 85% in '${text}'`);
+      assert(text.includes("98.0% recall"), `Expected recall in '${text}'`);
+    });
+
+    it("explains KD-Tree linear scan behavior in high dimensions", () => {
+      const cards = [
+        { alg: "brute", distanceComputations: 1000 },
+        { alg: "kdtree", distanceComputations: 900 }
+      ];
+      const text = buildExplanatoryLine(cards, 1000);
+      assert(text.includes("KD-Tree evaluated 900 of 1,000 vectors (90%)"), `Expected KD-Tree in '${text}'`);
+    });
+
+    it("falls back to baseline note on empty or default input", () => {
+      const text = buildExplanatoryLine([], 1000);
+      assertEqual(text, "Benchmark completed across all algorithms.");
     });
   });
 }

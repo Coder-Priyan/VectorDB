@@ -1240,7 +1240,8 @@ export function mapReportToCards(report, latencies) {
       rankStrip,
       sameCount,
       total,
-      recallPercent
+      recallPercent,
+      results: aData.results || []
     };
   });
 }
@@ -1373,4 +1374,141 @@ export function handleSegmentedKeyNav(event, currentIndex, totalTabs) {
     return totalTabs - 1;
   }
   return null;
+}
+
+/**
+ * Maps repeated latency timings into normalized percentage positions for a tick/spread strip.
+ *
+ * @param {number[]} latencies - Array of run timings in microseconds
+ * @returns {{ ticks: Array<{ value: number, pct: number, run: number }>, min: number, max: number, spreadUs: number }}
+ */
+export function buildTimingsStrip(latencies) {
+  if (!Array.isArray(latencies) || latencies.length === 0) {
+    return { ticks: [], min: 0, max: 0, spreadUs: 0 };
+  }
+
+  const valid = latencies.map(n => Math.max(0, Number(n) || 0));
+  const min = Math.min(...valid);
+  const max = Math.max(...valid);
+  const spreadUs = max - min;
+
+  const ticks = valid.map((val, idx) => {
+    let pct = 50;
+    if (spreadUs > 0) {
+      pct = Math.round(((val - min) / spreadUs) * 100);
+    }
+    return {
+      value: val,
+      pct: Math.max(0, Math.min(100, pct)),
+      run: idx + 1
+    };
+  });
+
+  return { ticks, min, max, spreadUs };
+}
+
+/**
+ * Extracts top matches for an algorithm with ground-truth match indicators.
+ *
+ * @param {Array<Object>} candidateResults - Results array from report
+ * @param {Array<Object>} bruteResults - Results array from brute baseline
+ * @param {number} [maxCount=5] - Maximum matches to return
+ * @returns {Array<{ rank: number, id: number|string, distance: string, isMatch: boolean, title: string|null }>}
+ */
+export function buildTopMatchesSummary(candidateResults, bruteResults, maxCount = 5) {
+  if (!Array.isArray(candidateResults) || candidateResults.length === 0) return [];
+  const limit = Math.min(candidateResults.length, Math.max(1, maxCount));
+  const gtArray = Array.isArray(bruteResults) ? bruteResults : [];
+
+  const summary = [];
+  for (let i = 0; i < limit; i++) {
+    const cand = candidateResults[i] || {};
+    const gt = gtArray[i] || {};
+    const isMatch = (cand.id !== undefined && cand.id !== null && cand.id === gt.id);
+    const distNum = Number(cand.distance);
+    const distFormatted = Number.isFinite(distNum) ? distNum.toFixed(4) : "-";
+
+    summary.push({
+      rank: i + 1,
+      id: cand.id ?? "-",
+      distance: distFormatted,
+      isMatch,
+      title: cand.title || null
+    });
+  }
+
+  return summary;
+}
+
+/**
+ * Compares candidate search results against brute force rank-by-rank,
+ * identifying explicit rank mismatches.
+ *
+ * @param {Array<Object>} candidateResults
+ * @param {Array<Object>} bruteResults
+ * @param {number} [k=10]
+ * @returns {{ mismatches: Array<{ rank: number, expectedId: number|string, gotId: number|string }>, mismatchCount: number, totalChecked: number }}
+ */
+export function buildMismatchSummary(candidateResults, bruteResults, k = 10) {
+  const cands = Array.isArray(candidateResults) ? candidateResults : [];
+  const gts = Array.isArray(bruteResults) ? bruteResults : [];
+  const totalChecked = Math.max(1, Math.min(k, Math.max(cands.length, gts.length)));
+
+  const mismatches = [];
+  for (let i = 0; i < totalChecked; i++) {
+    const expectedId = gts[i]?.id ?? null;
+    const gotId = cands[i]?.id ?? null;
+    if (expectedId !== gotId) {
+      mismatches.push({
+        rank: i + 1,
+        expectedId: expectedId !== null ? `#${expectedId}` : "None",
+        gotId: gotId !== null ? `#${gotId}` : "None"
+      });
+    }
+  }
+
+  return {
+    mismatches,
+    mismatchCount: mismatches.length,
+    totalChecked
+  };
+}
+
+/**
+ * Generates a dynamic explanatory sentence derived purely from real returned numbers.
+ *
+ * @param {Array<Object>} cards - Algorithm cards with distanceComputations, recallPercent, etc.
+ * @param {number} vectorCount - Total vectors in the benchmarked collection
+ * @returns {string} Explanatory sentence
+ */
+export function buildExplanatoryLine(cards, vectorCount) {
+  if (!Array.isArray(cards) || cards.length === 0) {
+    return "Benchmark completed across all algorithms.";
+  }
+
+  const brute = cards.find(c => c.alg === "brute") || cards[0];
+  const kd = cards.find(c => c.alg === "kdtree");
+  const hnsw = cards.find(c => c.alg === "hnsw");
+
+  const vCount = Math.max(1, Number(vectorCount) || Number(brute?.distanceComputations) || 1);
+  const bruteDist = Number(brute?.distanceComputations) || vCount;
+
+  if (hnsw) {
+    const hnswDist = Number(hnsw.distanceComputations) || 0;
+    const prunedPct = computePrunedPercent(hnswDist, bruteDist);
+    const recallStr = hnsw.recallPercent || "100.0%";
+    if (prunedPct > 0) {
+      return `HNSW pruned ${prunedPct}% of distance calculations (${hnswDist.toLocaleString()} vs ${bruteDist.toLocaleString()} evaluations) with ${recallStr} recall.`;
+    }
+  }
+
+  if (kd) {
+    const kdDist = Number(kd.distanceComputations) || 0;
+    const scanRatio = Math.round((kdDist / vCount) * 100);
+    if (scanRatio >= 75) {
+      return `KD-Tree evaluated ${kdDist.toLocaleString()} of ${vCount.toLocaleString()} vectors (${scanRatio}%), exhibiting linear scan cost in high dimensions.`;
+    }
+  }
+
+  return `Evaluated against exact Brute Force baseline (${bruteDist.toLocaleString()} distance comparisons).`;
 }
