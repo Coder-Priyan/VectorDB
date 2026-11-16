@@ -632,135 +632,153 @@
 
     <!-- TAB 4: ALGORITHM COMPARISON -->
     <section id="panel-compare" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-compare">
-      <div class="compare-viewport">
-        <!-- Control Toolbar Strip -->
-        <div class="compare-control-row">
-          <div class="compare-control-left">
-            <div class="compare-control-group">
-              <label for="compare-coll-select" class="compare-control-label">Collection</label>
-              <div id="compare-coll-dropdown-wrap" class="compare-dropdown-wrap">
-                <input type="hidden" id="compare-coll-select" value="demo">
+      <div class="compare-layout">
+        <div class="compare-viewport-centered">
+          <!-- Page Header (Ask pattern) -->
+          <header class="page-header compare-header">
+            <div class="page-title-group">
+              <div class="page-title-row">
+                <h1 class="page-title">Benchmark &amp; Compare</h1>
+                <span id="compare-info-slot" class="header-badge"></span>
+              </div>
+              <p class="page-subtitle">Exact Brute Force vs Spatial KD-Tree vs Graph HNSW &bull; Multi-Run Precision Telemetry</p>
+            </div>
+            <div class="compare-header-actions">
+              <div class="compare-status-badge">
+                <span class="status-dot status-dot-healthy"></span>
+                <span id="compare-progress-status" class="compare-progress-status" aria-live="polite">Ready to benchmark.</span>
+              </div>
+            </div>
+          </header>
+
+          <!-- Scrollable Center Thread (Inner scroll, max-width: 860px) -->
+          <div class="compare-thread">
+            <!-- Progress Line -->
+            <div id="compare-progress-track" class="compare-progress-track">
+              <div id="compare-progress-fill" class="compare-progress-fill"></div>
+            </div>
+
+            <!-- Empty State Panel -->
+            <div id="compare-empty-state" class="compare-empty-panel">
+              <div class="empty-state">
+                <div class="empty-state-icon" id="compare-empty-icon">&#x2694;</div>
+                <h3 id="compare-empty-title" class="empty-state-title">Multi-Algorithm Benchmark</h3>
+                <p id="compare-empty-desc" class="empty-state-description">Compare exact Brute Force search against KD-Tree spatial partitioning and HNSW hierarchical graph navigation across latency, distance computations, and top-k recall.</p>
+                <button type="button" id="compare-initial-run-btn" class="btn btn-primary mt-3">Benchmark Demo Vectors</button>
               </div>
             </div>
 
-            <div class="compare-control-group">
-              <label for="compare-repeat-select" class="compare-control-label">Repetitions</label>
-              <div id="compare-repeat-dropdown-wrap" class="compare-dropdown-wrap">
-                <input type="hidden" id="compare-repeat-select" value="5">
+            <!-- Results View -->
+            <div id="compare-results-view" class="compare-results-view hidden">
+              <!-- Hero Callout Banner -->
+              <div id="compare-hero-banner" class="compare-hero-banner">
+                <div class="compare-hero-left">
+                  <div class="compare-hero-headline-wrap">
+                    <span class="compare-hero-spark" aria-hidden="true">&#9889;</span>
+                    <h2 id="compare-hero-headline" class="compare-hero-headline">HNSW delivered 8.4x speedup over Brute Force</h2>
+                  </div>
+                  <p id="compare-hero-subtitle" class="compare-hero-subtitle">k = 10 &middot; 1,000 vectors &middot; 5 runs median</p>
+                </div>
+                <div class="compare-hero-chips" id="compare-hero-chips">
+                  <span class="compare-chip chip-winner" id="compare-chip-winner">Fastest: HNSW</span>
+                  <span class="compare-chip chip-speedup" id="compare-chip-speedup">8.4x Speedup</span>
+                  <span class="compare-chip chip-recall" id="compare-chip-recall">100% Recall</span>
+                </div>
               </div>
+
+              <!-- Unified Comparative Spec Sheet -->
+              <div id="compare-cards-container" class="compare-spec-sheet" role="region" aria-label="Benchmark comparison spec sheet"></div>
+              <div id="compare-footnote" class="compare-footnote">
+                <span class="compare-footnote-icon" id="compare-footnote-icon">&#x2139;</span>
+                <span>Filled = same rank as ground truth. Latency: lower is better. Timings are indicative: official benchmarks come from the C++ tool.</span>
+              </div>
+              <div id="compare-rank-tooltip" class="compare-rank-tooltip hidden" role="tooltip" aria-hidden="true"></div>
             </div>
+          </div>
 
-            <!-- Docs Mode Query Input (inline, flex-grow) -->
-            <div id="compare-docs-query-wrap" class="compare-query-wrap hidden">
-              <input type="text" id="compare-docs-query-input" class="input-text input-sm compare-query-input" value="What is vector search?" placeholder="Enter semantic query..." aria-label="Query text">
-            </div>
-
-            <!-- Primary Actions (ONE primary amber button visible per mode) -->
-            <button type="button" id="compare-demo-random-btn" class="btn btn-sm btn-primary">Benchmark Random Query</button>
-            <button type="button" id="compare-docs-run-btn" class="btn btn-sm btn-primary hidden">Run Benchmark</button>
-
-            <!-- Options Popover Trigger & Popover -->
-            <div class="compare-options-container">
-              <button type="button" id="compare-options-btn" class="btn btn-sm btn-ghost compare-options-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="compare-options-popover">
-                <span class="compare-options-icon-slot"></span>
-                <span>Parameters</span>
-                <span class="compare-options-chevron-slot"></span>
-              </button>
-
-              <!-- Options Popover -->
-              <div id="compare-options-popover" class="compare-options-popover hidden" role="dialog" aria-label="Benchmark options" tabindex="-1">
-                <!-- Demo Options Content -->
-                <div id="compare-demo-options" class="compare-options-content">
-                  <div class="compare-options-row">
-                    <div class="compare-options-field">
-                      <label for="compare-k-input" class="control-label">k</label>
-                      <input type="number" id="compare-k-input" class="input-text input-sm compare-num-input" value="10" min="1" max="100">
-                    </div>
-                    <div class="compare-options-field">
-                      <label for="compare-ef-input" class="control-label">efSearch</label>
-                      <input type="number" id="compare-ef-input" class="input-text input-sm compare-num-input" value="50" min="1" max="500">
+          <!-- Docked Composer-Style Control Bar at Bottom (Ask style) -->
+          <div class="compare-composer-dock">
+            <div class="compare-control-bar">
+              <div class="compare-bar-row">
+                <div class="compare-bar-left">
+                  <div class="compare-control-group">
+                    <span class="compare-sublabel">Collection:</span>
+                    <div id="compare-coll-dropdown-wrap" class="compare-dropdown-wrap">
+                      <input type="hidden" id="compare-coll-select" value="demo">
                     </div>
                   </div>
-                  <div class="compare-options-divider" aria-hidden="true"></div>
-                  <div class="compare-options-row">
-                    <div class="compare-options-field flex-1">
-                      <label for="compare-demo-id-input" class="control-label">Stored Vector ID</label>
-                      <input type="number" id="compare-demo-id-input" class="input-text input-sm compare-id-input" placeholder="e.g. 1" min="1">
+
+                  <div class="compare-control-group">
+                    <span class="compare-sublabel">Repeats:</span>
+                    <div id="compare-repeat-dropdown-wrap" class="compare-dropdown-wrap">
+                      <input type="hidden" id="compare-repeat-select" value="5">
                     </div>
-                    <button type="button" id="compare-demo-id-btn" class="btn btn-sm btn-secondary align-self-end">Benchmark ID</button>
+                  </div>
+
+                  <!-- Docs Mode Query Input -->
+                  <div id="compare-docs-query-wrap" class="compare-query-wrap hidden">
+                    <input type="text" id="compare-docs-query-input" class="input-text input-sm compare-query-input" value="What is vector search?" placeholder="Enter semantic query..." aria-label="Query text">
                   </div>
                 </div>
 
-                <!-- Docs Options Content (hidden by default) -->
-                <div id="compare-docs-options" class="compare-options-content hidden">
-                  <div class="compare-options-row">
-                    <div class="compare-options-field">
-                      <label for="compare-docs-k-input" class="control-label">k</label>
-                      <input type="number" id="compare-docs-k-input" class="input-text input-sm compare-num-input" value="5" min="1" max="20">
-                    </div>
-                    <div class="compare-options-field">
-                      <label for="compare-docs-ef-input" class="control-label">efSearch</label>
-                      <input type="number" id="compare-docs-ef-input" class="input-text input-sm compare-num-input" value="50" min="1" max="500">
+                <div class="compare-bar-right">
+                  <!-- Primary Action Button (Single amber button) -->
+                  <button type="button" id="compare-demo-random-btn" class="btn btn-sm btn-primary">Benchmark Random Query</button>
+                  <button type="button" id="compare-docs-run-btn" class="btn btn-sm btn-primary hidden">Run Benchmark</button>
+
+                  <!-- Parameters Options Popover -->
+                  <div class="compare-options-container">
+                    <button type="button" id="compare-options-btn" class="btn btn-sm btn-secondary compare-options-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="compare-options-popover">
+                      <span class="compare-options-icon-slot"></span>
+                      <span>Parameters</span>
+                      <span class="compare-options-chevron-slot"></span>
+                    </button>
+
+                    <div id="compare-options-popover" class="compare-options-popover hidden" role="dialog" aria-label="Benchmark options" tabindex="-1">
+                      <!-- Demo Options Content -->
+                      <div id="compare-demo-options" class="compare-options-content">
+                        <div class="compare-options-row">
+                          <div class="compare-options-field">
+                            <label for="compare-k-input" class="control-label">k</label>
+                            <input type="number" id="compare-k-input" class="input-text input-sm compare-num-input" value="10" min="1" max="100">
+                          </div>
+                          <div class="compare-options-field">
+                            <label for="compare-ef-input" class="control-label">efSearch</label>
+                            <input type="number" id="compare-ef-input" class="input-text input-sm compare-num-input" value="50" min="1" max="500">
+                          </div>
+                        </div>
+                        <div class="compare-options-divider" aria-hidden="true"></div>
+                        <div class="compare-options-row">
+                          <div class="compare-options-field flex-1">
+                            <label for="compare-demo-id-input" class="control-label">Stored Vector ID</label>
+                            <input type="number" id="compare-demo-id-input" class="input-text input-sm compare-id-input" placeholder="e.g. 1" min="1">
+                          </div>
+                          <button type="button" id="compare-demo-id-btn" class="btn btn-sm btn-secondary align-self-end">Benchmark ID</button>
+                        </div>
+                      </div>
+
+                      <!-- Docs Options Content -->
+                      <div id="compare-docs-options" class="compare-options-content hidden">
+                        <div class="compare-options-row">
+                          <div class="compare-options-field">
+                            <label for="compare-docs-k-input" class="control-label">k</label>
+                            <input type="number" id="compare-docs-k-input" class="input-text input-sm compare-num-input" value="5" min="1" max="20">
+                          </div>
+                          <div class="compare-options-field">
+                            <label for="compare-docs-ef-input" class="control-label">efSearch</label>
+                            <input type="number" id="compare-docs-ef-input" class="input-text input-sm compare-num-input" value="50" min="1" max="500">
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="compare-options-divider" aria-hidden="true"></div>
+                      <p class="compare-options-warmup text-muted text-xs">One warm-up pass is discarded before timed runs.</p>
                     </div>
                   </div>
                 </div>
-
-                <div class="compare-options-divider" aria-hidden="true"></div>
-                <p class="compare-options-warmup text-muted text-xs">One warm-up pass is discarded before timed runs.</p>
               </div>
             </div>
           </div>
-
-          <!-- Status cluster on right side of control row -->
-          <div class="compare-status-cluster">
-            <div class="compare-status-badge">
-              <span class="status-dot status-dot-healthy"></span>
-              <span id="compare-progress-status" class="compare-progress-status" aria-live="polite">Ready to benchmark.</span>
-            </div>
-            <span id="compare-info-slot"></span>
-          </div>
-
-          <!-- Progress Line on Bottom Edge -->
-          <div id="compare-progress-track" class="compare-progress-track">
-            <div id="compare-progress-fill" class="compare-progress-fill"></div>
-          </div>
-        </div>
-
-        <!-- Empty State Panel (Mutually exclusive with results view) -->
-        <div id="compare-empty-state" class="compare-empty-panel">
-          <div class="empty-state">
-            <div class="empty-state-icon" id="compare-empty-icon"></div>
-            <h3 id="compare-empty-title" class="empty-state-title">Multi-Algorithm Benchmark</h3>
-            <p id="compare-empty-desc" class="empty-state-description">Compare exact Brute Force search against KD-Tree spatial partitioning and HNSW hierarchical graph navigation across latency, distance computations, and top-k recall.</p>
-            <button type="button" id="compare-initial-run-btn" class="btn btn-primary mt-3">Benchmark Demo Vectors</button>
-          </div>
-        </div>
-
-        <!-- Results: Apple Spec Sheet comparison (Mutually exclusive with empty state) -->
-        <div id="compare-results-view" class="compare-results-view hidden">
-          <!-- Hero Callout Banner -->
-          <div id="compare-hero-banner" class="compare-hero-banner">
-            <div class="compare-hero-left">
-              <div class="compare-hero-headline-wrap">
-                <span class="compare-hero-spark" aria-hidden="true">&#9889;</span>
-                <h2 id="compare-hero-headline" class="compare-hero-headline">HNSW delivered 8.4x speedup over Brute Force</h2>
-              </div>
-              <p id="compare-hero-subtitle" class="compare-hero-subtitle">k = 10 &middot; 1,000 vectors &middot; 5 runs median</p>
-            </div>
-            <div class="compare-hero-chips" id="compare-hero-chips">
-              <span class="compare-chip chip-winner" id="compare-chip-winner">Fastest: HNSW</span>
-              <span class="compare-chip chip-speedup" id="compare-chip-speedup">8.4x Speedup</span>
-              <span class="compare-chip chip-recall" id="compare-chip-recall">100% Recall</span>
-            </div>
-          </div>
-
-          <!-- Unified Comparative Spec Sheet -->
-          <div id="compare-cards-container" class="compare-spec-sheet" role="region" aria-label="Benchmark comparison spec sheet"></div>
-          <div id="compare-footnote" class="compare-footnote">
-            <span class="compare-footnote-icon" id="compare-footnote-icon"></span>
-            <span>Filled = same rank as ground truth. Latency: lower is better. Timings are indicative: official benchmarks come from the C++ tool.</span>
-          </div>
-          <div id="compare-rank-tooltip" class="compare-rank-tooltip hidden" role="tooltip" aria-hidden="true"></div>
         </div>
       </div>
     </section>
