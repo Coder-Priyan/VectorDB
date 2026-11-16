@@ -1402,17 +1402,17 @@ input[type="number"] {
 .hnsw-viewport,
 .compare-viewport,
 .settings-viewport {
-  max-width: 1240px;
   width: 100%;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+  max-width: 100%;
   height: 100%;
   min-height: 0;
-  overflow: hidden;
-  padding-bottom: 0;
+  margin: 0;
+  padding: 0 16px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
 }
 
 #panel-explore > .page-header,
@@ -3182,8 +3182,30 @@ input[type="number"] {
 
 
 /* ==========================================================================
-   Studio Visualization Layout: Explore & HNSW Tabs (Zero-Scroll Studio)
+   Studio Visualization Layout: Explore & HNSW Tabs (Widescreen Pro Studio)
    ========================================================================== */
+
+/* Explore Tab: Master-Detail Studio Split */
+.studio-split-layout {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.explore-canvas-workspace {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
 
 /* Explore Toolbar (Integrated Highway) */
 .explore-toolbar {
@@ -3192,20 +3214,19 @@ input[type="number"] {
   border-radius: var(--radius-lg);
   padding: 6px 14px;
   min-height: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
   box-sizing: border-box;
   flex-shrink: 0;
-  flex-wrap: wrap;
 }
 
 .explore-toolbar .toolbar-left {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  flex-wrap: wrap;
 }
 
 .explore-toolbar .toolbar-right {
@@ -3213,62 +3234,6 @@ input[type="number"] {
   align-items: center;
   gap: var(--space-2);
   flex-shrink: 0;
-}
-
-.explore-inline-controls {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.explore-ctrl-group {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.explore-ctrl-label {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-}
-
-.explore-k-input {
-  width: 48px;
-  height: 28px;
-  text-align: center;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  padding: 0 4px;
-}
-
-.explore-id-input {
-  width: 68px;
-  height: 28px;
-  text-align: center;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  padding: 0 4px;
-}
-
-.explore-docs-form {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.explore-docs-input {
-  width: 280px;
-  height: 28px;
-  font-size: 12px;
-}
-
-.explore-toolbar .btn-sm {
-  height: 28px;
-  padding: 0 10px;
-  font-size: 12px;
 }
 
 .explore-status-badge {
@@ -3288,43 +3253,35 @@ input[type="number"] {
 }
 
 /* Explore Canvas Frame (Flexible Full-Bleed Studio Surface) */
-.explore-canvas-section {
-  width: 100%;
-  flex: 1 1 0;
-  min-height: 180px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
 .explore-canvas-frame {
   background: var(--bg-panel);
   border: 1px solid var(--border-hairline);
   border-radius: var(--radius-lg);
-  padding: 8px 12px;
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
   gap: 6px;
   box-sizing: border-box;
-  height: 100%;
-  flex: 1;
+  flex: 1 1 0;
   min-height: 0;
+  height: 100%;
 }
 
-.explore-canvas-frame .canvas-top-bar {
+.explore-canvas-frame .canvas-panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
   flex-shrink: 0;
-  height: 22px;
+  height: 24px;
+  flex-direction: row;
 }
 
 .explore-canvas-frame .canvas-wrapper {
   position: relative;
   width: 100%;
   flex: 1 1 0;
-  min-height: 140px;
+  min-height: 160px;
   height: 100%;
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -3341,89 +3298,153 @@ input[type="number"] {
   cursor: crosshair;
 }
 
-/* Explore Neighbor Deck (Horizontal Studio Card Deck) */
-.explore-deck-section {
+/* Explore Right Side-Car Inspector Dock */
+.explore-inspector-dock {
+  width: 360px;
+  min-width: 340px;
+  max-width: 400px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.inspector-card {
   background: var(--bg-panel);
   border: 1px solid var(--border-hairline);
   border-radius: var(--radius-lg);
-  padding: 8px 12px;
+  padding: 12px 14px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  box-sizing: border-box;
-  height: 108px;
-  min-height: 108px;
-  flex-shrink: 0;
 }
 
-.explore-deck-header {
+.inspector-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 8px;
   flex-shrink: 0;
-  height: 16px;
+  height: 20px;
 }
 
-.explore-deck-title {
+.inspector-card-title {
   font-size: 11.5px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--text-primary);
+  color: var(--text-secondary);
 }
 
-.explore-deck-sub {
+.explore-query-card {
+  flex-shrink: 0;
+}
+
+.explore-ctrl-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.explore-ctrl-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.explore-ctrl-label {
   font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--text-muted);
 }
 
-.explore-neighbors-list {
+.explore-k-input {
+  width: 50px;
+  height: 30px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 0 4px;
+}
+
+.explore-id-input {
+  width: 70px;
+  height: 30px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 0 6px;
+}
+
+.explore-docs-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   width: 100%;
-  flex: 1;
+}
+
+.explore-docs-input {
+  width: 100%;
+  height: 30px;
+  font-size: 12.5px;
+}
+
+/* Explore Nearest Neighbors Results Card */
+.explore-results-card {
+  flex: 1 1 0;
   min-height: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.explore-neighbors-list {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  width: 100%;
 }
 
 .explore-neighbors-table {
   width: 100%;
-  height: 100%;
-  display: block;
-  border-collapse: separate;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.explore-neighbors-table th {
+.explore-neighbors-table thead {
   display: none;
 }
 
 #explore-results-tbody {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(210px, 260px);
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   width: 100%;
-  height: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
 }
 
 .explore-neighbor-row {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: space-between;
   background: var(--bg-raised);
   border: 1px solid var(--border-hairline);
   border-radius: var(--radius-md);
-  padding: 6px 10px;
-  height: 100%;
+  padding: 8px 12px;
   box-sizing: border-box;
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  gap: 8px;
 }
 
 .explore-neighbor-row:hover {
   background: var(--bg-active);
   border-color: rgba(255, 255, 255, 0.18);
-  transform: translateY(-1px);
+  transform: translateX(2px);
 }
 
 .explore-neighbor-row td {
@@ -3433,8 +3454,8 @@ input[type="number"] {
 }
 
 .explore-neighbor-row td.neighbor-target-cell {
-  width: 100%;
-  margin-bottom: 2px;
+  flex: 1;
+  min-width: 0;
 }
 
 .neighbor-target-meta {
@@ -3464,7 +3485,7 @@ input[type="number"] {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 170px;
+  max-width: 140px;
 }
 
 .neighbor-sub {
@@ -3477,22 +3498,7 @@ input[type="number"] {
   font-family: var(--font-mono);
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: auto;
-  padding-top: 2px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.neighbor-dist-cell::before {
-  content: "Dist";
-  font-family: var(--font-sans);
-  font-size: 9.5px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .neighbor-sim-cell {
@@ -3501,43 +3507,25 @@ input[type="number"] {
   color: var(--accent);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 1px;
-}
-
-.neighbor-sim-cell::before {
-  content: "Sim";
-  font-family: var(--font-sans);
-  font-size: 9.5px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
-}
-
-/* Empty state row in neighbor deck */
-#explore-results-tbody tr:has(.empty-state),
-#explore-results-tbody tr:not(.explore-neighbor-row) {
-  grid-column: 1 / -1;
-  display: block;
-  height: 100%;
+  background: var(--accent-tint);
+  border: 1px solid rgba(217, 164, 65, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  white-space: nowrap;
 }
 
 #explore-results-tbody td.empty-state {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
-  height: 100%;
-  box-sizing: border-box;
+  padding: 24px 16px;
   text-align: center;
   color: var(--text-muted);
   font-size: 12px;
   background: var(--bg-raised);
   border: 1px dashed var(--border-hairline);
   border-radius: var(--radius-md);
+  width: 100%;
 }
 
 /* Canvas frames & headers */
@@ -3554,13 +3542,15 @@ input[type="number"] {
 
 .canvas-panel-header {
   display: flex;
-  flex-direction: column;
-  gap: 1px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
   flex-shrink: 0;
 }
 
 .canvas-panel-title {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
   color: var(--text-primary);
   letter-spacing: -0.01em;
@@ -3568,7 +3558,7 @@ input[type="number"] {
 }
 
 .canvas-panel-subtitle {
-  font-size: 11px;
+  font-size: 11.5px;
   color: var(--text-muted);
   margin: 0;
 }
@@ -3638,7 +3628,7 @@ input[type="number"] {
 }
 
 /* ==========================================================================
-   HNSW Studio Layout
+   HNSW Studio Layout: Widescreen Canvas + 4-Zone Universal Dock
    ========================================================================== */
 
 /* HNSW Highway Toolbar */
@@ -3646,22 +3636,21 @@ input[type="number"] {
   background: var(--bg-panel);
   border: 1px solid var(--border-hairline);
   border-radius: var(--radius-lg);
-  padding: 6px 14px;
+  padding: 0 14px;
   min-height: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
   box-sizing: border-box;
   flex-shrink: 0;
-  flex-wrap: wrap;
 }
 
 .hnsw-toolbar .toolbar-left {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  flex-wrap: wrap;
 }
 
 .hnsw-toolbar .toolbar-right {
@@ -3678,7 +3667,7 @@ input[type="number"] {
 }
 
 #hnsw-layer-slider {
-  width: 90px;
+  width: 100px;
   cursor: pointer;
 }
 
@@ -3702,7 +3691,7 @@ input[type="number"] {
 .hnsw-canvas-section {
   width: 100%;
   flex: 1 1 0;
-  min-height: 180px;
+  min-height: 200px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -3712,7 +3701,7 @@ input[type="number"] {
   background: var(--bg-panel);
   border: 1px solid var(--border-hairline);
   border-radius: var(--radius-lg);
-  padding: 8px 12px;
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -3722,20 +3711,20 @@ input[type="number"] {
   min-height: 0;
 }
 
-.hnsw-canvas-frame .canvas-top-bar {
+.hnsw-canvas-frame .canvas-panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
   flex-shrink: 0;
-  height: 22px;
+  height: 24px;
 }
 
 .hnsw-canvas-frame .canvas-wrapper {
   position: relative;
   width: 100%;
   flex: 1 1 0;
-  min-height: 140px;
+  min-height: 160px;
   height: 100%;
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -3780,33 +3769,27 @@ input[type="number"] {
   display: inline-block;
 }
 
-/* HNSW Console Deck (3-Column Xcode/QuickTime Studio Console) */
+/* HNSW 4-Zone Universal Dock */
 .hnsw-console-deck {
   width: 100%;
-  height: 130px;
-  min-height: 130px;
+  height: 135px;
+  min-height: 135px;
   flex-shrink: 0;
 }
 
 .hnsw-trace-grid {
   display: grid;
-  grid-template-columns: 250px 1fr 320px;
-  gap: 6px;
+  grid-template-columns: 240px 1.2fr 360px 220px;
+  gap: 8px;
   height: 100%;
   align-items: stretch;
-}
-
-@media (max-width: 1080px) {
-  .hnsw-trace-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 .hnsw-console-card {
   background: var(--bg-panel);
   border: 1px solid var(--border-hairline);
   border-radius: var(--radius-lg);
-  padding: 8px 10px;
+  padding: 8px 12px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -3831,7 +3814,7 @@ input[type="number"] {
   color: var(--text-secondary);
 }
 
-/* Col 1: Launcher Card */
+/* Col 1: Launcher */
 .hnsw-launcher-card .form-group {
   margin-bottom: 6px;
 }
@@ -3883,7 +3866,7 @@ input[type="number"] {
   font-size: 11.5px;
 }
 
-/* Col 2: Player Card */
+/* Col 2: Player */
 .hnsw-player-card {
   justify-content: space-between;
 }
@@ -3942,7 +3925,7 @@ input[type="number"] {
   flex: 1;
 }
 
-/* Col 3: Telemetry Card */
+/* Col 3: Telemetry Bento */
 .hnsw-step-tiles,
 .hnsw-search-stats-grid {
   display: grid;
@@ -3985,72 +3968,54 @@ input[type="number"] {
   line-height: 1.1;
 }
 
-/* Bottom Topology Summary Strip */
-.hnsw-topology-strip {
+/* Col 4: Topology Summary Card */
+.hnsw-topology-card .hnsw-topo-stats-stack {
   display: flex;
-  align-items: center;
-  background: var(--bg-panel);
-  border: 1px solid var(--border-hairline);
-  border-radius: var(--radius-lg);
-  padding: 2px 14px;
-  gap: var(--space-4);
-  height: 28px;
-  min-height: 28px;
-  flex-shrink: 0;
-  box-sizing: border-box;
-}
-
-.strip-label-col {
-  flex-shrink: 0;
-}
-
-.strip-title {
-  font-size: 10.5px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-secondary);
-}
-
-.strip-divider {
-  width: 1px;
-  height: 16px;
-  background: var(--border-hairline);
-  flex-shrink: 0;
-}
-
-.strip-stat-item {
-  display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 6px;
-  flex: 1;
+  justify-content: center;
+  height: 100%;
 }
 
-.strip-icon {
-  width: 16px;
-  height: 16px;
-  color: var(--text-muted);
+.hnsw-topology-card .strip-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+}
+
+.hnsw-topology-card .strip-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.strip-stat-meta {
+.hnsw-topology-card .strip-stat-meta {
   display: flex;
-  flex-direction: column;
-  gap: 0px;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 100%;
 }
 
-.strip-stat-label {
-  font-size: 9.5px;
+.hnsw-topology-card .strip-stat-label {
+  font-size: 10px;
   color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 500;
 }
 
-.strip-stat-val {
+.hnsw-topology-card .strip-stat-val {
   font-size: 12px;
   font-weight: 600;
   color: var(--text-primary);
+  font-family: var(--font-mono);
 }
 
 
@@ -5193,4 +5158,32 @@ body:has(#test-results-container) .app-content {
   align-items: center;
   justify-content: space-between;
   padding-top: var(--space-2);
+}
+/* Settings Tab: 3-Column Wide Bento Dashboard */
+.settings-three-col-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  align-items: stretch;
+}
+
+.settings-three-col-layout .settings-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  box-sizing: border-box;
+  height: 100%;
+  overflow-y: auto;
+  transition: border-color 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.settings-three-col-layout .settings-card:hover {
+  border-color: rgba(255, 255, 255, 0.14);
 }

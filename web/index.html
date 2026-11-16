@@ -225,121 +225,117 @@
 
     <!-- TAB 2: EXPLORE (PCA) -->
     <section id="panel-explore" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-explore">
-      <div class="explore-viewport">
-        <div class="page-header">
-          <div>
-            <h1 class="page-header-title">Explore</h1>
-            <p class="page-header-description">Visualize your vectors, see clusters, and inspect nearest neighbours.</p>
-          </div>
-          <div class="page-header-actions">
-            <span id="explore-info-slot"></span>
-          </div>
-        </div>
-
-        <!-- Integrated Studio Toolbar & Query Controls -->
-        <div class="explore-toolbar">
-          <div class="toolbar-left">
-            <label for="explore-coll-select" class="toolbar-label">Collection</label>
-            <div id="explore-coll-dropdown-wrap" class="toolbar-dropdown-wrap">
-              <input type="hidden" id="explore-coll-select" value="demo">
-            </div>
-            <div class="toolbar-divider" aria-hidden="true"></div>
-
-            <!-- Demo Controls (Inline in Toolbar) -->
-            <div id="explore-demo-controls" class="explore-inline-controls">
-              <div class="explore-ctrl-group">
-                <label for="explore-demo-k" class="explore-ctrl-label">k</label>
-                <input type="number" id="explore-demo-k" class="input-text input-sm explore-k-input" value="3" min="1" max="50">
+      <div class="explore-viewport studio-split-layout">
+        <!-- Main Left Studio Area (Hero Spatial Canvas) -->
+        <div class="explore-canvas-workspace">
+          <!-- Top Integrated Highway Toolbar -->
+          <div class="explore-toolbar">
+            <div class="toolbar-left">
+              <label for="explore-coll-select" class="toolbar-label">Collection</label>
+              <div id="explore-coll-dropdown-wrap" class="toolbar-dropdown-wrap">
+                <input type="hidden" id="explore-coll-select" value="demo">
               </div>
-              <button type="button" id="explore-demo-random-btn" class="btn btn-sm btn-primary">Random Query</button>
               <div class="toolbar-divider" aria-hidden="true"></div>
-              <div class="explore-ctrl-group">
-                <label for="explore-demo-id-input" class="explore-ctrl-label">ID</label>
-                <input type="number" id="explore-demo-id-input" class="input-text input-sm explore-id-input" placeholder="e.g. 1" min="1">
+              <button type="button" id="explore-refresh-btn" class="btn btn-sm btn-ghost">Refresh</button>
+            </div>
+            <div class="toolbar-right">
+              <div class="explore-status-badge">
+                <span class="status-dot status-dot-healthy"></span>
+                <span id="explore-variance-note" class="explore-variance-note font-mono text-xs">Loading variance...</span>
               </div>
-              <button type="button" id="explore-demo-id-btn" class="btn btn-sm btn-secondary">Search ID</button>
-            </div>
-
-            <!-- Docs Controls (Inline in Toolbar, hidden by default) -->
-            <div id="explore-docs-controls" class="explore-inline-controls hidden">
-              <form id="explore-query-docs-form" class="explore-docs-form">
-                <input type="text" id="explore-query-docs-input" class="input-text input-sm explore-docs-input" placeholder="What is the HNSW algorithm and how does it work in a vector database?" required>
-                <div class="explore-ctrl-group">
-                  <label for="explore-query-docs-k" class="explore-ctrl-label">k</label>
-                  <input type="number" id="explore-query-docs-k" class="input-text input-sm explore-k-input" value="3" min="1" max="50">
-                </div>
-                <button type="submit" id="explore-query-docs-btn" class="btn btn-sm btn-primary">
-                  <span class="btn-icon" data-icon="send"></span>
-                  <span>Project &amp; Search</span>
-                </button>
-              </form>
-            </div>
-
-            <div class="toolbar-divider" aria-hidden="true"></div>
-            <button type="button" id="explore-refresh-btn" class="btn btn-sm btn-ghost">Refresh</button>
-          </div>
-
-          <div class="toolbar-right">
-            <div class="explore-status-badge">
-              <span class="status-dot status-dot-healthy"></span>
-              <span id="explore-variance-note" class="explore-variance-note font-mono text-xs">Loading variance...</span>
+              <div class="toolbar-divider" aria-hidden="true"></div>
+              <button type="button" id="explore-reset-view-btn" class="btn btn-sm btn-ghost canvas-reset-btn" title="Reset View (Double-click canvas)">Reset Zoom</button>
+              <span id="explore-info-slot"></span>
             </div>
           </div>
-        </div>
 
-        <!-- Full-Bleed Spatial Canvas -->
-        <div class="explore-canvas-section">
+          <!-- Expansive 2D PCA Canvas Frame -->
           <div class="canvas-frame explore-canvas-frame">
             <div class="canvas-panel-header">
               <div>
                 <h2 class="canvas-panel-title">Vector Space (PCA, 2D)</h2>
                 <p class="canvas-panel-subtitle" id="explore-canvas-subtitle">Each point is a demo vector, projected to 2D using PCA.</p>
               </div>
-              <button type="button" id="explore-reset-view-btn" class="btn btn-sm btn-ghost canvas-reset-btn" title="Reset View (Double-click canvas)">Reset Zoom</button>
+              <div id="explore-legend-container" class="legend-row"></div>
             </div>
             <div class="canvas-wrapper">
               <canvas id="explore-canvas" width="900" height="420"></canvas>
               <div id="explore-tooltip" class="canvas-tooltip hidden" role="tooltip"></div>
             </div>
-            <div id="explore-legend-container" class="legend-row"></div>
           </div>
           <div id="explore-empty-state" class="empty-state-box hidden"></div>
         </div>
 
-        <!-- Bottom Nearest Neighbors Studio Deck -->
-        <div class="explore-deck-section">
-          <div class="explore-deck-header">
-            <h3 class="section-title" id="explore-results-heading">Nearest neighbours (k = 3)</h3>
-            <span class="text-muted text-xs">Click any vector on the canvas or run a query above</span>
+        <!-- Right Side-Car Inspector Dock -->
+        <aside class="explore-inspector-dock">
+          <!-- Query Launcher Card -->
+          <div class="inspector-card explore-query-card">
+            <div class="inspector-card-header">
+              <span class="inspector-card-title">Query Parameters</span>
+            </div>
+            <!-- Demo Controls -->
+            <div id="explore-demo-controls" class="explore-demo-controls">
+              <div class="explore-ctrl-row">
+                <div class="explore-ctrl-group">
+                  <label for="explore-demo-k" class="explore-ctrl-label">k</label>
+                  <input type="number" id="explore-demo-k" class="input-text input-sm explore-k-input" value="3" min="1" max="50">
+                </div>
+                <button type="button" id="explore-demo-random-btn" class="btn btn-sm btn-primary flex-1">Random Query</button>
+              </div>
+              <div class="explore-ctrl-row mt-2">
+                <div class="explore-ctrl-group flex-1">
+                  <label for="explore-demo-id-input" class="explore-ctrl-label">ID</label>
+                  <input type="number" id="explore-demo-id-input" class="input-text input-sm explore-id-input w-100" placeholder="e.g. 1" min="1">
+                </div>
+                <button type="button" id="explore-demo-id-btn" class="btn btn-sm btn-secondary">Search ID</button>
+              </div>
+            </div>
+
+            <!-- Docs Controls (hidden by default) -->
+            <div id="explore-docs-controls" class="explore-docs-controls hidden">
+              <form id="explore-query-docs-form" class="explore-docs-form">
+                <div class="explore-docs-field">
+                  <label for="explore-query-docs-input" class="explore-ctrl-label">Semantic Query</label>
+                  <input type="text" id="explore-query-docs-input" class="input-text input-sm explore-docs-input" placeholder="Search documentation..." required>
+                </div>
+                <div class="explore-ctrl-row mt-2">
+                  <div class="explore-ctrl-group">
+                    <label for="explore-query-docs-k" class="explore-ctrl-label">k</label>
+                    <input type="number" id="explore-query-docs-k" class="input-text input-sm explore-k-input" value="3" min="1" max="50">
+                  </div>
+                  <button type="submit" id="explore-query-docs-btn" class="btn btn-sm btn-primary flex-1">
+                    <span class="btn-icon" data-icon="send"></span>
+                    <span>Search</span>
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-          <div class="explore-neighbors-list" id="explore-neighbors-list">
-            <table class="info-table explore-neighbors-table">
-              <thead>
-                <tr><th>Target</th><th>Distance</th><th>Similarity</th></tr>
-              </thead>
-              <tbody id="explore-results-tbody">
-                <tr><td colspan="3" class="text-muted empty-state">Run a query to inspect nearest neighbours.</td></tr>
-              </tbody>
-            </table>
+
+          <!-- Nearest Neighbors List Card -->
+          <div class="inspector-card explore-results-card">
+            <div class="inspector-card-header">
+              <span class="inspector-card-title" id="explore-results-heading">Nearest neighbours (k = 3)</span>
+            </div>
+            <div class="explore-neighbors-list" id="explore-neighbors-list">
+              <table class="info-table explore-neighbors-table">
+                <thead>
+                  <tr><th>Target</th><th>Distance</th><th>Similarity</th></tr>
+                </thead>
+                <tbody id="explore-results-tbody">
+                  <tr><td colspan="3" class="text-muted empty-state">Run a query to inspect nearest neighbours.</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        </aside>
       </div>
     </section>
 
     <!-- TAB 3: HNSW GRAPH -->
     <section id="panel-hnsw" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-hnsw">
       <div class="hnsw-viewport">
-        <div class="page-header">
-          <div>
-            <h1 class="page-header-title">HNSW</h1>
-            <p class="page-header-description">Visualize the Hierarchical Navigable Small World (HNSW) graph and trace the search path.</p>
-          </div>
-          <div class="page-header-actions">
-            <span id="hnsw-info-slot"></span>
-          </div>
-        </div>
-
-        <!-- Top Layer Highway & Controls Bar -->
+        <!-- Top Layer Highway Bar -->
         <div class="tab-toolbar hnsw-toolbar">
           <div class="toolbar-left">
             <label for="hnsw-coll-select" class="toolbar-label">Collection</label>
@@ -362,10 +358,11 @@
               <span id="hnsw-edge-summary" class="hnsw-edge-summary font-mono text-xs"></span>
             </div>
             <span id="hnsw-edge-warn-badge" class="badge badge-warning hidden">Truncated</span>
+            <span id="hnsw-info-slot"></span>
           </div>
         </div>
 
-        <!-- Main Graph Canvas Frame -->
+        <!-- Expansive Graph Canvas Frame -->
         <div class="hnsw-canvas-section">
           <div class="canvas-frame hnsw-canvas-frame">
             <div class="canvas-panel-header">
@@ -373,43 +370,43 @@
                 <h2 class="canvas-panel-title" id="hnsw-graph-title">HNSW Graph &mdash; Layer L0</h2>
                 <p class="canvas-panel-subtitle" id="hnsw-graph-subtitle">A higher layer with sparser connections for faster navigation.</p>
               </div>
+              <div class="legend-row hnsw-legend-row">
+                <div class="legend-item">
+                  <span class="hnsw-legend-ring entry-ring"></span>
+                  <span>Entry point</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-swatch swatch-hnsw"></span>
+                  <span>Visited (search path)</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-swatch hnsw-other-node"></span>
+                  <span>Other node</span>
+                </div>
+                <div class="legend-item">
+                  <span class="hnsw-legend-line"></span>
+                  <span>Edge (neighbor link)</span>
+                </div>
+              </div>
             </div>
             <div class="canvas-wrapper">
               <canvas id="hnsw-canvas" width="900" height="420"></canvas>
             </div>
-            <div class="legend-row hnsw-legend-row">
-              <div class="legend-item">
-                <span class="hnsw-legend-ring entry-ring"></span>
-                <span>Entry point</span>
-              </div>
-              <div class="legend-item">
-                <span class="legend-swatch swatch-hnsw"></span>
-                <span>Visited (search path)</span>
-              </div>
-              <div class="legend-item">
-                <span class="legend-swatch hnsw-other-node"></span>
-                <span>Other node</span>
-              </div>
-              <div class="legend-item">
-                <span class="hnsw-legend-line"></span>
-                <span>Edge (neighbor link)</span>
-              </div>
-            </div>
           </div>
         </div>
 
-        <!-- Full-Width Studio Playback & Telemetry Console Deck -->
+        <!-- Full-Width Studio Playback & Telemetry Universal Dock (4 Columns) -->
         <div class="hnsw-console-deck">
           <div id="hnsw-trace-notice" class="notice-box notice-neutral hidden">Search path trace is available for the Demo collection (documents index does not support step trace).</div>
           
           <div id="hnsw-trace-section" class="hnsw-trace-grid">
-            <!-- Col 1: Query Launcher -->
+            <!-- Zone 1: Target Launcher -->
             <div class="hnsw-console-card hnsw-launcher-card">
               <div class="hnsw-card-header">
                 <span class="hnsw-card-title">Search Target</span>
                 <button type="button" id="hnsw-trace-random-btn" class="btn btn-primary btn-sm">Random</button>
               </div>
-              <div class="form-stack mt-2">
+              <div class="form-stack">
                 <div class="form-row">
                   <div class="form-group flex-1">
                     <label for="hnsw-trace-k">k</label>
@@ -432,23 +429,25 @@
               </div>
             </div>
 
-            <!-- Col 2: Xcode / VCR Playback Transport & Scrubber -->
+            <!-- Zone 2: VCR Playback Transport & Timeline Scrubber -->
             <div class="hnsw-console-card hnsw-player-card">
               <div class="hnsw-card-header">
                 <span class="hnsw-card-title">Playback Transport</span>
                 <span id="hnsw-step-counter" class="font-mono text-xs text-muted">Step 0 / 0</span>
               </div>
-              <div class="hnsw-player-wrap mt-2">
+              <div class="hnsw-player-wrap">
                 <div class="player-bar">
                   <button type="button" id="hnsw-trace-prev-btn" class="btn btn-sm btn-ghost" title="Previous step">&larr;</button>
                   <button type="button" id="hnsw-trace-play-btn" class="btn btn-sm btn-secondary">Play</button>
                   <button type="button" id="hnsw-trace-next-btn" class="btn btn-sm btn-ghost" title="Next step">&rarr;</button>
-                  <button type="button" id="hnsw-trace-reset-btn" class="btn btn-sm btn-ghost">Reset</button>
-                  <div id="hnsw-trace-speed-dropdown-wrap" class="toolbar-dropdown-wrap trace-speed-dropdown-wrap">
-                    <input type="hidden" id="hnsw-trace-speed" value="1">
+                  <button type="button" id="hnsw-trace-reset-btn" class="btn btn-sm btn-ghost" title="Reset trace">&#8635;</button>
+                  <div class="trace-speed-dropdown-wrap">
+                    <div id="hnsw-trace-speed-dropdown-wrap">
+                      <input type="hidden" id="hnsw-trace-speed" value="1">
+                    </div>
                   </div>
                 </div>
-                <div class="step-slider-row mt-2">
+                <div class="step-slider-row">
                   <input type="range" id="hnsw-trace-slider" min="-1" max="-1" value="-1" class="input-range">
                 </div>
                 <div id="hnsw-trace-announcement" class="sr-only" aria-live="polite">Search trace ready</div>
@@ -456,12 +455,12 @@
               </div>
             </div>
 
-            <!-- Col 3: Live Step & Search Telemetry Bento -->
+            <!-- Zone 3: Live Step & Search Telemetry Bento -->
             <div class="hnsw-console-card hnsw-telemetry-card">
               <div class="hnsw-card-header">
                 <span class="hnsw-card-title">Step Telemetry &amp; Stats</span>
               </div>
-              <div class="hnsw-step-tiles mt-2" id="hnsw-step-tiles">
+              <div class="hnsw-step-tiles" id="hnsw-step-tiles">
                 <div class="hnsw-stat-tile">
                   <span class="stat-tile-label">Node</span>
                   <span class="stat-tile-val font-mono" id="hnsw-curr-node">-</span>
@@ -475,7 +474,7 @@
                   <span class="stat-tile-val font-mono" id="hnsw-curr-layer">-</span>
                 </div>
               </div>
-              <div class="hnsw-search-stats-grid mt-2" id="hnsw-trace-stats-box">
+              <div class="hnsw-search-stats-grid mt-1" id="hnsw-trace-stats-box">
                 <div class="hnsw-stat-tile">
                   <span class="stat-tile-label">Distance comps</span>
                   <span class="stat-tile-val font-mono" id="hnsw-stat-dist-comps">-</span>
@@ -484,45 +483,44 @@
                   <span class="stat-tile-label">Nodes visited</span>
                   <span class="stat-tile-val font-mono" id="hnsw-stat-nodes-visited">-</span>
                 </div>
-                <div class="hnsw-stat-tile full-width">
-                  <span class="stat-tile-label">Visited per layer</span>
-                  <span class="stat-tile-val font-mono text-xs" id="hnsw-stat-visited-layers">-</span>
+                <div class="hnsw-stat-tile">
+                  <span class="stat-tile-label">Visited layers</span>
+                  <span class="stat-tile-val font-mono" id="hnsw-stat-visited-layers">-</span>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Bottom Topology Summary Strip -->
-        <div class="hnsw-topology-strip mt-3" id="hnsw-topology-strip">
-          <div class="strip-label-col">
-            <span class="strip-title">Topology summary</span>
-          </div>
-          <div class="strip-divider" aria-hidden="true"></div>
-          <div class="strip-stat-item">
-            <span class="strip-icon" data-icon="database"></span>
-            <div class="strip-stat-meta">
-              <span class="strip-stat-label">Nodes</span>
-              <span class="strip-stat-val font-mono" id="hnsw-topo-nodes">-</span>
+            <!-- Zone 4: Integrated Topology Summary Card -->
+            <div class="hnsw-console-card hnsw-topology-card" id="hnsw-topology-strip">
+              <div class="hnsw-card-header">
+                <span class="hnsw-card-title">Topology Summary</span>
+              </div>
+              <div class="hnsw-topo-stats-stack">
+                <div class="strip-stat-item">
+                  <span class="strip-icon" data-icon="database"></span>
+                  <div class="strip-stat-meta">
+                    <span class="strip-stat-label">Total Nodes</span>
+                    <span class="strip-stat-val font-mono" id="hnsw-topo-nodes">-</span>
+                  </div>
+                </div>
+                <div class="strip-stat-item">
+                  <span class="strip-icon" data-icon="graph"></span>
+                  <div class="strip-stat-meta">
+                    <span class="strip-stat-label">Max Level</span>
+                    <span class="strip-stat-val font-mono" id="hnsw-topo-max-level">-</span>
+                  </div>
+                </div>
+                <div class="strip-stat-item">
+                  <span class="strip-icon" data-icon="target"></span>
+                  <div class="strip-stat-meta">
+                    <span class="strip-stat-label">Entry Point</span>
+                    <span class="strip-stat-val font-mono" id="hnsw-topo-entry">-</span>
+                  </div>
+                </div>
+              </div>
+              <div id="hnsw-info-box" class="hidden"></div>
             </div>
           </div>
-          <div class="strip-divider" aria-hidden="true"></div>
-          <div class="strip-stat-item">
-            <span class="strip-icon" data-icon="graph"></span>
-            <div class="strip-stat-meta">
-              <span class="strip-stat-label">Max level</span>
-              <span class="strip-stat-val font-mono" id="hnsw-topo-max-level">-</span>
-            </div>
-          </div>
-          <div class="strip-divider" aria-hidden="true"></div>
-          <div class="strip-stat-item">
-            <span class="strip-icon" data-icon="target"></span>
-            <div class="strip-stat-meta">
-              <span class="strip-stat-label">Entry point</span>
-              <span class="strip-stat-val font-mono" id="hnsw-topo-entry">-</span>
-            </div>
-          </div>
-          <div id="hnsw-info-box" class="hidden"></div>
         </div>
       </div>
     </section>
@@ -530,169 +528,149 @@
     <!-- TAB 4: COMPARE -->
     <section id="panel-compare" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-compare">
       <div class="compare-viewport">
-      <div class="page-header">
-        <div>
-          <h1 class="page-header-title">Compare</h1>
-          <p class="page-header-description">Benchmark and compare different search algorithms on the same dataset.</p>
-        </div>
-        <div class="page-header-actions">
-          <span id="compare-info-slot"></span>
-        </div>
-      </div>
-
-      <!-- Control row: raised surface (~76px, 14px radius, --bg-raised, no border) -->
-      <div class="compare-control-row">
-        <div class="compare-control-left">
-          <div class="compare-control-group">
-            <label for="compare-coll-select" class="compare-control-label">Collection</label>
-            <div id="compare-coll-dropdown-wrap" class="compare-dropdown-wrap">
-              <input type="hidden" id="compare-coll-select" value="demo">
+        <!-- Control row -->
+        <div class="compare-control-row">
+          <div class="compare-control-left">
+            <div class="compare-control-group">
+              <label for="compare-coll-select" class="compare-control-label">Collection</label>
+              <div id="compare-coll-dropdown-wrap" class="compare-dropdown-wrap">
+                <input type="hidden" id="compare-coll-select" value="demo">
+              </div>
             </div>
-          </div>
 
-          <div class="compare-control-group">
-            <label for="compare-repeat-select" class="compare-control-label">Repetitions</label>
-            <div id="compare-repeat-dropdown-wrap" class="compare-dropdown-wrap">
-              <input type="hidden" id="compare-repeat-select" value="5">
+            <div class="compare-control-group">
+              <label for="compare-repeat-select" class="compare-control-label">Repetitions</label>
+              <div id="compare-repeat-dropdown-wrap" class="compare-dropdown-wrap">
+                <input type="hidden" id="compare-repeat-select" value="5">
+              </div>
             </div>
-          </div>
 
-          <!-- Docs Mode Query Input (inline, flex-grow) -->
-          <div id="compare-docs-query-wrap" class="compare-query-wrap hidden">
-            <input type="text" id="compare-docs-query-input" class="input-text input-sm compare-query-input" value="What is vector search?" placeholder="Enter semantic query..." aria-label="Query text">
-          </div>
+            <!-- Docs Mode Query Input (inline, flex-grow) -->
+            <div id="compare-docs-query-wrap" class="compare-query-wrap hidden">
+              <input type="text" id="compare-docs-query-input" class="input-text input-sm compare-query-input" value="What is vector search?" placeholder="Enter semantic query..." aria-label="Query text">
+            </div>
 
-          <!-- Primary Actions (ONE primary amber button visible per mode) -->
-          <button type="button" id="compare-demo-random-btn" class="btn btn-sm btn-primary">Benchmark Random Query</button>
-          <button type="button" id="compare-docs-run-btn" class="btn btn-sm btn-primary hidden">Run Benchmark</button>
+            <!-- Primary Actions (ONE primary amber button visible per mode) -->
+            <button type="button" id="compare-demo-random-btn" class="btn btn-sm btn-primary">Benchmark Random Query</button>
+            <button type="button" id="compare-docs-run-btn" class="btn btn-sm btn-primary hidden">Run Benchmark</button>
 
-          <!-- Options Popover Trigger & Popover -->
-          <div class="compare-options-container">
-            <button type="button" id="compare-options-btn" class="btn btn-sm btn-ghost compare-options-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="compare-options-popover">
-              <span class="compare-options-icon-slot"></span>
-              <span>Options</span>
-              <span class="compare-options-chevron-slot"></span>
-            </button>
+            <!-- Options Popover Trigger & Popover -->
+            <div class="compare-options-container">
+              <button type="button" id="compare-options-btn" class="btn btn-sm btn-ghost compare-options-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="compare-options-popover">
+                <span class="compare-options-icon-slot"></span>
+                <span>Options</span>
+                <span class="compare-options-chevron-slot"></span>
+              </button>
 
-            <!-- Options Popover -->
-            <div id="compare-options-popover" class="compare-options-popover hidden" role="dialog" aria-label="Benchmark options" tabindex="-1">
-              <!-- Demo Options Content -->
-              <div id="compare-demo-options" class="compare-options-content">
-                <div class="compare-options-row">
-                  <div class="compare-options-field">
-                    <label for="compare-k-input" class="control-label">k</label>
-                    <input type="number" id="compare-k-input" class="input-text input-sm compare-num-input" value="10" min="1" max="100">
+              <!-- Options Popover -->
+              <div id="compare-options-popover" class="compare-options-popover hidden" role="dialog" aria-label="Benchmark options" tabindex="-1">
+                <!-- Demo Options Content -->
+                <div id="compare-demo-options" class="compare-options-content">
+                  <div class="compare-options-row">
+                    <div class="compare-options-field">
+                      <label for="compare-k-input" class="control-label">k</label>
+                      <input type="number" id="compare-k-input" class="input-text input-sm compare-num-input" value="10" min="1" max="100">
+                    </div>
+                    <div class="compare-options-field">
+                      <label for="compare-ef-input" class="control-label">efSearch</label>
+                      <input type="number" id="compare-ef-input" class="input-text input-sm compare-num-input" value="50" min="1" max="500">
+                    </div>
                   </div>
-                  <div class="compare-options-field">
-                    <label for="compare-ef-input" class="control-label">efSearch</label>
-                    <input type="number" id="compare-ef-input" class="input-text input-sm compare-num-input" value="50" min="1" max="500">
+                  <div class="compare-options-divider" aria-hidden="true"></div>
+                  <div class="compare-options-row">
+                    <div class="compare-options-field flex-1">
+                      <label for="compare-demo-id-input" class="control-label">Stored Vector ID</label>
+                      <input type="number" id="compare-demo-id-input" class="input-text input-sm compare-id-input" placeholder="e.g. 1" min="1">
+                    </div>
+                    <button type="button" id="compare-demo-id-btn" class="btn btn-sm btn-secondary align-self-end">Benchmark ID</button>
                   </div>
                 </div>
+
+                <!-- Docs Options Content (hidden by default) -->
+                <div id="compare-docs-options" class="compare-options-content hidden">
+                  <div class="compare-options-row">
+                    <div class="compare-options-field">
+                      <label for="compare-docs-k-input" class="control-label">k</label>
+                      <input type="number" id="compare-docs-k-input" class="input-text input-sm compare-num-input" value="5" min="1" max="20">
+                    </div>
+                    <div class="compare-options-field">
+                      <label for="compare-docs-ef-input" class="control-label">efSearch</label>
+                      <input type="number" id="compare-docs-ef-input" class="input-text input-sm compare-num-input" value="50" min="1" max="500">
+                    </div>
+                  </div>
+                </div>
+
                 <div class="compare-options-divider" aria-hidden="true"></div>
-                <div class="compare-options-row">
-                  <div class="compare-options-field flex-1">
-                    <label for="compare-demo-id-input" class="control-label">Stored Vector ID</label>
-                    <input type="number" id="compare-demo-id-input" class="input-text input-sm compare-id-input" placeholder="e.g. 1" min="1">
-                  </div>
-                  <button type="button" id="compare-demo-id-btn" class="btn btn-sm btn-secondary align-self-end">Benchmark ID</button>
-                </div>
+                <p class="compare-options-warmup text-muted text-xs">One warm-up pass is discarded before the timed runs.</p>
               </div>
-
-              <!-- Docs Options Content (hidden by default) -->
-              <div id="compare-docs-options" class="compare-options-content hidden">
-                <div class="compare-options-row">
-                  <div class="compare-options-field">
-                    <label for="compare-docs-k-input" class="control-label">k</label>
-                    <input type="number" id="compare-docs-k-input" class="input-text input-sm compare-num-input" value="5" min="1" max="20">
-                  </div>
-                  <div class="compare-options-field">
-                    <label for="compare-docs-ef-input" class="control-label">efSearch</label>
-                    <input type="number" id="compare-docs-ef-input" class="input-text input-sm compare-num-input" value="50" min="1" max="500">
-                  </div>
-                </div>
-              </div>
-
-              <div class="compare-options-divider" aria-hidden="true"></div>
-              <p class="compare-options-warmup text-muted text-xs">One warm-up pass is discarded before the timed runs.</p>
             </div>
           </div>
-        </div>
 
-        <!-- Status cluster on right side of control row -->
-        <div class="compare-status-cluster">
-          <div class="compare-status-badge">
-            <span class="status-dot status-dot-healthy"></span>
-            <span id="compare-progress-status" class="compare-progress-status" aria-live="polite">Ready to benchmark.</span>
-          </div>
-        </div>
-
-        <!-- 2px Progress Line on Bottom Edge -->
-        <div id="compare-progress-track" class="compare-progress-track">
-          <div id="compare-progress-fill" class="compare-progress-fill"></div>
-        </div>
-      </div>
-
-      <!-- Empty State Panel (Mutually exclusive with results card) -->
-      <div id="compare-empty-state" class="compare-empty-panel">
-        <div class="empty-state">
-          <div class="empty-state-icon" id="compare-empty-icon"></div>
-          <h3 id="compare-empty-title" class="empty-state-title">No benchmark yet</h3>
-          <p id="compare-empty-desc" class="empty-state-description">Run a benchmark to see latency, distance computations, recall and the top-k diff.</p>
-          <button type="button" id="compare-initial-run-btn" class="btn btn-secondary mt-3">Benchmark Demo Vectors</button>
-        </div>
-      </div>
-
-      <!-- Results: Apple Spec Sheet comparison (Mutually exclusive with empty state) -->
-      <div id="compare-results-view" class="compare-results-view hidden">
-        <!-- Hero Callout Banner -->
-        <div id="compare-hero-banner" class="compare-hero-banner">
-          <div class="compare-hero-left">
-            <div class="compare-hero-headline-wrap">
-              <span class="compare-hero-spark" aria-hidden="true">&#9889;</span>
-              <h2 id="compare-hero-headline" class="compare-hero-headline">HNSW delivered 8.4x speedup over Brute Force</h2>
+          <!-- Status cluster on right side of control row -->
+          <div class="compare-status-cluster">
+            <div class="compare-status-badge">
+              <span class="status-dot status-dot-healthy"></span>
+              <span id="compare-progress-status" class="compare-progress-status" aria-live="polite">Ready to benchmark.</span>
             </div>
-            <p id="compare-hero-subtitle" class="compare-hero-subtitle">k = 10 &middot; 1,000 vectors &middot; 5 runs median</p>
+            <span id="compare-info-slot"></span>
           </div>
-          <div class="compare-hero-chips" id="compare-hero-chips">
-            <span class="compare-chip chip-winner" id="compare-chip-winner">Fastest: HNSW</span>
-            <span class="compare-chip chip-speedup" id="compare-chip-speedup">8.4x Speedup</span>
-            <span class="compare-chip chip-recall" id="compare-chip-recall">100% Recall</span>
+
+          <!-- 2px Progress Line on Bottom Edge -->
+          <div id="compare-progress-track" class="compare-progress-track">
+            <div id="compare-progress-fill" class="compare-progress-fill"></div>
           </div>
         </div>
 
-        <!-- Unified Comparative Spec Sheet -->
-        <div id="compare-cards-container" class="compare-spec-sheet" role="region" aria-label="Benchmark comparison spec sheet"></div>
-        <div id="compare-footnote" class="compare-footnote">
-          <span class="compare-footnote-icon" id="compare-footnote-icon"></span>
-          <span>Filled = same rank as ground truth. Latency: lower is better. Timings are indicative: official benchmarks come from the C++ tool.</span>
+        <!-- Empty State Panel (Mutually exclusive with results card) -->
+        <div id="compare-empty-state" class="compare-empty-panel">
+          <div class="empty-state">
+            <div class="empty-state-icon" id="compare-empty-icon"></div>
+            <h3 id="compare-empty-title" class="empty-state-title">No benchmark yet</h3>
+            <p id="compare-empty-desc" class="empty-state-description">Run a benchmark to see latency, distance computations, recall and the top-k diff.</p>
+            <button type="button" id="compare-initial-run-btn" class="btn btn-secondary mt-3">Benchmark Demo Vectors</button>
+          </div>
         </div>
-        <div id="compare-rank-tooltip" class="compare-rank-tooltip hidden" role="tooltip" aria-hidden="true"></div>
-      </div>
+
+        <!-- Results: Apple Spec Sheet comparison (Mutually exclusive with empty state) -->
+        <div id="compare-results-view" class="compare-results-view hidden">
+          <!-- Hero Callout Banner -->
+          <div id="compare-hero-banner" class="compare-hero-banner">
+            <div class="compare-hero-left">
+              <div class="compare-hero-headline-wrap">
+                <span class="compare-hero-spark" aria-hidden="true">&#9889;</span>
+                <h2 id="compare-hero-headline" class="compare-hero-headline">HNSW delivered 8.4x speedup over Brute Force</h2>
+              </div>
+              <p id="compare-hero-subtitle" class="compare-hero-subtitle">k = 10 &middot; 1,000 vectors &middot; 5 runs median</p>
+            </div>
+            <div class="compare-hero-chips" id="compare-hero-chips">
+              <span class="compare-chip chip-winner" id="compare-chip-winner">Fastest: HNSW</span>
+              <span class="compare-chip chip-speedup" id="compare-chip-speedup">8.4x Speedup</span>
+              <span class="compare-chip chip-recall" id="compare-chip-recall">100% Recall</span>
+            </div>
+          </div>
+
+          <!-- Unified Comparative Spec Sheet -->
+          <div id="compare-cards-container" class="compare-spec-sheet" role="region" aria-label="Benchmark comparison spec sheet"></div>
+          <div id="compare-footnote" class="compare-footnote">
+            <span class="compare-footnote-icon" id="compare-footnote-icon"></span>
+            <span>Filled = same rank as ground truth. Latency: lower is better. Timings are indicative: official benchmarks come from the C++ tool.</span>
+          </div>
+          <div id="compare-rank-tooltip" class="compare-rank-tooltip hidden" role="tooltip" aria-hidden="true"></div>
+        </div>
       </div>
     </section>
 
     <!-- TAB 5: SETTINGS -->
     <section id="panel-settings" class="tab-panel hidden" role="tabpanel" tabindex="0" aria-labelledby="tab-btn-settings">
       <div class="settings-viewport">
-        <!-- Settings Page Header -->
-        <div class="page-header">
-          <div>
-            <h1 class="page-header-title">Settings</h1>
-            <p class="page-header-description">Configure VectorDB, manage data, and control local resources.</p>
-          </div>
-          <div class="page-header-actions">
-            <span id="settings-info-slot"></span>
-          </div>
-        </div>
-
-        <!-- Bento Dashboard: All visible on a single screen without sub-tabs -->
-        <div class="settings-bento-grid">
-          <!-- TOP CARD: Server & Engine Health (Full Width) -->
+        <!-- 3-Column Wide Bento Dashboard -->
+        <div class="settings-bento-grid settings-three-col-layout">
+          <!-- COLUMN 1: Server & Engine Health -->
           <div class="settings-card settings-card-server">
             <div class="settings-card-header">
               <div class="settings-card-header-left">
-                <h2 class="settings-card-title">Server &amp; Engine Health</h2>
-                <p class="settings-card-desc">Local services, hardware metrics, and model runtime.</p>
+                <h2 class="settings-card-title">Server &amp; Health</h2>
+                <p class="settings-card-desc">Local services &amp; hardware runtime.</p>
               </div>
               <div class="settings-server-status-cluster">
                 <div class="settings-status-badge">
@@ -707,9 +685,7 @@
 
             <div class="settings-card-body">
               <div class="settings-overline">System Metrics</div>
-              <dl id="settings-health-box" class="settings-def-list" aria-label="Server status metrics">
-                <!-- Rendered by settings.js (4 columns x 2 rows) -->
-              </dl>
+              <dl id="settings-health-box" class="settings-def-list" aria-label="Server status metrics"></dl>
 
               <div class="settings-card-divider"></div>
 
@@ -720,143 +696,102 @@
             </div>
           </div>
 
-          <!-- BOTTOM TWO-COLUMN ROW -->
-          <div class="settings-bento-row">
-            <!-- LEFT COLUMN: Demo Collection Configuration -->
-            <div class="settings-card settings-card-collection">
-              <div class="settings-card-header">
-                <div class="settings-card-header-left">
-                  <h2 class="settings-card-title">Demo Collection</h2>
-                  <p class="settings-card-desc">Vector embedding and HNSW graph parameters.</p>
-                </div>
-              </div>
-
-              <div class="settings-card-divider"></div>
-
-              <div class="settings-card-body">
-                <form id="settings-reset-demo-form" class="settings-grid-form">
-                  <div class="settings-form-field">
-                    <label for="demo-dim-input" class="settings-field-label">Dimension</label>
-                    <span class="settings-field-hint">Vector embedding length</span>
-                    <input type="number" id="demo-dim-input" class="input-text settings-input" value="128" min="1" max="4096" required>
-                  </div>
-                  <div class="settings-form-field">
-                    <label for="demo-metric-select" class="settings-field-label">Distance metric</label>
-                    <span class="settings-field-hint">Similarity computation</span>
-                    <div id="demo-metric-dropdown-wrap" class="settings-dropdown-wrap">
-                      <input type="hidden" id="demo-metric-select" value="cosine">
-                    </div>
-                  </div>
-                  <div class="settings-form-field">
-                    <label for="demo-m-input" class="settings-field-label">M (Max edges per node)</label>
-                    <span class="settings-field-hint">Bidirectional links per node</span>
-                    <input type="number" id="demo-m-input" class="input-text settings-input" value="16" min="2" max="128">
-                  </div>
-                  <div class="settings-form-field">
-                    <label for="demo-efc-input" class="settings-field-label">efConstruction</label>
-                    <span class="settings-field-hint">Index construction beam width</span>
-                    <input type="number" id="demo-efc-input" class="input-text settings-input" value="200" min="4" max="1000">
-                  </div>
-                </form>
-
-                <div class="settings-card-divider"></div>
-
-                <div class="settings-sub-header">
-                  <h3 class="settings-sub-title">Insert synthetic vectors</h3>
-                  <p class="settings-card-desc">Generate Gaussian vectors for search benchmarking.</p>
-                </div>
-
-                <form id="settings-random-demo-form" class="settings-random-inline-form">
-                  <div class="settings-inline-field">
-                    <label for="demo-random-count" class="settings-field-label">Vector count</label>
-                    <input type="number" id="demo-random-count" class="input-text settings-input-sm" value="100" min="1" max="20000" aria-label="Insert random vectors count">
-                  </div>
-                  <button type="submit" id="demo-insert-random-btn" class="btn btn-primary">+ Insert Vectors</button>
-                </form>
-                <div id="settings-random-status" class="settings-inline-msg notice-success hidden" role="status"></div>
+          <!-- COLUMN 2: Demo Collection Parameters & Ingestion -->
+          <div class="settings-card settings-card-collection">
+            <div class="settings-card-header">
+              <div class="settings-card-header-left">
+                <h2 class="settings-card-title">Demo Collection</h2>
+                <p class="settings-card-desc">Embedding &amp; HNSW parameters.</p>
               </div>
             </div>
 
-            <!-- RIGHT COLUMN: Storage & Maintenance -->
-            <div class="settings-card settings-card-maintenance">
-              <div class="settings-card-header">
-                <div class="settings-card-header-left">
-                  <h2 class="settings-card-title">Storage &amp; Maintenance</h2>
-                  <p class="settings-card-desc">Disk persistence, conversation history, and resets.</p>
+            <div class="settings-card-divider"></div>
+
+            <div class="settings-card-body">
+              <form id="settings-reset-demo-form" class="settings-grid-form">
+                <div class="settings-form-field">
+                  <label for="demo-dim-input" class="settings-field-label">Dimension</label>
+                  <input type="number" id="demo-dim-input" class="input-text settings-input" value="128" min="1" max="4096" required>
+                </div>
+                <div class="settings-form-field">
+                  <label for="demo-metric-select" class="settings-field-label">Distance metric</label>
+                  <div id="demo-metric-dropdown-wrap" class="settings-dropdown-wrap">
+                    <input type="hidden" id="demo-metric-select" value="cosine">
+                  </div>
+                </div>
+                <div class="settings-form-field">
+                  <label for="demo-m-input" class="settings-field-label">M (Max edges)</label>
+                  <input type="number" id="demo-m-input" class="input-text settings-input" value="16" min="2" max="128">
+                </div>
+                <div class="settings-form-field">
+                  <label for="demo-efc-input" class="settings-field-label">efConstruction</label>
+                  <input type="number" id="demo-efc-input" class="input-text settings-input" value="200" min="4" max="1000">
+                </div>
+              </form>
+
+              <div class="settings-card-divider"></div>
+
+              <div class="settings-insert-box">
+                <div class="settings-overline">Insert Synthetic Vectors</div>
+                <form id="settings-insert-random-form" class="settings-inline-insert-form">
+                  <input type="number" id="demo-insert-count-input" class="input-text settings-input" value="100" min="1" max="5000" aria-label="Count">
+                  <button type="submit" id="demo-insert-btn" class="btn btn-secondary btn-sm">+ Insert Vectors</button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- COLUMN 3: Storage, Maintenance & Danger Zone -->
+          <div class="settings-card settings-card-maintenance">
+            <div class="settings-card-header">
+              <div class="settings-card-header-left">
+                <h2 class="settings-card-title">Storage &amp; Controls</h2>
+                <p class="settings-card-desc">Persistence, history &amp; maintenance.</p>
+              </div>
+              <span id="settings-info-slot"></span>
+            </div>
+
+            <div class="settings-card-divider"></div>
+
+            <div class="settings-card-body">
+              <div class="settings-storage-section">
+                <div class="settings-storage-label">Disk Persistence</div>
+                <div class="settings-persistence-row">
+                  <span id="persistence-status-badge" class="badge badge-neutral">Disabled (In-memory only)</span>
+                  <code id="persistence-dir-code" class="settings-code-pill font-mono">none (ephemeral)</code>
                 </div>
               </div>
 
               <div class="settings-card-divider"></div>
 
-              <div class="settings-card-body">
-                <!-- Persistence & Storage Block -->
-                <div class="settings-maintenance-block">
-                  <div class="settings-overline">Disk Persistence</div>
-                  <div class="settings-storage-grid">
-                    <div class="settings-storage-tile">
-                      <span class="settings-storage-label">Status</span>
-                      <span id="settings-persistence-status" class="settings-storage-val text-primary">Checking...</span>
-                    </div>
-                    <div class="settings-storage-tile">
-                      <span class="settings-storage-label">Directory</span>
-                      <span id="settings-persistence-dir" class="settings-storage-val font-mono">--</span>
-                    </div>
+              <div class="settings-maintenance-actions">
+                <div class="settings-action-row">
+                  <div class="settings-action-meta">
+                    <span class="settings-action-title">Chat history</span>
+                    <span class="settings-action-desc">Clear local conversation threads.</span>
                   </div>
-                  <div class="settings-callout-card">
-                    <p id="settings-persistence-hint" class="settings-hint-text">Pass --data-dir &lt;path&gt; on startup to persist collections across restarts.</p>
-                  </div>
+                  <button type="button" id="clear-chat-history-btn" class="btn btn-sm btn-ghost">Clear Chat History</button>
                 </div>
-
-                <div class="settings-card-divider"></div>
-
-                <!-- Chat History & Documentation Block -->
-                <div class="settings-maintenance-block">
-                  <div class="settings-overline">Data &amp; Guides</div>
-                  <div class="settings-row-block">
-                    <div class="settings-row-info">
-                      <h3 class="settings-sub-title">Chat history</h3>
-                      <p class="settings-card-desc">Clear local conversation threads stored in this browser.</p>
-                    </div>
-                    <div class="settings-confirm-actions">
-                      <button type="button" id="settings-clear-chats-cancel-btn" class="btn btn-sm btn-secondary hidden">Cancel</button>
-                      <button type="button" id="settings-clear-chats-btn" class="btn btn-sm btn-secondary">Clear Chat History</button>
-                    </div>
-                  </div>
-                  <div id="settings-clear-chats-status" class="settings-inline-msg notice-success hidden" role="status"></div>
-
-                  <div class="settings-doc-row mt-3">
-                    <div class="settings-doc-buttons">
-                      <a href="/tests.html" target="_blank" class="btn btn-secondary settings-doc-link-btn" title="Open Interactive Test Suite">
-                        <span>Interactive Test Suite</span>
-                        <span id="settings-tests-icon" class="settings-btn-icon"></span>
-                      </a>
-                      <button type="button" id="settings-start-tour-btn" class="btn btn-secondary settings-doc-link-btn" title="Start Guided Tour">
-                        <span>Start Guided Tour</span>
-                        <span id="settings-tour-icon" class="settings-btn-icon"></span>
-                      </button>
-                    </div>
-                  </div>
+                <div class="settings-action-row mt-2">
+                  <a href="/tests.html" target="_blank" rel="noopener" class="btn btn-sm btn-ghost">Interactive Test Suite &nearr;</a>
                 </div>
+              </div>
 
-                <div class="settings-card-divider"></div>
+              <div class="settings-card-divider"></div>
 
-                <!-- Danger Zone Block -->
-                <div class="settings-maintenance-block settings-danger-block">
-                  <div class="settings-overline text-danger">Danger Zone</div>
-                  <p class="settings-danger-warning">Resetting drops all synthetic vectors and rebuilds graph indexes. This cannot be undone.</p>
-                  <div class="settings-confirm-actions mt-3">
-                    <button type="button" id="demo-reset-cancel-btn" class="btn btn-sm btn-secondary hidden">Cancel</button>
-                    <button type="button" id="demo-reset-btn" class="btn btn-sm btn-danger">Reset Demo Collection</button>
-                  </div>
-                  <div id="settings-reset-status" class="settings-inline-msg notice-success hidden mt-2" role="status"></div>
+              <div class="settings-danger-block">
+                <div class="danger-header">
+                  <span class="danger-badge">Danger Zone</span>
                 </div>
+                <p class="danger-desc">Reset all vectors in the demo collection. This action cannot be undone.</p>
+                <button type="button" id="settings-reset-danger-btn" class="btn btn-danger btn-sm w-100">Reset Demo Collection</button>
               </div>
             </div>
           </div>
         </div>
       </div>
     </section>
-    </section>
+
   </main>
     </div>
   </div>
