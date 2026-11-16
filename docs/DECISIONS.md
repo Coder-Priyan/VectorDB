@@ -260,3 +260,24 @@ Last updated: 2026-11-16 by T-072 sync
 
 
 
+
+### ADR-081: HNSW Tab Overhaul into Symmetrical 3-Column Studio Workbench (390px | 1fr | 390px) (2026-11-16)
+
+- **Context**: Following the successful overhaul of the Explore tab, the user approved applying the same architectural and visual principles to the HNSW tab (`chaloo bohot badiya shii hai ab, ab bataoo hnsw wala tab ka saath kya krna haiii? ... han chalo thikk hai apply krooo firrr`). Previously, the HNSW tab used a vertically stacked highway toolbar, graph canvas, and a 4-zone dock, which forced vertical scrolling and fragmented controls.
+- **Architectural & Design Decisions**:
+  1. **Symmetrical 3-Column Studio Workbench (`390px | 1fr | 390px`)**:
+     - **Left Column (`390px`, `.hnsw-config-deck`)**:
+       - Card 1: Collection & Layer Config (`.hnsw-config-card`) containing Collection dropdown, Layer slider with live edge counter (`#hnsw-edge-summary`), Max Edges selector with truncation badge (`#hnsw-edge-warn-badge`), and Refresh button.
+       - Card 2: Graph Topology Summary (`.hnsw-topology-card`, `#hnsw-topology-strip`) featuring stats tiles for Total Nodes (`#hnsw-topo-nodes`), Max Level (`#hnsw-topo-max-level`), Entry Point (`#hnsw-topo-entry`), and architectural subtitle.
+     - **Center Column (`1fr` / ~820px, `.hnsw-canvas-viewport`)**:
+       - Precision Graph Viewport (`.canvas-card-container`): Viewport header with dynamic layer title (`#hnsw-graph-title`), subtitle (`#hnsw-graph-subtitle`), status badge, node/edge legend, full-height canvas (`#hnsw-canvas`), and navigation hint footer.
+     - **Right Column (`390px`, `.hnsw-console-deck`)**:
+       - Card 1: Beam Search Target Launcher (`.hnsw-launcher-card`) with amber "Trace Random Target" button (`#hnsw-trace-random-btn`), divider, $k$ (`#hnsw-trace-k`), $efSearch$ (`#hnsw-trace-ef`), and Stored Vector ID row (`#hnsw-trace-id-input`, `#hnsw-trace-id-btn`).
+       - Card 2: Playback Transport (`.hnsw-player-card`) with step counter (`#hnsw-step-counter`), VCR controls (Prev, Play, Next, Reset), playback speed dropdown, and timeline scrubber (`#hnsw-trace-slider`).
+       - Card 3: Step Telemetry & Search Stats Bento (`.hnsw-telemetry-card`) with 3 current-step tiles (Node `#hnsw-curr-node`, Distance `#hnsw-curr-dist`, Layer `#hnsw-curr-layer`) and 3 cumulative search stats tiles (Comps `#hnsw-stat-dist-comps`, Visited `#hnsw-stat-nodes-visited`, Layers `#hnsw-stat-visited-layers`).
+  2. **Single-Screen Zero-Scroll Guarantee**:
+     - All controls, playback buttons, and telemetry fit within a standard 1080p display without any page overflow or vertical scrollbar.
+  3. **Strict Invariants**:
+     - Ask tab and C++ engine 100% frozen.
+     - All 44 original HNSW DOM IDs verified and present.
+     - 0 non-root hex colors, 0 box-shadow, <= 2 !important, zero innerHTML, 118/118 C++ tests pass.

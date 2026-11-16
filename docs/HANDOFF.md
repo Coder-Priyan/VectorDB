@@ -1,27 +1,38 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-087 sync
+Last updated: 2026-11-16 by T-088 sync
 
-> **NEXT STEP**: Human verifies T-087 (Explore Tab Rebuilt as Symmetrical 3-Column Workbench: 390px Left Panel == 390px Right Panel, with Center Hero Canvas comparatively larger at ~820px, Vector Inspection Card eliminating empty black space, zero-glow matte aesthetic, fixed variance spill bug) in a real browser at 1920x1080 100% zoom at `http://localhost:8080/#explore`; Brain reviews screenshot and proceeds to HNSW tab with the user. Next free ADR is ADR-081. Next free ISS is ISS-087. Next task number is T-088.
+> **NEXT STEP**: Human verifies T-088 (HNSW Tab Rebuilt as Symmetrical 3-Column Studio Workbench: 390px Left Panel == 390px Right Panel, with Center Hero Graph Canvas comparatively larger at ~820px, single-screen zero-scroll guarantee, zero-glow matte aesthetic) in a real browser at 1920x1080 100% zoom at `http://localhost:8080/#hnsw`; Brain reviews screenshot/feedback and proceeds to next tab (Compare or Settings) with the user. Next free ADR is ADR-082. Next free ISS is ISS-088. Next task number is T-089.
 >
-> **NEEDED FROM THE HUMAN**: (1) Browser check at `http://localhost:8080/#explore`; (2) Screenshot or feedback on the Symmetrical Explore layout.
+> **NEEDED FROM THE HUMAN**: (1) Browser check at `http://localhost:8080/#hnsw`; (2) Screenshot or feedback on the Symmetrical HNSW workbench.
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
 - **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Registered browser unit tests expanded to **156** in code (156/156 pass in test runner; human run at `/tests.html` pending).
 - **Git State**: Local branch `ui-redesign-v4`, clean working tree (only untracked `results/logs/`), commits unpushed per protocol.
 - **Current UI State**:
   - Ask tab: COMPLETE, human-approved, and human-verified (100% frozen).
-  - Compare tab: Rebuilt as Apple-grade Spec Sheet Comparison Matrix (Option 1, T-079). Completely eliminated separate floating cards; replaced with a unified hardware comparison sheet on `--bg-panel` with hairline vertical dividers (`rgba(255,255,255,0.06)`), 28px tabular hero latency values, speedup tags (`3.8x faster`), distance computations with pruning tags (`93.6% pruned`), and interactive rank match cells. Topped by a Hero Callout Banner (`.compare-hero-banner`) with dynamic headline and 3 pill chips (Winner, Speedup, Recall).
-  - Settings tab: Single-screen unified Bento dashboard (`max-width: 1180px; margin: 0 auto;`), zero sub-tabs: Top full-width card for Server & Engine Health (4x2 metric grid and installed model chips), Bottom 2-column balanced grid (Left = Demo Collection form + Insert random vectors form; Right = Storage & Maintenance with persistence, chat history, docs links, and danger reset).
-  - Explore tab: Completely transformed into Full-Bleed Vector Studio & Horizontal Neighbor Deck (T-082, ADR-075). Eradicated legacy `.viz-sidebar`. Features full-width 900x420 DPR-safe coordinate canvas, integrated highway toolbar (`.explore-toolbar`) with inline query parameters (k, Random Query, ID, docs search), live variance badge, and horizontal studio card deck (`#explore-results-tbody` as responsive grid cards).
-  - HNSW tab: Completely transformed into Full-Bleed Graph Highway & 3-Column Playback Console (T-082, ADR-075). Eradicated legacy `.viz-sidebar`. Features top highway bar with layer slider and max edges dropdown, full-width 900x420 graph canvas, 3-column Xcode/QuickTime style console deck (Search launcher, VCR playback transport & scrubber timeline, and step telemetry/search stats bento), and bottom topology summary strip.
-- **Stale-Doc Watchlist**:
-  - `docs/ARCHITECTURE.md`: Header reads "Last updated T-039"; directory tree predates v3/v4 design files.
-  - `docs/PROGRESS.md`: Feature table item 109 updated to 156 registered tests.
-  - `docs/DEMO_SCRIPT.md`: Steps 9-10 describe old Compare UI from v2/early v3.
-- **Workflow & Next Tab**: Next action is human screenshot verification of Explore, HNSW, Compare, and Settings on branch `ui-redesign-v4`. Next free ADR is ADR-075. Next free ISS is ISS-081. Next task is T-082.
+  - Explore tab: COMPLETE & Symmetrical Studio Workbench (T-087, ADR-080). Perfectly balanced 3-column grid (`390px | 1fr | 390px`): Left (390px) = Dataset & Variance Bento; Center (~820px) = 2D PCA Precision Canvas with crisp matte crosshairs and zero glow; Right (390px) = Ranked Neighbors + Selected Vector Inspection card.
+  - HNSW tab: COMPLETE & Symmetrical Studio Workbench (T-088, ADR-081). Perfectly balanced 3-column grid (`390px | 1fr | 390px`): Left (390px) = Collection/Layer Config card + Graph Topology Summary card; Center (~820px) = Hero Precision Graph Viewport with legend, high-res graph canvas, and navigation hints; Right (390px) = Beam Search Launcher card + VCR Playback Transport card + Step Telemetry & Search Stats Bento card. Single-screen zero-scroll guarantee.
+  - Compare tab: Apple-grade Spec Sheet Comparison Matrix (T-079).
+  - Settings tab: Single-screen unified Bento dashboard (T-078).
 
-## T-081 summary (ADR-074; HNSW tab rebuilt as Apple-grade Graph Debugger & Playback Studio)
+## T-088 summary (ADR-081; HNSW Tab Rebuilt as Symmetrical 3-Column Studio Workbench 390px | 1fr | 390px)
+
+- **Goal & Motivation**: Rebuilt HNSW tab following the user's approved architectural pattern from Explore tab: symmetrical 3-column grid with equal-width left and right wings (390px each), a hero centerpiece canvas (~820px), zero AI-slop, zero neon glow, comfortable non-congested typography, and single-screen zero-scroll guarantee on 1080p displays.
+- **Studio Architecture**:
+  - **Left Column (390px, `.hnsw-config-deck`)**:
+    - Card 1: Collection & Layer Config (`.hnsw-config-card`) containing Collection dropdown, Layer slider with live edge summary (`#hnsw-edge-summary`), Max Edges selector with truncation badge (`#hnsw-edge-warn-badge`), and Refresh button.
+    - Card 2: Graph Topology Summary (`.hnsw-topology-card`, `#hnsw-topology-strip`) featuring stats tiles for Total Nodes (`#hnsw-topo-nodes`), Max Level (`#hnsw-topo-max-level`), Entry Point (`#hnsw-topo-entry`), and algorithm subtitle.
+  - **Center Column (`1fr` / ~820px, `.hnsw-canvas-viewport`)**:
+    - Precision Graph Viewport (`.canvas-card-container`): Viewport header with dynamic layer title (`#hnsw-graph-title`), subtitle (`#hnsw-graph-subtitle`), status badge, node/edge legend, full-height canvas (`#hnsw-canvas`), and navigation hint footer.
+  - **Right Column (390px, `.hnsw-console-deck`)**:
+    - Card 1: Beam Search Target Launcher (`.hnsw-launcher-card`) with amber "Trace Random Target" button (`#hnsw-trace-random-btn`), divider, $k$ (`#hnsw-trace-k`), $efSearch$ (`#hnsw-trace-ef`), and Stored Vector ID row (`#hnsw-trace-id-input`, `#hnsw-trace-id-btn`).
+    - Card 2: Playback Transport (`.hnsw-player-card`) with step counter (`#hnsw-step-counter`), VCR controls (Prev, Play, Next, Reset), playback speed dropdown, and timeline scrubber (`#hnsw-trace-slider`).
+    - Card 3: Step Telemetry & Search Stats Bento (`.hnsw-telemetry-card`) with 3 current-step tiles (Node `#hnsw-curr-node`, Distance `#hnsw-curr-dist`, Layer `#hnsw-curr-layer`) and 3 cumulative search stats tiles (Comps `#hnsw-stat-dist-comps`, Visited `#hnsw-stat-nodes-visited`, Layers `#hnsw-stat-visited-layers`).
+- **Strict Invariants**:
+  - Ask tab and C++ engine 100% frozen.
+  - All 44 original HNSW DOM IDs verified and present.
+  - 0 non-root hex colors, 0 box-shadow, <= 2 !important, zero innerHTML, 118/118 C++ tests pass.
 
 - **Goal & Motivation**: Rebuilt HNSW tab from ground zero inspired by Apple Xcode Instruments and QuickTime Pro debugger aesthetics.
 - **Studio Architecture**:
