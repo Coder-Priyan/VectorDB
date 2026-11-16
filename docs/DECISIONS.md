@@ -318,3 +318,12 @@ Last updated: 2026-11-16 by T-072 sync
      - Zero innerHTML, strict CSP verified.
      - 0 non-root hex, 0 box-shadow, <= 2 !important.
      - 118/118 C++ tests pass.
+
+### ADR-084: ESM Syntax Error Resolution & Tab Switching Restoration (2026-11-16)
+
+- **Context**: User reported inability to navigate away from the Ask tab to other tabs (brooo mai open hee nhi krr pa rha hu tab ko ask tab sa kisi aur maii ja hee nhi paraaa).
+- **Root Cause**: During T-090 canvas rendering updates, an extra duplicate brace (}    }) was introduced in web/js/hnsw.js at line 362. In modern browser ES module systems, any syntax error in an imported module halts the module graph evaluation, preventing main.js from executing initTabs('.tab-nav'). Click listeners on .tab-btn were never bound.
+- **Resolution**:
+  - Removed duplicate brace in web/js/hnsw.js.
+  - Added Node.js dynamic import sanity check validating all 20 JS modules parse and evaluate with 0 syntax errors.
+  - Verified 100% clean passes on check_web_safety.ps1 (0 violations) and vectordb_tests.exe (118/118 passed).

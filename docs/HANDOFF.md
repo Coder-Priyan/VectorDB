@@ -1,8 +1,8 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-090 sync
+Last updated: 2026-11-16 by T-091 sync
 
-> **NEXT STEP**: Human verifies T-090 ($10,000 Product-Grade Canvas Visualizers in Explore & HNSW: precision CAD coordinate plane, constellation vector points, multi-ring radar reticle, sequential beam search steps, and beacon diamonds) in a real browser at 1920x1080 100% zoom at `http://localhost:8080/#explore` and `http://localhost:8080/#hnsw`. Next task number is T-091.
+> **NEXT STEP**: Human verifies T-090 ($10,000 Product-Grade Canvas Visualizers in Explore & HNSW: precision CAD coordinate plane, constellation vector points, multi-ring radar reticle, sequential beam search steps, and beacon diamonds) in a real browser at 1920x1080 100% zoom at `http://localhost:8080/#explore` and `http://localhost:8080/#hnsw`. Next task number is T-092.
 >
 > **NEEDED FROM THE HUMAN**: (1) Browser check across tabs; (2) Feedback on the precision CAD canvas rendering.
 
@@ -15,6 +15,17 @@ Last updated: 2026-11-16 by T-090 sync
   - HNSW tab: COMPLETE & Symmetrical Studio Workbench (T-088, ADR-081, T-090). Perfectly balanced 3-column grid (`390px | 1fr | 390px`): Left (390px) = Collection/Layer Config card + Graph Topology Summary card; Center (~820px) = Hero Precision Graph Viewport with beacon diamonds for entry nodes, antialiased edge web, and sequential step indicators (`#1`, `#2`, `#3`) along the beam search path; Right (390px) = Target Launcher + VCR Playback + Live Step Telemetry.
   - Compare tab: COMPLETE & Zero-Waste Benchmark Arena (T-089, ADR-082). Full-height spec sheet (`flex: 1 1 0; min-height: 0;`), row-by-row horizontal metric alignment (Median Latency, Distance Comps, Top-K Recall) across all 3 algorithm columns (Brute Force, KD-Tree, HNSW), compact 42px toolbar, zero empty black space.
   - Settings tab: COMPLETE & 3-Column Symmetrical Studio Console (T-089, ADR-082). Server & Health column with 2-column metrics bento; Demo Collection column with hyperparameter forms + synthetic vector ingestion; Storage & Maintenance column with persistence telemetry, 2-step chat clear, and 2-step danger reset. All DOM IDs reconnected to `settings.js`.
+
+## T-091 summary (ADR-084; Fixed SyntaxError in hnsw.js Restoring App Boot and Tab Switching)
+
+- **Goal & Motivation**: Fix critical blocking issue where user was unable to switch tabs from the Ask tab to Explore, HNSW, Compare, or Settings ("brooo mai open hee nhi krr pa rha hu tab ko ask tab sa kisi aur maii ja hee nhi paraaa").
+- **Root Cause & Fix**:
+  - Node.js ESM import check identified an unexpected token `}` at line 542 in `web/js/hnsw.js`. Tracing braces revealed a duplicate closing brace `}    }` at line 362 introduced during T-090 canvas rendering updates.
+  - In modern ES module architectures, a single syntax error anywhere in the imported module graph aborts `main.js` execution, which prevented `initTabs(".tab-nav")` from attaching click listeners to the sidebar navigation buttons.
+  - Removed duplicate brace. Tested and verified that all 20 JavaScript modules in `web/js/` parse and evaluate cleanly in Node.js with 0 errors.
+  - Ran `check_web_safety.ps1`: ALL CHECKS PASSED (0 violations).
+  - Ran `vectordb_tests.exe`: 118 / 118 tests passed.
+  - Tab navigation is now 100% active and responsive across all 5 tabs.
 
 ## T-090 summary (ADR-083; $10,000 Product-Grade Canvas Elevation & Precision CAD Rendering)
 
