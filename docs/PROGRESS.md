@@ -1,8 +1,17 @@
 # Project Progress
 
-Last updated: 2026-11-16 by T-096 sync
+Last updated: 2026-11-16 by T-099 sync
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform
+
+- **T-099**: Pre-merge cleanup (gitignore + docs sync) on branch `ui-redesign-v4`.
+  - **Goal**: Prepare `ui-redesign-v4` for merge to `main`. Keep builder scratch files and old logs out of git; sync docs with human-confirmed state.
+  - Added `scratch/` and `results/logs/` to `.gitignore` (files remain on disk).
+  - Docs updated: human-confirmed `/tests.html` 190/190 (2026-11-16 22:26, real browser); HEAD `5446fde`; 118/118 C++ tests; scanner 29 files clean; `!important` = 2; `box-shadow` = 0; engine diff empty.
+  - Docs updated: UI FROZEN by human decision. Deferred visual issues recorded (Compare KD-Tree rounding, Settings duplicate doc/empty space, Explore axis label overlap, HNSW L0 hairball).
+  - Docs updated: New product direction recorded (free open-source self-hosted learning platform for students).
+  - One commit: `chore: gitignore scratch and old logs, sync docs for T-099`.
+  - **Verification**: `git status -sb` shows only `.gitignore` and docs modified; `scratch/` and `results/logs/` entries absent from status output; files still on disk.
 
 - **T-098**: Content Architecture Rebalance for Compare & Settings (Single-Screen, Zero-Scroll) on branch ui-redesign-v4.
   - **Goal**: Rebalance content architecture and eliminate large empty voids (~400px in Settings, ~350px in Compare) seen at 1920x1080 100% zoom by adding real useful backend data rather than artificial stretching.

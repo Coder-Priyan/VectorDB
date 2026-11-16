@@ -29,3 +29,9 @@ compile_commands.json
 *.swp
 *~
 .DS_Store
+
+# Builder scratch scripts (untracked by design)
+scratch/
+
+# Execution logs and benchmark results
+results/logs/

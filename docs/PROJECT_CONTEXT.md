@@ -203,20 +203,27 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
 
 ---
 
-## 7. Verification Status (as of 2026-11-16 SYNC-013)
+## 7. Verification Status (as of 2026-11-16 T-099)
 
 > [!IMPORTANT]
-> **Verification State (SYNC-013)**: The human has **NOT** yet confirmed anything about T-071 through T-092 by terminal or screenshots in the Brain chat. The last human-confirmed state is SYNC-012 (commit `7352605`, `/tests.html` 141/141 passed). All progress, layouts, and test counts (156 registered browser tests) reported for T-071 through T-092 are [builder-reported] claims only, not yet confirmed by the human.
+> **Verification State (T-099)**: Human confirmed on 2026-11-16 22:26 by real browser: `/tests.html` **190/190 passed**. Registered browser test count is 190. Older numbers 172 and 185 are stale. All visual states for T-071 through T-098 are **not tested (visual)** / builder-reported only.
 
-- **Human-Confirmed on 2026-11-15 23:26 (Terminal & Browser after T-070)**:
-  - `/tests.html`: **141/141 passed** (human-confirmed at 22:17 after T-066 and re-confirmed at 23:26 after T-070).
-  - Git state: HEAD `7352605` (`docs: T-070 sync`), preceded by `953421a` (T-070 B), `0a804dc` (T-070 A), `b7ee8da` (docs: T-069 sync), `386054b` (T-069).
+- **Human-Confirmed on 2026-11-16 22:26 (Real Browser + Terminal)**:
+  - `/tests.html`: **190/190 passed** (real browser, human-confirmed 2026-11-16 22:26). Registered browser test count is 190; older numbers 172 and 185 are stale.
+  - Git state: HEAD `5446fde`; `ui-redesign-v4` is 246 commits ahead of `main`; `main` has 0 commits not in `v4`.
   - C++ hermetic suite: 118/118 passed (529,813 assertions).
-  - Web safety automated scanner: 28 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
-  - CSS Quality metrics: `!important` count = 2 (<= 2), `box-shadow` count = 0, zero hex color literals in `web/js` outside `colors.js`.
+  - Web safety automated scanner: 29 files scanned, 100% clean (zero forbidden patterns, strict CSP verified).
+  - CSS Quality metrics: `!important` count = 2, `box-shadow` count = 0, zero hex color literals in `web/js` outside `colors.js`.
   - Git engine check: `git diff --stat ui-quiet-studio -- src include tests` strictly empty.
-  - Working tree: clean tracked files; only untracked `results/logs/` files.
-  - Human review of T-069 (Compare) and T-070 (Settings) via 1920x1080 100% screenshots at 23:26: neither layout is liked yet (Compare 'poora look pasand nahi', Settings 'maja nahi aaya'). Human will provide his own design in the next Brain chat.
+  - Working tree: `scratch/` and `results/logs/` now gitignored (files still on disk).
+
+- **UI Freeze (2026-11-16)**: UI work is FROZEN by human decision. Known deferred visual issues (do NOT fix before merge):
+  - Compare: KD-Tree shows "1.0x slower" for 166 µs vs 160 µs (rounding/threshold edge case).
+  - Settings: `vectordb_intro` document listed twice; empty space visible inside cards.
+  - Explore: Bottom axis labels overlap the viewport hint pill.
+  - HNSW L0: Dense hairball on large collections.
+
+- **New Product Direction (2026-11-16)**: VectorDB is repositioned as a **free, open-source, self-hosted learning platform** for students who want to understand vector databases, HNSW, KD-Tree, Brute Force, and RAG pipelines interactively. Fully offline; Ollama required only for the Ask/RAG tab. Planned post-merge order: fill LICENSE name → Linux/macOS build check → beginner-friendly README with screenshots → Docker or Windows release zip → short in-app learning path. Marketing website is on hold.
 
 - **Antigravity Terminal Verification after T-070 (Builder-Reported)**:
   - Commits: `0a804dc` (T-070 A), `953421a` (T-070 B), `7352605` (docs: T-070 sync).
