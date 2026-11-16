@@ -299,3 +299,22 @@ Last updated: 2026-11-16 by T-072 sync
   3. **Strict Invariants**:
      - Ask tab and C++ engine 100% frozen.
      - Zero non-root hex colors, zero box-shadow, <= 2 !important, zero innerHTML, 118/118 C++ tests pass.
+
+### ADR-083: $10,000 Product-Grade Canvas Elevation & Precision CAD Rendering (2026-11-16)
+
+- **Context**: The user requested discarding all previous amateur/admin-panel design assumptions and approaching the entire UI from scratch as a top-tier lead developer designing a $10,000 product ("poorana sab bhool jaao jo bhi haii ask tab bhii, sab suru sa start krr rhe hai hum new developer ka saath usko previos kuch bhi nhi pata haii toh woh apna hisab sa karega woh bhi worth 10k dollars").
+- **Architectural & Visual Decisions**:
+  1. **Explore 2D PCA Coordinate Radar**:
+     - Upgraded from simple canvas dots to a high-precision CAD coordinate plane with faint grid lines (`rgba(255, 255, 255, 0.025)`) and micro cross marks.
+     - Ambient vectors rendered as crisp sub-pixel constellation points (`3.5px`, `rgba(217, 164, 65, 0.55)`).
+     - Query target rendered with a multi-tier radar lock reticle (outer dashed circle, inner solid circle, center dot, crosshair ticks, and floating pill badge).
+     - Top nearest neighbor matches highlighted with outer gold halos, white core dots, sequential rank badges (`#1`, `#2`), and dashed connecting geodesics.
+     - Hovered vector displays an instant floating coordinate tooltip `ID #N (PC1, PC2)`.
+  2. **HNSW Multi-Layer Graph Topology**:
+     - Entry node rendered with beacon diamond outer ring, inner core, and uppercase pill badge `ENTRY NODE (LN)`.
+     - Beam search trace path rendered with animated connecting lines, active node beacon, and sequential step indicators (`#1`, `#2`, `#3`) allowing users to visually follow the greedy routing across layers.
+     - Search target rendered with gold crosshair diamond reticle.
+  3. **Strict Invariants**:
+     - Zero innerHTML, strict CSP verified.
+     - 0 non-root hex, 0 box-shadow, <= 2 !important.
+     - 118/118 C++ tests pass.

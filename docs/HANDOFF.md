@@ -1,20 +1,39 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-089 sync
+Last updated: 2026-11-16 by T-090 sync
 
-> **NEXT STEP**: Human verifies T-089 (Compare and Settings tabs rebuilt as Zero-Waste Studio Workbenches; 100% full vertical fill, 0px bottom void, row-by-row horizontal metric alignment in Compare, and fully re-hooked interactive forms and danger controls in Settings) in a real browser at 1920x1080 100% zoom at `http://localhost:8080/#compare` and `http://localhost:8080/#settings`. Brain reviews feedback and finalizes the complete UI suite with the user. Next free ADR is ADR-083. Next free ISS is ISS-089. Next task number is T-090.
+> **NEXT STEP**: Human verifies T-090 ($10,000 Product-Grade Canvas Visualizers in Explore & HNSW: precision CAD coordinate plane, constellation vector points, multi-ring radar reticle, sequential beam search steps, and beacon diamonds) in a real browser at 1920x1080 100% zoom at `http://localhost:8080/#explore` and `http://localhost:8080/#hnsw`. Next task number is T-091.
 >
-> **NEEDED FROM THE HUMAN**: (1) Browser check at `http://localhost:8080/#compare` and `http://localhost:8080/#settings`; (2) Screenshot or feedback on the updated tabs.
+> **NEEDED FROM THE HUMAN**: (1) Browser check across tabs; (2) Feedback on the precision CAD canvas rendering.
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
 - **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Registered browser unit tests expanded to **156** in code (156/156 pass in test runner; human run at `/tests.html` pending).
 - **Git State**: Local branch `ui-redesign-v4`, clean working tree (only untracked `results/logs/`), commits unpushed per protocol.
 - **Current UI State**:
-  - Ask tab: COMPLETE, human-approved, and human-verified (100% frozen).
-  - Explore tab: COMPLETE & Symmetrical Studio Workbench (T-087, ADR-080). Perfectly balanced 3-column grid (`390px | 1fr | 390px`): Left (390px) = Dataset & Variance Bento; Center (~820px) = 2D PCA Precision Canvas with crisp matte crosshairs and zero glow; Right (390px) = Ranked Neighbors + Selected Vector Inspection card.
-  - HNSW tab: COMPLETE & Symmetrical Studio Workbench (T-088, ADR-081). Perfectly balanced 3-column grid (`390px | 1fr | 390px`): Left (390px) = Collection/Layer Config card + Graph Topology Summary card; Center (~820px) = Hero Precision Graph Viewport with legend, high-res graph canvas, and navigation hints; Right (390px) = Beam Search Launcher card + VCR Playback Transport card + Step Telemetry & Search Stats Bento card. Single-screen zero-scroll guarantee.
+  - Ask tab: COMPLETE, human-approved, and human-verified.
+  - Explore tab: COMPLETE & Symmetrical Studio Workbench (T-087, ADR-080, T-090). Perfectly balanced 3-column grid (`390px | 1fr | 390px`): Left (390px) = Dataset & Variance Bento; Center (~820px) = Precision 2D CAD Coordinate Plane with constellation vector points, multi-ring radar target reticle, and dashed connecting geodesics; Right (390px) = Ranked Neighbors + Selected Vector Inspection card.
+  - HNSW tab: COMPLETE & Symmetrical Studio Workbench (T-088, ADR-081, T-090). Perfectly balanced 3-column grid (`390px | 1fr | 390px`): Left (390px) = Collection/Layer Config card + Graph Topology Summary card; Center (~820px) = Hero Precision Graph Viewport with beacon diamonds for entry nodes, antialiased edge web, and sequential step indicators (`#1`, `#2`, `#3`) along the beam search path; Right (390px) = Target Launcher + VCR Playback + Live Step Telemetry.
   - Compare tab: COMPLETE & Zero-Waste Benchmark Arena (T-089, ADR-082). Full-height spec sheet (`flex: 1 1 0; min-height: 0;`), row-by-row horizontal metric alignment (Median Latency, Distance Comps, Top-K Recall) across all 3 algorithm columns (Brute Force, KD-Tree, HNSW), compact 42px toolbar, zero empty black space.
   - Settings tab: COMPLETE & 3-Column Symmetrical Studio Console (T-089, ADR-082). Server & Health column with 2-column metrics bento; Demo Collection column with hyperparameter forms + synthetic vector ingestion; Storage & Maintenance column with persistence telemetry, 2-step chat clear, and 2-step danger reset. All DOM IDs reconnected to `settings.js`.
+
+## T-090 summary (ADR-083; $10,000 Product-Grade Canvas Elevation & Precision CAD Rendering)
+
+- **Goal & Motivation**: Addressed user instruction to approach the UI from scratch as a top-tier developer designing a $10,000 product. Elevated the canvas visualizers in Explore and HNSW from flat generic dots into high-precision, constellation-grade instruments.
+- **Visual Architecture**:
+  - **Explore Canvas**:
+    - Faint CAD coordinate plane with background grid lines (`rgba(255, 255, 255, 0.025)` every 0.1 units).
+    - Constellation vector points (`3.5px`, soft amber alpha `rgba(217, 164, 65, 0.55)`).
+    - Multi-ring radar lock reticle on query target (crosshair ticks, dashed outer circle, white inner circle, amber center core, and floating "QUERY TARGET" pill badge).
+    - Ranked nearest neighbor matches highlighted with outer gold halos, white core dots, sequential rank badges (`#1`, `#2`), and dashed connecting geodesics (`rgba(217, 164, 65, 0.35)`).
+    - Instant hover coordinate pill with vector ID and (PC1, PC2) floating tooltip.
+  - **HNSW Canvas**:
+    - Entry node highlighted with beacon diamond rings and uppercase pill badge `ENTRY NODE (LN)`.
+    - Beam search trace path rendered with animated connecting lines, active node beacon, and sequential step indicators (`#1`, `#2`, `#3`) allowing users to visually follow the greedy routing across layers.
+    - Search target rendered with gold crosshair diamond reticle.
+- **Strict Invariants**:
+  - Zero innerHTML, strict CSP verified.
+  - 0 non-root hex, 0 box-shadow, <= 2 !important.
+  - 118/118 C++ tests pass.
 
 ## T-089 summary (ADR-082; Compare & Settings Tabs Rebuilt as Zero-Waste Studio Workbenches)
 
