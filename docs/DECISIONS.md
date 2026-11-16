@@ -281,3 +281,21 @@ Last updated: 2026-11-16 by T-072 sync
      - Ask tab and C++ engine 100% frozen.
      - All 44 original HNSW DOM IDs verified and present.
      - 0 non-root hex colors, 0 box-shadow, <= 2 !important, zero innerHTML, 118/118 C++ tests pass.
+
+### ADR-082: Compare & Settings Tabs Overhaul into Zero-Waste Studio Workbenches (2026-11-16)
+
+- **Context**: The user instructed to overhaul both the Compare and Settings tabs with the same zero-glow, professional, and aesthetic design language, explicitly stressing that space must not be wasted (`hann banaoo lakin professional lgna chaiyaa aur asthetic, space waste nhi honi chaiyaaa`). Previously, Compare suffered from a `flex: none` container bug that created ~350px of dead black void at the bottom of 1080p displays, while Settings had ID mismatches that broke interactive button hooks.
+- **Architectural & Design Decisions**:
+  1. **Compare Tab — Full-Height Hardware Benchmark Arena**:
+     - **Control Toolbar Strip**: Compact 42px studio toolbar containing Collection selector, Repetitions dropdown, semantic Docs query input, Amber hero "Benchmark Random Query" action, Options button with parameters popover ($k$, $efSearch$, Stored Vector ID), and live health status badge.
+     - **Zero Wasted Space (Full Vertical Fill)**: Changed `.compare-results-view` to `display: flex; flex-direction: column; width: 100%; height: 100%; flex: 1 1 0; min-height: 0;` and `.compare-cards-container` to `flex: 1 1 0; min-height: 0;`.
+     - **Row-by-Row Horizontal Metric Alignment**: Configured `.spec-section` blocks across the 3 algorithm columns (Brute Force, KD-Tree, HNSW) with `flex: 1 1 0; display: flex; flex-direction: column; justify-content: center;`. Now, Median Latency hero readouts, Distance Computations workload, and Accuracy & Top-K Recall align horizontally across columns with zero bottom voids.
+     - **Studio Empty State**: Upgraded `#compare-empty-state` into a centered matte studio card with amber activity icon, descriptive architecture note, and direct action button.
+  2. **Settings Tab — 3-Column Symmetrical Studio Console**:
+     - **Column 1 (Server & Health)**: Header with live status badge (`Server ok`) and Ollama chip (`Ollama online`); 2-column tabular telemetry bento (Version, Dim, Metric, M, efConstruction, efSearch, Vectors, Memory) with 8px compact padding; Installed Models chip list.
+     - **Column 2 (Demo Collection & Ingestion)**: Form with Dimension, Distance Metric selector, M, efConstruction; Synthetic Vector Generator form (`#demo-random-count`, `#demo-insert-random-btn`) with live status feedback.
+     - **Column 3 (Storage, Maintenance & Danger Zone)**: Persistence status badge (`#settings-persistence-status`) and directory code pill; Chat history purger with 2-step confirmation (`#settings-clear-chats-btn`, `#settings-clear-chats-cancel-btn`); Interactive Test Suite link; isolated Danger Zone with 2-step confirm (`#demo-reset-btn`, `#demo-reset-cancel-btn`).
+     - **Interactive DOM Contract Restoration**: Fixed all HTML IDs (`demo-insert-random-btn`, `demo-random-count`, `demo-reset-btn`, `demo-reset-cancel-btn`, `settings-clear-chats-btn`, etc.) to match `web/js/settings.js`, restoring all live backend actions.
+  3. **Strict Invariants**:
+     - Ask tab and C++ engine 100% frozen.
+     - Zero non-root hex colors, zero box-shadow, <= 2 !important, zero innerHTML, 118/118 C++ tests pass.

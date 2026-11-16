@@ -1,10 +1,10 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-088 sync
+Last updated: 2026-11-16 by T-089 sync
 
-> **NEXT STEP**: Human verifies T-088 (HNSW Tab Rebuilt as Symmetrical 3-Column Studio Workbench: 390px Left Panel == 390px Right Panel, with Center Hero Graph Canvas comparatively larger at ~820px, single-screen zero-scroll guarantee, zero-glow matte aesthetic) in a real browser at 1920x1080 100% zoom at `http://localhost:8080/#hnsw`; Brain reviews screenshot/feedback and proceeds to next tab (Compare or Settings) with the user. Next free ADR is ADR-082. Next free ISS is ISS-088. Next task number is T-089.
+> **NEXT STEP**: Human verifies T-089 (Compare and Settings tabs rebuilt as Zero-Waste Studio Workbenches; 100% full vertical fill, 0px bottom void, row-by-row horizontal metric alignment in Compare, and fully re-hooked interactive forms and danger controls in Settings) in a real browser at 1920x1080 100% zoom at `http://localhost:8080/#compare` and `http://localhost:8080/#settings`. Brain reviews feedback and finalizes the complete UI suite with the user. Next free ADR is ADR-083. Next free ISS is ISS-089. Next task number is T-090.
 >
-> **NEEDED FROM THE HUMAN**: (1) Browser check at `http://localhost:8080/#hnsw`; (2) Screenshot or feedback on the Symmetrical HNSW workbench.
+> **NEEDED FROM THE HUMAN**: (1) Browser check at `http://localhost:8080/#compare` and `http://localhost:8080/#settings`; (2) Screenshot or feedback on the updated tabs.
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
 - **/tests.html**: **141/141 passed**, human-confirmed on 2026-11-15 22:17 (after T-066) and re-confirmed at 23:26 (after T-070). Registered browser unit tests expanded to **156** in code (156/156 pass in test runner; human run at `/tests.html` pending).
@@ -13,8 +13,26 @@ Last updated: 2026-11-16 by T-088 sync
   - Ask tab: COMPLETE, human-approved, and human-verified (100% frozen).
   - Explore tab: COMPLETE & Symmetrical Studio Workbench (T-087, ADR-080). Perfectly balanced 3-column grid (`390px | 1fr | 390px`): Left (390px) = Dataset & Variance Bento; Center (~820px) = 2D PCA Precision Canvas with crisp matte crosshairs and zero glow; Right (390px) = Ranked Neighbors + Selected Vector Inspection card.
   - HNSW tab: COMPLETE & Symmetrical Studio Workbench (T-088, ADR-081). Perfectly balanced 3-column grid (`390px | 1fr | 390px`): Left (390px) = Collection/Layer Config card + Graph Topology Summary card; Center (~820px) = Hero Precision Graph Viewport with legend, high-res graph canvas, and navigation hints; Right (390px) = Beam Search Launcher card + VCR Playback Transport card + Step Telemetry & Search Stats Bento card. Single-screen zero-scroll guarantee.
-  - Compare tab: Apple-grade Spec Sheet Comparison Matrix (T-079).
-  - Settings tab: Single-screen unified Bento dashboard (T-078).
+  - Compare tab: COMPLETE & Zero-Waste Benchmark Arena (T-089, ADR-082). Full-height spec sheet (`flex: 1 1 0; min-height: 0;`), row-by-row horizontal metric alignment (Median Latency, Distance Comps, Top-K Recall) across all 3 algorithm columns (Brute Force, KD-Tree, HNSW), compact 42px toolbar, zero empty black space.
+  - Settings tab: COMPLETE & 3-Column Symmetrical Studio Console (T-089, ADR-082). Server & Health column with 2-column metrics bento; Demo Collection column with hyperparameter forms + synthetic vector ingestion; Storage & Maintenance column with persistence telemetry, 2-step chat clear, and 2-step danger reset. All DOM IDs reconnected to `settings.js`.
+
+## T-089 summary (ADR-082; Compare & Settings Tabs Rebuilt as Zero-Waste Studio Workbenches)
+
+- **Goal & Motivation**: Rebuilt Compare and Settings tabs following user instructions to eliminate wasted space ("space waste nhi honi chaiyaaa") and present a serious, elegant, professional studio interface with zero glow.
+- **Studio Architecture**:
+  - **Compare Tab**:
+    - Compact 42px studio control row with Collection, Repetitions, Docs semantic input, amber hero "Benchmark Random Query" button, parameters popover ($k$, $efSearch$, Stored Vector ID), and live health status badge.
+    - Full-height results container eliminating the ~350px dead black void at screen bottom.
+    - Equal-flex vertical pacing (`.spec-section { flex: 1 1 0; justify-content: center; }`) ensuring Latency, Distance Computations, and Accuracy rows align horizontally across Brute Force, KD-Tree, and HNSW pods.
+  - **Settings Tab**:
+    - Symmetrical 3-Column Studio Console with balanced cards.
+    - Column 1: Server health status, Ollama online pill, 2-column tabular metrics bento (8 server metrics), Ollama models chip list.
+    - Column 2: Dimension, Distance Metric selector, M, efConstruction form; Synthetic Vector Generator form (`+ Insert Vectors`) with live status feedback.
+    - Column 3: Disk persistence status and path pill, Chat history purger with 2-step confirmation, Interactive Test Suite link, and isolated Danger Zone with 2-step confirmation.
+    - Restored all interactive button bindings (`demo-insert-random-btn`, `demo-random-count`, `demo-reset-btn`, `demo-reset-cancel-btn`, `settings-clear-chats-btn`).
+- **Strict Invariants**:
+  - Ask tab and C++ engine 100% frozen.
+  - Zero non-root hex colors, zero box-shadow, <= 2 !important, zero innerHTML, 118/118 C++ tests pass.
 
 ## T-088 summary (ADR-081; HNSW Tab Rebuilt as Symmetrical 3-Column Studio Workbench 390px | 1fr | 390px)
 
