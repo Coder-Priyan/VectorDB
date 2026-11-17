@@ -14,7 +14,7 @@ VectorDB is an educational vector database built from scratch in C++17 with a ze
 
 VectorDB is structured for studying core semantic search concepts:
 
-- Vector embeddings and distance metrics including Euclidean, Cosine, and Dot Product.
+- Vector embeddings and distance metrics including Euclidean, Manhattan, and Cosine.
 - Exact nearest neighbor retrieval using Brute Force linear scans.
 - Space partitioning and median hyperplanes using flat-array KD-Trees.
 - Multi-layer proximity graph routing and beam search using HNSW graphs.
@@ -37,11 +37,11 @@ The Explore, HNSW, and Compare tabs work on synthetic demo vectors without Ollam
 
 The web interface provides five dedicated views:
 
-- **Ask**: RAG workspace for document question answering. You ingest text documents, ask questions, and inspect citation snippets, retrieval timings, and prompt construction.
+- **Ask**: RAG workspace for document question answering. You ingest text documents, ask questions, and inspect citation snippets and retrieval timings.
 - **Explore**: 2D projection canvas. It projects high-dimensional vectors onto a two-dimensional plane using matrix-free Principal Component Analysis (PCA) and displays nearest neighbors for queries.
-- **HNSW**: Proximity graph inspector. You can view graph nodes by layer, verify connectivity invariants, and trace greedy search paths across layers.
-- **Compare**: Search benchmark suite. It runs a query across Brute Force, KD-Tree, and HNSW on all three algorithms to compare latency, distance computations, and recall.
-- **Settings**: System health and configuration dashboard. You can inspect server status, generate synthetic vectors, adjust index parameters, and manage persistence storage.
+- **HNSW**: Proximity graph inspector. You can view graph nodes by layer and trace greedy search paths across layers.
+- **Compare**: Search benchmark suite. It runs a query across Brute Force, KD-Tree, and HNSW to compare latency, distance computations, and recall.
+- **Settings**: System health and configuration dashboard. You can inspect server status, view persistence status, generate synthetic vectors, and reset collections.
 
 ---
 
