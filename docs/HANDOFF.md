@@ -1,9 +1,9 @@
 # Project Handoff
 
-Last updated: 2026-11-17 by SYNC-015
+Last updated: 2026-11-17 by T-106
 
-> **CURRENT STATUS**: Branch `main`. HEAD `d7b8bd4` (pushed to `origin/main`), plus the `SYNC-015` commit.
-> **CRITICAL PROTOCOL**: Check 5 (`--host 0.0.0.0` test) is the **ONLY OWED GATE** before the Dockerfile task (the CI condition is now met via GitHub Actions run #4). Brain must **NOT** write a Dockerfile task before Check 5 is confirmed by the human.
+> **CURRENT STATUS**: Branch `main`. Dockerfile and `.dockerignore` authored (T-106) following ADR-099 after Check 5 confirmation.
+> **CRITICAL PROTOCOL**: All 5 verification gates (Checks 1, 2, 4, 5) are confirmed DONE (Check 3 SKIPPED/OPEN as verification debt). Next focus: README platform statement, packaging, and student curriculum.
 
 ---
 
@@ -28,21 +28,19 @@ Last updated: 2026-11-17 by SYNC-015
      - Ubuntu Build & Test (Linux) green: steps "Configure CMake", "Build VectorDB", and "Run Test Suite" all passed.
      - Windows Build & Test (UCRT64) green: including Web Safety Scanner.
      - Not seen: actual test count line in the Ubuntu "Run Test Suite" log. Linux build + hermetic tests confirmed in CI only; macOS remains unverified.
-5. **Check 5 (Server `--host 0.0.0.0` Binding & Compare Test)** — 🔴 **STILL OWED**:
-   - Start server with `.\build\vectordb_server.exe --host 0.0.0.0 --port 8080 --web-dir web`.
-   - Open `http://localhost:8080/` in browser, add vectors via Settings Demo form first, navigate to Compare tab, run benchmark.
-   - Report success or 403 / error.
-   - **Dockerfile task stays BLOCKED until Check 5 result is confirmed.**
+5. **Check 5 (Server `--host 0.0.0.0` Binding & Compare Test)** — ✅ **DONE**:
+   - Confirmed by human on 2026-11-17: Server started with `.\build\vectordb_server.exe --host 0.0.0.0 --port 8080 --web-dir web`.
+   - Settings tab: inserted 100 random vectors via Demo form.
+   - Compare tab: benchmark executed successfully across Brute Force, KD-Tree, and HNSW with zero 403 / CORS errors.
+   - Unblocked Dockerfile task (T-106).
 
 ---
 
 ## 3. Next Steps in Priority Order
-1. **Check 5**: Human executes and reports server `--host 0.0.0.0` loopback/Compare test.
-2. **Dockerfile Task**: Author container specification following ADR-099 rules (loopback publish `127.0.0.1:8080:8080`, `--host 0.0.0.0`, volume for `--data-dir`, Release build).
-3. **Update README Platform Statement**: Update platform line to reflect Linux build + tests verified in CI only (macOS still unverified).
-4. **Packaging Decision**: Decide on Docker container vs Windows release `.zip` on GitHub Releases (or offering both).
-5. **Interactive Curriculum / Learning Path**: Short guided documentation covering Brute Force baseline, KD-Tree orthogonal splits, and HNSW multi-layer navigation.
-6. **ISS-110 Decisions**: Human decision on remaining hardcoded strings (items 2, 4, 5, 6, 7).
+1. **Update README Platform Statement**: Update platform line to reflect Linux build + tests verified in CI only (macOS still unverified).
+2. **Packaging Decision**: Decide on Docker container vs Windows release `.zip` on GitHub Releases (or offering both).
+3. **Interactive Curriculum / Learning Path**: Short guided documentation covering Brute Force baseline, KD-Tree orthogonal splits, and HNSW multi-layer navigation.
+4. **ISS-110 Decisions**: Human decision on remaining hardcoded strings (items 2, 4, 5, 6, 7).
 
 ---
 

@@ -1,0 +1,21 @@
+# Build output directories
+build/
+bin/
+lib/
+out/
+
+# Version control
+.git/
+.gitignore
+
+# IDE and editor settings
+.vscode/
+.idea/
+
+# Local artifacts and test results
+scratch/
+results/
+data/
+
+# Documentation mockups (not needed in image)
+docs/mockups/

@@ -1,8 +1,19 @@
 # Project Progress
 
-Last updated: 2026-11-17 by SYNC-015
+Last updated: 2026-11-17 by T-106
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform
+
+- **T-106**: Add Dockerfile and .dockerignore for loopback-only container run on branch `main`.
+  - **Dockerfile**:
+    - Multi-stage build based on `ubuntu:24.04`.
+    - Stage 1 (builder): installs `cmake ninja-build g++ ca-certificates`, configures with `-DCMAKE_BUILD_TYPE=Release`, builds target `vectordb_server`.
+    - Stage 2 (runtime): dedicated non-root user `vectordb` (UID 1000), directories `/app/web` and `/data` with proper permissions.
+    - Default CMD: `["/app/vectordb_server", "--host", "0.0.0.0", "--port", "8080", "--web-dir", "/app/web", "--data-dir", "/data", "--cors-origin", "http://localhost:8080"]`.
+    - Declared `VOLUME /data` and `EXPOSE 8080`.
+    - Header usage comment documents standard run (`docker run --rm -p 127.0.0.1:8080:8080 -v vectordb-data:/data vectordb`), ADR-099 loopback binding security invariant, and instructions for connecting to host Ollama with `--allow-remote-ollama`.
+  - **.dockerignore**: Excludes `build/`, `bin/`, `lib/`, `out/`, `.git/`, `scratch/`, `results/`, `docs/mockups/`, `data/`, `.vscode/`, `.idea/`.
+  - **Verification**: Check 5 confirmed by human; docker build NOT TESTED (docker is not installed on local Windows development host).
 
 - **SYNC-015**: Documentation synchronization & handoff preparation (MODE: RESUME) on branch `main`.
   - **HANDOFF.md**: Refreshed to record Check 1 (git state, SIMD grep zero visible claims) DONE; Check 2 (/tests.html 190/190, Settings 1920x1080 screenshot) DONE; Check 3 (footprint test, ISS-113) SKIPPED/OPEN; Check 4 (GitHub Actions run #4 Ubuntu and Windows green) DONE; Check 5 (`--host 0.0.0.0` test) STILL OWED as the sole blocking gate before Dockerfile task.
