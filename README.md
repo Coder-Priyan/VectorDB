@@ -155,9 +155,6 @@ vectordb/
 │   ├── css/app.css             # Theme stylesheet
 │   └── js/                     # Frontend ES6 JavaScript modules
 ├── docs/                       # Project documentation
-│   ├── ARCHITECTURE.md         # Architecture and data flow
-│   ├── DECISIONS.md            # Architectural Decision Records (ADRs)
-│   ├── KNOWN_ISSUES.md         # Issue and risk tracker
 │   └── LEARNING_GUIDE.md       # 6-module vector search curriculum
 └── scripts/
     └── check_web_safety.ps1    # Automated DOM security and CSP scanner

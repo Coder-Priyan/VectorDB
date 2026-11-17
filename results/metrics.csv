@@ -1,3 +1,0 @@
-n,dim,metric,M,efConstruction,efSearch,seed,bf_median_ms,hnsw_median_ms,hnsw_min_ms,hnsw_max_ms,speedup_vs_bf,recall_at_10
-20000,128,cosine,16,200,100,42,1.5374,0.3150,0.3104,0.3539,4.88,0.6120
-20000,128,manhattan,16,200,100,42,0.8202,0.1934,0.1921,0.2067,4.24,0.7450
