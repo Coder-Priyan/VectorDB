@@ -5,7 +5,7 @@
 - **Audience**: Developers and students building VectorDB natively on Windows from source code.
 - **Outcome**: A compiled C++17 server running locally with the browser interface accessible at `http://localhost:8080/`.
 - **Estimated time**: About 5 to 10 minutes (excluding optional language model download time).
-- **Prerequisites**: Windows 10 or 11 (64-bit), internet access for the initial toolchain download.
+- **Prerequisites**: Windows 10 or 11 (64-bit), internet access for the initial toolchain download, and Git for Windows (https://git-scm.com) if cloning with Git (downloading a ZIP archive from GitHub requires no Git).
 
 ---
 
@@ -30,7 +30,7 @@ pacman -S --noconfirm mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake ming
 
 Pacman downloads and installs the packages into `C:\msys64\ucrt64\bin`.
 
-To ensure CMake and Ninja are accessible in standard PowerShell windows, add `C:\msys64\ucrt64\bin` to your Windows user or system `PATH` environment variable.
+To ensure CMake and Ninja are accessible in standard PowerShell windows, add `C:\msys64\ucrt64\bin` to your Windows user or system `PATH` environment variable (if your default install path is `C:\msys64`).
 
 ---
 
@@ -81,7 +81,7 @@ PowerShell
 .\build\vectordb_tests.exe
 ```
 
-The test runner executes 118 registered tests hermetically and reports that all tests pass.
+The test runner executes the hermetic test suite and reports that all tests pass.
 
 ---
 
@@ -110,11 +110,11 @@ The VectorDB web interface loads with the Ask tab active.
 Explore the vector indexing engine without configuring external models:
 
 1. Open `http://localhost:8080/` in your browser.
-2. Click the **Settings** tab in the top navigation bar.
+2. Click the **Settings** tab in the sidebar navigation.
 3. Under the Demo Collection card, click `+100` to generate and insert 100 random synthetic vectors.
 4. Switch to the **Explore** tab to view the 2D PCA projection of your vectors and run visual neighbor searches.
 5. Switch to the **HNSW** tab to inspect proximity graph layers and trace search hops across hierarchy levels.
-6. Switch to the **Compare** tab and click **Run Benchmark** to compare latency, distance calculations, and recall across Brute Force, KD-Tree, and HNSW.
+6. Switch to the **Compare** tab and click **Benchmark Random Query** to compare latency, distance calculations, and recall across Brute Force, KD-Tree, and HNSW (or **Run Benchmark** when using documentation vectors).
 
 ---
 
@@ -139,7 +139,7 @@ PowerShell
 .\build\vectordb_server.exe --port 8080 --web-dir web
 ```
 
-5. Go to the **Ask** tab in your browser. Click the Documents drawer on the right side to upload a text or markdown file, then ask questions about its content.
+5. Go to the **Ask** tab in your browser. Click **Documents** to open the documents drawer on the right side. Under **Load file (.txt, .md <= 2 MB)**, select a plain text document (only plain text `.txt` and `.md` files are supported), or paste text into the content box, then click **Ingest Document**. Once ingested, ask questions about its content.
 
 Generating complete answers with a local language model on CPU hardware typically takes between 10 and 30 seconds per query.
 
@@ -165,5 +165,5 @@ The server creates the `./data` directory if it does not exist, saves collection
 | Permission denied on `vectordb_server.exe` during build | A running server process has locked the executable file. | Stop the process before rebuilding: `Get-Process vectordb_server \| Stop-Process -Force` in PowerShell. |
 | HTTP 415 Unsupported Media Type | A manual POST request via curl omitted the JSON content type header. | Pass the explicit header `-H "Content-Type: application/json"` and body `-d "{}"`. |
 | `ERR_ADDRESS_INVALID` in browser | The server was started with `--host 0.0.0.0` and opened at `http://0.0.0.0:8080/`. | Navigate to `http://localhost:8080/` or `http://127.0.0.1:8080/`. |
-| Ask tab displays Ollama offline | The Ollama service is not running or blocked on port 11434. | Start the Ollama application or run `ollama serve` in a terminal. |
+| Ask tab displays Ollama offline | The Ollama service is not running or blocked on port 11434. | Start the Ollama application and ensure it is listening on port 11434. |
 | Port 8080 already in use | Another application is listening on port 8080. | Pass a different port flag: `.\build\vectordb_server.exe --port 8081 --web-dir web`. |
