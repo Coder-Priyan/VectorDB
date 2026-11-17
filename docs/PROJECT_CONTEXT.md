@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-11-16 by SYNC-013
+Last updated: 2026-11-17 by SYNC-016
 
 ## 1. Operating Model
 
@@ -218,25 +218,36 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
     - Text searching via `Select-String` / `grep` matches all occurrences including variable names, DOM element IDs (`settings-simd-status`), and JSDoc comment blocks. When auditing for deprecated or prohibited strings (e.g. `SIMD`), always differentiate internal identifiers and code documentation from user-visible UI strings before reporting an issue as a defect.
 98. **Lesson (Brain Verification of Builder Claims & Real File Review)**:
     - The Brain must treat builder reports as claims rather than definitive proof. Before committing or authorizing a push, the Brain must independently read the actual modified file text (such as `README.md`) to verify accuracy, alignment with issue trackers (e.g. ISS-004), and exact adherence to specifications.
+99. **Lesson (Docker CI Failure & Accurate Diagnosis)**:
+    - Docker CI run #5 failed at runtime stage step 2/6 with "useradd: UID 1000 is not unique" because ubuntu:24.04 already has user "ubuntu" with UID 1000. Fixed in T-108 with UID 10001. Brain's first guess (.dockerignore) was wrong; only the real CI log gave the cause. Never fix a CI failure without the log.
+100. **Lesson (Trust Human Terminal Output Over Pasted Diffs)**:
+    - A report's pasted diff can be retyped or reformatted (T-107 "done" line looked broken in the report, but the real file was fine). Trust the human terminal output, not report diffs.
+101. **Lesson (Terminal Pagers & Command Output Loss)**:
+    - Terminal pagers: git diff output stops at "(END)"; use "git --no-pager diff" so later command output is not lost.
+102. **Lesson (Server 0.0.0.0 Binding Browser URL)**:
+    - Human confirmed by screenshot: Check 5 PASS (2026-11-17, server `--host 0.0.0.0`, opened as `http://localhost:8080/` NOT `http://0.0.0.0:8080/`, which gives `ERR_ADDRESS_INVALID` in modern browsers; Settings insert 100 vectors; Compare benchmark ran with no 403 errors).
+103. **Lesson (GitHub Actions Runs #6 and #7 Multi-Job Verification)**:
+    - Human confirmed by screenshot: GitHub Actions run #6 (commit `f67d1ea`) and run #7 (commit `4f32299`) all three jobs green: Windows Build & Test (UCRT64), Ubuntu Build & Test (Linux), and Docker Build & Smoke Test (without continue-on-error).
 
 ---
 
-## 7. Verification Status (as of 2026-11-17 SYNC-015)
+## 7. Verification Status (as of 2026-11-17 SYNC-016)
 
 > [!IMPORTANT]
-> **Verification State (SYNC-015)**:
+> **Verification State (SYNC-016)**:
 > - **Human-Confirmed on 2026-11-17 by Terminal & Screenshots**:
 >   - Current branch: `main` (intentional, merged from `ui-redesign-v4` by fast-forward).
->   - HEAD: `d7b8bd4` (T-105 commit), pushed to remote origin (`4a096ed..d7b8bd4`), preceded by `987c911` (T-104) and `4a096ed` (T-103).
->   - Grep verification: `Select-String -Path web\js\*.js,web\index.html -Pattern 'SIMD'` gives exactly 6 matches, strictly internal code names or JSDoc comments (`settings-simd-status` ID, `simdStatusEl`, `simdStatus`, 2 JSDoc comments); zero visible UI claims.
->   - Real browser `/tests.html`: **190/190 passed** (confirmed 2026-11-17 09:08, post-T-103).
->   - Settings UI screenshot (1920x1080 100% zoom, 09:09): Shows label `"Optimization:"`, `"Index State: Active"`, and `"Footprint / Vec: 512 Bytes (128 × float32)"`.
->   - GitHub Actions run #4 (commit `d7b8bd4`, 2026-11-17): Ubuntu Build & Test (Linux) green, steps "Configure CMake", "Build VectorDB", and "Run Test Suite" all passed; Windows Build & Test (UCRT64) green including Web Safety Scanner. (Not seen: exact test count line in Ubuntu "Run Test Suite" log. Linux build + hermetic tests confirmed in CI only; macOS remains unverified).
->   - Check 5 (`--host 0.0.0.0` test) remains the sole owed verification gate before Dockerfile task.
+>   - HEAD: commit `4f32299` (T-109), pushed to remote `origin/main`.
+>   - Real browser `/tests.html`: **190/190 passed** (confirmed 2026-11-17 09:08, post-T-103; unchanged).
+>   - C++ hermetic test suite: **118/118 passed** (529,813 assertions; unchanged).
+>   - Check 5 PASS: Server bound to `--host 0.0.0.0`, opened at `http://localhost:8080/`, Settings inserted 100 demo vectors, Compare benchmark executed without 403 errors.
+>   - Check 6 PASS: GitHub Actions run #6 (commit `f67d1ea`) and run #7 (commit `4f32299`) all three jobs green (Windows, Linux, Docker smoke test).
+>   - Packaging: Docker only for now (ADR-100); Windows release zip not planned.
+>   - Next focus: interactive curriculum / learning path, and human decision on ISS-110 remaining strings.
 > - **Collaboration Preferences**:
->   - Human wants a clean SYNC now and will continue in a new chat.
 >   - Communication style: short, direct Hinglish; one question at a time.
 >   - Merge and push operations are the human's sole operational decisions.
+>   - SYNC is performed when chat context becomes long to enable fresh chat resumption.
 
 > [!IMPORTANT]
 > **Verification State (T-099)**: Human confirmed on 2026-11-16 22:26 by real browser: `/tests.html` **190/190 passed**. Registered browser test count is 190. Older numbers 172 and 185 are stale. All visual states for T-071 through T-098 are **not tested (visual)** / builder-reported only.

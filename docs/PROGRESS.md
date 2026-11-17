@@ -1,8 +1,15 @@
 # Project Progress
 
-Last updated: 2026-11-17 by T-109
+Last updated: 2026-11-17 by SYNC-016
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform
+
+- **SYNC-016**: Documentation synchronization & handoff preparation (MODE: RESUME) on branch `main`.
+  - **DECISIONS.md**: Added ADR-100 (Packaging: Docker only for now; Windows release zip not planned; Docker CI-verified, not locally verified; README Ask-in-Docker stays labelled untested). Next free ADR: ADR-101.
+  - **KNOWN_ISSUES.md**: Updated ISS-112 to record GitHub Actions runs #6 and #7 passed for Windows, Linux, and Docker jobs; kept ISS-113 OPEN; added ISS-117 (Dockerfile uses CMD not ENTRYPOINT; Ask-in-Docker requires passing full command) and ISS-118 (local docker run on author's PC, volume persistence across restarts, Ask in Docker, and macOS remain unverified). Next free issue: ISS-119.
+  - **PROJECT_CONTEXT.md**: Added Lessons 99..103 (Docker CI runtime user clash diagnosis, trusting human terminal output over report diffs, terminal pagers and `--no-pager`, server 0.0.0.0 binding browser URL `http://localhost:8080/`, and GitHub Actions runs #6 and #7 multi-job verification); updated Section 7 verification state to HEAD `4f32299`.
+  - **HANDOFF.md**: Fully rewritten for fresh chat resumption with updated branch state, Check 5 & Check 6 DONE, priority next steps (interactive curriculum / learning path with format clarification first, ISS-110 remaining strings decision), and working collaboration protocol.
+  - **PROGRESS.md**: Confirmed entries for T-106, T-107, T-108, T-109, and SYNC-016.
 
 - **T-109**: Add README Docker section with honest, CI-verified claims on branch `main`.
   - **README.md**:

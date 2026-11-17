@@ -1,6 +1,6 @@
 # Architectural Decision Records (ADR)
 
-Last updated: 2026-11-16 by T-072 sync
+Last updated: 2026-11-17 by SYNC-016
 
 | ID | Date | Decision | Reason | Alternatives Rejected | Evidence Tag |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -509,7 +509,7 @@ Last updated: 2026-11-16 by T-072 sync
 
 ---
 
-## Architectural Decision Records (ADR-093 to ADR-099) — Human Decisions (2026-11-16/17)
+## Architectural Decision Records (ADR-093 to ADR-100) — Human Decisions (2026-11-16/17)
 
 - **ADR-093: UI Work Freeze & Deferral of Minor Visual Deficiencies (Human Decision 2026-11-16)**:
   - **Context**: After 98 tasks and multiple comprehensive redesign iterations across Ask, Explore, HNSW, Compare, and Settings, the user interface is fully functional with 190 registered browser unit tests passing. Minor visual cosmetic quirks remain (e.g. Compare KD-Tree rounding showing "1.0x slower" for 166 vs 160 µs, Settings duplicate document listing and card whitespace, Explore axis label/hint pill overlap, HNSW L0 high-density hairball).
@@ -550,6 +550,11 @@ Last updated: 2026-11-16 by T-072 sync
     4. A Docker volume mount must be allocated for `--data-dir` persistence.
     5. Alternative distribution: A portable Windows release `.zip` on GitHub Releases remains an active co-option. The choice between Docker and pre-compiled zip (or offering both) remains open.
   - **Consequences**: Precludes accidental remote network exposure; establishes security invariants for containerization; defers container implementation until CI verification is established.
+
+- **ADR-100: Packaging Strategy — Docker Exclusivity for Initial Release (Human Decision 2026-11-17)**:
+  - **Context**: ADR-099 left open the option of providing a pre-compiled portable Windows release `.zip` archive alongside Docker containerization.
+  - **Decision**: Packaging: **Docker only for now** (human decision, 2026-11-17). Windows release `.zip` is not planned. Docker containerization is CI-verified (build and loopback smoke test passed in GitHub Actions runs #6 and #7), not locally verified on author's machine. The README Ask-in-Docker section stays explicitly labelled "untested, may need adjustment". Next free ADR becomes ADR-101.
+  - **Consequences**: Avoids managing separate release asset zips and binary distribution infrastructure; keeps distribution focused on the single CI-verified Dockerfile; preserves honest labeling that Ask tab in Docker requires host network configuration.
 
 ---
 
