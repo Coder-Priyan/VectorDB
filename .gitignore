@@ -35,3 +35,19 @@ scratch/
 
 # Execution logs and benchmark results
 results/logs/
+
+# Private working documents and AI workflow memory (untracked)
+docs/PROJECT_CONTEXT.md
+docs/DECISIONS.md
+docs/PROGRESS.md
+docs/KNOWN_ISSUES.md
+docs/HANDOFF.md
+docs/ARCHIVE.md
+docs/AUDIT_AND_HISTORY.md
+docs/ARCHITECTURE.md
+docs/UI_AUDIT.md
+docs/ASK_DESIGN_SPEC.md
+docs/DEMO_SCRIPT.md
+docs/mockups/
+audit/
+
