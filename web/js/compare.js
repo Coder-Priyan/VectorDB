@@ -643,7 +643,7 @@ export function initCompareTab() {
     const matrixCard = el("div", { className: "switcher-matrix-card" },
       el("div", { className: "switcher-matrix-header" },
         el("span", { className: "switcher-matrix-title" }, "Algorithmic Precision Matrix"),
-        el("span", { className: "text-muted text-xs font-mono" }, `Query: ${queryTelemetry.dimText} · Cosine SIMD · k = ${report.k || 10}`)
+        el("span", { className: "text-muted text-xs font-mono" }, `Query: ${queryTelemetry.dimText} · k = ${report.k || 10}`)
       ),
       el("table", { className: "switcher-matrix-table font-mono text-xs", "aria-label": "Comprehensive benchmark comparison matrix" },
         el("thead", {},

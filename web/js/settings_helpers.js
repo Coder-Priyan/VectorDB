@@ -162,7 +162,7 @@ export function formatEngineDiagnostics(stats, health) {
   const graphPct = memBytes > 0 ? Math.max(0, 100 - vectorPct) : 0;
 
   return {
-    simdStatus: "AVX2 / FMA Acceleration Active",
+    simdStatus: "Portable C++17 (compiler-optimized)",
     concurrency: "Multi-Threaded HTTP Worker Pool",
     vectorBytes,
     graphBytes,

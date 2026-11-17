@@ -509,7 +509,7 @@ export function registerV2Tests() {
       const stats = { count: 300, dimension: 128, memory_bytes: 160000 };
       const health = { version: "0.4.0", status: "ok" };
       const diag = formatEngineDiagnostics(stats, health);
-      assertEqual(diag.simdStatus, "AVX2 / FMA Acceleration Active");
+      assertEqual(diag.simdStatus, "Portable C++17 (compiler-optimized)");
       assertEqual(diag.version, "v0.4.0");
       assertEqual(diag.uptimeStatus, "Operational (Healthy)");
       assertEqual(diag.vectorBytes, 300 * 128 * 4);

@@ -1,10 +1,20 @@
 # Project Progress
 
-Last updated: 2026-11-16 by T-100 sync
+Last updated: 2026-11-17 by T-102 sync
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform
 
-- **T-100**: Fill LICENSE copyright holder on branch `ui-redesign-v4`.
+- **T-102**: Remove false SIMD claims, audit hardcoded UI claims on branch `main`.
+  - **Goal**: Make UI truthful about engine capabilities; audit all other hardcoded engine claims.
+  - `web/js/settings_helpers.js:165` — `"AVX2 / FMA Acceleration Active"` → `"Portable C++17 (compiler-optimized)"`.
+  - `web/js/compare.js:646` — `"Cosine SIMD"` removed from Algorithmic Precision Matrix header (metric not in benchmark API response).
+  - `web/index.html:993` — initial placeholder `"AVX2 / FMA Active"` → `"Portable C++17 (compiler-optimized)"`.
+  - `web/js/tests/test_v2.js:512` — test assertion updated to match new string.
+  - `docs/KNOWN_ISSUES.md` — ISS-109 (false SIMD claims, FIXED) and ISS-110 (9 remaining hardcoded engine claims, OPEN/pending human decision) recorded.
+  - **Quality Gates**: AVX2/FMA/Cosine SIMD grep returns zero matches; web safety scanner 100% clean (29 files); DOM IDs unchanged.
+  - **Browser tests**: 190 registered; not run (only human can run `/tests.html`). 1 test assertion updated (`test_v2.js:512`).
+
+- **T-100**: Fill LICENSE copyright holder on branch `main`.
   - **Goal**: Replace `<YOUR NAME>` placeholder in LICENSE with `Coder-Priyan`.
   - `LICENSE:3` now reads: `Copyright (c) 2026 Coder-Priyan`. No other text changed.
   - Placeholder scan: `README.md`, `CONTRIBUTING.md`, `web/` — **zero matches**. `docs/PROJECT_CONTEXT.md` had 2 stale references (lines 20 and 276) — both updated to reflect the resolved state (not edited to match scope, only docs notes updated).

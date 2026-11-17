@@ -1,8 +1,8 @@
 # Project Handoff
 
-Last updated: 2026-11-16 by T-099 sync
+Last updated: 2026-11-17 by T-102 sync
 
-> **NEXT STEP**: Merge `ui-redesign-v4` to `main`. Then: verify Linux/macOS build, update README with beginner setup steps and screenshots, add Docker or Windows release zip, write short learning path. UI work is FROZEN by human decision (2026-11-16). Known visual issues are deferred — see below. LICENSE copyright filled (Coder-Priyan, T-100 ✅).
+> **NEXT STEP**: Verify Linux/macOS build (push to GitHub; check Actions tab for Linux CI job result). Then: update README with beginner setup steps and screenshots, add Docker or Windows release zip, write short learning path. UI work is FROZEN by human decision (2026-11-16). ISS-109 (false SIMD claims) FIXED in T-102. ISS-110 (9 hardcoded engine claims) OPEN — pending human decision (see KNOWN_ISSUES.md). LICENSE copyright filled (Coder-Priyan, T-100 ✅).
 
 ## Current Verification State (Human-Confirmed vs Builder-Reported)
 - **/tests.html**: **190/190 human-confirmed 2026-11-16 22:26** (real browser). Registered browser test count is 190. Older numbers 172/185 are stale.
