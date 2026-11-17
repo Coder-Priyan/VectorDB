@@ -1,8 +1,15 @@
 # Project Progress
 
-Last updated: 2026-11-17 by T-104 sync
+Last updated: 2026-11-17 by T-105 sync
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform
+
+- **T-105**: README accuracy fixes on branch `main`.
+  - **Goal**: Address Brain review findings on inaccurate or unverified statements in `README.md`.
+  - Honest Limitations item 1: Replaced "HNSW requires thousands of vectors to outperform linear scan." with "HNSW's advantage grows with collection size. On random high-dimensional data the speedup can stay small even at 20,000 vectors (ISS-004)."
+  - Tab Guide, Compare: Replaced "simultaneously" with "on all three algorithms".
+  - Project Layout: Verified `docs/LEARNING_GUIDE.md` has exactly 6 modules (`Module 1` to `Module 6`), matching the existing `6-module vector search curriculum` comment.
+  - Zero changes outside `README.md` (plus tracking docs sync).
 
 - **T-104**: Beginner-friendly README rewrite (text only, honest claims) on branch `main`.
   - **Goal**: Restructure `README.md` for student learners to install, run, and understand vector databases, spatial search, HNSW, and glass-box RAG in ~5 minutes.

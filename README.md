@@ -86,7 +86,7 @@ The web interface has 5 tabs:
 - **Ask**: RAG chat workspace. Ingest plain text documents, ask questions, and inspect citation snippets, retrieval timings, and algorithm choices.
 - **Explore**: 2D projection canvas. Uses matrix-free Principal Component Analysis (PCA) to project vectors onto a 2D plane with neighbor links.
 - **HNSW**: Multi-layer proximity graph viewer. View graph nodes by layer and trace search paths step by step.
-- **Compare**: Algorithm benchmark suite. Runs a search query through Brute Force, KD-Tree, and HNSW simultaneously to compare latency, distance evaluations, and recall.
+- **Compare**: Algorithm benchmark suite. Runs a search query through Brute Force, KD-Tree, and HNSW on all three algorithms to compare latency, distance evaluations, and recall.
 - **Settings**: System health and configuration. Inspect server status, insert random demo vectors, view memory usage, and manage local chat history.
 
 ---
@@ -95,7 +95,7 @@ The web interface has 5 tabs:
 
 VectorDB is designed as an educational tool, not an enterprise production database:
 
-1. **HNSW vs Brute Force on Small Data**: On small collections (such as 100 vectors), Brute Force is faster than HNSW (ISS-004). Flat arrays stay in CPU cache and avoid graph traversal overhead. HNSW requires thousands of vectors to outperform linear scan.
+1. **HNSW vs Brute Force on Small Data**: On small collections (such as 100 vectors), Brute Force is faster than HNSW (ISS-004). Flat arrays stay in CPU cache and avoid graph traversal overhead. HNSW's advantage grows with collection size. On random high-dimensional data the speedup can stay small even at 20,000 vectors (ISS-004).
 2. **Local LLM Hallucinations**: Small local language models (like Llama 3.2 3B) can hallucinate facts or misread retrieved chunks (ISS-001).
 3. **CPU Generation Latency**: On standard CPU hardware, generating full answers through local LLM inference takes 10 to 30 seconds (ISS-027).
 4. **In-Memory Storage by Default**: Collections are stored in RAM by default. If you stop the server without `--data-dir`, data is reset on next run.

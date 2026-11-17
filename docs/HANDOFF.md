@@ -38,13 +38,9 @@ The following checks must be performed by the human in their terminal / real bro
 ## 3. Next Steps in Priority Order
 1. **Finish Pending Checks**: Checks 4 and 5 (Ubuntu CI result, `--host 0.0.0.0` test).
 2. **Dockerfile Task**: (Blocked until Ubuntu CI result and `--host 0.0.0.0` test results are verified).
-3. **~~README Beginner-Friendly Overhaul~~** ✅ **Done (T-104)**:
+3. **~~README Beginner-Friendly Overhaul & Accuracy Fixes~~** ✅ **Done (T-104, T-105)**:
    - Structured for students: What is this, What You Will Learn, Setup in 5 Minutes (verified Windows commands), Ollama setup, Tab guide, Honest limitations, Project layout, License.
-   - Disclosed: Explore/HNSW/Compare work without Ollama; HNSW slower than Brute Force on small collections ($N \le 100$, ISS-004); hallucinations (ISS-001); CPU inference latency (ISS-027); in-memory storage; no auth/TLS (ISS-007); Windows-only confirmation.
-4. **Packaging & Distribution**: Author Docker container or pre-compiled Windows release `.zip` on GitHub Releases.
-5. **Interactive Curriculum / Learning Path**: Short guided documentation covering Brute Force baseline, KD-Tree orthogonal splits, and HNSW multi-layer navigation.
-6. **ISS-110 Decisions**: Human decision on remaining hardcoded strings (items 2, 4, 5, 6, 7).
-   - UI screenshots.
+   - Disclosed: Explore/HNSW/Compare work without Ollama; HNSW speedup can stay small even at 20,000 vectors on random data (ISS-004); hallucinations (ISS-001); CPU inference latency (ISS-027); in-memory storage; no auth/TLS (ISS-007); Windows-only confirmation. Compare runs on all three algorithms. 6-module curriculum verified.
 4. **Packaging & Distribution**: Author Docker container or pre-compiled Windows release `.zip` on GitHub Releases.
 5. **Interactive Curriculum / Learning Path**: Short guided documentation covering Brute Force baseline, KD-Tree orthogonal splits, and HNSW multi-layer navigation.
 6. **ISS-110 Decisions**: Human decision on remaining hardcoded strings (items 2, 4, 5, 6, 7).
