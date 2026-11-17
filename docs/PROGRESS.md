@@ -1,8 +1,14 @@
 # Project Progress
 
-Last updated: 2026-11-17 by T-103 sync
+Last updated: 2026-11-17 by SYNC-014
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform
+
+- **SYNC-014**: Comprehensive documentation synchronization from Brain chat (2026-11-16/17) on branch `main`.
+  - **DECISIONS.md**: Recorded ADR-093 through ADR-099: UI freeze & deferred visual polish, product repositioning as free open-source student learning platform (marketing website on hold), Ollama retention for Ask/RAG with zero cloud requirement, branch workflow switch to `main` (fast-forward merge pushed), MIT copyright holder Coder-Priyan, mockup images retained in public history, containerization architecture (loopback bind 127.0.0.1:8080:8080, --host 0.0.0.0, volume for --data-dir, release zip alternative).
+  - **KNOWN_ISSUES.md**: Established UI claim backing rule; updated ISS-110 (items 1, 3, 8, 9 fixed in T-103; items 2, 4-7 pending); added ISS-111 (brute_force.hpp comment promises SIMD), ISS-112 (Linux CI job has continue-on-error: true and unconfirmed green), ISS-113 (Settings footprint field contract unverified), and ISS-114 (deferred minor visual issues).
+  - **PROJECT_CONTEXT.md**: Recorded T-101/T-101b audit facts (CMake CPU flags absent, portable C++17, ws2_32 guards, POSIX fallbacks, zero explicit SIMD); added lessons 92-95 (SIMD reality, builder claim verification, grep breadth, post-push browser tests owed); recorded human-confirmed state on main at HEAD 4a096ed and collaboration preferences.
+  - **HANDOFF.md**: Refreshed handoff protocol, 5 pending human checks, and priority next steps (CI results & host 0.0.0.0 test strictly block Dockerfile task).
 
 - **T-103**: Remove remaining false SIMD labels and wire memory footprint on branch `main`.
   - **Goal**: Remove all remaining visible SIMD text from UI and wire per-vector memory footprint to real dimension.

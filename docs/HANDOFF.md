@@ -1,37 +1,69 @@
 # Project Handoff
 
-Last updated: 2026-11-17 by T-103 sync
+Last updated: 2026-11-17 by SYNC-014
 
-> **NEXT STEP**: Verify Linux/macOS build (push to GitHub; check Actions tab for Linux CI job result). Then: update README with beginner setup steps and screenshots, add Docker or Windows release zip, write short learning path. UI work is FROZEN by human decision (2026-11-16). ISS-109 & ISS-110 SIMD labels + per-vector footprint FIXED in T-102 & T-103. Remaining items in ISS-110 pending human decision. LICENSE copyright filled (Coder-Priyan, T-100 ✅).
+> **CRITICAL PROTOCOL**: Brain must **NOT** write a Dockerfile task before the Ubuntu CI result and the `--host 0.0.0.0` test are confirmed by the human.
 
-## Current Verification State (Human-Confirmed vs Builder-Reported)
-- **/tests.html**: **190/190 human-confirmed 2026-11-16 22:26** (real browser). Registered browser test count is 190. Older numbers 172/185 are stale.
-- **Git State**: Local branch `ui-redesign-v4`, clean working tree. `scratch/` and `results/logs/` are now gitignored (files still on disk). `ui-redesign-v4` is 246 commits ahead of `main`; `main` has 0 commits not in `v4`. Commits unpushed per protocol.
-- **Quality Gates (Human-Confirmed 2026-11-16)**:
-  - HEAD: `5446fde`
-  - `check_web_safety.ps1`: 100% clean (29 files, zero innerHTML/outerHTML/eval/etc.).
-  - `build/vectordb_tests.exe`: 118/118 passing (529,813 assertions).
-  - Browser tests: 190/190 passing in real browser (`/tests.html`).
-  - CSS Invariants: 0 hex outside `colors.js`, 0 box-shadows, `!important` count = 2.
-  - Engine diff vs `ui-quiet-studio`: empty (C++ engine unchanged).
-  - DOM IDs: 40 Compare DOM IDs (100% preserved) and 37 Settings DOM IDs (100% preserved).
-  - Frozen Files: Ask, Explore, HNSW, sidebar/shell, C++ engine, and `docs/API.md` byte-identical.
+---
 
-## UI Freeze & Known Deferred Visual Issues (2026-11-16)
-UI work is **FROZEN** by human decision. The following known visual issues are deferred to the human for a future fix pass — do NOT address them before merge:
-- **Compare**: KD-Tree shows "1.0x slower" for 166 µs vs 160 µs (rounding/threshold edge case).
-- **Settings**: `vectordb_intro` document listed twice; empty space visible inside cards.
-- **Explore**: Bottom axis labels overlap the viewport hint pill.
-- **HNSW L0**: Dense hairball on large collections (known graph rendering limitation).
+## 1. Current Branch & Git State
+- **Branch**: `main` (intentional; merged from `ui-redesign-v4` by fast-forward and pushed).
+- **Last Commit on Remote**: `4a096ed` (`fix: remove remaining SIMD labels, compute vector footprint`), pushed to origin (`548e081..4a096ed`).
+- **Working Tree**: Clean tracked files. `scratch/` and `results/logs/` are ignored in `.gitignore` (files preserved on disk).
 
-## Product Direction (2026-11-16)
-VectorDB is being repositioned as a **free, open-source, self-hosted learning platform** for students who want to understand vector databases, HNSW, KD-Tree, Brute Force, and RAG pipelines interactively and visually. Fully offline, Ollama required only for the Ask/RAG tab. No cloud, no subscription.
+---
 
-**Planned post-merge order**:
-1. Merge `ui-redesign-v4` → `main`
-2. ~~Fill LICENSE copyright name~~ ✅ **Done** — `Copyright (c) 2026 Coder-Priyan` (T-100)
-3. Verify Linux/macOS build
-4. Update README: beginner-friendly setup steps + screenshots
-5. Add Docker support or Windows release zip (1-command setup)
-6. Write short in-app learning path / guided onboarding
-7. (Future) Marketing/landing website — on hold for now
+## 2. Pending Human Checks (Not Yet Seen by Brain)
+The following checks must be performed by the human in their terminal / real browser before new implementation tasks:
+1. **/tests.html count**: Open `http://localhost:8080/tests.html` in real browser; report passed/total count after T-103 (190 expected).
+2. **Settings 1920x1080 100% Zoom Screenshot**:
+   - Verify label displays `"Optimization:"` (not `"SIMD Kernel:"`).
+   - Verify per-vector memory footprint displays dynamically computed value.
+   - Verify footer note displays `"Index State: Active"` (without `"SIMD Aligned"`).
+3. **Footprint Dynamic Recalculation Test**:
+   - In Settings tab Demo Collection form, set Dimension to `64`, click Reset Demo Collection.
+   - Observe Footprint / Vec row: expect `256 Bytes (64 × float32)`.
+   - Restore Dimension to `128` and reset to baseline.
+4. **GitHub Actions Ubuntu CI Job Screenshot (MOST IMPORTANT)**:
+   - Check GitHub repository Actions tab for the latest push (`4a096ed` on `main`).
+   - Report whether the `linux-build` (Ubuntu Latest) job passed or failed, including step logs if failed.
+5. **Server `--host 0.0.0.0` Binding & Compare Test**:
+   - Start server with `.\build\vectordb_server.exe --host 0.0.0.0 --port 8080 --web-dir web`.
+   - Open `http://localhost:8080/` in browser, navigate to Compare tab, run benchmark.
+   - Report whether requests succeed or if Host/Origin pre-routing security checks trigger 403.
+
+---
+
+## 3. Next Steps in Priority Order
+1. **Finish Pending Checks**: Complete all 5 human checks listed above.
+2. **Dockerfile Task**: (Blocked until Ubuntu CI result and `--host 0.0.0.0` test results are verified).
+3. **README Beginner-Friendly Overhaul**:
+   - "What You Will Learn" overview (vector embeddings, spatial search, HNSW graph mechanics, glass-box RAG).
+   - "Setup in 5 Minutes" quickstart.
+   - Ollama installation and model pulling steps (`nomic-embed-text`, `llama3.2`).
+   - Clear disclosure that Explore, HNSW, and Compare operate on Demo vectors without Ollama.
+   - Honest performance disclosure: HNSW is slower than Brute Force on small collections ($N \le 100$) due to cache locality and constant factor overhead (ISS-004).
+   - UI screenshots.
+4. **Packaging & Distribution**: Author Docker container or pre-compiled Windows release `.zip` on GitHub Releases.
+5. **Interactive Curriculum / Learning Path**: Short guided documentation covering Brute Force baseline, KD-Tree orthogonal splits, and HNSW multi-layer navigation.
+6. **ISS-110 Decisions**: Human decision on remaining hardcoded strings (items 2, 4, 5, 6, 7).
+
+---
+
+## 4. Current Quality & Verification Gates
+- **/tests.html**: 190/190 human-confirmed (2026-11-16 22:26, prior to T-102/T-103; post-T-103 run owed).
+- **C++ Tests**: 118/118 passing hermetically (529,813 assertions).
+- **Web Safety Scanner**: 29 HTML/JS files scanned; 100% clean (zero forbidden DOM injection APIs, strict CSP verified).
+- **CSS Invariants**: 0 hex outside `colors.js`, 0 `box-shadow`, `!important` count = 2.
+- **Engine Diff**: `git diff --stat ui-quiet-studio -- src include tests` strictly empty.
+- **DOM IDs**: 100% of the 40 Compare DOM IDs and 37 Settings DOM IDs preserved.
+- **LICENSE**: Valid MIT License assigned to `Coder-Priyan` (T-100 ✅).
+
+---
+
+## 5. UI Freeze & Deferred Issues (ADR-093)
+UI development is officially **FROZEN**. Minor visual issues deferred:
+- Compare: KD-Tree shows "1.0x slower" for 166 µs vs 160 µs (rounding/threshold edge case).
+- Settings: `vectordb_intro` document listed twice; empty space visible inside cards.
+- Explore: Bottom axis labels overlap viewport hint pill.
+- HNSW L0: Dense hairball on large collections (edge limit dropdown 20,000 vs "Showing 6,931 of 6,931" is confusing).

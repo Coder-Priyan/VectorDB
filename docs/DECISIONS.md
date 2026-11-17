@@ -506,3 +506,47 @@ Last updated: 2026-11-16 by T-072 sync
     3. Card 3 (Engine & Maintenance): Grouped hardware SIMD kernel telemetry, persistence storage specs, and system maintenance tools.
     - Inside each card, content flows with standard top-to-bottom layout (gap: var(--space-3); justify-content: flex-start;) and an anchored footer note (margin-top: auto).
   - **Consequences**: Completely eliminates awkward empty voids in the center of columns; creates a crisp, symmetrical, high-tech command center; retains 100% single-screen zero-scroll fit at 1920x1080 100% zoom; preserves 100% of the 40 Settings DOM IDs.
+
+---
+
+## Architectural Decision Records (ADR-093 to ADR-099) — Human Decisions (2026-11-16/17)
+
+- **ADR-093: UI Work Freeze & Deferral of Minor Visual Deficiencies (Human Decision 2026-11-16)**:
+  - **Context**: After 98 tasks and multiple comprehensive redesign iterations across Ask, Explore, HNSW, Compare, and Settings, the user interface is fully functional with 190 registered browser unit tests passing. Minor visual cosmetic quirks remain (e.g. Compare KD-Tree rounding showing "1.0x slower" for 166 vs 160 µs, Settings duplicate document listing and card whitespace, Explore axis label/hint pill overlap, HNSW L0 high-density hairball).
+  - **Decision**: UI work is officially **FROZEN** by human decision on 2026-11-16. No further UI restructuring, layout adjustments, or pixel-pushing tasks will be authorized. Remaining cosmetic visual deficiencies are deferred to the human for any future evaluation. Product focus shifts immediately to backend, release engineering, documentation, and open-source delivery.
+  - **Consequences**: Halts context-heavy visual iteration churn; locks all frontend stylesheets and templates; enables direct progression toward product packaging and student release.
+
+- **ADR-094: Product Repositioning as Free Open-Source Student Learning Platform & Website on Hold (Human Decision 2026-11-16)**:
+  - **Context**: The project began as an academic B.Tech major project. With a fully functional C++17 vector engine (Brute Force, KD-Tree, HNSW), glass-box transparent RAG pipeline, and zero-dependency visualization frontend, the system possesses significant educational value for software engineers and students learning AI internals.
+  - **Decision**: Formally reposition VectorDB as a **free, open-source, self-hosted educational learning product** for students and developers seeking to understand vector databases, spatial indexing, graph exploration, and glass-box RAG without cloud dependencies or paid APIs. The creation of a dedicated marketing/landing website is placed **ON HOLD** until the core software packaging, distribution, and beginner documentation are complete.
+  - **Consequences**: Future roadmaps prioritize zero-friction local setup (Docker / release zip), self-explanatory documentation, and educational curriculum paths over commercial features or external promotional web properties.
+
+- **ADR-095: Ollama Requirement Retention for Ask/RAG Tab & Zero-Cloud Guarantee (Human Decision 2026-11-16)**:
+  - **Context**: The Ask tab integrates local LLM chat and embeddings via Ollama (`nomic-embed-text` and `llama3.2`). An alternative considered was building an offline keyword-based or extractive search fallback into the C++ engine to avoid requiring Ollama.
+  - **Decision**: Ollama remains **STRICTLY REQUIRED** for the Ask/RAG tab. No extractive or keyword fallback mode will be built into the engine. The README will provide clear, beginner-friendly instructions for installing Ollama and pulling required models (`ollama pull nomic-embed-text && ollama pull llama3.2`). Explore, HNSW, and Compare tabs operate independently on synthetic Demo vectors and do NOT require Ollama; the README must explicitly state this separation.
+  - **Consequences**: Keeps the core engine codebase clean and free of brittle heuristic text search logic; guarantees 100% offline privacy and zero cloud telemetry; maintains transparent separation between pure spatial vector indexing and LLM-assisted RAG synthesis.
+
+- **ADR-096: Git Branching Workflow — ui-redesign-v4 Merged to main, Work Continues on main (Human Decision 2026-11-16)**:
+  - **Context**: Extensive redesign work was conducted on branch `ui-redesign-v4` spanning tasks T-071 through T-099. Prior protocols prohibited merging or committing directly to `main` without human verification.
+  - **Decision**: The human merged `ui-redesign-v4` into `main` via fast-forward merge and pushed commit `cd88ee4` to remote origin on 2026-11-16. Moving forward, all development, documentation synchronization, and release tasks continue **directly on branch `main`**. Operating on `main` is intentional and authorized.
+  - **Consequences**: Eliminates branch management overhead; ensures single source of truth on `main`; builder may commit directly to `main` as instructed by the human.
+
+- **ADR-097: MIT License Copyright Holder Assignment to Coder-Priyan (T-100)**:
+  - **Context**: The repository LICENSE file contained an unresolved placeholder `<YOUR NAME>`.
+  - **Decision**: Assign legal copyright of VectorDB under the MIT License to **Coder-Priyan** (`Copyright (c) 2026 Coder-Priyan`). Executed in task T-100 (commit `548e081`).
+  - **Consequences**: Establishes valid open-source licensing compliance; clears license placeholder audits across all scanners.
+
+- **ADR-098: Retention of Design Mockup Assets in Public Git History (Human Decision 2026-11-16)**:
+  - **Context**: Design mockups created during development reside under `docs/mockups/` and are tracked in the public Git history.
+  - **Decision**: Retain mockup images in the public repository history. No git history rewrite or asset deletion will be performed. The presence of historical design iterations in commit logs is accepted.
+  - **Consequences**: Preserves full historical auditability; avoids git history rewriting hazards (`git filter-branch` / force-pushes).
+
+- **ADR-099: Containerization & Deployment Strategy — Loopback Docker Binding & Release Archives (Human Decision 2026-11-16)**:
+  - **Context**: Feasibility audit T-101 established that the C++ server binds to loopback (`127.0.0.1`) by default, where DNS-rebinding protection verifies the `Host` header. Binding to `0.0.0.0` inside a container disables the loopback Host check.
+  - **Decision**: When authoring the container specification:
+    1. The container port must be published to host loopback only: `127.0.0.1:8080:8080` (NEVER plain `8080:8080`), ensuring host-level protection against public network exposure.
+    2. The server inside the container must execute with `--host 0.0.0.0 --web-dir /app/web --cors-origin http://localhost:8080`.
+    3. The build inside the container must enforce `-DCMAKE_BUILD_TYPE=Release`.
+    4. A Docker volume mount must be allocated for `--data-dir` persistence.
+    5. Alternative distribution: A portable Windows release `.zip` on GitHub Releases remains an active co-option. The choice between Docker and pre-compiled zip (or offering both) remains open.
+  - **Consequences**: Precludes accidental remote network exposure; establishes security invariants for containerization; defers container implementation until CI verification is established.
