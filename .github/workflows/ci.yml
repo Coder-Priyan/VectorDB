@@ -71,3 +71,50 @@ jobs:
         run: |
           ./build/vectordb_tests
 
+  docker-build:
+    name: Docker Build & Smoke Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t vectordb .
+
+      - name: Smoke test container
+        run: |
+          # Cleanup helper: always print logs and remove container at the end, even on failure
+          cleanup() {
+            echo "=== Container logs (vdb) ==="
+            docker logs vdb || true
+            echo "=== Removing container (vdb) ==="
+            docker rm -f vdb || true
+          }
+          trap cleanup EXIT
+
+          # a. Start container in background with loopback publish only
+          docker run -d --name vdb -p 127.0.0.1:8080:8080 vectordb
+
+          # b. Wait for readiness by retrying curl up to 30 seconds
+          READY=0
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:8080/api/health > /dev/null 2>&1; then
+              READY=1
+              break
+            fi
+            sleep 1
+          done
+
+          if [ "$READY" -ne 1 ]; then
+            echo "VectorDB container failed to become ready within 30 seconds"
+            exit 1
+          fi
+
+          # c. Root web UI must succeed
+          curl -sf http://127.0.0.1:8080/ > /dev/null
+
+          # d. Health API must succeed
+          curl -sf http://127.0.0.1:8080/api/health
+

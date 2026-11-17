@@ -1,8 +1,24 @@
 # Project Progress
 
-Last updated: 2026-11-17 by T-106
+Last updated: 2026-11-17 by T-107
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform
+
+- **T-107**: Add docker-build smoke-test job to CI on branch `main`.
+  - Added new minimal job `docker-build` on `ubuntu-latest` in `.github/workflows/ci.yml`.
+  - Zero `continue-on-error` (ensures a green job means genuine success).
+  - Steps:
+    1. Checkout repository (`actions/checkout@v4`).
+    2. Build Docker image: `docker build -t vectordb .`.
+    3. Smoke test container:
+       - Runs container in background with loopback binding only: `docker run -d --name vdb -p 127.0.0.1:8080:8080 vectordb`.
+       - Traps exit (`trap cleanup EXIT`) to guarantee `docker logs vdb` is printed and `docker rm -f vdb` is executed at the end, even on step failure.
+       - Polls `/api/health` with retry loop up to 30s.
+       - Verifies root web UI: `curl -sf http://127.0.0.1:8080/ > /dev/null`.
+       - Verifies real health route: `curl -sf http://127.0.0.1:8080/api/health` (`src/server_main.cpp:269`, `src/api.cpp:39`).
+  - Existing jobs (`windows-build`, `linux-build`) left byte-identical.
+  - Docs updated in `docs/HANDOFF.md` and `docs/PROGRESS.md`.
+  - Status: NOT RUN until human pushes to GitHub.
 
 - **T-106**: Add Dockerfile and .dockerignore for loopback-only container run on branch `main`.
   - **Dockerfile**:
