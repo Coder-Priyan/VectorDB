@@ -1,8 +1,14 @@
 # Project Progress
 
-Last updated: 2026-11-17 by T-107
+Last updated: 2026-11-17 by T-108
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform
+
+- **T-108**: Fix Dockerfile non-root user UID clash on branch `main`.
+  - **Issue**: docker-build CI run #5 failed at runtime stage step 2/6 with `useradd: UID 1000 is not unique` because the base image `ubuntu:24.04` ships with an existing default `ubuntu` user at UID 1000.
+  - **Fix**: Changed `vectordb` non-root system user and group creation in `Dockerfile` to use UID and GID `10001` (`groupadd -r -g 10001 vectordb && useradd -r -g vectordb -u 10001 -d /app -s /usr/sbin/nologin vectordb`).
+  - Ownership directives (`chown -R vectordb:vectordb`, `--chown=vectordb:vectordb`), `USER vectordb`, builder stage, CMD, EXPOSE, and VOLUME left intact.
+  - **Status**: Dockerfile stays UNTESTED locally (Docker not installed on local Windows host); unblocked for next CI push.
 
 - **T-107**: Add docker-build smoke-test job to CI on branch `main`.
   - Added new minimal job `docker-build` on `ubuntu-latest` in `.github/workflows/ci.yml`.

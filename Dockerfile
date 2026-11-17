@@ -74,8 +74,8 @@ RUN cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release && \
 FROM ubuntu:24.04 AS runtime
 
 # Create dedicated non-root user and group
-RUN groupadd -r vectordb && \
-    useradd -r -g vectordb -u 1000 -d /app -s /usr/sbin/nologin vectordb
+RUN groupadd -r -g 10001 vectordb && \
+    useradd -r -g vectordb -u 10001 -d /app -s /usr/sbin/nologin vectordb
 
 # Create application and data persistence directories with proper ownership
 RUN mkdir -p /app/web /data && \

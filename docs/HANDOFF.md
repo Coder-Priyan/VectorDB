@@ -1,8 +1,8 @@
 # Project Handoff
 
-Last updated: 2026-11-17 by T-107
+Last updated: 2026-11-17 by T-108
 
-> **CURRENT STATUS**: Branch `main`. T-107 added `docker-build` CI job. **NOT RUN until human pushes.** Dockerfile stays UNTESTED until that job is green (human must check the step list, not only the top icon). Ollama inside Docker: default container cannot reach host Ollama; needs `--ollama-url http://host.docker.internal:11434`, `--allow-remote-ollama` and host `OLLAMA_HOST`; README must say Ask tab needs this extra setup, other tabs work.
+> **CURRENT STATUS**: Branch `main`. T-108 fixed Dockerfile UID clash (1000 -> 10001). Dockerfile stays UNTESTED until the CI docker-build job is green step by step. Ollama inside Docker: default container cannot reach host Ollama; needs `--ollama-url http://host.docker.internal:11434`, `--allow-remote-ollama` and host `OLLAMA_HOST`; README must say Ask tab needs this extra setup, other tabs work.
 > **CRITICAL PROTOCOL**: All 5 verification gates (Checks 1, 2, 4, 5) are confirmed DONE (Check 3 SKIPPED/OPEN as verification debt). Next focus: README platform statement, packaging, and student curriculum.
 
 ---
@@ -33,9 +33,9 @@ Last updated: 2026-11-17 by T-107
    - Settings tab: inserted 100 random vectors via Demo form.
    - Compare tab: benchmark executed successfully across Brute Force, KD-Tree, and HNSW with zero 403 / CORS errors.
    - Unblocked Dockerfile task (T-106).
-6. **Docker CI Smoke Test (`docker-build` Job)** — ⏳ **PENDING PUSH / RUN**:
-   - T-107 added `docker-build` CI job. NOT RUN until human pushes.
-   - Dockerfile stays UNTESTED until that job is green (human must check the step list, not only the top icon).
+6. **Docker CI Smoke Test (`docker-build` Job)** — ⏳ **PENDING PUSH / RUN (Post-T-108 Fix)**:
+   - docker-build CI run #5 failed at runtime stage step 2/6: `useradd: UID 1000 is not unique` (human screenshot 2026-11-17; `ubuntu:24.04` ships with default user `ubuntu` on UID 1000). Fixed in T-108 by changing `vectordb` user and group to UID/GID 10001.
+   - Dockerfile stays UNTESTED until the CI docker-build job is green step by step.
    - Ollama inside Docker: default container cannot reach host Ollama; needs `--ollama-url http://host.docker.internal:11434`, `--allow-remote-ollama` and host `OLLAMA_HOST`; README must say Ask tab needs this extra setup, other tabs work.
 
 ---
