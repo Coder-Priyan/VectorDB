@@ -72,11 +72,11 @@ The web interface loads with all five tabs accessible.
 
 The core vector search features operate on synthetic demo vectors without external dependencies:
 
-1. Click the **Settings** tab.
+1. Click the **Settings** tab in the sidebar navigation.
 2. Under the Demo Collection section, click `+100` to insert 100 random vectors into memory.
 3. Open the **Explore** tab to view the 2D PCA projection of the vectors and query nearest neighbors.
 4. Open the **HNSW** tab to inspect graph layers and step through path traversal.
-5. Open the **Compare** tab and click **Run Benchmark** to evaluate latency, distance computations, and recall across Brute Force, KD-Tree, and HNSW.
+5. Open the **Compare** tab and click **Benchmark Random Query** to evaluate latency, distance computations, and recall across Brute Force, KD-Tree, and HNSW (or **Run Benchmark** when using documentation vectors).
 
 ---
 
@@ -84,7 +84,7 @@ The core vector search features operate on synthetic demo vectors without extern
 
 The `-v vectordb-data:/data` flag creates a Docker named volume called `vectordb-data` mounted at `/data` inside the container.
 
-When you save collections or persist data from the Settings tab, snapshots are stored inside this volume. The data persists even when the container stops and restarts.
+Because the container starts with `--data-dir /data`, vector collections and documents are saved automatically under `/data`. Snapshots and ingested documents persist inside this volume across container stops and restarts.
 
 ---
 
@@ -118,17 +118,26 @@ For Windows or macOS using Docker Desktop:
 
 PowerShell
 ```powershell
-docker run --rm -p 127.0.0.1:8080:8080 -v vectordb-data:/data vectordb /app/vectordb_server --host 0.0.0.0 --port 8080 --web-dir /app/web --data-dir /data --cors-origin http://localhost:8080 --ollama-url http://host.docker.internal:11434 --allow-remote-ollama
+docker run --rm -p 127.0.0.1:8080:8080 \
+  -v vectordb-data:/data vectordb \
+  /app/vectordb_server --host 0.0.0.0 --port 8080 --web-dir /app/web \
+  --data-dir /data --cors-origin http://localhost:8080 \
+  --ollama-url http://host.docker.internal:11434 --allow-remote-ollama
 ```
 
 For Linux hosts:
 
-bash
+Linux
 ```bash
-docker run --rm -p 127.0.0.1:8080:8080 --add-host=host.docker.internal:host-gateway -v vectordb-data:/data vectordb /app/vectordb_server --host 0.0.0.0 --port 8080 --web-dir /app/web --data-dir /data --cors-origin http://localhost:8080 --ollama-url http://host.docker.internal:11434 --allow-remote-ollama
+docker run --rm -p 127.0.0.1:8080:8080 \
+  --add-host=host.docker.internal:host-gateway \
+  -v vectordb-data:/data vectordb \
+  /app/vectordb_server --host 0.0.0.0 --port 8080 --web-dir /app/web \
+  --data-dir /data --cors-origin http://localhost:8080 \
+  --ollama-url http://host.docker.internal:11434 --allow-remote-ollama
 ```
 
-VectorDB contains SSRF protection that rejects non-loopback Ollama endpoints by default. Because `host.docker.internal` resolves to an external host gateway address rather than `127.0.0.1` inside the container namespace, the explicit `--allow-remote-ollama` flag is required. In addition, the Ollama service on your host must be configured to accept connections from other interfaces via the `OLLAMA_HOST` environment variable.
+VectorDB contains SSRF protection that rejects non-loopback Ollama endpoints by default. Because `host.docker.internal` resolves to a host IP address rather than `127.0.0.1` inside the container network namespace, the explicit flag `--allow-remote-ollama` is required to authorize the connection. Host Ollama network reachability and interface binding remain unverified.
 
 For instructions on installing Ollama and downloading the required models (`nomic-embed-text` and `llama3.2`), see section 8 of [INSTALL_WINDOWS.md](INSTALL_WINDOWS.md#8-optional-enable-ask-with-ollama).
 
@@ -144,7 +153,7 @@ Inside the container, the server binds to `0.0.0.0`, which disables the loopback
 
 ## 11. Verification status
 
-The container image build and loopback smoke tests pass in GitHub Actions CI on Linux runners. The Docker image has not been executed on the author's local workstation because Docker is not installed on that machine. The Ask tab inside Docker and named volume persistence across restarts remain unverified.
+The container image build and loopback smoke tests pass in GitHub Actions CI on Linux runners. The Docker image has not been executed on the author's local workstation because Docker is not installed on that machine. The Ask tab inside Docker, host Ollama reachability, and named volume persistence across restarts remain unverified.
 
 ---
 
