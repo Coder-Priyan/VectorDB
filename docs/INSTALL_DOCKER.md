@@ -118,16 +118,12 @@ For Windows or macOS using Docker Desktop:
 
 PowerShell
 ```powershell
-docker run --rm -p 127.0.0.1:8080:8080 \
-  -v vectordb-data:/data vectordb \
-  /app/vectordb_server --host 0.0.0.0 --port 8080 --web-dir /app/web \
-  --data-dir /data --cors-origin http://localhost:8080 \
-  --ollama-url http://host.docker.internal:11434 --allow-remote-ollama
+docker run --rm -p 127.0.0.1:8080:8080 -v vectordb-data:/data vectordb /app/vectordb_server --host 0.0.0.0 --port 8080 --web-dir /app/web --data-dir /data --cors-origin http://localhost:8080 --ollama-url http://host.docker.internal:11434 --allow-remote-ollama
 ```
 
 For Linux hosts:
 
-Linux
+bash
 ```bash
 docker run --rm -p 127.0.0.1:8080:8080 \
   --add-host=host.docker.internal:host-gateway \
