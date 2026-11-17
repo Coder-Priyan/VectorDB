@@ -1,8 +1,17 @@
 # Project Progress
 
-Last updated: 2026-11-17 by T-102 sync
+Last updated: 2026-11-17 by T-103 sync
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform
+
+- **T-103**: Remove remaining false SIMD labels and wire memory footprint on branch `main`.
+  - **Goal**: Remove all remaining visible SIMD text from UI and wire per-vector memory footprint to real dimension.
+  - `web/index.html:908` — replaced `"Active • SIMD Aligned"` with `"Active"`.
+  - `web/index.html:983` — replaced badge `"SIMD • Tools"` with `"Tools"`.
+  - `web/index.html:992` — replaced label `"SIMD Kernel:"` with `"Optimization:"` (retaining DOM ID `settings-simd-status`).
+  - `web/index.html:898` & `web/js/settings.js` — added ID `settings-footprint-vec` to footprint span and wired it to dynamically calculate and display `${bytes} Bytes (${dim} × float32)` using real `config.dimension`.
+  - `docs/KNOWN_ISSUES.md` — updated ISS-110 to record items 1, 3, 8, 9 as FIXED.
+  - **Verification**: Zero visible SIMD text in UI; `check_web_safety.ps1` 100% clean; 190 registered browser tests intact (not run; real browser only).
 
 - **T-102**: Remove false SIMD claims, audit hardcoded UI claims on branch `main`.
   - **Goal**: Make UI truthful about engine capabilities; audit all other hardcoded engine claims.

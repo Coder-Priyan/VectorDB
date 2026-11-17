@@ -889,13 +889,13 @@
                     </div>
                   </div>
 
-                  <!-- Memory & SIMD Specs Box -->
+                  <!-- Memory & Layout Specs Box -->
                   <div class="settings-section">
                     <div class="settings-section-title">Memory &amp; Layout Spec</div>
                     <div class="settings-spec-box">
                       <div class="settings-spec-row font-mono text-xs">
                         <span class="text-muted">Footprint / Vec:</span>
-                        <span class="text-secondary">512 Bytes (128 &times; float32)</span>
+                        <span class="text-secondary" id="settings-footprint-vec">512 Bytes (128 &times; float32)</span>
                       </div>
                       <div class="settings-spec-row font-mono text-xs">
                         <span class="text-muted">Distribution:</span>
@@ -905,7 +905,7 @@
                   </div>
 
                   <div class="settings-card-footer-note">
-                    <span class="text-muted text-xs">Index State: <span class="text-accent font-mono">Active &bull; SIMD Aligned</span></span>
+                    <span class="text-muted text-xs">Index State: <span class="text-accent font-mono">Active</span></span>
                   </div>
                 </div>
               </div>
@@ -980,7 +980,7 @@
                     <span class="settings-card-icon" aria-hidden="true">&#9889;</span>
                     <h2 class="settings-card-title">Engine &amp; Maintenance</h2>
                   </div>
-                  <span class="settings-card-badge">SIMD &bull; Tools</span>
+                  <span class="settings-card-badge">Tools</span>
                 </div>
 
                 <div class="settings-card-body">
@@ -989,7 +989,7 @@
                     <div class="settings-section-title">Hardware Acceleration</div>
                     <div class="settings-engine-diagnostics">
                       <div class="settings-diag-row">
-                        <span class="settings-diag-label text-muted text-xs">SIMD Kernel:</span>
+                        <span class="settings-diag-label text-muted text-xs">Optimization:</span>
                         <span id="settings-simd-status" class="settings-diag-val font-mono text-xs text-accent">Portable C++17 (compiler-optimized)</span>
                       </div>
                       <div class="settings-diag-row">

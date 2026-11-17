@@ -44,6 +44,7 @@ export function initSettingsTab() {
   const simdStatusEl = document.getElementById("settings-simd-status");
   const concurrencyStatusEl = document.getElementById("settings-concurrency-status");
   const memRatioStatusEl = document.getElementById("settings-mem-ratio-status");
+  const footprintVecEl = document.getElementById("settings-footprint-vec");
 
   function updateChatCount() {
     if (!chatsCountTextEl) return;
@@ -246,6 +247,13 @@ export function initSettingsTab() {
       if (concurrencyStatusEl) concurrencyStatusEl.textContent = engineDiag.concurrency;
       if (memRatioStatusEl) {
         memRatioStatusEl.textContent = `Vectors ~${engineDiag.vectorPct}% · Graph Edges ~${engineDiag.graphPct}%`;
+      }
+
+      // Wire real per-vector memory footprint from live dimension
+      if (footprintVecEl && config?.dimension) {
+        const dim = Number(config.dimension);
+        const bytes = dim * 4;
+        footprintVecEl.textContent = `${bytes} Bytes (${dim} \u00D7 float32)`;
       }
 
       // Update Chat History Count
