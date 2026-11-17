@@ -1,8 +1,18 @@
 # Project Progress
 
-Last updated: 2026-11-17 by SYNC-014
+Last updated: 2026-11-17 by T-104 sync
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform
+
+- **T-104**: Beginner-friendly README rewrite (text only, honest claims) on branch `main`.
+  - **Goal**: Restructure `README.md` for student learners to install, run, and understand vector databases, spatial search, HNSW, and glass-box RAG in ~5 minutes.
+  - Sections structured in exact required sequence: What is this and who is it for; What You Will Learn; Setup in 5 Minutes (Windows); Ollama Setup; Tab Guide; Honest Limitations; Project Layout; License.
+  - Clarified that Explore, HNSW, and Compare operate on synthetic Demo vectors without Ollama; only Ask requires Ollama.
+  - Limitations explicitly include: HNSW slower than Brute Force on small collections (ISS-004), local LLM hallucinations (ISS-001), CPU generation latency 10-30s (ISS-027), in-memory storage unless `--data-dir` is passed, no authentication/TLS (ISS-007).
+  - Explicitly stated Windows (MSYS2 UCRT64 / MSVC) is the only verified platform; Linux/macOS unverified.
+  - Zero mentions of SIMD/AVX/FMA/Docker; zero image/screenshot links; short simple sentences.
+  - Verified build commands match `docs/PROJECT_CONTEXT.md` Section 5.
+  - Docs note: Recorded Check 3 (footprint test, ISS-113) skipped by human on 2026-11-17 (stays OPEN); Checks 4 and 5 owed; Dockerfile blocked until both confirmed.
 
 - **SYNC-014**: Comprehensive documentation synchronization from Brain chat (2026-11-16/17) on branch `main`.
   - **DECISIONS.md**: Recorded ADR-093 through ADR-099: UI freeze & deferred visual polish, product repositioning as free open-source student learning platform (marketing website on hold), Ollama retention for Ask/RAG with zero cloud requirement, branch workflow switch to `main` (fast-forward merge pushed), MIT copyright holder Coder-Priyan, mockup images retained in public history, containerization architecture (loopback bind 127.0.0.1:8080:8080, --host 0.0.0.0, volume for --data-dir, release zip alternative).

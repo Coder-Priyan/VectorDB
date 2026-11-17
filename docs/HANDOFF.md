@@ -20,29 +20,30 @@ The following checks must be performed by the human in their terminal / real bro
    - Verify label displays `"Optimization:"` (not `"SIMD Kernel:"`).
    - Verify per-vector memory footprint displays dynamically computed value.
    - Verify footer note displays `"Index State: Active"` (without `"SIMD Aligned"`).
-3. **Footprint Dynamic Recalculation Test**:
-   - In Settings tab Demo Collection form, set Dimension to `64`, click Reset Demo Collection.
-   - Observe Footprint / Vec row: expect `256 Bytes (64 × float32)`.
-   - Restore Dimension to `128` and reset to baseline.
-4. **GitHub Actions Ubuntu CI Job Screenshot (MOST IMPORTANT)**:
+3. **Footprint Dynamic Recalculation Test (ISS-113)**:
+   - *Status*: Check 3 (Dimension 64 footprint test, ISS-113) skipped by human on 2026-11-17; stays OPEN.
+   - When running: In Settings Demo form, set Dimension to `64`, click Reset Demo Collection, expect `256 Bytes (64 × float32)`, then restore `128`.
+4. **GitHub Actions Ubuntu CI Job Screenshot (MOST IMPORTANT - OWED)**:
    - Check GitHub repository Actions tab for the latest push (`4a096ed` on `main`).
    - Report whether the `linux-build` (Ubuntu Latest) job passed or failed, including step logs if failed.
-5. **Server `--host 0.0.0.0` Binding & Compare Test**:
+5. **Server `--host 0.0.0.0` Binding & Compare Test (OWED)**:
    - Start server with `.\build\vectordb_server.exe --host 0.0.0.0 --port 8080 --web-dir web`.
    - Open `http://localhost:8080/` in browser, navigate to Compare tab, run benchmark.
    - Report whether requests succeed or if Host/Origin pre-routing security checks trigger 403.
 
+> **NOTE**: Checks 4 and 5 are still owed; Dockerfile is blocked until both are confirmed.
+
 ---
 
 ## 3. Next Steps in Priority Order
-1. **Finish Pending Checks**: Complete all 5 human checks listed above.
+1. **Finish Pending Checks**: Checks 4 and 5 (Ubuntu CI result, `--host 0.0.0.0` test).
 2. **Dockerfile Task**: (Blocked until Ubuntu CI result and `--host 0.0.0.0` test results are verified).
-3. **README Beginner-Friendly Overhaul**:
-   - "What You Will Learn" overview (vector embeddings, spatial search, HNSW graph mechanics, glass-box RAG).
-   - "Setup in 5 Minutes" quickstart.
-   - Ollama installation and model pulling steps (`nomic-embed-text`, `llama3.2`).
-   - Clear disclosure that Explore, HNSW, and Compare operate on Demo vectors without Ollama.
-   - Honest performance disclosure: HNSW is slower than Brute Force on small collections ($N \le 100$) due to cache locality and constant factor overhead (ISS-004).
+3. **~~README Beginner-Friendly Overhaul~~** ✅ **Done (T-104)**:
+   - Structured for students: What is this, What You Will Learn, Setup in 5 Minutes (verified Windows commands), Ollama setup, Tab guide, Honest limitations, Project layout, License.
+   - Disclosed: Explore/HNSW/Compare work without Ollama; HNSW slower than Brute Force on small collections ($N \le 100$, ISS-004); hallucinations (ISS-001); CPU inference latency (ISS-027); in-memory storage; no auth/TLS (ISS-007); Windows-only confirmation.
+4. **Packaging & Distribution**: Author Docker container or pre-compiled Windows release `.zip` on GitHub Releases.
+5. **Interactive Curriculum / Learning Path**: Short guided documentation covering Brute Force baseline, KD-Tree orthogonal splits, and HNSW multi-layer navigation.
+6. **ISS-110 Decisions**: Human decision on remaining hardcoded strings (items 2, 4, 5, 6, 7).
    - UI screenshots.
 4. **Packaging & Distribution**: Author Docker container or pre-compiled Windows release `.zip` on GitHub Releases.
 5. **Interactive Curriculum / Learning Path**: Short guided documentation covering Brute Force baseline, KD-Tree orthogonal splits, and HNSW multi-layer navigation.
