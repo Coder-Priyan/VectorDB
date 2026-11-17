@@ -1,8 +1,20 @@
 # Project Progress
 
-Last updated: 2026-11-17 by T-108
+Last updated: 2026-11-17 by T-109
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform
+
+- **T-109**: Add README Docker section with honest, CI-verified claims on branch `main`.
+  - **README.md**:
+    - Updated platform status: "Windows is the developed and verified platform. Linux build and tests pass in GitHub Actions. macOS is unverified."
+    - Added "Run with Docker (optional)" section after Windows setup.
+    - Included exact commands from Dockerfile usage comment (`docker build -t vectordb .`, `docker run --rm -p 127.0.0.1:8080:8080 -v vectordb-data:/data vectordb`).
+    - Stated host loopback publication invariant (`127.0.0.1:8080:8080`, never plain `8080:8080`) and reason (server binds to `0.0.0.0` inside container, disabling Host-header check).
+    - Clarified Explore, HNSW, and Compare work without Ollama; Ask tab in Docker is labelled "untested, may need adjustment" with host Ollama requirements.
+    - Stated verification status honestly: image builds and starts in GitHub Actions (Linux); not run on author's machine. Zero SIMD/AVX/FMA mentions, zero images.
+  - **Documentation Sync**:
+    - `docs/HANDOFF.md`: Recorded packaging decision (Docker only for now; Windows release zip not planned). Docker CI-verified (run #6 green: build + smoke test). Dockerfile is CI-tested, not locally tested.
+    - `docs/KNOWN_ISSUES.md`: Updated ISS-112 to record Docker image build and smoke test passed in GitHub Actions run #6; fixed stale 'Last updated' header.
 
 - **T-108**: Fix Dockerfile non-root user UID clash on branch `main`.
   - **Issue**: docker-build CI run #5 failed at runtime stage step 2/6 with `useradd: UID 1000 is not unique` because the base image `ubuntu:24.04` ships with an existing default `ubuntu` user at UID 1000.

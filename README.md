@@ -10,7 +10,7 @@ VectorDB is an educational vector database built from scratch in C++17 with a ze
 
 It is made for students and developers who want to learn how vector search and RAG work under the hood. Most vector databases are black boxes that hide math, graph algorithms, and retrieval steps behind cloud APIs. VectorDB runs entirely on your local computer and makes every stage visible and inspectable.
 
-**Platform Status**: Windows (MSYS2 UCRT64 or MSVC) is the only confirmed and verified platform. Builds on Linux and macOS have not been verified.
+**Platform Status**: Windows is the developed and verified platform. Linux build and tests pass in GitHub Actions. macOS is unverified.
 
 ---
 
@@ -59,6 +59,30 @@ To enable persistence across server restarts, pass the `--data-dir` argument:
 ```powershell
 .\build\vectordb_server.exe --port 8080 --web-dir web --data-dir ./data
 ```
+
+---
+
+## Run with Docker (optional)
+
+If you prefer containers, you can build and run VectorDB with Docker:
+
+```bash
+docker build -t vectordb .
+docker run --rm -p 127.0.0.1:8080:8080 -v vectordb-data:/data vectordb
+```
+
+Then open your browser and go to:
+```text
+http://localhost:8080/
+```
+
+Always publish the port with `127.0.0.1:8080:8080` (never plain `8080:8080`). Inside the container the server listens on `0.0.0.0`, which turns off the loopback Host check, so the host port must stay loopback-only.
+
+The **Explore**, **HNSW**, and **Compare** tabs work in Docker without Ollama.
+
+The **Ask** tab inside Docker is untested, may need adjustment. It requires extra setup: the container must reach Ollama on the host via `--ollama-url http://host.docker.internal:11434` and `--allow-remote-ollama`, and Ollama on the host must accept outside connections via `OLLAMA_HOST`.
+
+**Verification**: The Docker image builds and starts in GitHub Actions (Linux). It has not been run on the author's own machine.
 
 ---
 

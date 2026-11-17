@@ -1,9 +1,9 @@
 # Project Handoff
 
-Last updated: 2026-11-17 by T-108
+Last updated: 2026-11-17 by T-109
 
-> **CURRENT STATUS**: Branch `main`. T-108 fixed Dockerfile UID clash (1000 -> 10001). Dockerfile stays UNTESTED until the CI docker-build job is green step by step. Ollama inside Docker: default container cannot reach host Ollama; needs `--ollama-url http://host.docker.internal:11434`, `--allow-remote-ollama` and host `OLLAMA_HOST`; README must say Ask tab needs this extra setup, other tabs work.
-> **CRITICAL PROTOCOL**: All 5 verification gates (Checks 1, 2, 4, 5) are confirmed DONE (Check 3 SKIPPED/OPEN as verification debt). Next focus: README platform statement, packaging, and student curriculum.
+> **CURRENT STATUS**: Branch `main`. Packaging decision (human, 2026-11-17): Docker only for now; Windows release zip not planned. Docker CI-verified (run #6 green: build + smoke test). Not verified: Ask inside Docker, named-volume persistence across restarts, any local docker run. Dockerfile no longer "untested"; it is CI-tested, not locally tested. README updated with honest Docker section and platform status (T-109).
+> **CRITICAL PROTOCOL**: All 5 initial verification gates (Checks 1, 2, 4, 5) and Docker CI (Check 6) are confirmed DONE (Check 3 SKIPPED/OPEN as verification debt). Next focus: interactive curriculum and ISS-110 string decisions.
 
 ---
 
@@ -33,18 +33,17 @@ Last updated: 2026-11-17 by T-108
    - Settings tab: inserted 100 random vectors via Demo form.
    - Compare tab: benchmark executed successfully across Brute Force, KD-Tree, and HNSW with zero 403 / CORS errors.
    - Unblocked Dockerfile task (T-106).
-6. **Docker CI Smoke Test (`docker-build` Job)** — ⏳ **PENDING PUSH / RUN (Post-T-108 Fix)**:
-   - docker-build CI run #5 failed at runtime stage step 2/6: `useradd: UID 1000 is not unique` (human screenshot 2026-11-17; `ubuntu:24.04` ships with default user `ubuntu` on UID 1000). Fixed in T-108 by changing `vectordb` user and group to UID/GID 10001.
-   - Dockerfile stays UNTESTED until the CI docker-build job is green step by step.
-   - Ollama inside Docker: default container cannot reach host Ollama; needs `--ollama-url http://host.docker.internal:11434`, `--allow-remote-ollama` and host `OLLAMA_HOST`; README must say Ask tab needs this extra setup, other tabs work.
+6. **Docker CI Smoke Test (`docker-build` Job)** — ✅ **DONE (CI Run #6)**:
+   - Packaging decision (human, 2026-11-17): Docker only for now; Windows release zip not planned.
+   - Docker CI-verified (GitHub Actions run #6 green: build + smoke test of `/` and `/api/health`).
+   - Not verified: Ask inside Docker, named-volume persistence across restarts, any local docker run.
+   - Dockerfile no longer "untested"; it is CI-tested, not locally tested.
 
 ---
 
 ## 3. Next Steps in Priority Order
-1. **Update README Platform Statement**: Update platform line to reflect Linux build + tests verified in CI only (macOS still unverified).
-2. **Packaging Decision**: Decide on Docker container vs Windows release `.zip` on GitHub Releases (or offering both).
-3. **Interactive Curriculum / Learning Path**: Short guided documentation covering Brute Force baseline, KD-Tree orthogonal splits, and HNSW multi-layer navigation.
-4. **ISS-110 Decisions**: Human decision on remaining hardcoded strings (items 2, 4, 5, 6, 7).
+1. **Interactive Curriculum / Learning Path**: Short guided documentation covering Brute Force baseline, KD-Tree orthogonal splits, and HNSW multi-layer navigation.
+2. **ISS-110 Decisions**: Human decision on remaining hardcoded strings (items 2, 4, 5, 6, 7).
 
 ---
 
