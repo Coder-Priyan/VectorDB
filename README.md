@@ -1,167 +1,97 @@
-# VectorDB: Semantic Search Engine & Glass-Box Learning Platform
+# VectorDB
 
-A transparent, offline vector database and Retrieval-Augmented Generation (RAG) learning tool.
-
----
-
-## What is this and who is it for
-
-VectorDB is an educational vector database built from scratch in C++17 with a zero-dependency web interface.
-
-It is made for students and developers who want to learn how vector search and RAG work under the hood. Most vector databases are black boxes that hide math, graph algorithms, and retrieval steps behind cloud APIs. VectorDB runs entirely on your local computer and makes every stage visible and inspectable.
-
-**Platform Status**: Windows is the developed and verified platform. Linux build and tests pass in GitHub Actions. macOS is unverified.
+A transparent vector database and Retrieval-Augmented Generation (RAG) learning platform in C++17.
 
 ---
 
-## What You Will Learn
+## What it is
 
-VectorDB lets you inspect and experiment with core semantic search concepts:
-
-- **Vector Embeddings**: How text turns into high-dimensional numerical coordinates.
-- **Spatial Search (Brute Force and KD-Tree)**: How exact linear scans compare against spatial trees that divide space with hyperplanes, and why high dimensions degrade tree pruning.
-- **HNSW Graph Mechanics**: How Hierarchical Navigable Small World graphs route queries across multiple layers using greedy hops and entry points.
-- **Glass-Box RAG**: How retrieval pipelines fetch context passages, calculate chunk similarity, format numbered citation prompts (`[1]`, `[2]`), and stream answers from a local language model.
+VectorDB is an educational vector database built from scratch in C++17 with a zero-dependency web interface. It includes exact linear scan, spatial tree partitioning, and multi-layer graph navigation alongside a transparent retrieval pipeline. Most vector databases are black boxes that hide search mechanics and generation steps behind cloud services. VectorDB runs on your local computer so you can inspect every distance evaluation, graph hop, and retrieval stage directly.
 
 ---
 
-## Setup in 5 Minutes (Windows)
+## What you will learn
 
-### Prerequisites
-- Windows 10 or 11
-- CMake 3.16+
-- Ninja build system
-- C++17 compiler (GCC via MSYS2 UCRT64 or MSVC 2019+)
+VectorDB is structured for studying core semantic search concepts:
 
-### Build and Run
-Open PowerShell in the project root directory and run these commands:
-
-```powershell
-# 1. Configure CMake (Release mode, Ninja generator)
-cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-
-# 2. Compile all targets
-cmake --build build
-
-# 3. Run automated C++ test suite (118 registered tests)
-.\build\vectordb_tests.exe
-
-# 4. Start REST API server with embedded static Web UI
-.\build\vectordb_server.exe --port 8080 --web-dir web
-```
-
-Open your web browser and go to:
-```text
-http://127.0.0.1:8080
-```
-
-To enable persistence across server restarts, pass the `--data-dir` argument:
-```powershell
-.\build\vectordb_server.exe --port 8080 --web-dir web --data-dir ./data
-```
+- Vector embeddings and distance metrics including Euclidean, Cosine, and Dot Product.
+- Exact nearest neighbor retrieval using Brute Force linear scans.
+- Space partitioning and median hyperplanes using flat-array KD-Trees.
+- Multi-layer proximity graph routing and beam search using HNSW graphs.
+- Grounded RAG pipelines with passage chunking, citation mapping, and local language model generation.
 
 ---
 
-## Run with Docker (optional)
+## Get started
 
-If you prefer containers, you can build and run VectorDB with Docker:
+Choose the installation method suited to your environment:
 
-```bash
-docker build -t vectordb .
-docker run --rm -p 127.0.0.1:8080:8080 -v vectordb-data:/data vectordb
-```
+- [Windows native setup](docs/INSTALL_WINDOWS.md) is for developers and students building directly from source with GCC.
+- [Docker setup](docs/INSTALL_DOCKER.md) is for users who want to run a pre-configured container without installing build tools.
 
-Then open your browser and go to:
-```text
-http://localhost:8080/
-```
-
-Always publish the port with `127.0.0.1:8080:8080` (never plain `8080:8080`). Inside the container the server listens on `0.0.0.0`, which turns off the loopback Host check, so the host port must stay loopback-only.
-
-The **Explore**, **HNSW**, and **Compare** tabs work in Docker without Ollama.
-
-The **Ask** tab inside Docker is untested, may need adjustment. It requires extra setup: the container must reach Ollama on the host via `--ollama-url http://host.docker.internal:11434` and `--allow-remote-ollama`, and Ollama on the host must accept outside connections via `OLLAMA_HOST`.
-
-**Verification**: The Docker image builds and starts in GitHub Actions (Linux). It has not been run on the author's own machine.
+The Explore, HNSW, and Compare tabs work on synthetic demo vectors without Ollama. Only the Ask tab requires a local Ollama model.
 
 ---
 
-## Ollama Setup
+## The five tabs
 
-**Important**: The **Explore**, **HNSW**, and **Compare** tabs work on synthetic Demo vectors **WITHOUT Ollama**. You do not need Ollama to study vector search algorithms.
+The web interface provides five dedicated views:
 
-Only the **Ask** tab (RAG question answering) requires Ollama.
-
-If you want to use the Ask tab:
-1. Install [Ollama](https://ollama.com/) on your computer.
-2. Make sure the Ollama service is running (`http://127.0.0.1:11434`).
-3. Open a terminal and pull the required models:
-```bash
-ollama pull nomic-embed-text
-ollama pull llama3.2
-```
+- **Ask**: RAG workspace for document question answering. You ingest text documents, ask questions, and inspect citation snippets, retrieval timings, and prompt construction.
+- **Explore**: 2D projection canvas. It projects high-dimensional vectors onto a two-dimensional plane using matrix-free Principal Component Analysis (PCA) and displays nearest neighbors for queries.
+- **HNSW**: Proximity graph inspector. You can view graph nodes by layer, verify connectivity invariants, and trace greedy search paths across layers.
+- **Compare**: Search benchmark suite. It runs a query across Brute Force, KD-Tree, and HNSW on all three algorithms to compare latency, distance computations, and recall.
+- **Settings**: System health and configuration dashboard. You can inspect server status, generate synthetic vectors, adjust index parameters, and manage persistence storage.
 
 ---
 
-## Tab Guide
+## How it works
 
-The web interface has 5 tabs:
-
-- **Ask**: RAG chat workspace. Ingest plain text documents, ask questions, and inspect citation snippets, retrieval timings, and algorithm choices.
-- **Explore**: 2D projection canvas. Uses matrix-free Principal Component Analysis (PCA) to project vectors onto a 2D plane with neighbor links.
-- **HNSW**: Multi-layer proximity graph viewer. View graph nodes by layer and trace search paths step by step.
-- **Compare**: Algorithm benchmark suite. Runs a search query through Brute Force, KD-Tree, and HNSW on all three algorithms to compare latency, distance evaluations, and recall.
-- **Settings**: System health and configuration. Inspect server status, insert random demo vectors, view memory usage, and manage local chat history.
+VectorDB consists of a core C++17 library, an embedded HTTP server, and a web interface written in HTML5 and ES6. All vector math, spatial indexing, and persistence routines run in local memory and disk without external package managers. For document text embeddings and question answering, the server connects over HTTP to a local Ollama daemon. The entire application runs offline with zero telemetry and zero cloud dependencies.
 
 ---
 
-## Honest Limitations
+## Honest limitations
 
-VectorDB is designed as an educational tool, not an enterprise production database:
+VectorDB is designed as an educational tool rather than a distributed production database:
 
-1. **HNSW vs Brute Force on Small Data**: On small collections (such as 100 vectors), Brute Force is faster than HNSW (ISS-004). Flat arrays stay in CPU cache and avoid graph traversal overhead. HNSW's advantage grows with collection size. On random high-dimensional data the speedup can stay small even at 20,000 vectors (ISS-004).
-2. **Local LLM Hallucinations**: Small local language models (like Llama 3.2 3B) can hallucinate facts or misread retrieved chunks (ISS-001).
-3. **CPU Generation Latency**: On standard CPU hardware, generating full answers through local LLM inference takes 10 to 30 seconds (ISS-027).
-4. **In-Memory Storage by Default**: Collections are stored in RAM by default. If you stop the server without `--data-dir`, data is reset on next run.
-5. **No Authentication or TLS**: The server is designed for local loopback use (`127.0.0.1`). There are no user accounts, passwords, or HTTPS encryption (ISS-007).
+1. **Small collection speed**: On small collections (such as 100 vectors), Brute Force is faster than HNSW. Flat arrays stay in cache and avoid graph traversal overhead. HNSW advantage grows with collection size. On random high-dimensional data the speedup can stay small even at 20,000 vectors.
+2. **Local model accuracy**: Small local language models (such as Llama 3.2 3B) can hallucinate statements or misread retrieved passages.
+3. **CPU generation latency**: Generating full answers through local language model inference on standard CPU hardware typically takes 10 to 30 seconds.
+4. **In-memory storage by default**: Vector collections reside in RAM by default. Data resets on server restart unless you pass the data directory argument.
+5. **No authentication or TLS**: The server is designed for local loopback use. It does not provide user accounts, passwords, or transport encryption.
+6. **Platform status**: Windows is the developed and verified platform. Linux build and tests pass in GitHub Actions. macOS is unverified.
 
 ---
 
-## Project Layout
+## Project layout
 
 ```text
 vectordb/
-├── CMakeLists.txt              # CMake build configuration (C++17)
+├── CODE_OF_CONDUCT.md          # Contributor code of conduct
+├── CONTRIBUTING.md             # Development guidelines
+├── Dockerfile                  # Container build specification
 ├── LICENSE                     # MIT License
-├── README.md                   # Project overview and instructions
-├── include/vectordb/           # C++ public interface headers
-│   ├── brute_force.hpp         # Exact linear search index
-│   ├── kd_tree.hpp             # Contiguous array KD-Tree index
-│   ├── hnsw.hpp                # Hierarchical Navigable Small World index
-│   ├── collection.hpp          # Multi-index collection manager
-│   ├── pca.hpp                 # Matrix-free 2D PCA projection
-│   ├── chunker.hpp             # UTF-8 sentence boundary chunking
-│   ├── ollama_client.hpp       # Local Ollama HTTP client
-│   └── rag.hpp                 # Grounded RAG pipeline
+├── README.md                   # Project overview
+├── docs/                       # Documentation
+│   ├── API.md                  # REST API reference
+│   ├── INSTALL_DOCKER.md       # Docker container setup guide
+│   ├── INSTALL_WINDOWS.md      # Windows native setup guide
+│   ├── LEARNING_GUIDE.md       # 6-module vector search curriculum
+│   └── screenshots/            # UI screenshots
+├── include/vectordb/           # C++ header files
+├── samples/                    # Sample evaluation files and texts
+├── scripts/                    # Web safety and verification scripts
 ├── src/                        # C++ implementation files
-│   ├── server_main.cpp         # HTTP server entry point
-│   ├── main.cpp                # CLI demo benchmark executable
-│   └── ...
-├── tests/                      # Automated C++ unit tests (118 tests)
-├── third_party/                # Vendored single headers (httplib.h, json.hpp)
-├── web/                        # Zero-dependency browser interface
-│   ├── index.html              # Single page application
-│   ├── tests.html              # In-browser unit test runner
-│   ├── css/app.css             # Theme stylesheet
-│   └── js/                     # Frontend ES6 JavaScript modules
-├── docs/                       # Project documentation
-│   └── LEARNING_GUIDE.md       # 6-module vector search curriculum
-└── scripts/
-    └── check_web_safety.ps1    # Automated DOM security and CSP scanner
+├── tests/                      # C++ unit tests
+├── third_party/                # Header-only dependencies
+└── web/                        # Browser UI assets
 ```
 
 ---
 
-## License
+## Contributing and license
+
+Contributions are welcome. Review [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) before submitting changes.
 
 VectorDB is open-source software licensed under the [MIT License](LICENSE). Copyright (c) 2026 Coder-Priyan.
