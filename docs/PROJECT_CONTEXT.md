@@ -212,19 +212,27 @@ powershell -ExecutionPolicy Bypass -File .\scripts\check_web_safety.ps1
     - In T-102, the acceptance verification pattern (`AVX2|FMA|Cosine SIMD`) was too narrow, missing remaining visible SIMD occurrences such as `"SIMD Kernel:"`, `"SIMD • Tools"`, and `"Active • SIMD Aligned"`. Acceptance criteria must always mandate broad root-word grep (e.g. `SIMD`) across all web assets to prevent latent cosmetic inaccuracies.
 95. **Lesson (Owed Browser Checks Post-Push)**:
     - In T-103, changes were pushed to remote `main` before real browser test verification was completed. Headless checks and unit test counters are informative, but real browser `/tests.html` execution by the human remains an owed quality gate.
+96. **Lesson (Judging CI Jobs with continue-on-error)**:
+    - A green checkmark on a GitHub Actions CI job configured with `continue-on-error: true` (such as `linux-build`) can mask step failures. A CI job with this attribute must always be judged by its internal step list (verifying that "Configure CMake", "Build VectorDB", and "Run Test Suite" individually succeeded), not merely the top-level job icon.
+97. **Lesson (Grep Differentiation: Internal Identifiers vs Visible UI Text)**:
+    - Text searching via `Select-String` / `grep` matches all occurrences including variable names, DOM element IDs (`settings-simd-status`), and JSDoc comment blocks. When auditing for deprecated or prohibited strings (e.g. `SIMD`), always differentiate internal identifiers and code documentation from user-visible UI strings before reporting an issue as a defect.
+98. **Lesson (Brain Verification of Builder Claims & Real File Review)**:
+    - The Brain must treat builder reports as claims rather than definitive proof. Before committing or authorizing a push, the Brain must independently read the actual modified file text (such as `README.md`) to verify accuracy, alignment with issue trackers (e.g. ISS-004), and exact adherence to specifications.
 
 ---
 
-## 7. Verification Status (as of 2026-11-17 SYNC-014)
+## 7. Verification Status (as of 2026-11-17 SYNC-015)
 
 > [!IMPORTANT]
-> **Verification State (SYNC-014)**:
-> - **Human-Confirmed on 2026-11-17 by Terminal**:
+> **Verification State (SYNC-015)**:
+> - **Human-Confirmed on 2026-11-17 by Terminal & Screenshots**:
 >   - Current branch: `main` (intentional, merged from `ui-redesign-v4` by fast-forward).
->   - HEAD: `4a096ed` (T-103 commit), pushed to remote origin (`548e081..4a096ed`), preceded by `b2ed009` (T-102), `548e081` (T-100), and `cd88ee4` (T-099).
->   - Visible SIMD text in `web/index.html` and `web/js/*.js`: **completely removed** (`Select-String` returns 0 visible UI strings).
->   - Web safety automated scanner: 29 files scanned, 100% clean (zero forbidden DOM APIs, strict CSP verified).
->   - Earlier browser verification: `/tests.html` **190/190 passed** (confirmed 2026-11-16 22:26 before T-102/T-103; post-T-103 browser run is owed).
+>   - HEAD: `d7b8bd4` (T-105 commit), pushed to remote origin (`4a096ed..d7b8bd4`), preceded by `987c911` (T-104) and `4a096ed` (T-103).
+>   - Grep verification: `Select-String -Path web\js\*.js,web\index.html -Pattern 'SIMD'` gives exactly 6 matches, strictly internal code names or JSDoc comments (`settings-simd-status` ID, `simdStatusEl`, `simdStatus`, 2 JSDoc comments); zero visible UI claims.
+>   - Real browser `/tests.html`: **190/190 passed** (confirmed 2026-11-17 09:08, post-T-103).
+>   - Settings UI screenshot (1920x1080 100% zoom, 09:09): Shows label `"Optimization:"`, `"Index State: Active"`, and `"Footprint / Vec: 512 Bytes (128 × float32)"`.
+>   - GitHub Actions run #4 (commit `d7b8bd4`, 2026-11-17): Ubuntu Build & Test (Linux) green, steps "Configure CMake", "Build VectorDB", and "Run Test Suite" all passed; Windows Build & Test (UCRT64) green including Web Safety Scanner. (Not seen: exact test count line in Ubuntu "Run Test Suite" log. Linux build + hermetic tests confirmed in CI only; macOS remains unverified).
+>   - Check 5 (`--host 0.0.0.0` test) remains the sole owed verification gate before Dockerfile task.
 > - **Collaboration Preferences**:
 >   - Human wants a clean SYNC now and will continue in a new chat.
 >   - Communication style: short, direct Hinglish; one question at a time.

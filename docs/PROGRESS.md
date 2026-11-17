@@ -1,8 +1,15 @@
 # Project Progress
 
-Last updated: 2026-11-17 by T-105 sync
+Last updated: 2026-11-17 by SYNC-015
 
 ## 1. Current Phase: VectorDB v2 Glass-Box Chat & Learning Platform
+
+- **SYNC-015**: Documentation synchronization & handoff preparation (MODE: RESUME) on branch `main`.
+  - **HANDOFF.md**: Refreshed to record Check 1 (git state, SIMD grep zero visible claims) DONE; Check 2 (/tests.html 190/190, Settings 1920x1080 screenshot) DONE; Check 3 (footprint test, ISS-113) SKIPPED/OPEN; Check 4 (GitHub Actions run #4 Ubuntu and Windows green) DONE; Check 5 (`--host 0.0.0.0` test) STILL OWED as the sole blocking gate before Dockerfile task.
+  - **PROJECT_CONTEXT.md**: Updated Section 7 verification state with human confirmations (HEAD `d7b8bd4` pushed, `/tests.html` 190/190, Settings screenshot, CI run #4); added Lessons 96–98 (judging CI jobs with `continue-on-error` by step list, grep differentiation between code identifiers and UI strings, Brain verification of builder claims via real file review).
+  - **KNOWN_ISSUES.md**: Updated ISS-112 to PARTIALLY CONFIRMED (Linux build + tests passed in GitHub Actions CI run #4); kept ISS-113 OPEN; added ISS-115 (Settings section header "Hardware Acceleration" cosmetic wording, deferred) and ISS-116 (README Compare repetitive phrasing, cosmetic); updated next free number to ISS-117.
+  - **DECISIONS.md**: Added process note recording T-104 and T-105 README rewrite, ISS-004 speedup wording alignment, and verified 6-module count of `LEARNING_GUIDE.md`.
+  - **PROGRESS.md**: Confirmed entries for T-104, T-105, and SYNC-015.
 
 - **T-105**: README accuracy fixes on branch `main`.
   - **Goal**: Address Brain review findings on inaccurate or unverified statements in `README.md`.

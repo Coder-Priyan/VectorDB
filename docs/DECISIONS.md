@@ -550,3 +550,13 @@ Last updated: 2026-11-16 by T-072 sync
     4. A Docker volume mount must be allocated for `--data-dir` persistence.
     5. Alternative distribution: A portable Windows release `.zip` on GitHub Releases remains an active co-option. The choice between Docker and pre-compiled zip (or offering both) remains open.
   - **Consequences**: Precludes accidental remote network exposure; establishes security invariants for containerization; defers container implementation until CI verification is established.
+
+---
+
+## Process Note (2026-11-17): README Overhaul & Accuracy Verification (T-104 & T-105)
+
+- **README Overhaul (T-104)**: Restructured `README.md` into a beginner-friendly, educational guide for student learners (sections: What is this, What You Will Learn, Setup in 5 Minutes, Ollama Setup, Tab Guide, Honest Limitations, Project Layout, License). All commands verified against `docs/PROJECT_CONTEXT.md` Section 5. Zero mentions of SIMD/AVX/FMA/Docker.
+- **Accuracy Refinements (T-105)**: Brain review identified three statements requiring precision alignment:
+  1. Replaced the speculative claim "HNSW requires thousands of vectors to outperform linear scan" with accurate empirical ISS-004 behavior: "HNSW's advantage grows with collection size. On random high-dimensional data the speedup can stay small even at 20,000 vectors (ISS-004)."
+  2. Clarified Compare tab search description from "simultaneously" to "on all three algorithms".
+  3. Verified `docs/LEARNING_GUIDE.md` on disk: confirmed exact count of 6 modules (`Module 1` through `Module 6`), matching the `6-module vector search curriculum` layout note.
